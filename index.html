@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>最強のボス戦 - 3D RPG</title>
+<style>
+  html, body { margin:0; padding:0; overflow:hidden; background:#000; font-family: "Yu Gothic", "Meiryo", sans-serif; }
+  canvas { display:block; }
+
+  #ui {
+    position:fixed; top:0; left:0; width:100%; pointer-events:none;
+    color:#fff; text-shadow: 1px 1px 2px #000;
+  }
+  .bar-wrap { position:absolute; padding:10px 16px; }
+  #player-wrap { top:10px; left:10px; }
+  #boss-wrap { top:10px; right:10px; text-align:right; }
+  .name { font-size:18px; font-weight:bold; margin-bottom:4px; }
+  .hpbar-bg {
+    width:280px; height:22px; background:rgba(0,0,0,0.6);
+    border:2px solid #ddd; border-radius:4px; overflow:hidden;
+  }
+  .hpbar-fill { height:100%; transition: width 0.25s ease-out; }
+  #player-hp { background: linear-gradient(#5fd35f, #2a9d2a); }
+  #boss-hp { background: linear-gradient(#e04a4a, #a02020); float:right; }
+  #boss-wrap .hpbar-bg { float:right; }
+
+  #center-msg {
+    position:absolute; top:40%; left:50%; transform:translate(-50%,-50%);
+    font-size:48px; font-weight:bold; color:#ffd; text-shadow: 2px 2px 6px #000;
+    display:none;
+  }
+
+  #hud-bottom {
+    position:absolute; bottom:20px; left:0; width:100%;
+    display:flex; justify-content:center; gap:14px; pointer-events:auto;
+  }
+  .action-btn {
+    padding:14px 22px; font-size:16px; font-weight:bold; color:#fff;
+    background: rgba(20,20,40,0.75); border:2px solid #888; border-radius:8px;
+    cursor:pointer; user-select:none; transition: transform 0.1s, background 0.1s;
+  }
+  .action-btn:hover { background: rgba(60,60,100,0.85); transform: translateY(-2px); }
+  .action-btn:active { transform: translateY(1px); }
+  .action-btn.cool { opacity:0.4; pointer-events:none; }
+  .action-btn small { display:block; font-weight:normal; font-size:11px; opacity:0.8; }
+
+  #info {
+    position:absolute; bottom:100px; left:50%; transform:translateX(-50%);
+    color:#ffe; font-size:14px; text-align:center; opacity:0.85;
+  }
+
+  #start-screen, #end-screen {
+    position:fixed; inset:0; background:rgba(0,0,0,0.88);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    color:#fff; z-index:10; text-align:center;
+  }
+  #start-screen h1 { font-size:42px; margin-bottom:10px; color:#ffd75e; text-shadow:2px 2px 8px #000; }
+  #start-screen p { max-width:600px; line-height:1.6; opacity:0.9; }
+  .big-btn {
+    margin-top:24px; padding:16px 40px; font-size:22px; font-weight:bold;
+    background:#c0392b; color:#fff; border:none; border-radius:8px; cursor:pointer;
+  }
+  .big-btn:hover { background:#e74c3c; }
+  #end-screen { display:none; }
+  #end-title { font-size:56px; font-weight:bold; margin-bottom:20px; }
+
+  #log {
+    position:absolute; bottom:170px; left:50%; transform:translateX(-50%);
+    width:420px; max-height:90px; overflow:hidden; font-size:13px;
+    color:#eee; text-align:center; pointer-events:none; opacity:0.85;
+  }
+</style>
+</head>
+<body>
+
+<div id="start-screen">
+  <h1>⚔ 最強のボス戦 ⚔</h1>
+  <p>
+    あなたは一人の戦士。仲間はいない。<br>
+    この世界最強のボス「デスタイタン」が目の前に立ちはだかる。<br>
+    攻撃・強攻撃・防御・回復を駆使して勝利をつかめ！
+  </p>
+  <button class="big-btn" id="start-btn">戦いを始める</button>
+</div>
+
+<div id="end-screen">
+  <div id="end-title"></div>
+  <button class="big-btn" id="retry-btn">もう一度挑む</button>
+</div>
+
+<div id="ui">
+  <div class="bar-wrap" id="player-wrap">
+    <div class="name">あなた (勇者)</div>
+    <div class="hpbar-bg"><div class="hpbar-fill" id="player-hp" style="width:100%"></div></div>
+  </div>
+  <div class="bar-wrap" id="boss-wrap">
+    <div class="name">デスタイタン（最強のボス）</div>
+    <div class="hpbar-bg"><div class="hpbar-fill" id="boss-hp" style="width:100%"></div></div>
+  </div>
+  <div id="center-msg"></div>
+  <div id="log"></div>
+  <div id="info">攻撃でダメージ、強攻撃は隙が大きい、防御でダメージ軽減、回復でHP回復（使用回数制限あり）</div>
+  <div id="hud-bottom">
+    <div class="action-btn" id="btn-attack">攻撃<small>通常ダメージ</small></div>
+    <div class="action-btn" id="btn-heavy">強攻撃<small>大ダメージ / 反撃を受けやすい</small></div>
+    <div class="action-btn" id="btn-guard">防御<small>被ダメージ半減</small></div>
+    <div class="action-btn" id="btn-heal">回復<small>残り <span id="heal-count">3</span> 回</small></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
+<script>
+/* ============ Three.js シーン構築 ============ */
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0a18);
+scene.fog = new THREE.Fog(0x0a0a18, 15, 45);
+
+const camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 200);
+camera.position.set(0, 4, 11);
+camera.lookAt(0, 2, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+document.body.appendChild(renderer.domElement);
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ライト
+const ambient = new THREE.AmbientLight(0x556080, 0.9);
+scene.add(ambient);
+const dirLight = new THREE.DirectionalLight(0xffe9c0, 1.1);
+dirLight.position.set(5, 12, 8);
+dirLight.castShadow = true;
+scene.add(dirLight);
+const bossGlow = new THREE.PointLight(0xff2222, 1.5, 20);
+bossGlow.position.set(0, 3, -6);
+scene.add(bossGlow);
+
+// 床
+const floorMat = new THREE.MeshStandardMaterial({ color: 0x2a2a35, roughness: 0.9 });
+const floor = new THREE.Mesh(new THREE.CylinderGeometry(14, 14, 0.5, 48), floorMat);
+floor.position.y = -0.25;
+floor.receiveShadow = true;
+scene.add(floor);
+
+// 溶岩っぽいリング装飾
+const ringMat = new THREE.MeshStandardMaterial({ color: 0xff4400, emissive: 0xff2200, emissiveIntensity: 0.6 });
+const ring = new THREE.Mesh(new THREE.TorusGeometry(13.2, 0.15, 8, 64), ringMat);
+ring.rotation.x = Math.PI/2;
+ring.position.y = 0.02;
+scene.add(ring);
+
+/* ---------- プレイヤー(3D人型) ---------- */
+function makePlayer() {
+  const group = new THREE.Group();
+  const skin = new THREE.MeshStandardMaterial({ color: 0xe0b088 });
+  const armor = new THREE.MeshStandardMaterial({ color: 0x3355cc, metalness:0.4, roughness:0.4 });
+
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), skin);
+  head.position.y = 1.75;
+  head.castShadow = true;
+  group.add(head);
+
+  const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.32, 0.9, 12), armor);
+  torso.position.y = 1.15;
+  torso.castShadow = true;
+  group.add(torso);
+
+  const armGeo = new THREE.CylinderGeometry(0.11, 0.11, 0.75, 8);
+  const armL = new THREE.Mesh(armGeo, skin);
+  armL.position.set(-0.55, 1.2, 0);
+  armL.rotation.z = 0.25;
+  armL.castShadow = true;
+  group.add(armL);
+
+  const armR = new THREE.Mesh(armGeo, skin);
+  armR.position.set(0.55, 1.2, 0);
+  armR.rotation.z = -0.25;
+  armR.castShadow = true;
+  group.add(armR);
+
+  const legGeo = new THREE.CylinderGeometry(0.14, 0.14, 0.85, 8);
+  const legMat = new THREE.MeshStandardMaterial({ color: 0x222244 });
+  const legL = new THREE.Mesh(legGeo, legMat);
+  legL.position.set(-0.2, 0.35, 0);
+  legL.castShadow = true;
+  group.add(legL);
+  const legR = new THREE.Mesh(legGeo, legMat);
+  legR.position.set(0.2, 0.35, 0);
+  legR.castShadow = true;
+  group.add(legR);
+
+  // 剣
+  const swordMat = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness:0.8, roughness:0.2 });
+  const sword = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.1, 0.08), swordMat);
+  sword.position.set(0.75, 1.3, 0.1);
+  sword.rotation.z = -0.5;
+  group.add(sword);
+  group.userData.sword = sword;
+  group.userData.armR = armR;
+
+  group.position.set(-3, 0, 2);
+  group.rotation.y = 0.3;
+  return group;
+}
+const player = makePlayer();
+scene.add(player);
+
+/* ---------- ボス(3D巨大モンスター) ---------- */
+function makeBoss() {
+  const group = new THREE.Group();
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x552233, roughness:0.6, emissive:0x220000, emissiveIntensity:0.3 });
+  const hornMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness:0.4 });
+  const eyeMat = new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 2 });
+
+  const torso = new THREE.Mesh(new THREE.CylinderGeometry(1.3, 1.0, 2.6, 16), bodyMat);
+  torso.position.y = 2.4;
+  torso.castShadow = true;
+  group.add(torso);
+
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.85, 20, 20), bodyMat);
+  head.position.y = 4.2;
+  head.castShadow = true;
+  group.add(head);
+
+  const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.12,8,8), eyeMat);
+  eyeL.position.set(-0.3, 4.3, 0.7);
+  group.add(eyeL);
+  const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.12,8,8), eyeMat);
+  eyeR.position.set(0.3, 4.3, 0.7);
+  group.add(eyeR);
+
+  const hornGeo = new THREE.ConeGeometry(0.15, 0.9, 8);
+  const hornL = new THREE.Mesh(hornGeo, hornMat);
+  hornL.position.set(-0.5, 4.9, 0);
+  hornL.rotation.z = 0.4;
+  group.add(hornL);
+  const hornR = new THREE.Mesh(hornGeo, hornMat);
+  hornR.position.set(0.5, 4.9, 0);
+  hornR.rotation.z = -0.4;
+  group.add(hornR);
+
+  const armGeo = new THREE.CylinderGeometry(0.35, 0.3, 2.2, 10);
+  const armL = new THREE.Mesh(armGeo, bodyMat);
+  armL.position.set(-1.7, 2.6, 0);
+  armL.rotation.z = 0.5;
+  armL.castShadow = true;
+  group.add(armL);
+  const armR = new THREE.Mesh(armGeo, bodyMat);
+  armR.position.set(1.7, 2.6, 0);
+  armR.rotation.z = -0.5;
+  armR.castShadow = true;
+  group.add(armR);
+  group.userData.armR = armR;
+  group.userData.armL = armL;
+
+  const legGeo = new THREE.CylinderGeometry(0.4, 0.4, 1.6, 10);
+  const legMat = new THREE.MeshStandardMaterial({ color: 0x331118 });
+  const legL = new THREE.Mesh(legGeo, legMat);
+  legL.position.set(-0.6, 0.8, 0);
+  legL.castShadow = true;
+  group.add(legL);
+  const legR = new THREE.Mesh(legGeo, legMat);
+  legR.position.set(0.6, 0.8, 0);
+  legR.castShadow = true;
+  group.add(legR);
+
+  group.position.set(3, 0, -3);
+  group.rotation.y = -0.5;
+  group.scale.set(1.0, 1.0, 1.0);
+  return group;
+}
+const boss = makeBoss();
+scene.add(boss);
+
+/* ============ ゲームロジック ============ */
+const state = {
+  playerHP: 100, playerMaxHP: 100,
+  bossHP: 260, bossMaxHP: 260,
+  healUses: 3,
+  guarding: false,
+  playing: false,
+  turnBusy: false,
+};
+
+const playerHPEl = document.getElementById('player-hp');
+const bossHPEl = document.getElementById('boss-hp');
+const healCountEl = document.getElementById('heal-count');
+const centerMsg = document.getElementById('center-msg');
+const logEl = document.getElementById('log');
+
+function updateBars() {
+  playerHPEl.style.width = Math.max(0, state.playerHP/state.playerMaxHP*100) + '%';
+  bossHPEl.style.width = Math.max(0, state.bossHP/state.bossMaxHP*100) + '%';
+  healCountEl.textContent = state.healUses;
+}
+
+function log(msg) {
+  logEl.textContent = msg;
+}
+
+function showCenterMsg(text, ms=900) {
+  centerMsg.textContent = text;
+  centerMsg.style.display = 'block';
+  clearTimeout(showCenterMsg._t);
+  showCenterMsg._t = setTimeout(() => centerMsg.style.display = 'none', ms);
+}
+
+function rand(min, max) { return Math.random()*(max-min)+min; }
+
+// 攻撃アニメーション（腕・体を振る）
+function animateSwing(obj, part, duration=300) {
+  const startRot = part.rotation.z;
+  const t0 = performance.now();
+  function step(t) {
+    const p = Math.min(1, (t - t0)/duration);
+    const swing = Math.sin(p*Math.PI) * -1.2;
+    part.rotation.z = startRot + swing;
+    if (p < 1) requestAnimationFrame(step);
+    else part.rotation.z = startRot;
+  }
+  requestAnimationFrame(step);
+}
+
+function flashHit(mesh) {
+  mesh.traverse(c => {
+    if (c.material && c.material.emissive) {
+      const orig = c.material.emissive.getHex();
+      c.material.emissive.setHex(0xffffff);
+      setTimeout(() => c.material.emissive.setHex(orig), 120);
+    }
+  });
+}
+
+function setButtonsEnabled(enabled) {
+  document.querySelectorAll('.action-btn').forEach(b => {
+    if (enabled) b.classList.remove('cool');
+    else b.classList.add('cool');
+  });
+}
+
+function endCheck() {
+  if (state.bossHP <= 0) {
+    state.bossHP = 0; updateBars();
+    finishGame(true);
+    return true;
+  }
+  if (state.playerHP <= 0) {
+    state.playerHP = 0; updateBars();
+    finishGame(false);
+    return true;
+  }
+  return false;
+}
+
+function finishGame(won) {
+  state.playing = false;
+  const endScreen = document.getElementById('end-screen');
+  const title = document.getElementById('end-title');
+  if (won) {
+    title.textContent = '🎉 勝利！最強のボスを倒した！ 🎉';
+    title.style.color = '#5fd35f';
+  } else {
+    title.textContent = '💀 敗北... 💀';
+    title.style.color = '#e04a4a';
+  }
+  endScreen.style.display = 'flex';
+}
+
+function bossTurn() {
+  if (!state.playing) return;
+  const move = Math.random();
+  animateSwing(boss, boss.userData.armR, 400);
+  setTimeout(() => {
+    let dmg;
+    let msg;
+    if (move < 0.25) {
+      dmg = Math.round(rand(5, 10));
+      msg = `デスタイタンの薙ぎ払い！ ${dmg} ダメージ`;
+    } else if (move < 0.55) {
+      dmg = Math.round(rand(10, 18));
+      msg = `デスタイタンの強打！ ${dmg} ダメージ`;
+    } else {
+      dmg = Math.round(rand(20, 32));
+      msg = `デスタイタンの渾身の一撃！！ ${dmg} ダメージ`;
+    }
+    if (state.guarding) {
+      dmg = Math.round(dmg/2);
+      msg += '（防御で軽減）';
+    }
+    state.playerHP -= dmg;
+    updateBars();
+    flashHit(player);
+    log(msg);
+    state.guarding = false;
+    if (!endCheck()) {
+      state.turnBusy = false;
+      setButtonsEnabled(true);
+    }
+  }, 400);
+}
+
+function playerAction(type) {
+  if (!state.playing || state.turnBusy) return;
+  state.turnBusy = true;
+  setButtonsEnabled(false);
+  state.guarding = false;
+
+  if (type === 'attack') {
+    animateSwing(player, player.userData.armR, 250);
+    setTimeout(() => {
+      const dmg = Math.round(rand(8, 15));
+      state.bossHP -= dmg;
+      updateBars();
+      flashHit(boss);
+      log(`あなたの攻撃！ ${dmg} ダメージ`);
+      showCenterMsg('ATTACK!', 500);
+      if (!endCheck()) setTimeout(bossTurn, 500);
+    }, 250);
+  } else if (type === 'heavy') {
+    animateSwing(player, player.userData.armR, 500);
+    setTimeout(() => {
+      const success = Math.random() > 0.15;
+      if (success) {
+        const dmg = Math.round(rand(20, 32));
+        state.bossHP -= dmg;
+        updateBars();
+        flashHit(boss);
+        log(`強攻撃が炸裂！ ${dmg} ダメージ！`);
+        showCenterMsg('CRITICAL!', 700);
+      } else {
+        log('強攻撃は外れてしまった...！');
+        showCenterMsg('MISS...', 700);
+      }
+      if (!endCheck()) setTimeout(bossTurn, 500);
+    }, 500);
+  } else if (type === 'guard') {
+    state.guarding = true;
+    log('防御の構え。次のダメージを軽減する。');
+    showCenterMsg('GUARD', 500);
+    setTimeout(bossTurn, 400);
+  } else if (type === 'heal') {
+    if (state.healUses <= 0) {
+      log('回復はもう使えない！');
+      state.turnBusy = false;
+      setButtonsEnabled(true);
+      return;
+    }
+    state.healUses--;
+    const heal = Math.round(rand(20, 32));
+    state.playerHP = Math.min(state.playerMaxHP, state.playerHP + heal);
+    updateBars();
+    log(`回復！ HPが ${heal} 回復した。`);
+    showCenterMsg('HEAL', 500);
+    setTimeout(bossTurn, 500);
+  }
+}
+
+document.getElementById('btn-attack').addEventListener('click', () => playerAction('attack'));
+document.getElementById('btn-heavy').addEventListener('click', () => playerAction('heavy'));
+document.getElementById('btn-guard').addEventListener('click', () => playerAction('guard'));
+document.getElementById('btn-heal').addEventListener('click', () => playerAction('heal'));
+
+document.getElementById('start-btn').addEventListener('click', () => {
+  document.getElementById('start-screen').style.display = 'none';
+  state.playing = true;
+  updateBars();
+  log('戦闘開始！ デスタイタンが咆哮を上げた！');
+});
+
+document.getElementById('retry-btn').addEventListener('click', () => {
+  state.playerHP = state.playerMaxHP;
+  state.bossHP = state.bossMaxHP;
+  state.healUses = 3;
+  state.guarding = false;
+  state.turnBusy = false;
+  updateBars();
+  setButtonsEnabled(true);
+  document.getElementById('end-screen').style.display = 'none';
+  state.playing = true;
+  log('再戦開始！');
+});
+
+/* ============ アイドルアニメーション & レンダリング ============ */
+let t = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  t += 0.02;
+  player.position.y = Math.sin(t*1.5) * 0.03;
+  boss.position.y = Math.sin(t*0.8) * 0.06;
+  boss.rotation.y = -0.5 + Math.sin(t*0.3)*0.05;
+  bossGlow.intensity = 1.3 + Math.sin(t*2)*0.3;
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>
