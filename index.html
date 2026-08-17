@@ -113,11 +113,55 @@
     pointer-events:none; opacity:0.95; display:flex; flex-direction:column-reverse; gap:2px;
   }
   .log-line { opacity:0.9; }
+
+  #login-screen {
+    position:fixed; inset:0; background:radial-gradient(circle at 50% 40%, #241428, #05050a);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    color:#fff; z-index:20; text-align:center; padding:20px; box-sizing:border-box;
+  }
+  #login-screen h1 { font-size:36px; margin-bottom:6px; color:#ffd75e; text-shadow:2px 2px 8px #000; }
+  #login-screen .sub { opacity:0.75; font-size:13px; margin-bottom:24px; }
+  #login-box {
+    background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15);
+    border-radius:12px; padding:32px 36px; width:320px; max-width:88vw;
+  }
+  .login-field { text-align:left; margin-bottom:16px; }
+  .login-field label { display:block; font-size:12px; opacity:0.8; margin-bottom:5px; }
+  .login-field input {
+    width:100%; box-sizing:border-box; padding:10px 12px; font-size:15px;
+    background:rgba(0,0,0,0.4); border:1px solid #555; border-radius:6px; color:#fff;
+  }
+  .login-field input:focus { outline:none; border-color:#ffd75e; }
+  #login-error {
+    color:#ff6b6b; font-size:13px; min-height:18px; margin-bottom:6px;
+  }
+  #login-btn {
+    width:100%; margin-top:6px; padding:13px; font-size:17px; font-weight:bold;
+    background:#c0392b; color:#fff; border:none; border-radius:8px; cursor:pointer;
+  }
+  #login-btn:hover { background:#e74c3c; }
 </style>
 </head>
 <body>
 
-<div id="start-screen">
+<div id="login-screen">
+  <h1>⚔ 最強のボス戦 ⚔</h1>
+  <div class="sub">プレイするにはログインが必要です</div>
+  <div id="login-box">
+    <div class="login-field">
+      <label for="login-user">アカウント名</label>
+      <input type="text" id="login-user" autocomplete="username" placeholder="アカウント名">
+    </div>
+    <div class="login-field">
+      <label for="login-pass">パスワード</label>
+      <input type="password" id="login-pass" autocomplete="current-password" placeholder="パスワード">
+    </div>
+    <div id="login-error"></div>
+    <button id="login-btn">ログイン</button>
+  </div>
+</div>
+
+<div id="start-screen" style="display:none;">
   <h1>⚔ 最強のボス戦 ⚔</h1>
   <p>
     あなたは一人の戦士。仲間はいない。<br>
@@ -931,6 +975,34 @@ function playerAction(type) {
     spawnDamageNumber(player.position.clone().add(new THREE.Vector3(0,2.2,0)), `+${heal}`, '#5fd35f', true);
     setTimeout(bossTurn, 500);
   }
+}
+
+/* ============================================================
+   ログインゲート
+   ============================================================ */
+const VALID_USER = 'burukasu19';
+const VALID_PASS = 'sibou';
+
+function tryLogin() {
+  const user = document.getElementById('login-user').value;
+  const pass = document.getElementById('login-pass').value;
+  const errorEl = document.getElementById('login-error');
+  if (user === VALID_USER && pass === VALID_PASS) {
+    errorEl.textContent = '';
+    sessionStorage.setItem('loggedIn', '1');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('start-screen').style.display = 'flex';
+  } else {
+    errorEl.textContent = 'アカウント名またはパスワードが違います';
+  }
+}
+document.getElementById('login-btn').addEventListener('click', tryLogin);
+document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+document.getElementById('login-user').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+
+if (sessionStorage.getItem('loggedIn') === '1') {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('start-screen').style.display = 'flex';
 }
 
 document.getElementById('btn-attack').addEventListener('click', () => playerAction('attack'));
