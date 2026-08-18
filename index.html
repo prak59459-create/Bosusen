@@ -2,65 +2,82 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a12">
 <title>最強のボス戦 - 3D RPG</title>
 <style>
-  html, body { margin:0; padding:0; overflow:hidden; background:#000; font-family: "Yu Gothic", "Meiryo", sans-serif; }
-  canvas { display:block; }
+  * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+  html, body {
+    margin:0; padding:0; overflow:hidden; background:#000;
+    font-family: "Yu Gothic", "Hiragino Sans", "Meiryo", sans-serif;
+    width:100%; height:100%; position:fixed; overscroll-behavior:none;
+    -webkit-user-select:none; user-select:none;
+  }
+  canvas { display:block; touch-action:none; }
+  button, .action-btn, #dodge-btn, .big-btn, #login-btn { touch-action:manipulation; }
 
   #ui { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; color:#fff; }
 
-  .bar-wrap { position:absolute; padding:10px 16px; text-shadow: 1px 1px 3px #000; }
-  #player-wrap { top:10px; left:10px; width:300px; }
-  #boss-wrap { top:10px; right:10px; width:340px; text-align:right; }
+  .bar-wrap {
+    position:absolute; padding:clamp(8px,2vw,10px) clamp(10px,3vw,16px);
+    text-shadow: 1px 1px 3px #000;
+    top: max(10px, env(safe-area-inset-top));
+  }
+  #player-wrap { left: max(10px, env(safe-area-inset-left)); width: clamp(160px, 42vw, 300px); }
+  #boss-wrap { right: max(10px, env(safe-area-inset-right)); width: clamp(170px, 46vw, 340px); text-align:right; }
 
-  .name-row { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+  .name-row { display:flex; align-items:center; gap:6px; margin-bottom:4px; flex-wrap:wrap; }
   #boss-wrap .name-row { justify-content:flex-end; }
-  .name { font-size:17px; font-weight:bold; }
-  .lv { font-size:11px; background:#443; padding:1px 6px; border-radius:3px; }
-  .phase-tag { font-size:11px; background:#a00; padding:1px 6px; border-radius:3px; display:none; animation: pulse 1s infinite; }
+  .name { font-size:clamp(13px,3.6vw,17px); font-weight:bold; }
+  .lv { font-size:clamp(9px,2.6vw,11px); background:#443; padding:1px 6px; border-radius:3px; white-space:nowrap; }
+  .phase-tag { font-size:clamp(9px,2.6vw,11px); background:#a00; padding:1px 6px; border-radius:3px; display:none; animation: pulse 1s infinite; white-space:nowrap; }
   @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
 
-  .stat-bar-bg { width:100%; height:16px; background:rgba(0,0,0,0.6); border:2px solid #ddd; border-radius:4px; overflow:hidden; margin-bottom:3px; position:relative; }
+  .stat-bar-bg { width:100%; height:clamp(12px,3.2vw,16px); background:rgba(0,0,0,0.6); border:2px solid #ddd; border-radius:4px; overflow:hidden; margin-bottom:3px; position:relative; }
   .stat-bar-fill { height:100%; transition: width 0.3s ease-out; }
   #player-hp-fill { background: linear-gradient(#5fd35f, #2a9d2a); }
   #boss-hp-fill { background: linear-gradient(#e04a4a, #a02020); float:right; }
   #boss-wrap .stat-bar-bg { direction:rtl; }
-  .stat-bar-bg.small { height:10px; }
+  .stat-bar-bg.small { height:clamp(8px,2.2vw,10px); }
   #player-mp-fill { background: linear-gradient(#5eb6ff, #2277cc); }
   #player-stam-fill { background: linear-gradient(#ffd75e, #d9a520); }
-  .stat-label { font-size:10px; opacity:0.85; }
+  .stat-label { font-size:clamp(9px,2.4vw,10px); opacity:0.85; }
 
   .combo-display {
-    position:absolute; top:130px; left:10px; font-size:22px; font-weight:bold;
+    position:absolute; top:clamp(100px,24vw,130px); left: max(10px, env(safe-area-inset-left));
+    font-size:clamp(18px,5vw,22px); font-weight:bold;
     color:#ffd75e; text-shadow:2px 2px 4px #000; display:none;
   }
 
   #telegraph {
-    position:absolute; top:22%; left:50%; transform:translate(-50%,-50%);
-    font-size:30px; font-weight:bold; color:#ff5555; text-shadow: 2px 2px 8px #000;
-    display:none; text-align:center;
+    position:absolute; top:20%; left:50%; transform:translate(-50%,-50%);
+    font-size:clamp(20px,6vw,30px); font-weight:bold; color:#ff5555; text-shadow: 2px 2px 8px #000;
+    display:none; text-align:center; width:92vw;
   }
-  #telegraph .sub { font-size:14px; color:#fff; margin-top:6px; }
+  #telegraph .sub { font-size:clamp(11px,3.4vw,14px); color:#fff; margin-top:6px; }
 
   #center-msg {
-    position:absolute; top:40%; left:50%; transform:translate(-50%,-50%);
-    font-size:46px; font-weight:bold; color:#ffd; text-shadow: 2px 2px 6px #000;
-    display:none; pointer-events:none;
+    position:absolute; top:38%; left:50%; transform:translate(-50%,-50%);
+    font-size:clamp(28px,9vw,46px); font-weight:bold; color:#ffd; text-shadow: 2px 2px 6px #000;
+    display:none; pointer-events:none; white-space:nowrap;
   }
 
   #dodge-zone {
-    position:absolute; top:55%; left:50%; transform:translate(-50%,-50%);
+    position:absolute; top:56%; left:50%; transform:translate(-50%,-50%);
     display:none; flex-direction:column; align-items:center; pointer-events:auto;
   }
-  #dodge-ring-wrap { width:140px; height:140px; position:relative; }
+  #dodge-ring-wrap { width:clamp(120px,34vw,150px); height:clamp(120px,34vw,150px); position:relative; }
   #dodge-ring-bg { width:100%; height:100%; border-radius:50%; border:5px solid rgba(255,255,255,0.25); box-sizing:border-box; }
-  #dodge-ring-target { position:absolute; top:50%; left:50%; width:34px; height:34px; margin:-17px; border-radius:50%; background:rgba(255,220,80,0.85); box-shadow:0 0 12px #ffd75e; }
+  #dodge-ring-target { position:absolute; top:50%; left:50%; width:30%; height:30%; margin-left:-15%; margin-top:-15%; border-radius:50%; background:rgba(255,220,80,0.85); box-shadow:0 0 12px #ffd75e; }
   #dodge-ring-shrink { position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; border:5px solid #ff4444; box-sizing:border-box; }
   #dodge-btn {
-    margin-top:14px; padding:10px 26px; font-size:18px; font-weight:bold; color:#111;
-    background:#ffd75e; border:none; border-radius:6px; cursor:pointer;
+    margin-top:14px; padding:clamp(14px,3.6vw,16px) clamp(30px,8vw,40px); font-size:clamp(18px,5vw,22px); font-weight:bold; color:#111;
+    background:#ffd75e; border:none; border-radius:8px; cursor:pointer; min-height:52px;
   }
-  #dodge-label { font-size:13px; color:#fff; margin-top:6px; text-shadow:1px 1px 3px #000; }
+  #dodge-label { font-size:clamp(13px,3.6vw,15px); color:#fff; margin-top:6px; text-shadow:1px 1px 3px #000; }
 
   .dmg-float {
     position:absolute; font-weight:bold; text-shadow:2px 2px 4px #000; pointer-events:none;
@@ -68,48 +85,52 @@
   }
 
   #hud-bottom {
-    position:absolute; bottom:18px; left:0; width:100%;
-    display:flex; justify-content:center; gap:12px; pointer-events:auto; flex-wrap:wrap;
+    position:absolute; bottom: max(14px, env(safe-area-inset-bottom)); left:0; width:100%;
+    display:flex; justify-content:center; gap:clamp(8px,2.4vw,14px); pointer-events:auto; flex-wrap:wrap;
+    padding: 0 max(8px, env(safe-area-inset-left)) 0 max(8px, env(safe-area-inset-right));
+    box-sizing:border-box;
   }
   .action-btn {
-    padding:12px 18px; font-size:15px; font-weight:bold; color:#fff;
-    background: rgba(20,20,40,0.8); border:2px solid #888; border-radius:8px;
+    padding:clamp(12px,3vw,16px) clamp(14px,4vw,22px); font-size:clamp(14px,3.8vw,17px); font-weight:bold; color:#fff;
+    background: rgba(20,20,40,0.85); border:2px solid #888; border-radius:10px;
     cursor:pointer; user-select:none; transition: transform 0.1s, background 0.1s;
-    min-width:90px; text-align:center;
+    min-width: clamp(84px, 17vw, 100px); min-height:52px; text-align:center;
   }
   .action-btn:hover { background: rgba(60,60,100,0.9); transform: translateY(-2px); }
-  .action-btn:active { transform: translateY(1px); }
+  .action-btn:active { transform: translateY(1px); background: rgba(80,80,130,0.95); }
   .action-btn.cool { opacity:0.35; pointer-events:none; }
   .action-btn.skill { border-color:#5eb6ff; }
   .action-btn.heal { border-color:#5fd35f; }
   .action-btn.heavy { border-color:#ff8844; }
-  .action-btn small { display:block; font-weight:normal; font-size:10.5px; opacity:0.85; margin-top:2px; }
+  .action-btn small { display:block; font-weight:normal; font-size:clamp(9.5px,2.6vw,11.5px); opacity:0.85; margin-top:3px; }
 
   #info {
-    position:absolute; bottom:96px; left:50%; transform:translateX(-50%);
-    color:#ffe; font-size:13px; text-align:center; opacity:0.9; width:90%;
+    position:absolute; bottom: calc(96px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%);
+    color:#ffe; font-size:clamp(11px,3vw,13px); text-align:center; opacity:0.9; width:92%;
   }
 
   #start-screen, #end-screen {
-    position:fixed; inset:0; background:rgba(0,0,0,0.9);
+    position:fixed; inset:0; background:rgba(0,0,0,0.92);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    color:#fff; z-index:10; text-align:center; padding:20px; box-sizing:border-box;
+    color:#fff; z-index:10; text-align:center;
+    padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+    box-sizing:border-box; overflow-y:auto;
   }
-  #start-screen h1 { font-size:42px; margin-bottom:10px; color:#ffd75e; text-shadow:2px 2px 8px #000; }
-  #start-screen p { max-width:640px; line-height:1.7; opacity:0.92; font-size:14px; }
+  #start-screen h1 { font-size:clamp(28px,7.5vw,42px); margin-bottom:10px; color:#ffd75e; text-shadow:2px 2px 8px #000; }
+  #start-screen p { max-width:640px; line-height:1.7; opacity:0.92; font-size:clamp(13px,3.4vw,14px); }
   .big-btn {
-    margin-top:22px; padding:16px 44px; font-size:22px; font-weight:bold;
-    background:#c0392b; color:#fff; border:none; border-radius:8px; cursor:pointer;
+    margin-top:22px; padding:clamp(16px,4vw,18px) clamp(36px,10vw,48px); font-size:clamp(19px,5vw,23px); font-weight:bold;
+    background:#c0392b; color:#fff; border:none; border-radius:10px; cursor:pointer; min-height:56px;
   }
   .big-btn:hover { background:#e74c3c; }
   #end-screen { display:none; }
-  #end-title { font-size:52px; font-weight:bold; margin-bottom:10px; }
-  #end-rank { font-size:26px; margin-bottom:6px; color:#ffd75e; }
-  #end-stats { font-size:14px; opacity:0.85; margin-bottom:10px; line-height:1.8; }
+  #end-title { font-size:clamp(32px,8.5vw,52px); font-weight:bold; margin-bottom:10px; }
+  #end-rank { font-size:clamp(20px,5.4vw,26px); margin-bottom:6px; color:#ffd75e; }
+  #end-stats { font-size:clamp(12px,3.4vw,14px); opacity:0.85; margin-bottom:10px; line-height:1.8; }
 
   #log-wrap {
-    position:absolute; bottom:160px; left:50%; transform:translateX(-50%);
-    width:460px; max-width:92vw; font-size:13px; color:#eee; text-align:center;
+    position:absolute; bottom: calc(150px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%);
+    width:460px; max-width:92vw; font-size:clamp(12px,3.2vw,13px); color:#eee; text-align:center;
     pointer-events:none; opacity:0.95; display:flex; flex-direction:column-reverse; gap:2px;
   }
   .log-line { opacity:0.9; }
@@ -117,29 +138,51 @@
   #login-screen {
     position:fixed; inset:0; background:radial-gradient(circle at 50% 40%, #241428, #05050a);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    color:#fff; z-index:20; text-align:center; padding:20px; box-sizing:border-box;
+    color:#fff; z-index:20; text-align:center;
+    padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+    box-sizing:border-box; overflow-y:auto;
   }
-  #login-screen h1 { font-size:36px; margin-bottom:6px; color:#ffd75e; text-shadow:2px 2px 8px #000; }
-  #login-screen .sub { opacity:0.75; font-size:13px; margin-bottom:24px; }
+  #login-screen h1 { font-size:clamp(26px,7vw,36px); margin-bottom:6px; color:#ffd75e; text-shadow:2px 2px 8px #000; }
+  #login-screen .sub { opacity:0.75; font-size:clamp(12px,3.2vw,13px); margin-bottom:24px; }
   #login-box {
     background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15);
-    border-radius:12px; padding:32px 36px; width:320px; max-width:88vw;
+    border-radius:14px; padding:clamp(24px,6vw,32px) clamp(24px,7vw,36px); width:340px; max-width:90vw;
   }
   .login-field { text-align:left; margin-bottom:16px; }
-  .login-field label { display:block; font-size:12px; opacity:0.8; margin-bottom:5px; }
+  .login-field label { display:block; font-size:clamp(12px,3.2vw,13px); opacity:0.8; margin-bottom:5px; }
   .login-field input {
-    width:100%; box-sizing:border-box; padding:10px 12px; font-size:15px;
-    background:rgba(0,0,0,0.4); border:1px solid #555; border-radius:6px; color:#fff;
+    width:100%; box-sizing:border-box; padding:13px 14px; font-size:16px;
+    background:rgba(0,0,0,0.4); border:1px solid #555; border-radius:8px; color:#fff;
   }
   .login-field input:focus { outline:none; border-color:#ffd75e; }
   #login-error {
-    color:#ff6b6b; font-size:13px; min-height:18px; margin-bottom:6px;
+    color:#ff6b6b; font-size:clamp(12px,3.2vw,13px); min-height:18px; margin-bottom:6px;
   }
   #login-btn {
-    width:100%; margin-top:6px; padding:13px; font-size:17px; font-weight:bold;
-    background:#c0392b; color:#fff; border:none; border-radius:8px; cursor:pointer;
+    width:100%; margin-top:6px; padding:15px; font-size:clamp(16px,4.2vw,18px); font-weight:bold;
+    background:#c0392b; color:#fff; border:none; border-radius:10px; cursor:pointer; min-height:52px;
   }
   #login-btn:hover { background:#e74c3c; }
+
+  @media (max-width: 700px), (max-height: 480px) {
+    #hud-bottom {
+      display:grid; grid-template-columns: repeat(3, 1fr); gap:8px;
+      width: calc(100% - 16px); margin: 0 8px; justify-content:stretch;
+      bottom: max(10px, env(safe-area-inset-bottom));
+    }
+    .action-btn { min-width:0; width:100%; box-sizing:border-box; padding:14px 6px; font-size:clamp(13px,4vw,16px); }
+    .action-btn:nth-child(4), .action-btn:nth-child(5) { grid-column: span 1; }
+    .action-btn small { font-size:clamp(9px,2.6vw,11px); }
+    #info { display:none; }
+    #log-wrap {
+      bottom: calc(210px + env(safe-area-inset-bottom)) !important; width:94vw;
+      max-height: 3.6em; overflow:hidden;
+    }
+    .log-line:nth-child(n+3) { display:none; }
+    #dodge-zone { top:40%; }
+    #telegraph { top:16%; }
+    .combo-display { top:118px; }
+  }
 </style>
 </head>
 <body>
@@ -204,7 +247,7 @@
     <div id="dodge-ring-wrap">
       <div id="dodge-ring-bg"></div>
       <div id="dodge-ring-target"></div>
-      <svg id="dodge-ring-shrink" width="140" height="140" style="position:absolute;top:0;left:0;">
+      <svg id="dodge-ring-shrink" viewBox="0 0 140 140" style="position:absolute;top:0;left:0;width:100%;height:100%;">
         <circle cx="70" cy="70" r="62" fill="none" stroke="#ff4444" stroke-width="5" stroke-dasharray="389.6" stroke-dashoffset="0" id="dodge-circle"/>
       </svg>
     </div>
@@ -247,14 +290,17 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x0a0a12);
 scene.fog = new THREE.Fog(0x0a0a12, 16, 50);
 
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
+
 const camera = new THREE.PerspectiveCamera(48, window.innerWidth/window.innerHeight, 0.1, 200);
 const camBase = new THREE.Vector3(0, 6.1, 16.5);
+const camLookAt = new THREE.Vector3(0, 2.1, -1.5);
 camera.position.copy(camBase);
-camera.lookAt(0, 2.1, -1.5);
+camera.lookAt(camLookAt);
 
 const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:'high-performance' });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 2.5 : 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -266,11 +312,33 @@ document.body.appendChild(renderer.domElement);
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.035).texture;
 
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth/window.innerHeight;
+/* ---------- 画面比率に応じたカメラ追従（縦画面のスマホでも人物が画面外にはみ出さないよう調整） ---------- */
+const BASE_FOV = 48;
+const BASE_ASPECT = 16 / 9;
+const BASE_HALF_HFOV = Math.atan(Math.tan(THREE.MathUtils.degToRad(BASE_FOV) / 2) * BASE_ASPECT);
+function fitCameraToViewport() {
+  const w = window.innerWidth, h = window.innerHeight;
+  const aspect = w / h;
+  camera.aspect = aspect;
+  // 横方向の画角(水平FOV)を基準の見え方に固定し、比率が変わっても人物が横に切れないようにする
+  let vFov = THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(BASE_HALF_HFOV) / aspect));
+  vFov = THREE.MathUtils.clamp(vFov, BASE_FOV, 100);
+  camera.fov = vFov;
+  // 縦長になるほど少し後ろに下げて全身が収まる余白を作る
+  const portraitFactor = aspect < 1 ? THREE.MathUtils.clamp(1 / aspect, 1, 2.1) : 1;
+  const dist = camBase.length() * (1 + (portraitFactor - 1) * 0.22);
+  const dir = camBase.clone().normalize();
+  camFittedPos.copy(dir.multiplyScalar(dist));
+  camera.position.copy(camFittedPos);
+  camera.lookAt(camLookAt);
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
+  renderer.setSize(w, h);
+}
+const camFittedPos = new THREE.Vector3().copy(camBase);
+fitCameraToViewport();
+window.addEventListener('resize', fitCameraToViewport);
+window.visualViewport && window.visualViewport.addEventListener('resize', fitCameraToViewport);
+screen.orientation && screen.orientation.addEventListener('change', () => setTimeout(fitCameraToViewport, 200));
 
 /* ---------- ライティング ---------- */
 const hemi = new THREE.HemisphereLight(0x88aaff, 0x221108, 0.55);
@@ -278,7 +346,7 @@ scene.add(hemi);
 const dirLight = new THREE.DirectionalLight(0xfff1d8, 2.4);
 dirLight.position.set(6, 13, 7);
 dirLight.castShadow = true;
-dirLight.shadow.mapSize.set(2048, 2048);
+dirLight.shadow.mapSize.set(isMobile ? 2048 : 4096, isMobile ? 2048 : 4096);
 dirLight.shadow.camera.left = -16;
 dirLight.shadow.camera.right = 16;
 dirLight.shadow.camera.top = 16;
@@ -311,8 +379,9 @@ function noise2D(seed) {
 }
 
 // 床: 石畳風のアルベド + ラフネスマップ
+const TEX_SIZE = isMobile ? 768 : 1024;
 function makeStoneTextures() {
-  const size = 512;
+  const size = TEX_SIZE;
   const albedoCanvas = makeCanvas(size);
   const ctx = albedoCanvas.getContext('2d');
   ctx.fillStyle = '#33313a';
@@ -374,7 +443,7 @@ function makeStoneTextures() {
 
 // 生物皮膚風テクスチャ（ボス用）
 function makeSkinTextures(baseHex) {
-  const size = 512;
+  const size = TEX_SIZE;
   const albedoCanvas = makeCanvas(size);
   const ctx = albedoCanvas.getContext('2d');
   const base = new THREE.Color(baseHex);
@@ -1305,14 +1374,14 @@ function animate() {
     shakeTime -= dt;
     const s = shakeMag * (shakeTime > 0 ? 1 : 0);
     camera.position.set(
-      camBase.x + rand(-s, s),
-      camBase.y + rand(-s, s),
-      camBase.z + rand(-s, s)
+      camFittedPos.x + rand(-s, s),
+      camFittedPos.y + rand(-s, s),
+      camFittedPos.z + rand(-s, s)
     );
   } else {
-    camera.position.copy(camBase);
+    camera.position.copy(camFittedPos);
   }
-  camera.lookAt(0, 2.1, -1.5);
+  camera.lookAt(camLookAt);
 
   renderer.render(scene, camera);
 }
