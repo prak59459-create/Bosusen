@@ -1,0 +1,248 @@
+* { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; box-sizing: border-box; }
+html, body {
+  margin:0; padding:0; overflow:hidden; background:#05040a;
+  font-family: "Yu Gothic", "Hiragino Sans", "Meiryo", sans-serif;
+  width:100%; height:100%; position:fixed; overscroll-behavior:none;
+  -webkit-user-select:none; user-select:none;
+}
+canvas { display:block; touch-action:none; }
+button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
+
+/* ============================================================
+   ローディング画面
+   ============================================================ */
+#loading-screen {
+  position:fixed; inset:0; z-index:50; background:#05040a;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  color:#fff; transition:opacity 0.6s ease;
+}
+#loading-screen.hidden { opacity:0; pointer-events:none; }
+.loading-title { font-size:clamp(32px,8vw,48px); font-weight:bold; letter-spacing:0.15em; color:#c9a6ff; text-shadow:0 0 20px rgba(180,100,255,0.6); }
+.loading-sub { font-size:clamp(12px,3vw,15px); letter-spacing:0.3em; opacity:0.7; margin-top:6px; margin-bottom:36px; }
+.loading-bar-wrap { width:min(320px,70vw); height:6px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden; }
+.loading-bar-fill { height:100%; width:0%; background:linear-gradient(90deg,#7744ff,#c9a6ff); transition:width 0.2s ease-out; }
+.loading-text { margin-top:14px; font-size:12px; opacity:0.6; }
+
+/* ============================================================
+   共通 HUD
+   ============================================================ */
+#ui { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; color:#fff; z-index:2; }
+
+.bar-wrap {
+  position:absolute; padding:clamp(8px,2vw,10px) clamp(10px,3vw,16px);
+  text-shadow: 1px 1px 3px #000;
+  top: max(10px, env(safe-area-inset-top));
+}
+#player-wrap { left: max(10px, env(safe-area-inset-left)); width: clamp(160px, 42vw, 300px); }
+#boss-wrap { right: max(10px, env(safe-area-inset-right)); width: clamp(170px, 46vw, 340px); text-align:right; }
+
+.name-row { display:flex; align-items:center; gap:6px; margin-bottom:4px; flex-wrap:wrap; }
+#boss-wrap .name-row { justify-content:flex-end; }
+.name { font-size:clamp(13px,3.6vw,17px); font-weight:bold; }
+.lv { font-size:clamp(9px,2.6vw,11px); background:rgba(120,80,220,0.35); border:1px solid rgba(180,140,255,0.4); padding:1px 6px; border-radius:3px; white-space:nowrap; }
+.phase-tag { font-size:clamp(9px,2.6vw,11px); background:#a00; padding:1px 6px; border-radius:3px; display:none; animation: pulse 1s infinite; white-space:nowrap; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+
+.stat-bar-bg { width:100%; height:clamp(12px,3.2vw,16px); background:rgba(0,0,0,0.6); border:2px solid #ddd; border-radius:4px; overflow:hidden; margin-bottom:3px; position:relative; }
+.stat-bar-fill { height:100%; position:relative; z-index:2; transition: width 0.3s ease-out; }
+.stat-bar-ghost { position:absolute; top:0; left:0; height:100%; z-index:1; background:#7a1414; transition: width 0.9s ease-out 0.25s; }
+.stat-bar-fill.hp { background: linear-gradient(#ff5a6b, #c81f37); }
+#boss-hp-fill { float:right; }
+#boss-wrap .stat-bar-bg { direction:rtl; }
+.stat-bar-bg.small { height:clamp(8px,2.2vw,10px); }
+.stat-bar-fill.mp { background: linear-gradient(#5eb6ff, #2277cc); }
+.stat-bar-fill.stam { background: linear-gradient(#ffd75e, #d9a520); }
+.stat-label { font-size:clamp(9px,2.4vw,10px); opacity:0.85; }
+
+.combo-display {
+  position:absolute; top:clamp(100px,24vw,130px); left: max(10px, env(safe-area-inset-left));
+  font-size:clamp(18px,5vw,22px); font-weight:bold;
+  color:#ffd75e; text-shadow:2px 2px 4px #000; display:none;
+}
+
+/* ============================================================
+   クエストトラッカー
+   ============================================================ */
+.quest-tracker {
+  position:absolute; top:clamp(150px,30vw,168px); left: max(10px, env(safe-area-inset-left));
+  background:rgba(15,10,25,0.55); border:1px solid rgba(180,140,255,0.25); border-radius:8px;
+  padding:8px 12px; max-width:min(240px,60vw); backdrop-filter: blur(6px);
+}
+.quest-tracker-title { font-size:11px; color:#c9a6ff; margin-bottom:4px; letter-spacing:0.1em; }
+.quest-tracker-row { font-size:11px; opacity:0.85; line-height:1.5; }
+
+#telegraph {
+  position:absolute; top:20%; left:50%; transform:translate(-50%,-50%);
+  font-size:clamp(20px,6vw,30px); font-weight:bold; color:#ff5555; text-shadow: 2px 2px 8px #000;
+  display:none; text-align:center; width:92vw;
+}
+#telegraph .sub { font-size:clamp(11px,3.4vw,14px); color:#fff; margin-top:6px; }
+
+#center-msg {
+  position:absolute; top:38%; left:50%; transform:translate(-50%,-50%);
+  font-size:clamp(28px,9vw,46px); font-weight:bold; color:#ffd; text-shadow: 2px 2px 6px #000;
+  display:none; pointer-events:none; white-space:nowrap;
+}
+
+#dodge-zone {
+  position:absolute; top:56%; left:50%; transform:translate(-50%,-50%);
+  display:none; flex-direction:column; align-items:center; pointer-events:auto;
+}
+#dodge-ring-wrap { width:clamp(120px,34vw,150px); height:clamp(120px,34vw,150px); position:relative; transition: filter 0.15s; }
+#dodge-ring-wrap.just-zone { filter: drop-shadow(0 0 14px #ffd75e); }
+#dodge-ring-bg { width:100%; height:100%; border-radius:50%; border:5px solid rgba(255,255,255,0.25); box-sizing:border-box; }
+#dodge-ring-wrap.just-zone #dodge-ring-bg { border-color: rgba(255,215,94,0.6); }
+#dodge-ring-target { position:absolute; top:50%; left:50%; width:30%; height:30%; margin-left:-15%; margin-top:-15%; border-radius:50%; background:rgba(255,220,80,0.85); box-shadow:0 0 12px #ffd75e; }
+#dodge-ring-shrink { position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; border:5px solid #ff4444; box-sizing:border-box; }
+#dodge-ring-wrap.just-zone #dodge-ring-shrink circle { stroke:#ffd75e; }
+#dodge-btn {
+  margin-top:14px; padding:clamp(14px,3.6vw,16px) clamp(30px,8vw,40px); font-size:clamp(18px,5vw,22px); font-weight:bold; color:#111;
+  background:#ffd75e; border:none; border-radius:8px; cursor:pointer; min-height:52px;
+}
+#dodge-label { font-size:clamp(13px,3.6vw,15px); color:#fff; margin-top:6px; text-shadow:1px 1px 3px #000; }
+
+.dmg-float {
+  position:absolute; font-weight:bold; text-shadow:2px 2px 4px #000; pointer-events:none;
+  transform:translate(-50%,-50%); white-space:nowrap;
+}
+
+#hud-bottom {
+  position:absolute; bottom: max(14px, env(safe-area-inset-bottom)); left:0; width:100%;
+  display:flex; justify-content:center; gap:clamp(8px,2.4vw,14px); pointer-events:auto; flex-wrap:wrap;
+  padding: 0 max(8px, env(safe-area-inset-left)) 0 max(8px, env(safe-area-inset-right));
+  box-sizing:border-box;
+}
+.action-btn {
+  padding:clamp(12px,3vw,16px) clamp(14px,4vw,22px); font-size:clamp(14px,3.8vw,17px); font-weight:bold; color:#fff;
+  background: rgba(20,14,30,0.85); border:2px solid #6a5a88; border-radius:10px;
+  cursor:pointer; user-select:none; transition: transform 0.1s, background 0.1s;
+  min-width: clamp(84px, 17vw, 100px); min-height:52px; text-align:center;
+}
+.action-btn:hover { background: rgba(70,50,110,0.9); transform: translateY(-2px); }
+.action-btn:active { transform: translateY(1px); background: rgba(90,60,140,0.95); }
+.action-btn.cool { opacity:0.35; pointer-events:none; }
+.action-btn.skill { border-color:#5eb6ff; }
+.action-btn.heal { border-color:#5fd35f; }
+.action-btn.heavy { border-color:#ff8844; }
+.action-btn small { display:block; font-weight:normal; font-size:clamp(9.5px,2.6vw,11.5px); opacity:0.85; margin-top:3px; }
+
+#menu-btn {
+  position:absolute; top: max(10px, env(safe-area-inset-top)); left:50%; transform:translateX(-50%);
+  width:40px; height:40px; border-radius:50%; border:1px solid rgba(255,255,255,0.3);
+  background:rgba(20,14,30,0.6); color:#fff; font-size:18px; cursor:pointer; pointer-events:auto;
+  backdrop-filter: blur(6px);
+}
+
+#info {
+  position:absolute; bottom: calc(96px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%);
+  color:#ffe; font-size:clamp(11px,3vw,13px); text-align:center; opacity:0.9; width:92%;
+}
+
+/* ============================================================
+   タイトル / ストーリー / クエストボード / 結果 画面
+   ============================================================ */
+#start-screen, #end-screen, #story-screen, #quest-board-screen {
+  position:fixed; inset:0; background:#07050d;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  color:#fff; z-index:10; text-align:center;
+  padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  box-sizing:border-box; overflow-y:auto;
+}
+#start-screen h1, #story-screen h1 { font-size:clamp(28px,7.5vw,44px); margin-bottom:10px; color:#c9a6ff; text-shadow:0 0 20px rgba(160,100,255,0.5); letter-spacing:0.08em; }
+#start-screen .tagline { opacity:0.7; font-size:clamp(12px,3.2vw,14px); margin-bottom:18px; letter-spacing:0.35em; }
+#start-screen p, #story-screen p { max-width:640px; line-height:1.8; opacity:0.92; font-size:clamp(13px,3.4vw,15px); white-space:pre-line; }
+.big-btn {
+  margin-top:18px; padding:clamp(16px,4vw,18px) clamp(36px,10vw,48px); font-size:clamp(19px,5vw,23px); font-weight:bold;
+  background: linear-gradient(135deg,#7744dd,#a855f7); color:#fff; border:none; border-radius:10px; cursor:pointer; min-height:56px;
+}
+.big-btn:hover { filter:brightness(1.15); }
+.big-btn.ghost { background:transparent; border:1px solid rgba(255,255,255,0.4); }
+.big-btn.small-btn { font-size:15px; padding:12px 28px; min-height:44px; margin-top:12px; width:100%; max-width:280px; }
+#end-screen { display:none; }
+#story-screen, #quest-board-screen { display:none; }
+#end-title { font-size:clamp(30px,8vw,46px); font-weight:bold; margin-bottom:10px; }
+#end-rank { font-size:clamp(20px,5.4vw,26px); margin-bottom:6px; color:#ffd75e; }
+#end-story { max-width:640px; line-height:1.8; opacity:0.88; font-size:clamp(13px,3.4vw,15px); margin-bottom:12px; white-space:pre-line; }
+#end-rewards { font-size:clamp(12px,3.2vw,14px); color:#c9a6ff; margin-bottom:8px; }
+#end-stats { font-size:clamp(12px,3.4vw,14px); opacity:0.85; margin-bottom:10px; line-height:1.8; }
+
+.chapter-tag {
+  display:inline-block; font-size:clamp(11px,3vw,13px); letter-spacing:0.15em;
+  color:#c9a6ff; background:rgba(140,90,255,0.14); border:1px solid rgba(180,140,255,0.4);
+  padding:4px 14px; border-radius:20px; margin-bottom:14px;
+}
+#quest-preview { font-size:13px; opacity:0.7; margin-top:10px; }
+
+.ending-choice-btn {
+  display:block; width:min(560px,92vw); margin:10px auto; padding:16px 20px; text-align:left;
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.2); border-radius:10px;
+  color:#fff; cursor:pointer;
+}
+.ending-choice-btn:hover:not(.locked) { background:rgba(140,90,255,0.18); border-color:#a855f7; }
+.ending-choice-btn.locked { opacity:0.4; cursor:not-allowed; }
+.ending-choice-title { font-size:16px; font-weight:bold; margin-bottom:4px; }
+.ending-choice-req { font-size:12px; color:#ff8888; }
+
+/* ---------- クエストボード ---------- */
+.qb-hint { max-width:600px; font-size:13px; opacity:0.75; margin-bottom:16px; }
+#qb-quest-list { width:min(640px,94vw); display:flex; flex-direction:column; gap:12px; margin-bottom:20px; max-height:48vh; overflow-y:auto; padding:4px; }
+.quest-card {
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); border-radius:10px;
+  padding:14px 16px; text-align:left;
+}
+.quest-card.done { opacity:0.6; border-color: rgba(120,220,140,0.4); }
+.quest-card-head { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.quest-type-tag { font-size:10px; background:rgba(140,90,255,0.25); border:1px solid rgba(180,140,255,0.4); padding:2px 8px; border-radius:10px; }
+.quest-card-title { font-weight:bold; font-size:15px; }
+.quest-card-desc { font-size:12.5px; opacity:0.8; margin-bottom:6px; }
+.quest-card-reward { font-size:11.5px; color:#ffd75e; margin-bottom:6px; }
+.quest-card-result { font-size:12px; color:#a6ffcb; margin-bottom:8px; white-space:pre-line; }
+.quest-card-btn {
+  padding:8px 18px; font-size:13px; font-weight:bold; background:#7744dd; color:#fff;
+  border:none; border-radius:6px; cursor:pointer;
+}
+.quest-card-btn:disabled { background:rgba(255,255,255,0.1); cursor:default; }
+
+#log-wrap {
+  position:absolute; bottom: calc(150px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%);
+  width:460px; max-width:92vw; font-size:clamp(12px,3.2vw,13px); color:#eee; text-align:center;
+  pointer-events:none; opacity:0.95; display:flex; flex-direction:column-reverse; gap:2px;
+}
+.log-line { opacity:0.9; }
+
+/* ============================================================
+   トースト通知
+   ============================================================ */
+#toast-wrap { position:fixed; top:60px; left:50%; transform:translateX(-50%); z-index:40; display:flex; flex-direction:column; gap:8px; pointer-events:none; }
+.toast {
+  padding:10px 20px; border-radius:20px; font-size:13px; font-weight:bold; color:#fff;
+  background:rgba(20,14,30,0.9); border:1px solid rgba(180,140,255,0.4);
+  opacity:0; transform:translateY(-10px); transition: opacity 0.3s, transform 0.3s;
+  backdrop-filter: blur(8px); white-space:nowrap;
+}
+.toast.show { opacity:1; transform:translateY(0); }
+.toast-quest { border-color:#ffd75e; }
+.toast-skill { border-color:#5eb6ff; }
+
+@media (max-width: 700px), (max-height: 480px) {
+  #hud-bottom {
+    display:grid; grid-template-columns: repeat(3, 1fr); gap:8px;
+    width: calc(100% - 16px); margin: 0 8px; justify-content:stretch;
+    bottom: max(10px, env(safe-area-inset-bottom));
+  }
+  .action-btn { min-width:0; width:100%; box-sizing:border-box; padding:14px 6px; font-size:clamp(13px,4vw,16px); }
+  .action-btn:nth-child(4), .action-btn:nth-child(5) { grid-column: span 1; }
+  .action-btn small { font-size:clamp(9px,2.6vw,11px); }
+  #info { display:none; }
+  #log-wrap {
+    bottom: calc(210px + env(safe-area-inset-bottom)) !important; width:94vw;
+    max-height: 3.6em; overflow:hidden;
+  }
+  .log-line:nth-child(n+3) { display:none; }
+  #dodge-zone { top:40%; }
+  #telegraph { top:16%; }
+  .combo-display { top:118px; }
+  .quest-tracker { display:none !important; }
+  #qb-quest-list { max-height:38vh; }
+  .quest-card { padding:12px 14px; }
+}
