@@ -1,0 +1,266 @@
+import * as THREE from 'three';
+import { camera, scene, setCameraMode } from './scene.js';
+import { player, crossfadeTo } from './player.js';
+import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
+  shopLocalPos, refreshZoneVisuals } from './world.js';
+import { CHAPTERS, ITEMS } from './data.js';
+import { state, isQuestDone, completeQuest, addShards, addItem,
+  fieldQuestState, acceptFieldQuest, markFieldTargetDefeated } from './state.js';
+import { showToast } from './ui.js';
+import { sfx } from './audio.js';
+
+/* ============================================================
+   オープンワールド探索 ―― WASD/仮想スティック移動＋三人称追従カメラ
+   ============================================================ */
+export let exploreActive = false;
+
+const localPos = new THREE.Vector3(HUB_SPAWN.x, 0, HUB_SPAWN.z);
+let facing = Math.PI; // 進行方向(ラジアン)
+const WALK_SPEED = 14;
+const SPRINT_SPEED = 34;
+const camOffset = new THREE.Vector3(0, 9, 19);
+const camCurrentPos = new THREE.Vector3();
+const camLookTarget = new THREE.Vector3();
+let camInit = false;
+
+const EXPLORE_FOG = { near: 260, far: 3200 };
+const BATTLE_FOG = { near: 20, far: 55 };
+
+const keys = { forward: false, back: false, left: false, right: false, sprint: false };
+let joyVec = { x: 0, y: 0 }; // タッチ用ベクトル(-1..1)
+
+window.addEventListener('keydown', (e) => {
+  if (!exploreActive) return;
+  if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.forward = true;
+  if (e.code === 'KeyS' || e.code === 'ArrowDown') keys.back = true;
+  if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = true;
+  if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = true;
+  if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.sprint = true;
+  if (e.code === 'KeyM' && onToggleMap) onToggleMap();
+});
+window.addEventListener('keyup', (e) => {
+  if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.forward = false;
+  if (e.code === 'KeyS' || e.code === 'ArrowDown') keys.back = false;
+  if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = false;
+  if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = false;
+  if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.sprint = false;
+});
+
+/* ---------- 仮想スティック(モバイル/マウスドラッグ両対応) ---------- */
+let joyBase = null, joyKnob = null, joyPointerId = null, joyOrigin = { x: 0, y: 0 };
+export function initJoystick() {
+  joyBase = document.getElementById('joy-base');
+  joyKnob = document.getElementById('joy-knob');
+  if (!joyBase || !joyKnob) return;
+
+  const onDown = (e) => {
+    if (!exploreActive) return;
+    joyPointerId = e.pointerId;
+    const rect = joyBase.getBoundingClientRect();
+    joyOrigin = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    joyBase.setPointerCapture(e.pointerId);
+    updateJoy(e.clientX, e.clientY);
+  };
+  const onMove = (e) => {
+    if (joyPointerId !== e.pointerId) return;
+    updateJoy(e.clientX, e.clientY);
+  };
+  const onUp = (e) => {
+    if (joyPointerId !== e.pointerId) return;
+    joyPointerId = null;
+    joyVec = { x: 0, y: 0 };
+    joyKnob.style.transform = 'translate(-50%, -50%)';
+  };
+  function updateJoy(cx, cy) {
+    const maxR = 42;
+    let dx = cx - joyOrigin.x, dy = cy - joyOrigin.y;
+    const dist = Math.min(maxR, Math.hypot(dx, dy));
+    const ang = Math.atan2(dy, dx);
+    dx = Math.cos(ang) * dist; dy = Math.sin(ang) * dist;
+    joyVec = { x: dx / maxR, y: dy / maxR };
+    joyKnob.style.transform = `translate(${dx - 21}px, ${dy - 21}px)`;
+  }
+  joyBase.addEventListener('pointerdown', onDown);
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onUp);
+  window.addEventListener('pointercancel', onUp);
+}
+
+/* ---------- コールバック ---------- */
+let onEnterZone = null;
+export function setOnEnterZone(fn) { onEnterZone = fn; }
+let onOpenShop = null;
+export function setOnOpenShop(fn) { onOpenShop = fn; }
+let onToggleMap = null;
+export function setOnToggleMap(fn) { onToggleMap = fn; }
+
+export function enterExploreMode(spawnLocal) {
+  exploreActive = true;
+  setCameraMode('explore');
+  camera.far = 6000;
+  camera.updateProjectionMatrix();
+  scene.fog.near = EXPLORE_FOG.near;
+  scene.fog.far = EXPLORE_FOG.far;
+  if (spawnLocal) localPos.copy(spawnLocal);
+  player.position.set(HUB_OFFSET.x + localPos.x, 0, HUB_OFFSET.z + localPos.z);
+  player.rotation.y = facing;
+  crossfadeTo('Idle', 0.2);
+  refreshZoneVisuals(state.chapterIndex);
+  camInit = false;
+  document.getElementById('explore-hud').style.display = 'flex';
+  document.getElementById('ui').classList.add('exploring');
+}
+
+export function exitExploreMode() {
+  exploreActive = false;
+  setCameraMode('battle');
+  camera.far = 200;
+  camera.updateProjectionMatrix();
+  scene.fog.near = BATTLE_FOG.near;
+  scene.fog.far = BATTLE_FOG.far;
+  keys.forward = keys.back = keys.left = keys.right = keys.sprint = false;
+  joyVec = { x: 0, y: 0 };
+  const hud = document.getElementById('explore-hud');
+  if (hud) hud.style.display = 'none';
+  document.getElementById('ui').classList.remove('exploring');
+}
+
+let wasMoving = false;
+let zoneHintShown = null;
+let npcHintShown = null;
+let targetHintShown = null;
+let shopHintShown = false;
+
+function tryTurnInOrAccept(giver) {
+  const chapterKey = CHAPTERS[giver.chapterIndex].key;
+  const fState = fieldQuestState(giver.questId);
+  if (isQuestDone(chapterKey, giver.questId)) {
+    showToast(`${giver.name}：「もう十分だ、ありがとう」`, 'info');
+    return;
+  }
+  if (fState === 'ready_turnin') {
+    completeQuest(chapterKey, giver.questId);
+    addShards(giver.quest.reward.shards);
+    if (giver.quest.reward.itemId) addItem(giver.quest.reward.itemId);
+    sfx.questDone();
+    showToast(`クエスト達成: ${giver.quest.title}（結晶の欠片 +${giver.quest.reward.shards}）`, 'quest');
+  } else if (fState === 'accepted') {
+    showToast(`${giver.name}：「まだ討伐が済んでいないようだ」`, 'info');
+  } else {
+    acceptFieldQuest(giver.questId);
+    showToast(`受注: ${giver.quest.title}｜${giver.quest.desc}`, 'quest');
+  }
+}
+
+function tryDefeatTarget(target) {
+  const fState = fieldQuestState(target.questId);
+  if (fState === 'accepted') {
+    markFieldTargetDefeated(target.questId);
+    target.material.emissiveIntensity = 0.1;
+    target.light.intensity = 0.2;
+    sfx.hit();
+    showToast('結晶獣を討伐した！依頼人の元へ戻ろう', 'quest');
+  }
+}
+
+export function updateExplore(dt) {
+  if (!exploreActive) return;
+
+  let mx = 0, mz = 0;
+  if (keys.forward) mz -= 1;
+  if (keys.back) mz += 1;
+  if (keys.left) mx -= 1;
+  if (keys.right) mx += 1;
+  mx += joyVec.x;
+  mz += joyVec.y;
+
+  const len = Math.hypot(mx, mz);
+  const moving = len > 0.08;
+  const speed = keys.sprint ? SPRINT_SPEED : WALK_SPEED;
+  if (moving) {
+    mx /= len; mz /= len;
+    const moveAng = Math.atan2(mx, mz);
+    facing = moveAng;
+    localPos.x += Math.sin(moveAng) * speed * dt;
+    localPos.z += Math.cos(moveAng) * speed * dt;
+    const r = Math.hypot(localPos.x, localPos.z);
+    if (r > WORLD_RADIUS - 4) {
+      const s = (WORLD_RADIUS - 4) / r;
+      localPos.x *= s; localPos.z *= s;
+    }
+    player.position.set(HUB_OFFSET.x + localPos.x, 0, HUB_OFFSET.z + localPos.z);
+    player.rotation.y = facing;
+  }
+  if (moving && !wasMoving) crossfadeTo('Walk', 0.15);
+  if (!moving && wasMoving) crossfadeTo('Idle', 0.25);
+  wasMoving = moving;
+
+  // 三人称追従カメラ
+  const behindAng = facing;
+  const desiredCamPos = new THREE.Vector3(
+    player.position.x - Math.sin(behindAng) * camOffset.z,
+    player.position.y + camOffset.y,
+    player.position.z - Math.cos(behindAng) * camOffset.z
+  );
+  if (!camInit) { camCurrentPos.copy(desiredCamPos); camInit = true; }
+  camCurrentPos.lerp(desiredCamPos, Math.min(1, dt * 5));
+  camera.position.copy(camCurrentPos);
+  camLookTarget.set(player.position.x, player.position.y + 1.6, player.position.z);
+  camera.lookAt(camLookTarget);
+
+  // ゾーン接近判定
+  let nearZone = null;
+  for (const z of zoneMarkers) {
+    if (Math.hypot(localPos.x - z.localPos.x, localPos.z - z.localPos.z) < z.radius) { nearZone = z; break; }
+  }
+  if (nearZone && zoneHintShown !== nearZone.key) {
+    zoneHintShown = nearZone.key;
+    if (nearZone.chapterIndex < state.chapterIndex) {
+      showToast(`${nearZone.name}：すでに平定済みの聖域だ`, 'info');
+    } else if (nearZone.chapterIndex > state.chapterIndex) {
+      showToast('まだこの先には進めない……', 'info');
+    } else if (onEnterZone) {
+      onEnterZone(nearZone.chapterIndex);
+    }
+  } else if (!nearZone) {
+    zoneHintShown = null;
+  }
+
+  // クエスト依頼人
+  let nearNpc = null;
+  for (const g of questGivers) {
+    if (Math.hypot(localPos.x - g.localPos.x, localPos.z - g.localPos.z) < g.radius) { nearNpc = g; break; }
+  }
+  if (nearNpc && npcHintShown !== nearNpc.questId) {
+    npcHintShown = nearNpc.questId;
+    tryTurnInOrAccept(nearNpc);
+  } else if (!nearNpc) {
+    npcHintShown = null;
+  }
+
+  // 討伐目標
+  let nearTarget = null;
+  for (const tgt of fieldTargets) {
+    if (Math.hypot(localPos.x - tgt.localPos.x, localPos.z - tgt.localPos.z) < tgt.radius) { nearTarget = tgt; break; }
+  }
+  if (nearTarget && targetHintShown !== nearTarget.questId) {
+    targetHintShown = nearTarget.questId;
+    tryDefeatTarget(nearTarget);
+  } else if (!nearTarget) {
+    targetHintShown = null;
+  }
+
+  // 商店
+  const nearShop = Math.hypot(localPos.x - shopLocalPos.x, localPos.z - shopLocalPos.z) < 4;
+  if (nearShop && !shopHintShown) {
+    shopHintShown = true;
+    if (onOpenShop) onOpenShop();
+  } else if (!nearShop) {
+    shopHintShown = false;
+  }
+}
+
+export function getExploreLocalPos() { return localPos; }
+export function setExploreLocalPos(v) { localPos.copy(v); }
+export function getPlayerLocalPos() { return localPos; }
+export function getZoneMarkersRef() { return zoneMarkers; }

@@ -29,9 +29,25 @@ export const state = {
   inventory: [], // array of item ids owned but not necessarily equipped
   unlockedSkills: [], // array of skill ids
   questProgress: {}, // { chapterKey: { questId: true } }
+  fieldQuests: {}, // { questId: 'accepted' | 'ready_turnin' }
   masterVolume: 0.7,
   quality: 'high',
 };
+
+export function fieldQuestState(questId) {
+  return state.fieldQuests[questId] || null;
+}
+export function acceptFieldQuest(questId) {
+  if (!state.fieldQuests[questId]) state.fieldQuests[questId] = 'accepted';
+}
+export function markFieldTargetDefeated(questId) {
+  if (state.fieldQuests[questId] === 'accepted') state.fieldQuests[questId] = 'ready_turnin';
+}
+export function spendShards(n) {
+  if (state.shards < n) return false;
+  state.shards -= n;
+  return true;
+}
 
 export function computeStats() {
   const base = levelStatsFor(state.level);
@@ -151,6 +167,7 @@ export function saveGame() {
       inventory: state.inventory,
       unlockedSkills: state.unlockedSkills,
       questProgress: state.questProgress,
+      fieldQuests: state.fieldQuests,
       masterVolume: state.masterVolume,
       savedAt: Date.now(),
     };
@@ -185,6 +202,7 @@ export function loadGame() {
       inventory: snap.inventory || [],
       unlockedSkills: snap.unlockedSkills || [],
       questProgress: snap.questProgress || {},
+      fieldQuests: snap.fieldQuests || {},
       masterVolume: (snap.masterVolume != null) ? snap.masterVolume : 0.7,
     });
     return true;

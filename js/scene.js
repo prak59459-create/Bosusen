@@ -24,6 +24,8 @@ export const camera = new THREE.PerspectiveCamera(48, window.innerWidth / window
 export const camBase = new THREE.Vector3(0, 6.1, 16.5);
 export const camLookAt = new THREE.Vector3(0, 2.1, -1.5);
 export const camFittedPos = new THREE.Vector3().copy(camBase);
+export let cameraMode = 'battle';
+export function setCameraMode(m) { cameraMode = m; }
 camera.position.copy(camBase);
 camera.lookAt(camLookAt);
 
@@ -169,8 +171,10 @@ export function fitCameraToViewport() {
   const dist = camBase.length() * (1 + (portraitFactor - 1) * 0.22);
   const dir = camBase.clone().normalize();
   camFittedPos.copy(dir.multiplyScalar(dist));
-  camera.position.copy(camFittedPos);
-  camera.lookAt(camLookAt);
+  if (cameraMode === 'battle') {
+    camera.position.copy(camFittedPos);
+    camera.lookAt(camLookAt);
+  }
   camera.updateProjectionMatrix();
   renderer.setSize(w, h);
   const pr = renderer.getPixelRatio();

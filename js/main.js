@@ -4,18 +4,30 @@ import * as EnemyModule from './enemy.js';
 import { spawnEnemy } from './enemy.js';
 import { updateParticles, updateShakeAndApplyCamera, triggerShake } from './effects.js';
 import { resumeAudio, sfx, setMasterVolume } from './audio.js';
-import { CHAPTERS } from './data.js';
-import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone } from './state.js';
+import { CHAPTERS, ITEMS } from './data.js';
+import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
-  renderQuestTracker, initMenu, refreshAllMenuTabs } from './ui.js';
+  renderQuestTracker, initMenu, refreshAllMenuTabs, showToast } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks } from './combat.js';
+import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS } from './world.js';
+import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
+  setOnOpenShop, setOnToggleMap, getPlayerLocalPos, exploreActive } from './explore.js';
 
 mountRenderer();
+initJoystick();
+
+const BATTLE_SPAWN_POS = { x: -2.6, y: 0, z: -1.2 };
+const BATTLE_SPAWN_ROT_Y = 0.35;
 
 /* ============================================================
-   物語の進行（タイトル → ストーリー → クエスト → 戦闘 → 結果）
+   物語の進行（タイトル → 探索 → ストーリー → クエスト → 戦闘 → 結果）
    ============================================================ */
+let pendingPrependText = null;
+
 function showStory(chapterIndex, prependText) {
+  exitExploreMode();
+  player.position.set(BATTLE_SPAWN_POS.x, BATTLE_SPAWN_POS.y, BATTLE_SPAWN_POS.z);
+  player.rotation.y = BATTLE_SPAWN_ROT_Y;
   const chapter = CHAPTERS[chapterIndex];
   els.storyChapterTag.textContent = chapter.sanctuaryLabel;
   els.storyTitle.textContent = chapter.title;
@@ -25,10 +37,154 @@ function showStory(chapterIndex, prependText) {
   setupChapterBattle(chapterIndex);
   document.getElementById('start-screen').style.display = 'none';
   document.getElementById('quest-board-screen').style.display = 'none';
+  document.getElementById('shop-screen').style.display = 'none';
+  document.getElementById('map-screen').style.display = 'none';
   els.endScreen.style.display = 'none';
   els.storyScreen.style.display = 'flex';
   saveGame();
 }
+
+function goExplore(spawnChapterIndex) {
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('story-screen').style.display = 'none';
+  document.getElementById('quest-board-screen').style.display = 'none';
+  els.endScreen.style.display = 'none';
+  if (spawnChapterIndex != null) {
+    const zonePos = zoneLocalPos(spawnChapterIndex);
+    enterExploreMode({ x: zonePos.x * 0.7, y: 0, z: zonePos.z * 0.7 });
+  } else {
+    enterExploreMode(HUB_SPAWN);
+  }
+}
+
+setOnEnterZone((chapterIndex) => {
+  showStory(chapterIndex, pendingPrependText);
+  pendingPrependText = null;
+});
+
+/* ============================================================
+   商店（結晶の欠片で武器・防具を購入）
+   ============================================================ */
+const shopScreen = document.getElementById('shop-screen');
+const shopItemList = document.getElementById('shop-item-list');
+const shopShardsEl = document.getElementById('shop-shards');
+
+function renderShop() {
+  shopItemList.innerHTML = '';
+  SHOP_ITEMS.forEach(entry => {
+    const item = ITEMS[entry.itemId];
+    const owned = ownsItem(entry.itemId);
+    const canBuy = !owned && state.shards >= entry.cost;
+    const card = document.createElement('div');
+    card.className = 'shop-item-card';
+    card.innerHTML = `
+      <div>
+        <div class="shop-item-name">${item.name}</div>
+        <div class="shop-item-desc">${item.desc}</div>
+      </div>
+      <button class="shop-buy-btn" ${owned || !canBuy ? 'disabled' : ''}>${owned ? '所持済み' : `${entry.cost} 欠片`}</button>
+    `;
+    const btn = card.querySelector('.shop-buy-btn');
+    btn.addEventListener('click', () => {
+      if (owned || state.shards < entry.cost) return;
+      if (!spendShards(entry.cost)) return;
+      addItem(entry.itemId);
+      sfx.shardGet();
+      showToast(`${item.name} を購入した`, 'quest');
+      saveGame();
+      renderShop();
+    });
+    shopItemList.appendChild(card);
+  });
+  shopShardsEl.textContent = `所持している結晶の欠片: ${state.shards}`;
+}
+
+function openShop() {
+  renderShop();
+  shopScreen.style.display = 'flex';
+}
+document.getElementById('shop-close-btn').addEventListener('click', () => {
+  shopScreen.style.display = 'none';
+});
+setOnOpenShop(openShop);
+
+/* ============================================================
+   大陸図（マップ）
+   ============================================================ */
+const mapScreen = document.getElementById('map-screen');
+const mapCanvas = document.getElementById('map-canvas');
+const mapCtx = mapCanvas.getContext('2d');
+
+function drawMap() {
+  const w = mapCanvas.width, h = mapCanvas.height;
+  const contentRadius = Math.max(...fieldTargets.map(t => Math.hypot(t.localPos.x, t.localPos.z)), 500) * 1.15;
+  const scale = (Math.min(w, h) / 2 - 20) / contentRadius;
+  const cx = w / 2, cy = h / 2;
+  mapCtx.fillStyle = '#100c1e';
+  mapCtx.fillRect(0, 0, w, h);
+  mapCtx.strokeStyle = 'rgba(180,140,255,0.15)';
+  for (let ring = 500; ring < contentRadius; ring += 500) {
+    mapCtx.beginPath();
+    mapCtx.arc(cx, cy, ring * scale, 0, Math.PI * 2);
+    mapCtx.stroke();
+  }
+
+  zoneMarkers.forEach(z => {
+    const x = cx + z.localPos.x * scale, y = cy + z.localPos.z * scale;
+    mapCtx.beginPath();
+    mapCtx.arc(x, y, 7, 0, Math.PI * 2);
+    mapCtx.fillStyle = z.chapterIndex === state.chapterIndex ? '#ffe27a' : (z.chapterIndex < state.chapterIndex ? '#5fd35f' : '#555');
+    mapCtx.fill();
+    mapCtx.fillStyle = '#fff';
+    mapCtx.font = '11px sans-serif';
+    mapCtx.textAlign = 'center';
+    mapCtx.fillText(z.name, x, y - 12);
+  });
+
+  fieldTargets.forEach(t => {
+    const x = cx + t.localPos.x * scale, y = cy + t.localPos.z * scale;
+    mapCtx.beginPath();
+    mapCtx.arc(x, y, 4, 0, Math.PI * 2);
+    mapCtx.fillStyle = '#ff5555';
+    mapCtx.fill();
+  });
+  questGivers.forEach(g => {
+    const x = cx + g.localPos.x * scale, y = cy + g.localPos.z * scale;
+    mapCtx.beginPath();
+    mapCtx.arc(x, y, 4, 0, Math.PI * 2);
+    mapCtx.fillStyle = '#ffd75e';
+    mapCtx.fill();
+  });
+
+  const sx = cx + shopLocalPos.x * scale, sy = cy + shopLocalPos.z * scale;
+  mapCtx.beginPath();
+  mapCtx.arc(sx, sy, 5, 0, Math.PI * 2);
+  mapCtx.fillStyle = '#d4a84a';
+  mapCtx.fill();
+
+  const p = getPlayerLocalPos();
+  const px = cx + p.x * scale, py = cy + p.z * scale;
+  mapCtx.beginPath();
+  mapCtx.arc(px, py, 6, 0, Math.PI * 2);
+  mapCtx.fillStyle = '#66ddff';
+  mapCtx.strokeStyle = '#fff';
+  mapCtx.lineWidth = 1.5;
+  mapCtx.fill();
+  mapCtx.stroke();
+}
+
+function openMap() {
+  drawMap();
+  mapScreen.style.display = 'flex';
+}
+function closeMap() {
+  mapScreen.style.display = 'none';
+}
+document.getElementById('map-btn').addEventListener('click', openMap);
+document.getElementById('map-close-btn').addEventListener('click', closeMap);
+setOnToggleMap(() => {
+  if (mapScreen.style.display === 'flex') closeMap(); else openMap();
+});
 
 function showQuestBoard(chapterIndex) {
   els.storyScreen.style.display = 'none';
@@ -55,9 +211,10 @@ els.startBtn.addEventListener('click', () => {
   Object.assign(state, {
     chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0,
     equipment: { weapon: null, armor: null, accessory: null },
-    inventory: [], unlockedSkills: [], questProgress: {}, usedRevive: false,
+    inventory: [], unlockedSkills: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
   });
-  showStory(0);
+  goExplore(null);
+  showToast('光る結晶の目印に近づいて、崩壊の古城へ入ろう', 'info');
 });
 
 els.continueBtn.addEventListener('click', () => {
@@ -65,14 +222,17 @@ els.continueBtn.addEventListener('click', () => {
   resumeAudio();
   loadGame();
   setMasterVolume(state.masterVolume);
-  showStory(state.chapterIndex);
+  goExplore(state.chapterIndex);
 });
 
 els.nextBtn.addEventListener('click', () => {
   const prevChapter = CHAPTERS[state.chapterIndex];
   els.endScreen.style.display = 'none';
   const nextIndex = state.chapterIndex + 1;
-  showStory(nextIndex, prevChapter.storyAfter);
+  state.chapterIndex = nextIndex;
+  pendingPrependText = prevChapter.storyAfter;
+  goExplore(nextIndex);
+  showToast(`「${CHAPTERS[nextIndex].title}」への道が開かれた`, 'info');
 });
 
 els.retryBtn.addEventListener('click', () => {
@@ -82,7 +242,7 @@ els.retryBtn.addEventListener('click', () => {
     Object.assign(state, {
       chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0,
       equipment: { weapon: null, armor: null, accessory: null },
-      inventory: [], unlockedSkills: [], questProgress: {}, usedRevive: false,
+      inventory: [], unlockedSkills: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
     });
     document.getElementById('start-screen').style.display = 'flex';
   } else {
@@ -112,10 +272,13 @@ initMenu(
   () => {},
   () => {
     els.menuOverlay.classList.remove('open');
+    exitExploreMode();
     document.getElementById('start-screen').style.display = 'flex';
     state.playing = false;
     document.getElementById('story-screen').style.display = 'none';
     document.getElementById('quest-board-screen').style.display = 'none';
+    document.getElementById('shop-screen').style.display = 'none';
+    document.getElementById('map-screen').style.display = 'none';
     els.endScreen.style.display = 'none';
   }
 );
@@ -174,8 +337,12 @@ function animate() {
   });
 
   updateParticles(dt);
-  updateShakeAndApplyCamera(dt, camFittedPos);
-  camera.lookAt(camLookAt);
+  if (exploreActive) {
+    updateExplore(dt);
+  } else {
+    updateShakeAndApplyCamera(dt, camFittedPos);
+    camera.lookAt(camLookAt);
+  }
 
   composer.render();
 }
