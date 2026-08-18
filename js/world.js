@@ -178,6 +178,8 @@ function makeHumanoidMesh(bodyColor, glowColor) {
 export const zoneMarkers = [];
 export const questGivers = [];
 export const fieldTargets = [];
+export const explorePickups = [];
+export const loreMarkers = [];
 
 CHAPTERS.forEach((chapter, i) => {
   const theme = ZONE_THEME[i];
@@ -251,13 +253,50 @@ CHAPTERS.forEach((chapter, i) => {
     fieldTargets.push({
       chapterIndex: i,
       questId: skirmishQuest.id,
+      quest: skirmishQuest,
       localPos: targetLocal,
       mesh: targetMesh,
       light: targetLight,
       material: targetMat,
       radius: 6,
+      hp: 30 + i * 12,
       distanceFromZone: FIELD_TARGET_DIST,
     });
+  }
+
+  // ---- 探索クエスト（結晶の欠片の採取ポイント）----
+  const exploreQuest = chapter.quests.find(q => q.type === 'explore');
+  if (exploreQuest) {
+    const ang = zoneAngle(i) - Math.PI * 0.35;
+    const dist = 70 + Math.random() * 60;
+    const pickupLocal = new THREE.Vector3(local.x + Math.cos(ang) * dist, 0, local.z + Math.sin(ang) * dist);
+    const pickupMat = makeToonMaterial({ color: 0xffe27a, emissive: 0xffcc44, emissiveIntensity: 2 });
+    const pickupMesh = new THREE.Mesh(new THREE.OctahedronGeometry(0.5, 0), pickupMat);
+    pickupMesh.position.set(pickupLocal.x, 1.1, pickupLocal.z);
+    worldGroup.add(pickupMesh);
+    addOutline(pickupMesh, 0x0a0816, 0.02);
+    const pickupLight = new THREE.PointLight(0xffcc44, 1.8, 10, 2);
+    pickupLight.position.set(pickupLocal.x, 1.6, pickupLocal.z);
+    worldGroup.add(pickupLight);
+    explorePickups.push({ chapterIndex: i, questId: exploreQuest.id, quest: exploreQuest, localPos: pickupLocal, mesh: pickupMesh, radius: 3 });
+  }
+
+  // ---- ロアクエスト（記録の石碑）----
+  const loreQuest = chapter.quests.find(q => q.type === 'lore');
+  if (loreQuest) {
+    const ang = zoneAngle(i) + Math.PI * 0.35;
+    const dist = 70 + Math.random() * 60;
+    const loreLocal = new THREE.Vector3(local.x + Math.cos(ang) * dist, 0, local.z + Math.sin(ang) * dist);
+    const monuMat = makeToonMaterial({ color: 0x8899cc, emissive: 0x445588, emissiveIntensity: 1 });
+    const monuMesh = new THREE.Mesh(new THREE.BoxGeometry(0.6, 2.2, 0.3), monuMat);
+    monuMesh.position.set(loreLocal.x, 1.1, loreLocal.z);
+    monuMesh.rotation.y = Math.random() * Math.PI;
+    worldGroup.add(monuMesh);
+    addOutline(monuMesh, 0x0a0816, 0.02);
+    const monuLight = new THREE.PointLight(0x8899ff, 1.4, 9, 2);
+    monuLight.position.set(loreLocal.x, 2, loreLocal.z);
+    worldGroup.add(monuLight);
+    loreMarkers.push({ chapterIndex: i, questId: loreQuest.id, quest: loreQuest, localPos: loreLocal, mesh: monuMesh, radius: 3 });
   }
 });
 

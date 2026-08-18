@@ -12,9 +12,11 @@ import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks 
 import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
   setOnOpenShop, setOnToggleMap, getPlayerLocalPos, exploreActive } from './explore.js';
+import { initSkirmishUI } from './skirmish.js';
 
 mountRenderer();
 initJoystick();
+initSkirmishUI();
 
 const BATTLE_SPAWN_POS = { x: -2.6, y: 0, z: -1.2 };
 const BATTLE_SPAWN_ROT_Y = 0.35;

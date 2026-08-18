@@ -2,12 +2,13 @@ import * as THREE from 'three';
 import { camera, scene, setCameraMode } from './scene.js';
 import { player, crossfadeTo } from './player.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
-  shopLocalPos, refreshZoneVisuals } from './world.js';
-import { CHAPTERS, ITEMS } from './data.js';
+  explorePickups, loreMarkers, shopLocalPos, refreshZoneVisuals } from './world.js';
+import { CHAPTERS } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
-  fieldQuestState, acceptFieldQuest, markFieldTargetDefeated } from './state.js';
+  fieldQuestState, acceptFieldQuest, saveGame } from './state.js';
 import { showToast } from './ui.js';
 import { sfx } from './audio.js';
+import { startSkirmish, isSkirmishActive } from './skirmish.js';
 
 /* ============================================================
    オープンワールド探索 ―― WASD/仮想スティック移動＋三人称追従カメラ
@@ -106,6 +107,15 @@ export function enterExploreMode(spawnLocal) {
   player.rotation.y = facing;
   crossfadeTo('Idle', 0.2);
   refreshZoneVisuals(state.chapterIndex);
+  explorePickups.forEach(p => {
+    if (isQuestDone(CHAPTERS[p.chapterIndex].key, p.questId)) p.mesh.visible = false;
+  });
+  fieldTargets.forEach(t => {
+    if (isQuestDone(CHAPTERS[t.chapterIndex].key, t.questId)) {
+      t.material.emissiveIntensity = 0.1;
+      t.light.intensity = 0.2;
+    }
+  });
   camInit = false;
   document.getElementById('explore-hud').style.display = 'flex';
   document.getElementById('ui').classList.add('exploring');
@@ -129,6 +139,7 @@ let wasMoving = false;
 let zoneHintShown = null;
 let npcHintShown = null;
 let targetHintShown = null;
+let loreHintShown = null;
 let shopHintShown = false;
 
 function tryTurnInOrAccept(giver) {
@@ -144,27 +155,48 @@ function tryTurnInOrAccept(giver) {
     if (giver.quest.reward.itemId) addItem(giver.quest.reward.itemId);
     sfx.questDone();
     showToast(`クエスト達成: ${giver.quest.title}（結晶の欠片 +${giver.quest.reward.shards}）`, 'quest');
+    saveGame();
   } else if (fState === 'accepted') {
     showToast(`${giver.name}：「まだ討伐が済んでいないようだ」`, 'info');
   } else {
     acceptFieldQuest(giver.questId);
     showToast(`受注: ${giver.quest.title}｜${giver.quest.desc}`, 'quest');
+    saveGame();
   }
 }
 
 function tryDefeatTarget(target) {
   const fState = fieldQuestState(target.questId);
   if (fState === 'accepted') {
-    markFieldTargetDefeated(target.questId);
-    target.material.emissiveIntensity = 0.1;
-    target.light.intensity = 0.2;
-    sfx.hit();
-    showToast('結晶獣を討伐した！依頼人の元へ戻ろう', 'quest');
+    startSkirmish(target);
   }
+}
+
+function tryCollectPickup(pickup) {
+  const chapterKey = CHAPTERS[pickup.chapterIndex].key;
+  if (isQuestDone(chapterKey, pickup.questId)) return;
+  completeQuest(chapterKey, pickup.questId);
+  addShards(pickup.quest.reward.shards);
+  if (pickup.quest.reward.itemId) addItem(pickup.quest.reward.itemId);
+  sfx.shardGet();
+  showToast(`クエスト達成: ${pickup.quest.title}｜${pickup.quest.result}`, 'quest');
+  pickup.mesh.visible = false;
+  saveGame();
+}
+
+function tryReadLore(monu) {
+  const chapterKey = CHAPTERS[monu.chapterIndex].key;
+  if (isQuestDone(chapterKey, monu.questId)) return;
+  completeQuest(chapterKey, monu.questId);
+  addShards(monu.quest.reward.shards);
+  sfx.questDone();
+  showToast(`クエスト達成: ${monu.quest.title}｜${monu.quest.result}`, 'quest');
+  saveGame();
 }
 
 export function updateExplore(dt) {
   if (!exploreActive) return;
+  if (isSkirmishActive()) return;
 
   let mx = 0, mz = 0;
   if (keys.forward) mz -= 1;
@@ -248,6 +280,25 @@ export function updateExplore(dt) {
     tryDefeatTarget(nearTarget);
   } else if (!nearTarget) {
     targetHintShown = null;
+  }
+
+  // 探索クエスト（採取ポイント）
+  for (const p of explorePickups) {
+    if (p.mesh.visible && Math.hypot(localPos.x - p.localPos.x, localPos.z - p.localPos.z) < p.radius) {
+      tryCollectPickup(p);
+    }
+  }
+
+  // ロアクエスト（石碑）
+  let nearLore = null;
+  for (const m of loreMarkers) {
+    if (Math.hypot(localPos.x - m.localPos.x, localPos.z - m.localPos.z) < m.radius) { nearLore = m; break; }
+  }
+  if (nearLore && loreHintShown !== nearLore.questId) {
+    loreHintShown = nearLore.questId;
+    tryReadLore(nearLore);
+  } else if (!nearLore) {
+    loreHintShown = null;
   }
 
   // 商店
