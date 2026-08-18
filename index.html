@@ -7,7 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0a0a12">
-<title>最強のボス戦 - 3D RPG</title>
+<title>ラストウォーデン ―終焉世界記―</title>
 <style>
   * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
   html, body {
@@ -17,7 +17,7 @@
     -webkit-user-select:none; user-select:none;
   }
   canvas { display:block; touch-action:none; }
-  button, .action-btn, #dodge-btn, .big-btn, #login-btn { touch-action:manipulation; }
+  button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 
   #ui { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; color:#fff; }
 
@@ -109,23 +109,25 @@
     color:#ffe; font-size:clamp(11px,3vw,13px); text-align:center; opacity:0.9; width:92%;
   }
 
-  #start-screen, #end-screen {
+  #start-screen, #end-screen, #story-screen {
     position:fixed; inset:0; background:rgba(0,0,0,0.92);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     color:#fff; z-index:10; text-align:center;
     padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
     box-sizing:border-box; overflow-y:auto;
   }
-  #start-screen h1 { font-size:clamp(28px,7.5vw,42px); margin-bottom:10px; color:#ffd75e; text-shadow:2px 2px 8px #000; }
-  #start-screen p { max-width:640px; line-height:1.7; opacity:0.92; font-size:clamp(13px,3.4vw,14px); }
+  #start-screen h1, #story-screen h1 { font-size:clamp(28px,7.5vw,42px); margin-bottom:10px; color:#ffd75e; text-shadow:2px 2px 8px #000; }
+  #start-screen .tagline { opacity:0.7; font-size:clamp(12px,3.2vw,14px); margin-bottom:18px; letter-spacing:0.1em; }
+  #start-screen p, #story-screen p { max-width:640px; line-height:1.8; opacity:0.92; font-size:clamp(13px,3.4vw,15px); }
   .big-btn {
     margin-top:22px; padding:clamp(16px,4vw,18px) clamp(36px,10vw,48px); font-size:clamp(19px,5vw,23px); font-weight:bold;
     background:#c0392b; color:#fff; border:none; border-radius:10px; cursor:pointer; min-height:56px;
   }
   .big-btn:hover { background:#e74c3c; }
-  #end-screen { display:none; }
+  #end-screen, #story-screen { display:none; }
   #end-title { font-size:clamp(32px,8.5vw,52px); font-weight:bold; margin-bottom:10px; }
   #end-rank { font-size:clamp(20px,5.4vw,26px); margin-bottom:6px; color:#ffd75e; }
+  #end-story { max-width:640px; line-height:1.8; opacity:0.88; font-size:clamp(13px,3.4vw,15px); margin-bottom:12px; white-space:pre-line; }
   #end-stats { font-size:clamp(12px,3.4vw,14px); opacity:0.85; margin-bottom:10px; line-height:1.8; }
 
   #log-wrap {
@@ -135,34 +137,14 @@
   }
   .log-line { opacity:0.9; }
 
-  #login-screen {
-    position:fixed; inset:0; background:radial-gradient(circle at 50% 40%, #241428, #05050a);
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    color:#fff; z-index:20; text-align:center;
-    padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
-    box-sizing:border-box; overflow-y:auto;
+  .chapter-tag {
+    display:inline-block; font-size:clamp(11px,3vw,13px); letter-spacing:0.15em;
+    color:#ffd75e; background:rgba(255,215,94,0.12); border:1px solid rgba(255,215,94,0.4);
+    padding:4px 14px; border-radius:20px; margin-bottom:14px;
   }
-  #login-screen h1 { font-size:clamp(26px,7vw,36px); margin-bottom:6px; color:#ffd75e; text-shadow:2px 2px 8px #000; }
-  #login-screen .sub { opacity:0.75; font-size:clamp(12px,3.2vw,13px); margin-bottom:24px; }
-  #login-box {
-    background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15);
-    border-radius:14px; padding:clamp(24px,6vw,32px) clamp(24px,7vw,36px); width:340px; max-width:90vw;
-  }
-  .login-field { text-align:left; margin-bottom:16px; }
-  .login-field label { display:block; font-size:clamp(12px,3.2vw,13px); opacity:0.8; margin-bottom:5px; }
-  .login-field input {
-    width:100%; box-sizing:border-box; padding:13px 14px; font-size:16px;
-    background:rgba(0,0,0,0.4); border:1px solid #555; border-radius:8px; color:#fff;
-  }
-  .login-field input:focus { outline:none; border-color:#ffd75e; }
-  #login-error {
-    color:#ff6b6b; font-size:clamp(12px,3.2vw,13px); min-height:18px; margin-bottom:6px;
-  }
-  #login-btn {
-    width:100%; margin-top:6px; padding:15px; font-size:clamp(16px,4.2vw,18px); font-weight:bold;
-    background:#c0392b; color:#fff; border:none; border-radius:10px; cursor:pointer; min-height:52px;
-  }
-  #login-btn:hover { background:#e74c3c; }
+  #story-screen p { white-space:pre-line; }
+  #story-screen, #end-screen { gap:0; }
+  #next-btn { display:none; }
 
   @media (max-width: 700px), (max-height: 480px) {
     #hud-bottom {
@@ -187,45 +169,39 @@
 </head>
 <body>
 
-<div id="login-screen">
-  <h1>⚔ 最強のボス戦 ⚔</h1>
-  <div class="sub">プレイするにはログインが必要です</div>
-  <div id="login-box">
-    <div class="login-field">
-      <label for="login-user">アカウント名</label>
-      <input type="text" id="login-user" autocomplete="username" placeholder="アカウント名">
-    </div>
-    <div class="login-field">
-      <label for="login-pass">パスワード</label>
-      <input type="password" id="login-pass" autocomplete="current-password" placeholder="パスワード">
-    </div>
-    <div id="login-error"></div>
-    <button id="login-btn">ログイン</button>
-  </div>
+<div id="start-screen">
+  <h1>⚔ ラストウォーデン ⚔</h1>
+  <div class="tagline">―終焉世界記―</div>
+  <p>
+    かつて四体の守護霊に護られていた世界ヴェルディア。<br>
+    しかし「ヴォイドファーザー」と呼ばれる深淵の存在が守護霊たちを侵蝕し、世界は静かに終わりへ向かっている。<br><br>
+    最後の一人となった戦士＝ウォーデンであるあなたは、長い眠りから目覚めた。<br>
+    穢された守護霊たちを解放し、すべての元凶に立ち向かう――これが、最後の物語。<br><br>
+    通常攻撃・強攻撃・必殺技(MP消費)・防御・回復を駆使し、連続攻撃でコンボを重ねてダメージを底上げしよう。<br>
+    敵の攻撃時にはタイミングよく「回避」を成功させればダメージを完全に防げる！
+  </p>
+  <button class="big-btn" id="start-btn">物語を始める</button>
 </div>
 
-<div id="start-screen" style="display:none;">
-  <h1>⚔ 最強のボス戦 ⚔</h1>
-  <p>
-    あなたは一人の戦士。仲間はいない。<br>
-    この世界最強のボス「デスタイタン」が目の前に立ちはだかる。<br><br>
-    通常攻撃・強攻撃・必殺技(MP消費)・防御・回復を駆使し、連続攻撃でコンボを重ねてダメージを底上げしよう。<br>
-    ボスのHPが半分を切ると<b style="color:#ff6666">覚醒フェーズ</b>に突入し、新たな攻撃を仕掛けてくる。<br>
-    ボスの攻撃時にはタイミングよく「回避」を成功させればダメージを完全に防げる！
-  </p>
-  <button class="big-btn" id="start-btn">戦いを始める</button>
+<div id="story-screen">
+  <div class="chapter-tag" id="story-chapter-tag">第1章</div>
+  <h1 id="story-title"></h1>
+  <p id="story-text"></p>
+  <button class="big-btn" id="story-btn">たたかう</button>
 </div>
 
 <div id="end-screen">
   <div id="end-title"></div>
   <div id="end-rank"></div>
+  <div id="end-story"></div>
   <div id="end-stats"></div>
+  <button class="big-btn" id="next-btn">つづきへ</button>
   <button class="big-btn" id="retry-btn">もう一度挑む</button>
 </div>
 
 <div id="ui">
   <div class="bar-wrap" id="player-wrap">
-    <div class="name-row"><span class="name">あなた</span><span class="lv">Lv.1 勇者</span></div>
+    <div class="name-row"><span class="name">あなた</span><span class="lv" id="player-lv">Lv.1 ウォーデン</span></div>
     <div class="stat-bar-bg"><div class="stat-bar-fill" id="player-hp-fill" style="width:100%"></div></div>
     <div class="stat-label">HP <span id="player-hp-text">100/100</span></div>
     <div class="stat-bar-bg small"><div class="stat-bar-fill" id="player-mp-fill" style="width:100%"></div></div>
@@ -234,7 +210,7 @@
     <div class="stat-label">スタミナ <span id="player-stam-text">100/100</span></div>
   </div>
   <div class="bar-wrap" id="boss-wrap">
-    <div class="name-row"><span class="phase-tag" id="phase-tag">覚醒</span><span class="name">デスタイタン</span></div>
+    <div class="name-row"><span class="phase-tag" id="phase-tag">覚醒</span><span class="name" id="boss-name">???</span></div>
     <div class="stat-bar-bg"><div class="stat-bar-fill" id="boss-hp-fill" style="width:100%"></div></div>
     <div class="stat-label">HP <span id="boss-hp-text">320/320</span></div>
   </div>
@@ -615,19 +591,24 @@ function playerMotionBeat(kind='attack') {
 /* ============================================================
    ボス: 有機的で高密度な巨大モンスター（プロシージャル造形 + PBR）
    ============================================================ */
-function makeBoss() {
+function makeBoss(def) {
+  def = Object.assign({
+    skinColor: 0x5c2436, sheenColor: 0x552211, emissive: 0x220000,
+    hornColor: 0x141414, eyeColor: 0xff0000, legColor: 0x220d13,
+    metalness: 0.05, roughness: 0.55, clearcoat: 0.35, scale: 1.0,
+  }, def || {});
   const group = new THREE.Group();
-  const skin = makeSkinTextures(0x5c2436);
+  const skin = makeSkinTextures(def.skinColor);
   const bodyMat = new THREE.MeshPhysicalMaterial({
     map: skin.albedo, bumpMap: skin.bump, bumpScale: 0.02,
-    color: 0xffffff, roughness: 0.55, metalness: 0.05,
-    clearcoat: 0.35, clearcoatRoughness: 0.35,
-    sheen: 1.0, sheenColor: new THREE.Color(0x552211), sheenRoughness: 0.6,
-    emissive: 0x220000, emissiveIntensity: 0.35,
+    color: 0xffffff, roughness: def.roughness, metalness: def.metalness,
+    clearcoat: def.clearcoat, clearcoatRoughness: 0.35,
+    sheen: 1.0, sheenColor: new THREE.Color(def.sheenColor), sheenRoughness: 0.6,
+    emissive: def.emissive, emissiveIntensity: 0.35,
   });
-  const hornMat = new THREE.MeshPhysicalMaterial({ color: 0x141414, roughness:0.25, metalness:0.4, clearcoat:0.6 });
-  const eyeMat = new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 3 });
-  const legMat = new THREE.MeshPhysicalMaterial({ color: 0x220d13, roughness:0.6, metalness:0.1, clearcoat:0.2 });
+  const hornMat = new THREE.MeshPhysicalMaterial({ color: def.hornColor, roughness:0.25, metalness:0.4, clearcoat:0.6 });
+  const eyeMat = new THREE.MeshStandardMaterial({ color: def.eyeColor, emissive: def.eyeColor, emissiveIntensity: 3 });
+  const legMat = new THREE.MeshPhysicalMaterial({ color: def.legColor, roughness:0.6, metalness:0.1, clearcoat:0.2 });
 
   const torso = new THREE.Mesh(new THREE.CapsuleGeometry(1.05, 1.7, 12, 28), bodyMat);
   torso.position.y = 2.55; torso.castShadow = true; torso.receiveShadow = true;
@@ -727,10 +708,17 @@ function makeBoss() {
   group.userData.body = bodyMat;
   group.position.set(3, 0, -3);
   group.rotation.y = -0.5;
+  group.scale.setScalar(def.scale);
   return group;
 }
-const boss = makeBoss();
-scene.add(boss);
+
+let boss = null;
+function spawnEnemy(def) {
+  if (boss) { scene.remove(boss); }
+  boss = makeBoss(def);
+  scene.add(boss);
+  return boss;
+}
 
 /* ============================================================
    Web Audio 効果音（シンセ生成、外部ファイル不要）
@@ -774,14 +762,124 @@ const sfx = {
 };
 
 /* ============================================================
+   ストーリー・章データ（本格RPG化）
+   ============================================================ */
+const CHAPTERS = [
+  {
+    title: '苔纏いの番人',
+    enemyName: 'モスシェイド',
+    storyBefore:
+      '目覚めたウォーデンは、沈みゆく森の奥へと足を踏み入れた。\n' +
+      'かつて緑を守っていたはずの守護霊は、いまや苔と瘴気に覆われた影となり、\n' +
+      '侵入者を排除するためだけに彷徨っている。\n\n' +
+      '「……森よ、すまない。お前を、終わらせに来た」',
+    storyAfter:
+      '崩れゆく苔の身体から、かすかな囁きが漏れた。\n' +
+      '『……ヴォイドファーザーは、まだ眠る大地の底に……』\n' +
+      '最後の光が森に差し込み、ウォーデンは次なる場所――廃都の遺跡へと向かう。',
+    hp: 130,
+    hasPhases: false,
+    enemyDef: { skinColor:0x2d5a3d, sheenColor:0x1a3322, emissive:0x0a1f0f, hornColor:0x1a2a1a, eyeColor:0x66ff88, legColor:0x162616, scale:0.85 },
+    movesPhase1: [
+      { name:'苔の鞭', sub:'絡みつく蔓の一撃', min:4, max:8, dodgeWindow:950 },
+      { name:'瘴気の爪', sub:'鈍く重い一撃', min:7, max:13, dodgeWindow:1000 },
+      { name:'根の怒り', sub:'渾身の突進！', min:12, max:18, dodgeWindow:800 },
+    ],
+  },
+  {
+    title: '鉄鎖の亡霊騎士',
+    enemyName: 'ドレッドノート',
+    storyBefore:
+      '崩れた城壁の向こうに、かつての王都が横たわっていた。\n' +
+      '住人はとうに消え、ただ一体の騎士だけが、誓いに縛られたまま徘徊している。\n' +
+      '「ドレッドノート」――かつて民を守った誇り高き守護騎士の成れの果て。\n\n' +
+      '「あなたの誓いは、もう果たされている。……眠ってくれ」',
+    storyAfter:
+      '鎖が砕け散り、騎士の兜の奥で何かが微笑んだ気がした。\n' +
+      '『ヴォイドファーザーは……かつての“最後のウォーデン”の姿を借りている……』\n' +
+      'その言葉に、ウォーデンの足が一瞬止まる。まさか――',
+    hp: 190,
+    hasPhases: false,
+    enemyDef: { skinColor:0x555566, sheenColor:0x333344, emissive:0x11121a, hornColor:0x0e0e12, eyeColor:0xffaa33, legColor:0x2a2a33, metalness:0.5, roughness:0.35, clearcoat:0.6, scale:1.05 },
+    movesPhase1: [
+      { name:'鎖の一閃', sub:'錆びた鎖の斬撃', min:8, max:14, dodgeWindow:900 },
+      { name:'盾撃', sub:'重厚な体当たり', min:13, max:20, dodgeWindow:850 },
+      { name:'誓いの咆哮', sub:'渾身の一撃！', min:20, max:28, dodgeWindow:700 },
+    ],
+  },
+  {
+    title: '深淵の詠唱者',
+    enemyName: 'アビス',
+    storyBefore:
+      '水没した大聖堂、その最奥。詠唱者アビスは今も歌い続けている。\n' +
+      '世界を沈める呪文を、誰に届くともなく。\n' +
+      'かつて海を鎮めていた守護霊は、囁きに絡めとられ、狂気の詩人と化した。\n\n' +
+      '「その歌を、私が終わらせよう」',
+    storyAfter:
+      'アビスの最後の詩が、静寂の中に消えていく。\n' +
+      '『……あの人は、誰よりも世界を愛していた。だからこそ、壊れてしまった……』\n' +
+      '『あなたの前に立つのは、かつてあなたを育てた“師”そのものよ』\n' +
+      'ウォーデンの胸に、覚悟と痛みが同時に満ちる。最後の戦いが、始まる。',
+    hp: 230,
+    hasPhases: false,
+    enemyDef: { skinColor:0x4a1f7a, sheenColor:0x2a0f4a, emissive:0x1a0530, hornColor:0x120620, eyeColor:0x9955ff, legColor:0x22103a, scale:0.95 },
+    movesPhase1: [
+      { name:'呪縛の光弾', sub:'魔力の弾丸', min:9, max:15, dodgeWindow:850 },
+      { name:'深淵の詠唱', sub:'広範囲の呪詛', min:15, max:22, dodgeWindow:800 },
+      { name:'狂詩曲', sub:'渾身の魔弾！', min:22, max:30, dodgeWindow:650 },
+    ],
+  },
+  {
+    title: '終焉の巨神',
+    enemyName: 'デスタイタン',
+    storyBefore:
+      '世界の中心、崩落する尖塔の頂で、それは待っていた。\n' +
+      '巨大な影と化した、かつての師――今はただ「デスタイタン」と呼ばれる存在。\n' +
+      'ヴォイドファーザーに魂を明け渡し、世界を終わらせる器となった、最後の守護者。\n\n' +
+      '「……先生。あなたを、自由にします」',
+    storyAfter: null,
+    endingText:
+      '崩れ落ちる巨神の中から、小さな光がこぼれ落ちた。\n' +
+      'それは、かつての師の、本当の魂だった。\n' +
+      '『……ありがとう。あとを、頼んだよ』\n\n' +
+      '光は空に溶け、世界にゆっくりと色が戻り始める。\n' +
+      '侵蝕は止まり、四つの守護霊は静かに眠りについた。\n' +
+      '最後のウォーデンの物語は、ここに幕を閉じる――そして、新しい世界の朝が来る。',
+    hp: 320,
+    hasPhases: true,
+    enemyDef: { skinColor:0x5c2436, sheenColor:0x552211, emissive:0x220000, hornColor:0x141414, eyeColor:0xff0000, legColor:0x220d13, scale:1.0 },
+    movesPhase1: [
+      { name:'爪の一閃', sub:'素早い一撃', min:6, max:11, dodgeWindow:900 },
+      { name:'強打', sub:'大振りな一撃', min:11, max:19, dodgeWindow:1100 },
+      { name:'渾身の一撃', sub:'重い攻撃！', min:20, max:30, dodgeWindow:750 },
+    ],
+    movesPhase2: [
+      { name:'爪の連撃', sub:'高速の連続攻撃', min:10, max:16, dodgeWindow:650 },
+      { name:'業火のブレス', sub:'広範囲炎攻撃！', min:18, max:28, dodgeWindow:800 },
+      { name:'滅殺の一撃', sub:'覚醒の全力攻撃！！', min:28, max:42, dodgeWindow:600 },
+    ],
+  },
+];
+
+function levelStatsFor(level) {
+  return {
+    maxHP: 100 + (level-1)*25,
+    maxMP: 50 + (level-1)*10,
+    maxStam: 100 + (level-1)*10,
+    dmgMult: 1 + (level-1)*0.07,
+  };
+}
+
+/* ============================================================
    ゲーム状態
    ============================================================ */
-const BOSS_MAXHP = 320;
 const state = {
+  chapterIndex: 0,
+  level: 1,
   playerHP: 100, playerMaxHP: 100,
   playerMP: 50, playerMaxMP: 50,
   playerStam: 100, playerMaxStam: 100,
-  bossHP: BOSS_MAXHP, bossMaxHP: BOSS_MAXHP,
+  bossHP: 130, bossMaxHP: 130,
   healUses: 3,
   guarding: false,
   playing: false,
@@ -801,6 +899,8 @@ const els = {
   playerMPText: document.getElementById('player-mp-text'),
   playerStamFill: document.getElementById('player-stam-fill'),
   playerStamText: document.getElementById('player-stam-text'),
+  playerLv: document.getElementById('player-lv'),
+  bossName: document.getElementById('boss-name'),
   bossHPFill: document.getElementById('boss-hp-fill'),
   bossHPText: document.getElementById('boss-hp-text'),
   healCount: document.getElementById('heal-count'),
@@ -816,6 +916,18 @@ const els = {
   dodgeCircle: document.getElementById('dodge-circle'),
   skillSub: document.getElementById('skill-sub'),
   startBtn: document.getElementById('start-btn'),
+  storyScreen: document.getElementById('story-screen'),
+  storyChapterTag: document.getElementById('story-chapter-tag'),
+  storyTitle: document.getElementById('story-title'),
+  storyText: document.getElementById('story-text'),
+  storyBtn: document.getElementById('story-btn'),
+  endScreen: document.getElementById('end-screen'),
+  endTitle: document.getElementById('end-title'),
+  endRank: document.getElementById('end-rank'),
+  endStory: document.getElementById('end-story'),
+  endStats: document.getElementById('end-stats'),
+  nextBtn: document.getElementById('next-btn'),
+  retryBtn: document.getElementById('retry-btn'),
 };
 
 function updateBars() {
@@ -829,6 +941,8 @@ function updateBars() {
   els.bossHPText.textContent = `${Math.max(0,Math.round(state.bossHP))}/${state.bossMaxHP}`;
   els.healCount.textContent = state.healUses;
   els.skillSub.textContent = state.skillCooldown > 0 ? `クールダウン ${state.skillCooldown}` : 'MP25';
+  els.playerLv.textContent = `Lv.${state.level} ウォーデン`;
+  els.bossName.textContent = CHAPTERS[state.chapterIndex].enemyName;
 
   if (state.combo > 1) {
     els.comboDisplay.style.display = 'block';
@@ -974,10 +1088,11 @@ function setButtonsEnabled(enabled) {
    ボスフェーズ判定・演出
    ============================================================ */
 function checkPhaseTransition() {
-  if (!state.phase2 && state.bossHP <= state.bossMaxHP * 0.5) {
+  const chapter = CHAPTERS[state.chapterIndex];
+  if (chapter.hasPhases && !state.phase2 && state.bossHP <= state.bossMaxHP * 0.5) {
     state.phase2 = true;
     els.phaseTag.style.display = 'inline-block';
-    log('デスタイタンが覚醒した！攻撃が激化する！');
+    log(`${chapter.enemyName}が覚醒した！攻撃が激化する！`);
     showCenterMsg('BOSS AWAKENS!!', '#ff4444', 1400);
     sfx.roar();
     boss.userData.body.emissiveIntensity = 1.1;
@@ -1016,47 +1131,53 @@ function calcRank() {
 
 function finishGame(won) {
   state.playing = false;
-  const endScreen = document.getElementById('end-screen');
-  const title = document.getElementById('end-title');
-  const rankEl = document.getElementById('end-rank');
-  const statsEl = document.getElementById('end-stats');
+  const chapter = CHAPTERS[state.chapterIndex];
+  const isFinal = state.chapterIndex === CHAPTERS.length - 1;
+  els.nextBtn.style.display = 'none';
+  els.retryBtn.style.display = 'none';
+  els.endStory.textContent = '';
+
   if (won) {
-    title.textContent = '🎉 勝利！最強のボスを倒した！ 🎉';
-    title.style.color = '#5fd35f';
-    rankEl.textContent = `評価ランク: ${calcRank()}`;
     sfx.victory();
     showCenterMsg('VICTORY!', '#5fd35f', 2000);
     crossfadeTo('Idle', 0.4);
+    els.endRank.textContent = `評価ランク: ${calcRank()}`;
+    if (isFinal) {
+      els.endTitle.textContent = '🎉 世界は、救われた 🎉';
+      els.endTitle.style.color = '#5fd35f';
+      els.endStory.textContent = chapter.endingText;
+      els.retryBtn.textContent = 'もう一度最初から';
+      els.retryBtn.style.display = 'inline-block';
+    } else {
+      els.endTitle.textContent = `🎉 勝利！${chapter.enemyName}を打ち破った 🎉`;
+      els.endTitle.style.color = '#5fd35f';
+      els.nextBtn.style.display = 'inline-block';
+    }
   } else {
-    title.textContent = '💀 敗北... 💀';
-    title.style.color = '#e04a4a';
-    rankEl.textContent = '';
+    els.endTitle.textContent = '💀 敗北... 💀';
+    els.endTitle.style.color = '#e04a4a';
+    els.endRank.textContent = '';
     sfx.defeat();
+    els.retryBtn.textContent = 'この章に再挑戦';
+    els.retryBtn.style.display = 'inline-block';
   }
-  statsEl.textContent = `経過ターン数: ${state.turns} / 被ダメージ合計: ${Math.round(state.damageTaken)} / 最大コンボ: ${state.maxCombo||0}`;
-  endScreen.style.display = 'flex';
+  els.endStats.textContent = `経過ターン数: ${state.turns} / 被ダメージ合計: ${Math.round(state.damageTaken)} / 最大コンボ: ${state.maxCombo||0}`;
+  els.endScreen.style.display = 'flex';
 }
-
-/* ============================================================
-   ボスの攻撃パターン（フェーズで変化）
-   ============================================================ */
-const bossMovesPhase1 = [
-  { name:'爪の一閃', sub:'素早い一撃', min:6, max:11, dodgeWindow:900 },
-  { name:'強打', sub:'大振りな一撃', min:11, max:19, dodgeWindow:1100 },
-  { name:'渾身の一撃', sub:'重い攻撃！', min:20, max:30, dodgeWindow:750 },
-];
-const bossMovesPhase2 = [
-  { name:'爪の連撃', sub:'高速の連続攻撃', min:10, max:16, dodgeWindow:650 },
-  { name:'業火のブレス', sub:'広範囲炎攻撃！', min:18, max:28, dodgeWindow:800 },
-  { name:'滅殺の一撃', sub:'覚醒の全力攻撃！！', min:28, max:42, dodgeWindow:600 },
-];
 
 let dodgeActive = false;
 let dodgeAnimHandle = null;
 
 function bossTurn() {
   if (!state.playing) return;
-  const pool = state.phase2 ? bossMovesPhase2 : bossMovesPhase1;
+
+  if (state.skillCooldown > 0) state.skillCooldown--;
+  state.playerStam = Math.min(state.playerMaxStam, state.playerStam + 8);
+  state.playerMP = Math.min(state.playerMaxMP, state.playerMP + 6);
+  updateBars();
+
+  const chapter = CHAPTERS[state.chapterIndex];
+  const pool = state.phase2 ? chapter.movesPhase2 : chapter.movesPhase1;
   const weights = state.phase2 ? [0.35, 0.35, 0.3] : [0.4, 0.4, 0.2];
   let r = Math.random(), acc = 0, move = pool[0];
   for (let i = 0; i < pool.length; i++) { acc += weights[i]; if (r <= acc) { move = pool[i]; break; } }
@@ -1155,7 +1276,7 @@ function playerAction(type) {
   state.guarding = false;
   state.turns++;
 
-  const comboMult = 1 + Math.min(state.combo, 8) * 0.08;
+  const comboMult = (1 + Math.min(state.combo, 8) * 0.08) * levelStatsFor(state.level).dmgMult;
 
   if (type === 'attack') {
     state.playerStam -= 10;
@@ -1272,74 +1393,93 @@ document.getElementById('btn-skill').addEventListener('click', () => playerActio
 document.getElementById('btn-guard').addEventListener('click', () => playerAction('guard'));
 document.getElementById('btn-heal').addEventListener('click', () => playerAction('heal'));
 
-document.getElementById('start-btn').addEventListener('click', () => {
-  if (!playerReady) return;
-  if (actx.state === 'suspended') actx.resume();
-  document.getElementById('start-screen').style.display = 'none';
-  state.playing = true;
-  updateBars();
-  log('戦闘開始！ デスタイタンが咆哮を上げた！');
-  sfx.roar();
-});
-
-document.getElementById('retry-btn').addEventListener('click', () => {
+/* ============================================================
+   物語の進行（タイトル → ストーリー → 戦闘 → 結果）
+   ============================================================ */
+function setupChapterBattle(chapterIndex) {
+  const chapter = CHAPTERS[chapterIndex];
+  const level = chapterIndex + 1;
+  const stats = levelStatsFor(level);
+  state.chapterIndex = chapterIndex;
+  state.level = level;
   Object.assign(state, {
-    playerHP: 100, playerMaxHP: 100, playerMP: 50, playerMaxMP: 50,
-    playerStam: 100, playerMaxStam: 100, bossHP: BOSS_MAXHP, bossMaxHP: BOSS_MAXHP,
-    healUses: 3, guarding: false, playing: true, turnBusy: false, combo: 0, maxCombo:0,
-    phase2: false, turns: 0, damageTaken: 0, skillCooldown: 0,
+    playerHP: stats.maxHP, playerMaxHP: stats.maxHP,
+    playerMP: stats.maxMP, playerMaxMP: stats.maxMP,
+    playerStam: stats.maxStam, playerMaxStam: stats.maxStam,
+    bossHP: chapter.hp, bossMaxHP: chapter.hp,
+    healUses: 3, guarding: false, playing: false, turnBusy: false,
+    combo: 0, maxCombo: 0, phase2: false, turns: 0, damageTaken: 0, skillCooldown: 0,
   });
   els.phaseTag.style.display = 'none';
-  boss.scale.set(1,1,1);
-  boss.userData.body.emissiveIntensity = 0.35;
-  boss.userData.body.emissive.setHex(0x220000);
-  boss.userData.eyes.forEach(e => e.material.emissiveIntensity = 3);
+  spawnEnemy(chapter.enemyDef);
   bossGlow.intensity = 3.5;
   bossGlow.color.setHex(0xff2a1a);
   updateBars();
   setButtonsEnabled(true);
-  document.getElementById('end-screen').style.display = 'none';
   els.logWrap.innerHTML = '';
-  crossfadeTo('Idle', 0.3);
-  log('再戦開始！');
+}
+
+function showStory(chapterIndex) {
+  const chapter = CHAPTERS[chapterIndex];
+  els.storyChapterTag.textContent = `第${chapterIndex+1}章`;
+  els.storyTitle.textContent = chapter.title;
+  els.storyText.textContent = chapter.storyBefore;
+  setupChapterBattle(chapterIndex);
+  document.getElementById('start-screen').style.display = 'none';
+  els.endScreen.style.display = 'none';
+  els.storyScreen.style.display = 'flex';
+}
+
+document.getElementById('start-btn').addEventListener('click', () => {
+  if (!playerReady) return;
+  if (actx.state === 'suspended') actx.resume();
+  showStory(0);
 });
 
-/* ============================================================
-   ログインゲート
-   ============================================================ */
-const VALID_USER = 'burukasu19';
-const VALID_PASS = 'sibou';
+els.storyBtn.addEventListener('click', () => {
+  els.storyScreen.style.display = 'none';
+  state.playing = true;
+  updateBars();
+  log(`戦闘開始！ ${CHAPTERS[state.chapterIndex].enemyName}が姿を現した！`);
+  sfx.roar();
+});
 
-function tryLogin() {
-  const user = document.getElementById('login-user').value;
-  const pass = document.getElementById('login-pass').value;
-  const errorEl = document.getElementById('login-error');
-  if (user === VALID_USER && pass === VALID_PASS) {
-    errorEl.textContent = '';
-    sessionStorage.setItem('loggedIn', '1');
-    document.getElementById('login-screen').style.display = 'none';
+els.nextBtn.addEventListener('click', () => {
+  const prevChapter = CHAPTERS[state.chapterIndex];
+  els.endScreen.style.display = 'none';
+  const nextIndex = state.chapterIndex + 1;
+  showStory(nextIndex);
+  if (prevChapter.storyAfter) {
+    els.storyText.textContent = prevChapter.storyAfter + '\n\n―――\n\n' + els.storyText.textContent;
+  }
+});
+
+els.retryBtn.addEventListener('click', () => {
+  const isFinalWin = els.retryBtn.textContent === 'もう一度最初から';
+  els.endScreen.style.display = 'none';
+  if (isFinalWin) {
     document.getElementById('start-screen').style.display = 'flex';
   } else {
-    errorEl.textContent = 'アカウント名またはパスワードが違います';
+    setupChapterBattle(state.chapterIndex);
+    state.playing = true;
+    updateBars();
+    log(`戦闘再開！ ${CHAPTERS[state.chapterIndex].enemyName}が待ち構えている！`);
+    sfx.roar();
   }
-}
-document.getElementById('login-btn').addEventListener('click', tryLogin);
-document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
-document.getElementById('login-user').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
-
-if (sessionStorage.getItem('loggedIn') === '1') {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('start-screen').style.display = 'flex';
-}
+});
 
 /* ============================================================
    モデル読み込み待機とスタートボタン制御
    ============================================================ */
+spawnEnemy(CHAPTERS[0].enemyDef);
+state.bossHP = CHAPTERS[0].hp;
+state.bossMaxHP = CHAPTERS[0].hp;
+updateBars();
 els.startBtn.textContent = 'モデル読み込み中...';
 els.startBtn.style.opacity = '0.5';
 els.startBtn.style.pointerEvents = 'none';
 loadPlayerModel().then(() => {
-  els.startBtn.textContent = '戦いを始める';
+  els.startBtn.textContent = '物語を始める';
   els.startBtn.style.opacity = '1';
   els.startBtn.style.pointerEvents = 'auto';
 });
@@ -1386,7 +1526,6 @@ function animate() {
   renderer.render(scene, camera);
 }
 animate();
-
 </script>
 </body>
 </html>
