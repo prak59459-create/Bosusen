@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { scene, TEX_SIZE } from './scene.js';
+import { scene, TEX_SIZE, makeToonMaterial, addOutline } from './scene.js';
 import { makeCanvas, noise2D } from './utils.js';
 
 function makeSkinTextures(baseHex) {
@@ -53,16 +53,13 @@ function makeBoss(def) {
   }, def || {});
   const group = new THREE.Group();
   const skin = makeSkinTextures(def.skinColor);
-  const bodyMat = new THREE.MeshPhysicalMaterial({
-    map: skin.albedo, bumpMap: skin.bump, bumpScale: 0.02,
-    color: 0xffffff, roughness: def.roughness, metalness: def.metalness,
-    clearcoat: def.clearcoat, clearcoatRoughness: 0.35,
-    sheen: 1.0, sheenColor: new THREE.Color(def.sheenColor), sheenRoughness: 0.6,
-    emissive: def.emissive, emissiveIntensity: 0.35,
+  const bodyMat = makeToonMaterial({
+    map: skin.albedo, color: 0xffffff,
+    emissive: def.emissive, emissiveIntensity: 0.6,
   });
-  const hornMat = new THREE.MeshPhysicalMaterial({ color: def.hornColor, roughness: 0.25, metalness: 0.4, clearcoat: 0.6 });
-  const eyeMat = new THREE.MeshStandardMaterial({ color: def.eyeColor, emissive: def.eyeColor, emissiveIntensity: 3 });
-  const legMat = new THREE.MeshPhysicalMaterial({ color: def.legColor, roughness: 0.6, metalness: 0.1, clearcoat: 0.2 });
+  const hornMat = makeToonMaterial({ color: def.hornColor });
+  const eyeMat = new THREE.MeshBasicMaterial({ color: def.eyeColor });
+  const legMat = makeToonMaterial({ color: def.legColor });
 
   const torso = new THREE.Mesh(new THREE.CapsuleGeometry(1.05, 1.7, 12, 28), bodyMat);
   torso.position.y = 2.55; torso.castShadow = true; torso.receiveShadow = true;
@@ -162,6 +159,7 @@ function makeBoss(def) {
   group.position.set(3, 0, -3);
   group.rotation.y = -0.5;
   group.scale.setScalar(def.scale);
+  addOutline(group, 0x0c0a16, 0.025);
   return group;
 }
 

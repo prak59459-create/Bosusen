@@ -17,8 +17,8 @@ export const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
 export const TEX_SIZE = isMobile ? 768 : 1024;
 
 export const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x08060f);
-scene.fog = new THREE.Fog(0x08060f, 16, 50);
+scene.background = new THREE.Color(0x0d0a1c);
+scene.fog = new THREE.Fog(0x14102a, 20, 55);
 
 export const camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, 0.1, 200);
 export const camBase = new THREE.Vector3(0, 6.1, 16.5);
@@ -34,7 +34,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
+renderer.toneMappingExposure = 1.35;
 
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.035).texture;
@@ -68,15 +68,15 @@ export const bokehPass = new BokehPass(scene, camera, {
 composer.addPass(bokehPass);
 
 const chromaPass = new ShaderPass(RGBShiftShader);
-chromaPass.uniforms.amount.value = 0.0006;
+chromaPass.uniforms.amount.value = 0.00015;
 composer.addPass(chromaPass);
 
-export const filmPass = new FilmPass(0.28, 0.35, 1400, false);
+export const filmPass = new FilmPass(0.08, 0, 1400, false);
 composer.addPass(filmPass);
 
 const vignettePass = new ShaderPass(VignetteShader);
-vignettePass.uniforms.offset.value = 1.05;
-vignettePass.uniforms.darkness.value = 1.15;
+vignettePass.uniforms.offset.value = 1.35;
+vignettePass.uniforms.darkness.value = 0.6;
 composer.addPass(vignettePass);
 
 export const smaaPass = new SMAAPass(window.innerWidth * renderer.getPixelRatio(), window.innerHeight * renderer.getPixelRatio());
@@ -86,6 +86,73 @@ composer.addPass(smaaPass);
 export let postFXEnabled = true;
 export function setPostFXEnabled(on) {
   postFXEnabled = on;
+}
+
+/* ============================================================
+   原神風トゥーンシェーディング（段階的ライティング＋輪郭線）
+   ============================================================ */
+const TOON_STEPS = 4;
+function makeGradientMap() {
+  const data = new Uint8Array(TOON_STEPS);
+  for (let i = 0; i < TOON_STEPS; i++) data[i] = Math.round((i / (TOON_STEPS - 1)) * 255);
+  const tex = new THREE.DataTexture(data, TOON_STEPS, 1, THREE.RedFormat);
+  tex.needsUpdate = true;
+  tex.magFilter = THREE.NearestFilter;
+  tex.minFilter = THREE.NearestFilter;
+  return tex;
+}
+export const toonGradientMap = makeGradientMap();
+
+export function makeToonMaterial(opts = {}) {
+  return new THREE.MeshToonMaterial({
+    gradientMap: toonGradientMap,
+    color: opts.color !== undefined ? opts.color : 0xffffff,
+    map: opts.map || null,
+    emissive: opts.emissive !== undefined ? opts.emissive : 0x000000,
+    emissiveIntensity: opts.emissiveIntensity !== undefined ? opts.emissiveIntensity : 1,
+  });
+}
+
+export function toonifyMaterial(mat) {
+  if (!mat) return mat;
+  const t = makeToonMaterial({
+    color: mat.color ? mat.color.getHex() : 0xffffff,
+    map: mat.map || null,
+    emissive: mat.emissive ? mat.emissive.getHex() : 0x000000,
+    emissiveIntensity: mat.emissiveIntensity !== undefined ? mat.emissiveIntensity : 1,
+  });
+  return t;
+}
+
+export function addOutline(root, colorHex = 0x0c0a16, thickness = 0.02) {
+  const shells = [];
+  const meshes = [];
+  root.traverse(c => { if (c.isMesh) meshes.push(c); });
+  meshes.forEach(c => {
+    const shellMat = new THREE.MeshBasicMaterial({ color: colorHex, side: THREE.BackSide });
+    shellMat.onBeforeCompile = (shader) => {
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <begin_vertex>',
+        `#include <begin_vertex>\n\ttransformed += normalize(normal) * ${thickness.toFixed(4)};`
+      );
+    };
+    if (c.isSkinnedMesh) {
+      const shell = new THREE.SkinnedMesh(c.geometry, shellMat);
+      shell.position.copy(c.position);
+      shell.rotation.copy(c.rotation);
+      shell.scale.copy(c.scale);
+      shell.bind(c.skeleton, c.bindMatrix);
+      shell.renderOrder = 1;
+      c.parent.add(shell);
+      shells.push(shell);
+    } else {
+      const shell = new THREE.Mesh(c.geometry, shellMat);
+      shell.renderOrder = 1;
+      c.add(shell);
+      shells.push(shell);
+    }
+  });
+  return shells;
 }
 
 const BASE_FOV = 48;
@@ -123,7 +190,7 @@ export function mountRenderer() {
 }
 
 /* ---------- ライティング ---------- */
-const hemi = new THREE.HemisphereLight(0x7788ff, 0x150a22, 0.55);
+const hemi = new THREE.HemisphereLight(0x99aaff, 0x241436, 0.8);
 scene.add(hemi);
 export const dirLight = new THREE.DirectionalLight(0xd8e4ff, 2.4);
 dirLight.position.set(6, 13, 7);

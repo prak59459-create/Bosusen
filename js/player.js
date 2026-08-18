@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'gltfloader';
-import { scene } from './scene.js';
+import { scene, toonifyMaterial, addOutline } from './scene.js';
 
 export const player = new THREE.Group();
 player.position.set(-2.6, 0, -1.2);
@@ -33,13 +33,13 @@ export function loadPlayerModel(onProgress) {
             c.castShadow = true;
             c.receiveShadow = true;
             if (c.material) {
-              c.material.envMapIntensity = 1.0;
-              c.material.roughness = Math.min(1, (c.material.roughness ?? 0.7));
+              c.material = toonifyMaterial(c.material);
             }
           }
         });
 
         player.add(model);
+        addOutline(model, 0x0a0812, 0.012);
         playerModel = model;
         playerMixer = new THREE.AnimationMixer(model);
         gltf.animations.forEach(clip => {
