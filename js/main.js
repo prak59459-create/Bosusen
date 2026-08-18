@@ -1,4 +1,4 @@
-import { scene, camera, renderer, camFittedPos, camLookAt, mountRenderer, torchFires, bossGlow } from './scene.js';
+import { camera, composer, camFittedPos, camLookAt, mountRenderer, torchFires, bossGlow } from './scene.js';
 import { player, loadPlayerModel, playerMixer, playerReady } from './player.js';
 import * as EnemyModule from './enemy.js';
 import { spawnEnemy } from './enemy.js';
@@ -177,6 +177,6 @@ function animate() {
   updateShakeAndApplyCamera(dt, camFittedPos);
   camera.lookAt(camLookAt);
 
-  renderer.render(scene, camera);
+  composer.render();
 }
 animate();

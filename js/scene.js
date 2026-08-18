@@ -1,6 +1,16 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'roomenvironment';
 import { makeCanvas, noise2D } from './utils.js';
+import { EffectComposer } from '../vendor/postprocessing/EffectComposer.js';
+import { RenderPass } from '../vendor/postprocessing/RenderPass.js';
+import { ShaderPass } from '../vendor/postprocessing/ShaderPass.js';
+import { UnrealBloomPass } from '../vendor/postprocessing/UnrealBloomPass.js';
+import { SSAOPass } from '../vendor/postprocessing/SSAOPass.js';
+import { BokehPass } from '../vendor/postprocessing/BokehPass.js';
+import { FilmPass } from '../vendor/postprocessing/FilmPass.js';
+import { SMAAPass } from '../vendor/postprocessing/SMAAPass.js';
+import { RGBShiftShader } from '../vendor/shaders/RGBShiftShader.js';
+import { VignetteShader } from '../vendor/shaders/VignetteShader.js';
 
 export const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
   (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
@@ -17,9 +27,9 @@ export const camFittedPos = new THREE.Vector3().copy(camBase);
 camera.position.copy(camBase);
 camera.lookAt(camLookAt);
 
-export const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+export const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', stencil: false });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 2.5 : 2));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 3 : 3));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -28,6 +38,55 @@ renderer.toneMappingExposure = 1.15;
 
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.035).texture;
+
+/* ============================================================
+   フルポストプロセッシング・パイプライン
+   Bloom / SSAO / 被写界深度 / フィルムグレイン / 色収差 / ビネット / SMAA
+   ============================================================ */
+export const composer = new EffectComposer(renderer);
+composer.setSize(window.innerWidth, window.innerHeight);
+composer.setPixelRatio(renderer.getPixelRatio());
+
+const renderPass = new RenderPass(scene, camera);
+composer.addPass(renderPass);
+
+export const ssaoPass = new SSAOPass(scene, camera, window.innerWidth, window.innerHeight);
+ssaoPass.kernelRadius = 0.6;
+ssaoPass.minDistance = 0.0004;
+ssaoPass.maxDistance = 0.15;
+ssaoPass.output = SSAOPass.OUTPUT.Default;
+composer.addPass(ssaoPass);
+
+export const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.85, 0.55, 0.72);
+composer.addPass(bloomPass);
+
+export const bokehPass = new BokehPass(scene, camera, {
+  focus: camBase.distanceTo(camLookAt),
+  aperture: 0.00028,
+  maxblur: 0.008,
+});
+composer.addPass(bokehPass);
+
+const chromaPass = new ShaderPass(RGBShiftShader);
+chromaPass.uniforms.amount.value = 0.0006;
+composer.addPass(chromaPass);
+
+export const filmPass = new FilmPass(0.28, 0.35, 1400, false);
+composer.addPass(filmPass);
+
+const vignettePass = new ShaderPass(VignetteShader);
+vignettePass.uniforms.offset.value = 1.05;
+vignettePass.uniforms.darkness.value = 1.15;
+composer.addPass(vignettePass);
+
+export const smaaPass = new SMAAPass(window.innerWidth * renderer.getPixelRatio(), window.innerHeight * renderer.getPixelRatio());
+smaaPass.renderToScreen = true;
+composer.addPass(smaaPass);
+
+export let postFXEnabled = true;
+export function setPostFXEnabled(on) {
+  postFXEnabled = on;
+}
 
 const BASE_FOV = 48;
 const BASE_ASPECT = 16 / 9;
@@ -47,6 +106,12 @@ export function fitCameraToViewport() {
   camera.lookAt(camLookAt);
   camera.updateProjectionMatrix();
   renderer.setSize(w, h);
+  const pr = renderer.getPixelRatio();
+  composer.setSize(w, h);
+  composer.setPixelRatio(pr);
+  ssaoPass.setSize(w, h);
+  bloomPass.setSize(w, h);
+  smaaPass.setSize(w * pr, h * pr);
 }
 fitCameraToViewport();
 window.addEventListener('resize', fitCameraToViewport);
@@ -181,7 +246,7 @@ for (let i = 0; i < 8; i++) {
 /* ---------- 星空パーティクル ---------- */
 {
   const starGeo = new THREE.BufferGeometry();
-  const starCount = 400;
+  const starCount = 1600;
   const positions = new Float32Array(starCount * 3);
   for (let i = 0; i < starCount; i++) {
     const ang = Math.random() * Math.PI * 2;
@@ -199,21 +264,42 @@ for (let i = 0; i < 8; i++) {
    グラフィック品質プリセット（設定画面から切り替え可能）
    ============================================================ */
 export function setQualityPreset(level) {
+  let pr;
   if (level === 'high') {
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 2.5 : 2));
+    pr = Math.min(window.devicePixelRatio || 1, isMobile ? 3 : 3);
     renderer.shadowMap.enabled = true;
     dirLight.shadow.mapSize.set(isMobile ? 2048 : 4096, isMobile ? 2048 : 4096);
     dirLight.castShadow = true;
+    ssaoPass.enabled = true;
+    bokehPass.enabled = true;
+    filmPass.enabled = true;
+    smaaPass.enabled = true;
+    bloomPass.strength = 0.85;
   } else if (level === 'medium') {
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    pr = Math.min(window.devicePixelRatio || 1, 1.5);
     renderer.shadowMap.enabled = true;
     dirLight.shadow.mapSize.set(1024, 1024);
     dirLight.castShadow = true;
+    ssaoPass.enabled = true;
+    bokehPass.enabled = false;
+    filmPass.enabled = true;
+    smaaPass.enabled = true;
+    bloomPass.strength = 0.55;
   } else {
-    renderer.setPixelRatio(1);
+    pr = 1;
     renderer.shadowMap.enabled = false;
     dirLight.castShadow = false;
+    ssaoPass.enabled = false;
+    bokehPass.enabled = false;
+    filmPass.enabled = false;
+    smaaPass.enabled = false;
+    bloomPass.strength = 0.35;
   }
+  renderer.setPixelRatio(pr);
+  composer.setPixelRatio(pr);
+  ssaoPass.setSize(window.innerWidth, window.innerHeight);
+  bloomPass.setSize(window.innerWidth, window.innerHeight);
+  smaaPass.setSize(window.innerWidth * pr, window.innerHeight * pr);
   dirLight.shadow.map && dirLight.shadow.map.dispose();
   dirLight.shadow.map = null;
 }
