@@ -19,7 +19,7 @@ const localPos = new THREE.Vector3(HUB_SPAWN.x, 0, HUB_SPAWN.z);
 let facing = Math.PI; // 進行方向(ラジアン)
 const WALK_SPEED = 14;
 const SPRINT_SPEED = 34;
-const camOffset = new THREE.Vector3(0, 9, 19);
+const camOffset = new THREE.Vector3(0, 20, 42);
 const camCurrentPos = new THREE.Vector3();
 const camLookTarget = new THREE.Vector3();
 let camInit = false;
@@ -104,7 +104,7 @@ export function enterExploreMode(spawnLocal) {
   scene.fog.far = EXPLORE_FOG.far;
   if (spawnLocal) localPos.copy(spawnLocal);
   player.position.set(HUB_OFFSET.x + localPos.x, 0, HUB_OFFSET.z + localPos.z);
-  player.rotation.y = facing;
+  player.rotation.y = facing + Math.PI;
   crossfadeTo('Idle', 0.2);
   refreshZoneVisuals(state.chapterIndex);
   explorePickups.forEach(p => {
@@ -221,7 +221,7 @@ export function updateExplore(dt) {
       localPos.x *= s; localPos.z *= s;
     }
     player.position.set(HUB_OFFSET.x + localPos.x, 0, HUB_OFFSET.z + localPos.z);
-    player.rotation.y = facing;
+    player.rotation.y = facing + Math.PI;
   }
   if (moving && !wasMoving) crossfadeTo('Walk', 0.15);
   if (!moving && wasMoving) crossfadeTo('Idle', 0.25);
