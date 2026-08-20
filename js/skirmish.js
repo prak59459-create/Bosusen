@@ -14,6 +14,12 @@ let els = null;
 
 export function isSkirmishActive() { return active; }
 
+export function resetSkirmish() {
+  active = false;
+  currentTarget = null;
+  if (els) els.panel.style.display = 'none';
+}
+
 export function initSkirmishUI() {
   els = {
     panel: document.getElementById('skirmish-panel'),

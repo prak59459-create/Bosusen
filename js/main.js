@@ -12,7 +12,7 @@ import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks 
 import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
   setOnOpenShop, setOnToggleMap, getPlayerLocalPos, exploreActive, setMapOpen } from './explore.js';
-import { initSkirmishUI } from './skirmish.js';
+import { initSkirmishUI, resetSkirmish } from './skirmish.js';
 
 mountRenderer();
 initJoystick();
@@ -286,6 +286,7 @@ initMenu(
   () => {
     els.menuOverlay.classList.remove('open');
     saveGame();
+    resetSkirmish();
     exitExploreMode();
     document.getElementById('start-screen').style.display = 'flex';
     state.playing = false;
