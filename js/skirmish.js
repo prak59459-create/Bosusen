@@ -55,14 +55,16 @@ function updateEnemyBar() {
 function attack() {
   if (!active) return;
   const stats = computeStats();
-  const dmg = Math.round(stats.atk * (0.8 + Math.random() * 0.5));
+  const crit = Math.random() * 100 < stats.crit;
+  let dmg = Math.round(stats.atk * (0.8 + Math.random() * 0.5));
+  if (crit) dmg = Math.round(dmg * 1.5);
   enemyHP -= dmg;
-  sfx.hit();
-  if (currentTarget && currentTarget.mesh) spawnParticles(currentTarget.mesh.getWorldPosition(currentTarget.mesh.position.clone()), 0xff6644, 10);
+  crit ? sfx.heavyHit() : sfx.hit();
+  if (currentTarget && currentTarget.mesh) spawnParticles(currentTarget.mesh.getWorldPosition(currentTarget.mesh.position.clone()), crit ? 0xffe066 : 0xff6644, crit ? 16 : 10);
   updateEnemyBar();
 
   if (enemyHP <= 0) {
-    els.log.textContent = `${dmg}のダメージ！ 結晶獣を討伐した！`;
+    els.log.textContent = `${dmg}のダメージ！${crit ? '（クリティカル！）' : ''} 結晶獣を討伐した！`;
     sfx.victory();
     finishSkirmish(true);
     return;
@@ -72,7 +74,7 @@ function attack() {
   const reduced = Math.max(1, Math.round(retaliation * (100 / (100 + stats.def))));
   state.playerHP = Math.max(1, state.playerHP - reduced);
   updateBars();
-  els.log.textContent = `${dmg}のダメージを与えた！ 反撃で${reduced}のダメージを受けた`;
+  els.log.textContent = `${dmg}のダメージを与えた！${crit ? '（クリティカル！）' : ''} 反撃で${reduced}のダメージを受けた`;
 }
 
 function finishSkirmish(won) {
