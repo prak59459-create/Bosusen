@@ -6,7 +6,7 @@ import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTar
 import { CHAPTERS } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
   fieldQuestState, acceptFieldQuest, saveGame } from './state.js';
-import { showToast } from './ui.js';
+import { showToast, renderQuestTracker } from './ui.js';
 import { sfx } from './audio.js';
 import { startSkirmish, isSkirmishActive } from './skirmish.js';
 
@@ -158,6 +158,7 @@ function tryTurnInOrAccept(giver) {
     if (giver.quest.reward.itemId) addItem(giver.quest.reward.itemId);
     sfx.questDone();
     showToast(`クエスト達成: ${giver.quest.title}（結晶の欠片 +${giver.quest.reward.shards}）`, 'quest');
+    renderQuestTracker();
     saveGame();
   } else if (fState === 'accepted') {
     showToast(`${giver.name}：「まだ討伐が済んでいないようだ」`, 'info');
@@ -184,6 +185,7 @@ function tryCollectPickup(pickup) {
   sfx.shardGet();
   showToast(`クエスト達成: ${pickup.quest.title}｜${pickup.quest.result}`, 'quest');
   pickup.mesh.visible = false;
+  renderQuestTracker();
   saveGame();
 }
 
@@ -194,6 +196,7 @@ function tryReadLore(monu) {
   addShards(monu.quest.reward.shards);
   sfx.questDone();
   showToast(`クエスト達成: ${monu.quest.title}｜${monu.quest.result}`, 'quest');
+  renderQuestTracker();
   saveGame();
 }
 
