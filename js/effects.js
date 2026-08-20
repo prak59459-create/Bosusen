@@ -43,6 +43,7 @@ export function spawnParticles(pos, color, count = 14) {
     const vel = new THREE.Vector3(rand(-1, 1), rand(0.2, 1.5), rand(-1, 1)).multiplyScalar(2.5);
     particles.push({ sprite, vel, life: 0, maxLife: rand(0.4, 0.8) });
   }
+  mat.dispose();
 }
 export function updateParticles(dt) {
   for (let i = particles.length - 1; i >= 0; i--) {
@@ -50,6 +51,7 @@ export function updateParticles(dt) {
     p.life += dt;
     if (p.life >= p.maxLife) {
       scene.remove(p.sprite);
+      p.sprite.material.dispose();
       particles.splice(i, 1);
       continue;
     }
