@@ -361,3 +361,7 @@ function animate() {
   composer.render();
 }
 animate();
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') saveGame();
+});
