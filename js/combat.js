@@ -198,6 +198,7 @@ export function bossTurn() {
   sfx.roar();
 
   setTimeout(() => {
+    if (!state.playing) return;
     els.telegraph.style.display = 'none';
     startDodgeQTE(move);
   }, 650);
@@ -246,6 +247,7 @@ function resolveDodge(clicked, move, isParry) {
   animateLunge(b, new THREE.Vector3(-1, 0, 1), 0.6, 350);
 
   setTimeout(() => {
+    if (!state.playing) return;
     if (clicked && isParry) {
       const stats = computeStats();
       const comboMult = (1 + Math.min(state.combo, 8) * 0.08) * levelStatsFor(state.level).dmgMult;
