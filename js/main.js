@@ -104,9 +104,11 @@ function renderShop() {
 function openShop() {
   renderShop();
   shopScreen.style.display = 'flex';
+  setMapOpen(true);
 }
 document.getElementById('shop-close-btn').addEventListener('click', () => {
   shopScreen.style.display = 'none';
+  setMapOpen(false);
 });
 setOnOpenShop(openShop);
 
