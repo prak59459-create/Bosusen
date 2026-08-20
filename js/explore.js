@@ -114,7 +114,7 @@ export function enterExploreMode(spawnLocal) {
     if (isQuestDone(CHAPTERS[p.chapterIndex].key, p.questId)) p.mesh.visible = false;
   });
   fieldTargets.forEach(t => {
-    if (isQuestDone(CHAPTERS[t.chapterIndex].key, t.questId)) {
+    if (isQuestDone(CHAPTERS[t.chapterIndex].key, t.questId) || fieldQuestState(t.questId) === 'ready_turnin') {
       t.material.emissiveIntensity = 0.1;
       t.light.intensity = 0.2;
     }
