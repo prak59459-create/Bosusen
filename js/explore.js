@@ -22,6 +22,7 @@ const SPRINT_SPEED = 34;
 const camOffset = new THREE.Vector3(0, 20, 42);
 const camCurrentPos = new THREE.Vector3();
 const camLookTarget = new THREE.Vector3();
+let stepTimer = 0;
 let camInit = false;
 
 const EXPLORE_FOG = { near: 260, far: 3200 };
@@ -222,6 +223,13 @@ export function updateExplore(dt) {
     }
     player.position.set(HUB_OFFSET.x + localPos.x, 0, HUB_OFFSET.z + localPos.z);
     player.rotation.y = facing + Math.PI;
+    stepTimer -= dt;
+    if (stepTimer <= 0) {
+      sfx.footstep();
+      stepTimer = keys.sprint ? 0.22 : 0.36;
+    }
+  } else {
+    stepTimer = 0;
   }
   if (moving && !wasMoving) crossfadeTo('Walk', 0.15);
   if (!moving && wasMoving) crossfadeTo('Idle', 0.25);

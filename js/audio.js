@@ -55,4 +55,5 @@ export const sfx = {
   uiClick: () => playTone(500, 0.05, 'square', 0.06, 600),
   menuOpen: () => playTone(400, 0.1, 'sine', 0.1, 550),
   menuClose: () => playTone(400, 0.1, 'sine', 0.1, 300),
+  footstep: () => playNoise(0.06, 0.05),
 };
