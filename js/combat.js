@@ -146,7 +146,7 @@ function finishGame(won) {
 
     if (isFinal) {
       els.endTitle.textContent = '選択のとき';
-      els.endTitle.style.color = '#ffd75e';
+      els.endTitle.style.color = '#a3790a';
       els.endStory.textContent = '結末を選んでください。';
       renderEndingChoices(chapter);
       els.retryBtn.textContent = 'もう一度最初から';
