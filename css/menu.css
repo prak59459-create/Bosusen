@@ -75,7 +75,7 @@
   flex-shrink:0; background:#7744dd; border:none; color:#fff; padding:8px 16px;
   border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer;
 }
-.item-row-btn:disabled { background:rgba(255,255,255,0.1); cursor:default; }
+.item-row-btn:disabled { background:rgba(120,80,200,0.15); color:#2a1f3d; cursor:default; opacity:0.6; }
 .empty-hint { opacity:0.5; font-size:13px; padding:20px; text-align:center; }
 
 .skill-tree { display:flex; flex-direction:column; gap:10px; }
@@ -93,7 +93,7 @@
   background:#7744dd; border:none; color:#fff; padding:7px 16px;
   border-radius:6px; font-size:12px; font-weight:bold; cursor:pointer;
 }
-.skill-node-btn:disabled { background:rgba(255,255,255,0.1); cursor:default; opacity:0.5; }
+.skill-node-btn:disabled { background:rgba(120,80,200,0.15); color:#2a1f3d; cursor:default; opacity:0.6; }
 
 .system-row { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:16px; }
 .system-row label { font-size:13px; opacity:0.8; }
