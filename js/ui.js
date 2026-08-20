@@ -354,6 +354,7 @@ export function initMenu(onSave, onTitle) {
     state.masterVolume = volumeSlider.value / 100;
     setMasterVolume(state.masterVolume);
   });
+  volumeSlider.addEventListener('change', () => saveGame());
 
   const qualitySelect = document.getElementById('opt-quality');
   qualitySelect.value = state.quality || 'high';
