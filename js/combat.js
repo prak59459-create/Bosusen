@@ -388,13 +388,15 @@ export function playerAction(type) {
     const startPos = player.position.clone().add(new THREE.Vector3(0.5, 1.6, 0));
     const t0 = performance.now();
     function flyOrb(t) {
-      if (!state.playing) { scene.remove(orb); return; }
+      if (!state.playing) { scene.remove(orb); orb.geometry.dispose(); orb.material.dispose(); return; }
       const p = Math.min(1, (t - t0) / 450);
       orb.position.lerpVectors(startPos, target, p);
       orb.scale.setScalar(1 + p * 0.5);
       if (p < 1) requestAnimationFrame(flyOrb);
       else {
         scene.remove(orb);
+        orb.geometry.dispose();
+        orb.material.dispose();
         const crit = rollCrit(stats.crit);
         let dmg = Math.round((rand(30, 45) + stats.atk) * comboMult);
         if (crit) dmg = Math.round(dmg * 1.5);
