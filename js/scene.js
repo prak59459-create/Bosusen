@@ -18,7 +18,7 @@ export const TEX_SIZE = isMobile ? 768 : 1024;
 
 export const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xcfe8ff);
-scene.fog = new THREE.Fog(0xdcefff, 20, 55);
+scene.fog = new THREE.Fog(0xdcefff, 34, 80);
 
 export const camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, 0.1, 200);
 export const camBase = new THREE.Vector3(0, 6.1, 16.5);

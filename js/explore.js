@@ -25,7 +25,7 @@ const camLookTarget = new THREE.Vector3();
 let camInit = false;
 
 const EXPLORE_FOG = { near: 260, far: 3200 };
-const BATTLE_FOG = { near: 20, far: 55 };
+const BATTLE_FOG = { near: 34, far: 80 };
 
 const keys = { forward: false, back: false, left: false, right: false, sprint: false };
 let joyVec = { x: 0, y: 0 }; // タッチ用ベクトル(-1..1)
