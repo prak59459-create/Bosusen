@@ -163,9 +163,23 @@ function makeBoss(def) {
   return group;
 }
 
+function disposeObject(obj) {
+  obj.traverse(c => {
+    if (c.geometry) c.geometry.dispose();
+    if (c.material) {
+      const mats = Array.isArray(c.material) ? c.material : [c.material];
+      mats.forEach(m => {
+        if (m.map) m.map.dispose();
+        if (m.bumpMap) m.bumpMap.dispose();
+        m.dispose();
+      });
+    }
+  });
+}
+
 export let boss = null;
 export function spawnEnemy(def) {
-  if (boss) { scene.remove(boss); }
+  if (boss) { scene.remove(boss); disposeObject(boss); }
   boss = makeBoss(def);
   scene.add(boss);
   return boss;
