@@ -59,7 +59,7 @@ ssaoPass.maxDistance = 0.15;
 ssaoPass.output = SSAOPass.OUTPUT.Default;
 composer.addPass(ssaoPass);
 
-export const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.85, 0.55, 0.72);
+export const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.55, 0.6, 0.88);
 composer.addPass(bloomPass);
 
 export const bokehPass = new BokehPass(scene, camera, {
@@ -345,7 +345,7 @@ export function setQualityPreset(level) {
     bokehPass.enabled = true;
     filmPass.enabled = true;
     smaaPass.enabled = true;
-    bloomPass.strength = 0.85;
+    bloomPass.strength = 0.55;
   } else if (level === 'medium') {
     pr = Math.min(window.devicePixelRatio || 1, 1.5);
     renderer.shadowMap.enabled = true;
@@ -355,7 +355,7 @@ export function setQualityPreset(level) {
     bokehPass.enabled = false;
     filmPass.enabled = true;
     smaaPass.enabled = true;
-    bloomPass.strength = 0.55;
+    bloomPass.strength = 0.4;
   } else {
     pr = 1;
     renderer.shadowMap.enabled = false;
