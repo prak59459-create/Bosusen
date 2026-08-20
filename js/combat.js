@@ -327,7 +327,7 @@ export function playerAction(type) {
       spawnParticles(bossHitPoint(), crit ? 0xffe066 : 0xffcc44, crit ? 20 : 12);
       spawnDamageNumber(bossHitPoint(), `-${dmg}${crit ? '!' : ''}`, crit ? '#ffe066' : '#ffcc44', crit);
       log(`あなたの攻撃！ ${dmg} ダメージ${crit ? '（クリティカル！）' : ''}${state.combo > 1 ? ` (${state.combo}コンボ)` : ''}`);
-      showCenterMsg(crit ? 'CRITICAL!' : 'ATTACK!', crit ? '#ffe066' : '#ffd', 450);
+      showCenterMsg(crit ? 'CRITICAL!' : 'ATTACK!', crit ? '#ffe066' : '#ffffff', 450);
       checkPhaseTransition();
       if (!endCheck()) setTimeout(bossTurn, 500);
     }, 250);
