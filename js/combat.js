@@ -408,6 +408,7 @@ export function playerAction(type) {
         spawnParticles(target, 0x5eb6ff, 26);
         spawnDamageNumber(target, `-${dmg}`, '#5eb6ff', true);
         log(`結晶技「アビスブレイク」！ ${dmg} ダメージ！${crit ? '（クリティカル！）' : ''}`);
+        showCenterMsg(crit ? 'CRITICAL!' : 'ABYSS BREAK!', crit ? '#ffe066' : '#5eb6ff', 700);
         triggerShake(0.2, 0.35);
         checkPhaseTransition();
         if (!endCheck()) setTimeout(bossTurn, 500);
