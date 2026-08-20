@@ -1,5 +1,5 @@
 import { CHAPTERS, ITEMS, SKILLS } from './data.js';
-import { state, computeStats, isQuestDone, completeQuest, addShards, addItem, ownsItem,
+import { state, computeStats, isQuestDone, ownsItem,
   equipItem, unequipSlot, unlockSkill, saveGame } from './state.js';
 import { sfx, setMasterVolume } from './audio.js';
 import { setQualityPreset } from './scene.js';
@@ -174,19 +174,8 @@ export function renderQuestBoard(chapterIndex, onResolve) {
       <div class="quest-card-desc">${q.desc}</div>
       <div class="quest-card-reward">報酬: 結晶の欠片 x${q.reward.shards}${q.reward.itemId ? ' + ' + ITEMS[q.reward.itemId].name : ''}</div>
       <div class="quest-card-result" style="display:${done ? 'block' : 'none'}">${q.result}</div>
-      <button class="quest-card-btn" ${done ? 'disabled' : ''}>${done ? '達成済み' : '着手する'}</button>
+      <div class="quest-card-hint" style="display:${done ? 'none' : 'block'}">聖域を探索して現地で達成しよう</div>
     `;
-    const btn = card.querySelector('.quest-card-btn');
-    btn.addEventListener('click', () => {
-      if (isQuestDone(chapter.key, q.id)) return;
-      completeQuest(chapter.key, q.id);
-      addShards(q.reward.shards);
-      if (q.reward.itemId) addItem(q.reward.itemId);
-      sfx.questDone();
-      showToast(`クエスト達成: ${q.title}（結晶の欠片 +${q.reward.shards}）`, 'quest');
-      renderQuestBoard(chapterIndex, onResolve);
-      if (onResolve) onResolve();
-    });
     els.qbQuestList.appendChild(card);
   });
 }

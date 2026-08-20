@@ -243,6 +243,7 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   border:none; border-radius:6px; cursor:pointer;
 }
 .quest-card-btn:disabled { background:rgba(120,80,200,0.15); color:#2a1f3d; cursor:default; opacity:0.6; }
+.quest-card-hint { font-size:11.5px; opacity:0.6; font-style:italic; }
 
 #log-wrap {
   position:absolute; bottom: calc(150px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%);
