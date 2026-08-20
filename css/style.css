@@ -186,7 +186,7 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   background: linear-gradient(135deg,#7744dd,#a855f7); color:#fff; border:none; border-radius:10px; cursor:pointer; min-height:56px;
 }
 .big-btn:hover { filter:brightness(1.15); }
-.big-btn.ghost { background:transparent; border:1px solid rgba(255,255,255,0.4); }
+.big-btn.ghost { background:transparent; border:1px solid rgba(120,80,200,0.5); color:#5a3f8c; }
 .big-btn.small-btn { font-size:15px; padding:12px 28px; min-height:44px; margin-top:12px; width:100%; max-width:280px; }
 #end-screen { display:none; }
 #story-screen, #quest-board-screen { display:none; }
