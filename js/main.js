@@ -279,6 +279,20 @@ document.getElementById('btn-skill').addEventListener('click', () => playerActio
 document.getElementById('btn-guard').addEventListener('click', () => playerAction('guard'));
 document.getElementById('btn-heal').addEventListener('click', () => playerAction('heal'));
 
+const BATTLE_KEY_ACTIONS = { '1': 'attack', '2': 'heavy', '3': 'skill', '4': 'guard', '5': 'heal' };
+window.addEventListener('keydown', (e) => {
+  if (!state.playing || exploreActive) return;
+  if (e.repeat) return;
+  const dodgeZoneOpen = document.getElementById('dodge-zone').style.display === 'flex';
+  if (dodgeZoneOpen && (e.key === ' ' || e.code === 'Space')) {
+    e.preventDefault();
+    els.dodgeBtn.click();
+    return;
+  }
+  const action = BATTLE_KEY_ACTIONS[e.key];
+  if (action) playerAction(action);
+});
+
 /* ============================================================
    メニュー（ステータス／装備／スキル／所持品／設定）
    ============================================================ */
