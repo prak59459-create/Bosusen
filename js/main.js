@@ -230,6 +230,7 @@ els.continueBtn.addEventListener('click', () => {
   setMasterVolume(state.masterVolume);
   goExplore(state.chapterIndex);
   renderQuestTracker();
+  updateBars();
 });
 
 els.nextBtn.addEventListener('click', () => {
