@@ -231,6 +231,7 @@ els.continueBtn.addEventListener('click', () => {
   const stats = computeStats();
   state.playerMaxHP = stats.maxHP; state.playerHP = stats.maxHP;
   state.playerMaxMP = stats.maxMP; state.playerMP = stats.maxMP;
+  state.playerMaxStam = stats.maxStam; state.playerStam = stats.maxStam;
   goExplore(state.chapterIndex);
   renderQuestTracker();
   updateBars();
