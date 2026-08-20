@@ -30,7 +30,7 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 
 .bar-wrap {
   position:absolute; padding:clamp(8px,2vw,10px) clamp(10px,3vw,16px);
-  text-shadow: 1px 1px 3px rgba(255,255,255,0.7);
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
   top: max(10px, env(safe-area-inset-top));
 }
 #player-wrap { left: max(10px, env(safe-area-inset-left)); width: clamp(160px, 42vw, 300px); }
@@ -57,7 +57,7 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 .combo-display {
   position:absolute; top:clamp(100px,24vw,130px); left: max(10px, env(safe-area-inset-left));
   font-size:clamp(18px,5vw,22px); font-weight:bold;
-  color:#a3790a; text-shadow: 1px 1px 3px rgba(255,255,255,0.7); display:none;
+  color:#a3790a; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); display:none;
 }
 
 /* ============================================================
@@ -73,14 +73,14 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 
 #telegraph {
   position:absolute; top:20%; left:50%; transform:translate(-50%,-50%);
-  font-size:clamp(20px,6vw,30px); font-weight:bold; color:#ff5555; text-shadow: 1px 1px 4px rgba(255,255,255,0.8);
+  font-size:clamp(20px,6vw,30px); font-weight:bold; color:#ff5555; text-shadow: 1px 1px 4px rgba(0,0,0,0.55);
   display:none; text-align:center; width:92vw;
 }
 #telegraph .sub { font-size:clamp(11px,3.4vw,14px); color:#2a1f3d; margin-top:6px; }
 
 #center-msg {
   position:absolute; top:38%; left:50%; transform:translate(-50%,-50%);
-  font-size:clamp(28px,9vw,46px); font-weight:bold; color:#c99a00; text-shadow: 1px 1px 4px rgba(255,255,255,0.8);
+  font-size:clamp(28px,9vw,46px); font-weight:bold; color:#c99a00; text-shadow: 1px 1px 4px rgba(0,0,0,0.55);
   display:none; pointer-events:none; white-space:nowrap;
 }
 
@@ -99,10 +99,10 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   margin-top:14px; padding:clamp(14px,3.6vw,16px) clamp(30px,8vw,40px); font-size:clamp(18px,5vw,22px); font-weight:bold; color:#111;
   background:#ffd75e; border:none; border-radius:8px; cursor:pointer; min-height:52px;
 }
-#dodge-label { font-size:clamp(13px,3.6vw,15px); color:#2a1f3d; margin-top:6px; text-shadow: 1px 1px 3px rgba(255,255,255,0.7); }
+#dodge-label { font-size:clamp(13px,3.6vw,15px); color:#2a1f3d; margin-top:6px; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
 
 .dmg-float {
-  position:absolute; font-weight:bold; text-shadow: 1px 1px 3px rgba(255,255,255,0.7); pointer-events:none;
+  position:absolute; font-weight:bold; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); pointer-events:none;
   transform:translate(-50%,-50%); white-space:nowrap;
 }
 
@@ -135,7 +135,7 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 
 #info {
   position:absolute; bottom: calc(96px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%);
-  color:#3d2f5c; font-size:clamp(11px,3vw,13px); text-align:center; opacity:0.9; width:92%; text-shadow:1px 1px 3px rgba(255,255,255,0.7);
+  color:#3d2f5c; font-size:clamp(11px,3vw,13px); text-align:center; opacity:0.9; width:92%; text-shadow:1px 1px 3px rgba(0,0,0,0.5);
 }
 
 /* ============================================================
@@ -235,7 +235,7 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 
 #log-wrap {
   position:absolute; bottom: calc(150px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%);
-  width:460px; max-width:92vw; font-size:clamp(12px,3.2vw,13px); color:#3d2f5c; text-align:center; text-shadow:1px 1px 3px rgba(255,255,255,0.7);
+  width:460px; max-width:92vw; font-size:clamp(12px,3.2vw,13px); color:#3d2f5c; text-align:center; text-shadow:1px 1px 3px rgba(0,0,0,0.5);
   pointer-events:none; opacity:0.95; display:flex; flex-direction:column-reverse; gap:2px;
 }
 .log-line { opacity:0.9; }
