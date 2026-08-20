@@ -76,7 +76,7 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   font-size:clamp(20px,6vw,30px); font-weight:bold; color:#ff5555; text-shadow: 1px 1px 4px rgba(0,0,0,0.55);
   display:none; text-align:center; width:92vw;
 }
-#telegraph .sub { font-size:clamp(11px,3.4vw,14px); color:#2a1f3d; margin-top:6px; }
+#telegraph .sub { font-size:clamp(11px,3.4vw,14px); color:#2a1f3d; margin-top:6px; text-shadow: 1px 1px 3px rgba(255,255,255,0.6); }
 
 #center-msg {
   position:absolute; top:38%; left:50%; transform:translate(-50%,-50%);
