@@ -17,8 +17,8 @@ export const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
 export const TEX_SIZE = isMobile ? 768 : 1024;
 
 export const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0d0a1c);
-scene.fog = new THREE.Fog(0x14102a, 20, 55);
+scene.background = new THREE.Color(0xcfe8ff);
+scene.fog = new THREE.Fog(0xdcefff, 20, 55);
 
 export const camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, 0.1, 200);
 export const camBase = new THREE.Vector3(0, 6.1, 16.5);
@@ -36,7 +36,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.35;
+renderer.toneMappingExposure = 1.05;
 
 const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.035).texture;
@@ -194,9 +194,9 @@ export function mountRenderer() {
 }
 
 /* ---------- ライティング ---------- */
-const hemi = new THREE.HemisphereLight(0x99aaff, 0x241436, 0.8);
+const hemi = new THREE.HemisphereLight(0xffffff, 0xd8c9a0, 0.75);
 scene.add(hemi);
-export const dirLight = new THREE.DirectionalLight(0xd8e4ff, 2.4);
+export const dirLight = new THREE.DirectionalLight(0xfff6e0, 1.8);
 dirLight.position.set(6, 13, 7);
 dirLight.castShadow = true;
 dirLight.shadow.mapSize.set(isMobile ? 2048 : 4096, isMobile ? 2048 : 4096);
@@ -221,18 +221,18 @@ function makeStoneTextures() {
   const size = TEX_SIZE;
   const albedoCanvas = makeCanvas(size);
   const ctx = albedoCanvas.getContext('2d');
-  ctx.fillStyle = '#2a2833';
+  ctx.fillStyle = '#e6ddcf';
   ctx.fillRect(0, 0, size, size);
   const rnd = noise2D(7.3);
   for (let i = 0; i < 3000; i++) {
     const x = Math.random() * size, y = Math.random() * size;
     const v = rnd(x * 0.05, y * 0.05);
-    const shade = 40 + v * 50;
-    ctx.fillStyle = `rgba(${shade + 8},${shade + 8},${shade + 20},${0.15 + Math.random() * 0.25})`;
+    const shade = 190 + v * 40;
+    ctx.fillStyle = `rgba(${shade},${shade - 6},${shade - 18},${0.12 + Math.random() * 0.2})`;
     const r = 2 + Math.random() * 7;
     ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
   }
-  ctx.strokeStyle = 'rgba(12,10,18,0.4)';
+  ctx.strokeStyle = 'rgba(160,150,135,0.35)';
   for (let i = 0; i < 26; i++) {
     ctx.lineWidth = 1 + Math.random() * 2;
     ctx.beginPath();

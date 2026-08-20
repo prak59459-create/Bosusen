@@ -38,16 +38,16 @@ function buildTileTexture() {
   const size = 1024;
   const canvas = makeCanvas(size);
   const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#1e1a30';
+  ctx.fillStyle = '#bfe0a0';
   ctx.fillRect(0, 0, size, size);
   for (let i = 0; i < 5000; i++) {
     const x = Math.random() * size, y = Math.random() * size;
-    const v = 22 + Math.random() * 26;
-    ctx.fillStyle = `rgba(${v},${v},${v + 12},${0.08 + Math.random() * 0.12})`;
+    const v = 140 + Math.random() * 60;
+    ctx.fillStyle = `rgba(${v * 0.7},${v},${v * 0.55},${0.08 + Math.random() * 0.12})`;
     ctx.fillRect(x, y, 2 + Math.random() * 3, 2 + Math.random() * 3);
   }
   for (let i = 0; i < 30; i++) {
-    ctx.strokeStyle = 'rgba(10,8,18,0.3)';
+    ctx.strokeStyle = 'rgba(120,150,90,0.25)';
     ctx.lineWidth = 1 + Math.random() * 2;
     ctx.beginPath();
     let x = Math.random() * size, y = Math.random() * size;
