@@ -324,6 +324,7 @@ export function playerAction(type) {
     animateLunge(player, new THREE.Vector3(1, 0, -1), 0.7, 300);
     sfx.swing();
     setTimeout(() => {
+      if (!state.playing) return;
       const crit = rollCrit(stats.crit);
       let dmg = Math.round((rand(8, 15) + stats.atk * 0.5) * comboMult);
       if (crit) dmg = Math.round(dmg * 1.5);
@@ -346,6 +347,7 @@ export function playerAction(type) {
     animateLunge(player, new THREE.Vector3(1, 0, -1), 1.0, 480);
     sfx.swing();
     setTimeout(() => {
+      if (!state.playing) return;
       const success = Math.random() > 0.12;
       if (success) {
         const crit = rollCrit(stats.crit);
@@ -386,6 +388,7 @@ export function playerAction(type) {
     const startPos = player.position.clone().add(new THREE.Vector3(0.5, 1.6, 0));
     const t0 = performance.now();
     function flyOrb(t) {
+      if (!state.playing) { scene.remove(orb); return; }
       const p = Math.min(1, (t - t0) / 450);
       orb.position.lerpVectors(startPos, target, p);
       orb.scale.setScalar(1 + p * 0.5);
