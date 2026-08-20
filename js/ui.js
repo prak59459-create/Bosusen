@@ -76,7 +76,9 @@ export function updateBars() {
   els.playerMPText.textContent = `${Math.max(0, Math.round(state.playerMP))}/${state.playerMaxMP}`;
   els.playerStamFill.style.width = Math.max(0, state.playerStam / state.playerMaxStam * 100) + '%';
   els.playerStamText.textContent = `${Math.max(0, Math.round(state.playerStam))}/${state.playerMaxStam}`;
-  els.bossHPFill.style.width = Math.max(0, state.bossHP / state.bossMaxHP * 100) + '%';
+  const bossHpPct = Math.max(0, state.bossHP / state.bossMaxHP * 100);
+  els.bossHPFill.style.width = bossHpPct + '%';
+  els.bossHPFill.classList.toggle('critical', bossHpPct > 0 && bossHpPct <= 20);
   els.bossHPText.textContent = `${Math.max(0, Math.round(state.bossHP))}/${state.bossMaxHP}`;
   els.healCount.textContent = state.healUses;
   els.skillSub.textContent = state.skillCooldown > 0 ? `クールダウン ${state.skillCooldown}` : 'エーテル25';
