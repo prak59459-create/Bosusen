@@ -27,22 +27,11 @@ function makeSkinTextures(baseHex) {
     ctx.stroke();
   }
 
-  const bumpCanvas = makeCanvas(size);
-  const bctx = bumpCanvas.getContext('2d');
-  bctx.fillStyle = '#808080';
-  bctx.fillRect(0, 0, size, size);
-  for (let i = 0; i < 6000; i++) {
-    const x = Math.random() * size, y = Math.random() * size;
-    const v = Math.floor(100 + rnd(x * 0.09, y * 0.09) * 140);
-    bctx.fillStyle = `rgb(${v},${v},${v})`;
-    bctx.fillRect(x, y, 2, 2);
-  }
-
   const albedo = new THREE.CanvasTexture(albedoCanvas);
-  const bump = new THREE.CanvasTexture(bumpCanvas);
   albedo.colorSpace = THREE.SRGBColorSpace;
-  [albedo, bump].forEach(t => { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(2, 2); });
-  return { albedo, bump };
+  albedo.wrapS = albedo.wrapT = THREE.RepeatWrapping;
+  albedo.repeat.set(2, 2);
+  return { albedo };
 }
 
 function makeBoss(def) {
