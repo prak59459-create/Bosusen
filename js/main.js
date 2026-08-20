@@ -229,6 +229,7 @@ els.continueBtn.addEventListener('click', () => {
   loadGame();
   setMasterVolume(state.masterVolume);
   goExplore(state.chapterIndex);
+  renderQuestTracker();
 });
 
 els.nextBtn.addEventListener('click', () => {
