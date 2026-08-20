@@ -158,8 +158,8 @@ export const CHAPTERS = [
     quests: [
       { id:'c4_shard', title:'塔に残る最後の欠片', type:'explore',
         desc:'崩落する塔の中で、最後の欠片を探す。',
-        result:'崩れゆく塔の破片の中に、ひときわ強く輝く欠片を見つけた。',
-        reward:{ shards:40 } },
+        result:'崩れゆく塔の破片の中に、ひときわ強く輝く欠片と、虚無を退ける鎧を見つけた。',
+        reward:{ shards:40, itemId:'armor_voidguard' } },
       { id:'c4_skirmish', title:'残響の先兵を退ける', type:'battle',
         desc:'コアを守る先兵たちと交戦する。',
         result:'先兵たちは、あなたの覚悟を前にあっけなく崩れ去った。',
