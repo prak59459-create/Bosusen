@@ -378,6 +378,10 @@ export function initMenu(onSave, onTitle) {
     closeMenu();
     if (onTitle) onTitle();
   });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && els.menuOverlay.classList.contains('open')) closeMenu();
+  });
 }
 
 let menuPausedPlaying = false;

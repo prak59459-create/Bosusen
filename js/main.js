@@ -106,10 +106,11 @@ function openShop() {
   shopScreen.style.display = 'flex';
   setMapOpen(true);
 }
-document.getElementById('shop-close-btn').addEventListener('click', () => {
+function closeShop() {
   shopScreen.style.display = 'none';
   setMapOpen(false);
-});
+}
+document.getElementById('shop-close-btn').addEventListener('click', closeShop);
 setOnOpenShop(openShop);
 
 /* ============================================================
@@ -366,4 +367,10 @@ animate();
 
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden' && (exploreActive || state.playing)) saveGame();
+});
+
+window.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if (shopScreen.style.display === 'flex') closeShop();
+  else if (mapScreen.style.display === 'flex') closeMap();
 });
