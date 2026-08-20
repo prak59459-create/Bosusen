@@ -8,7 +8,7 @@ import { CHAPTERS, ITEMS } from './data.js';
 import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, computeStats } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast } from './ui.js';
-import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks } from './combat.js';
+import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
 import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
   setOnOpenShop, setOnToggleMap, getPlayerLocalPos, exploreActive, setMapOpen } from './explore.js';
@@ -287,6 +287,7 @@ initMenu(
     els.menuOverlay.classList.remove('open');
     saveGame();
     resetSkirmish();
+    cancelDodgeQTE();
     exitExploreMode();
     document.getElementById('start-screen').style.display = 'flex';
     state.playing = false;

@@ -16,6 +16,12 @@ let dodgeJustZoneStart = 0.75; // ラスト25%が「ジャスト」判定
 let onChapterWin = null;
 let onChapterLose = null;
 
+export function cancelDodgeQTE() {
+  dodgeActive = false;
+  if (dodgeAnimHandle) cancelAnimationFrame(dodgeAnimHandle);
+  if (els.dodgeZone) els.dodgeZone.style.display = 'none';
+}
+
 export function setCombatCallbacks({ onWin, onLose }) {
   onChapterWin = onWin;
   onChapterLose = onLose;
