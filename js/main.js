@@ -11,7 +11,7 @@ import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQues
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks } from './combat.js';
 import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
-  setOnOpenShop, setOnToggleMap, getPlayerLocalPos, exploreActive } from './explore.js';
+  setOnOpenShop, setOnToggleMap, getPlayerLocalPos, exploreActive, setMapOpen } from './explore.js';
 import { initSkirmishUI } from './skirmish.js';
 
 mountRenderer();
@@ -178,9 +178,11 @@ function drawMap() {
 function openMap() {
   drawMap();
   mapScreen.style.display = 'flex';
+  setMapOpen(true);
 }
 function closeMap() {
   mapScreen.style.display = 'none';
+  setMapOpen(false);
 }
 document.getElementById('map-btn').addEventListener('click', openMap);
 document.getElementById('map-close-btn').addEventListener('click', closeMap);

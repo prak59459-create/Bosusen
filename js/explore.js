@@ -14,6 +14,8 @@ import { startSkirmish, isSkirmishActive } from './skirmish.js';
    オープンワールド探索 ―― WASD/仮想スティック移動＋三人称追従カメラ
    ============================================================ */
 export let exploreActive = false;
+let mapOpen = false;
+export function setMapOpen(v) { mapOpen = v; }
 
 const localPos = new THREE.Vector3(HUB_SPAWN.x, 0, HUB_SPAWN.z);
 let facing = Math.PI; // 進行方向(ラジアン)
@@ -198,6 +200,7 @@ function tryReadLore(monu) {
 export function updateExplore(dt) {
   if (!exploreActive) return;
   if (isSkirmishActive()) return;
+  if (mapOpen) return;
 
   let mx = 0, mz = 0;
   if (keys.forward) mz -= 1;
