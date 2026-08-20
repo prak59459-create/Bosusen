@@ -90,7 +90,7 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 }
 #dodge-ring-wrap { width:clamp(120px,34vw,150px); height:clamp(120px,34vw,150px); position:relative; transition: filter 0.15s; }
 #dodge-ring-wrap.just-zone { filter: drop-shadow(0 0 14px #ffd75e); }
-#dodge-ring-bg { width:100%; height:100%; border-radius:50%; border:5px solid rgba(255,255,255,0.25); box-sizing:border-box; }
+#dodge-ring-bg { width:100%; height:100%; border-radius:50%; border:5px solid rgba(60,40,90,0.35); background:rgba(255,255,255,0.15); box-sizing:border-box; }
 #dodge-ring-wrap.just-zone #dodge-ring-bg { border-color: rgba(255,215,94,0.6); }
 #dodge-ring-target { position:absolute; top:50%; left:50%; width:30%; height:30%; margin-left:-15%; margin-top:-15%; border-radius:50%; background:rgba(255,220,80,0.85); box-shadow:0 0 12px #ffd75e; }
 #dodge-ring-shrink { position:absolute; top:0; left:0; width:100%; height:100%; border-radius:50%; border:5px solid #ff4444; box-sizing:border-box; }
