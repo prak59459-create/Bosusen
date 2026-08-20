@@ -122,9 +122,9 @@ function drawMap() {
   const contentRadius = Math.max(...fieldTargets.map(t => Math.hypot(t.localPos.x, t.localPos.z)), 500) * 1.15;
   const scale = (Math.min(w, h) / 2 - 20) / contentRadius;
   const cx = w / 2, cy = h / 2;
-  mapCtx.fillStyle = '#100c1e';
+  mapCtx.fillStyle = '#ece2fb';
   mapCtx.fillRect(0, 0, w, h);
-  mapCtx.strokeStyle = 'rgba(180,140,255,0.15)';
+  mapCtx.strokeStyle = 'rgba(120,80,200,0.25)';
   for (let ring = 500; ring < contentRadius; ring += 500) {
     mapCtx.beginPath();
     mapCtx.arc(cx, cy, ring * scale, 0, Math.PI * 2);
@@ -137,7 +137,7 @@ function drawMap() {
     mapCtx.arc(x, y, 7, 0, Math.PI * 2);
     mapCtx.fillStyle = z.chapterIndex === state.chapterIndex ? '#ffe27a' : (z.chapterIndex < state.chapterIndex ? '#5fd35f' : '#555');
     mapCtx.fill();
-    mapCtx.fillStyle = '#fff';
+    mapCtx.fillStyle = '#2a1f3d';
     mapCtx.font = '11px sans-serif';
     mapCtx.textAlign = 'center';
     mapCtx.fillText(z.name, x, y - 12);
@@ -168,8 +168,8 @@ function drawMap() {
   const px = cx + p.x * scale, py = cy + p.z * scale;
   mapCtx.beginPath();
   mapCtx.arc(px, py, 6, 0, Math.PI * 2);
-  mapCtx.fillStyle = '#66ddff';
-  mapCtx.strokeStyle = '#fff';
+  mapCtx.fillStyle = '#1a6fd4';
+  mapCtx.strokeStyle = '#2a1f3d';
   mapCtx.lineWidth = 1.5;
   mapCtx.fill();
   mapCtx.stroke();
