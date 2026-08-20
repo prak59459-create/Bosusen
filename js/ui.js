@@ -361,6 +361,7 @@ export function initMenu(onSave, onTitle) {
     state.quality = qualitySelect.value;
     setQualityPreset(state.quality);
     sfx.uiClick();
+    saveGame();
   });
 
   document.getElementById('save-btn').addEventListener('click', () => {

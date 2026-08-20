@@ -169,6 +169,7 @@ export function saveGame() {
       questProgress: state.questProgress,
       fieldQuests: state.fieldQuests,
       masterVolume: state.masterVolume,
+      quality: state.quality,
       usedRevive: state.usedRevive,
       savedAt: Date.now(),
     };
@@ -205,6 +206,7 @@ export function loadGame() {
       questProgress: snap.questProgress || {},
       fieldQuests: snap.fieldQuests || {},
       masterVolume: (snap.masterVolume != null) ? snap.masterVolume : 0.7,
+      quality: snap.quality || 'high',
       usedRevive: snap.usedRevive || false,
     });
     return true;

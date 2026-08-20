@@ -1,4 +1,4 @@
-import { camera, composer, camFittedPos, camLookAt, mountRenderer, torchFires, bossGlow } from './scene.js';
+import { camera, composer, camFittedPos, camLookAt, mountRenderer, torchFires, bossGlow, setQualityPreset } from './scene.js';
 import { player, loadPlayerModel, playerMixer, playerReady } from './player.js';
 import * as EnemyModule from './enemy.js';
 import { spawnEnemy } from './enemy.js';
@@ -228,6 +228,7 @@ els.continueBtn.addEventListener('click', () => {
   resumeAudio();
   loadGame();
   setMasterVolume(state.masterVolume);
+  setQualityPreset(state.quality);
   const stats = computeStats();
   state.playerMaxHP = stats.maxHP; state.playerHP = stats.maxHP;
   state.playerMaxMP = stats.maxMP; state.playerMP = stats.maxMP;
