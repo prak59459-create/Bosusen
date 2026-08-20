@@ -361,7 +361,7 @@ export function playerAction(type) {
         spawnParticles(bossHitPoint(), 0xff8844, 20);
         spawnDamageNumber(bossHitPoint(), `-${dmg}`, '#ff8844', true);
         log(`強攻撃が炸裂！ ${dmg} ダメージ！${crit ? '（クリティカル！）' : ''}`);
-        showCenterMsg('CRITICAL!', '#ff8844', 700);
+        showCenterMsg(crit ? 'CRITICAL!' : 'HEAVY HIT!', crit ? '#ffe066' : '#ff8844', 700);
         triggerShake(0.15, 0.3);
       } else {
         state.combo = 0;
