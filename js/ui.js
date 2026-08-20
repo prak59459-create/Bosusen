@@ -165,7 +165,7 @@ export function renderQuestBoard(chapterIndex, onResolve) {
     const done = isQuestDone(chapter.key, q.id);
     const card = document.createElement('div');
     card.className = 'quest-card' + (done ? ' done' : '');
-    const typeLabel = q.type === 'battle' ? '討伐' : (q.type === 'lore' ? '探索' : '探索');
+    const typeLabel = q.type === 'battle' ? '討伐' : (q.type === 'lore' ? '石碑' : '採取');
     card.innerHTML = `
       <div class="quest-card-head">
         <span class="quest-type-tag">${typeLabel}</span>
