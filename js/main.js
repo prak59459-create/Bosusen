@@ -5,7 +5,7 @@ import { spawnEnemy } from './enemy.js';
 import { updateParticles, updateShakeAndApplyCamera, triggerShake } from './effects.js';
 import { resumeAudio, sfx, setMasterVolume } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
-import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, computeStats } from './state.js';
+import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, computeStats, isQuestDone, fieldQuestState } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, syncSettingsUI } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
@@ -147,17 +147,21 @@ function drawMap() {
   });
 
   fieldTargets.forEach(t => {
+    const chapterKey = CHAPTERS[t.chapterIndex].key;
+    const defeated = isQuestDone(chapterKey, t.questId) || fieldQuestState(t.questId) === 'ready_turnin';
     const x = cx + t.localPos.x * scale, y = cy + t.localPos.z * scale;
     mapCtx.beginPath();
     mapCtx.arc(x, y, 4, 0, Math.PI * 2);
-    mapCtx.fillStyle = '#ff5555';
+    mapCtx.fillStyle = defeated ? 'rgba(255,85,85,0.3)' : '#ff5555';
     mapCtx.fill();
   });
   questGivers.forEach(g => {
+    const chapterKey = CHAPTERS[g.chapterIndex].key;
+    const done = isQuestDone(chapterKey, g.questId);
     const x = cx + g.localPos.x * scale, y = cy + g.localPos.z * scale;
     mapCtx.beginPath();
     mapCtx.arc(x, y, 4, 0, Math.PI * 2);
-    mapCtx.fillStyle = '#ffd75e';
+    mapCtx.fillStyle = done ? 'rgba(255,215,94,0.3)' : '#ffd75e';
     mapCtx.fill();
   });
 
