@@ -5,7 +5,7 @@ import { spawnEnemy } from './enemy.js';
 import { updateParticles, updateShakeAndApplyCamera, triggerShake } from './effects.js';
 import { resumeAudio, sfx, setMasterVolume } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
-import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards } from './state.js';
+import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, computeStats } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks } from './combat.js';
@@ -228,6 +228,9 @@ els.continueBtn.addEventListener('click', () => {
   resumeAudio();
   loadGame();
   setMasterVolume(state.masterVolume);
+  const stats = computeStats();
+  state.playerMaxHP = stats.maxHP; state.playerHP = stats.maxHP;
+  state.playerMaxMP = stats.maxMP; state.playerMP = stats.maxMP;
   goExplore(state.chapterIndex);
   renderQuestTracker();
   updateBars();
