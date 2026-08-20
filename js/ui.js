@@ -95,7 +95,7 @@ export function log(msg) {
 
 export function showCenterMsg(text, color, ms = 800) {
   els.centerMsg.textContent = text;
-  els.centerMsg.style.color = color || '#ffd';
+  els.centerMsg.style.color = color || '#c99a00';
   els.centerMsg.style.display = 'block';
   clearTimeout(showCenterMsg._t);
   showCenterMsg._t = setTimeout(() => els.centerMsg.style.display = 'none', ms);
