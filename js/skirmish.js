@@ -77,6 +77,7 @@ function finishSkirmish(won) {
     markFieldTargetDefeated(currentTarget.questId);
     currentTarget.material.emissiveIntensity = 0.1;
     currentTarget.light.intensity = 0.2;
+    sfx.questDone();
     showToast('結晶獣を討伐した！依頼人の元へ戻ろう', 'quest');
     saveGame();
   }
