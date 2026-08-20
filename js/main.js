@@ -7,7 +7,7 @@ import { resumeAudio, sfx, setMasterVolume } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
 import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, computeStats } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
-  renderQuestTracker, initMenu, refreshAllMenuTabs, showToast } from './ui.js';
+  renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, syncSettingsUI } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
 import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
@@ -230,6 +230,7 @@ els.continueBtn.addEventListener('click', () => {
   loadGame();
   setMasterVolume(state.masterVolume);
   setQualityPreset(state.quality);
+  syncSettingsUI();
   const stats = computeStats();
   state.playerMaxHP = stats.maxHP; state.playerHP = stats.maxHP;
   state.playerMaxMP = stats.maxMP; state.playerMP = stats.maxMP;

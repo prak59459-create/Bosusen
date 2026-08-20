@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { scene, camera } from './scene.js';
 import { rand } from './utils.js';
+import { state } from './state.js';
 
 function worldToScreen(vec3) {
   const v = vec3.clone().project(camera);
@@ -62,7 +63,10 @@ export function updateParticles(dt) {
 }
 
 const shakeState = { time: 0, mag: 0 };
-export function triggerShake(mag, dur) { shakeState.mag = mag; shakeState.time = dur; }
+export function triggerShake(mag, dur) {
+  if (state.screenShake === false) return;
+  shakeState.mag = mag; shakeState.time = dur;
+}
 export function updateShakeAndApplyCamera(dt, camFittedPos) {
   if (shakeState.time > 0) {
     shakeState.time -= dt;

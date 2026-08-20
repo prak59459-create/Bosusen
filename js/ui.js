@@ -341,6 +341,15 @@ export function refreshAllMenuTabs() {
   renderItemsTab();
 }
 
+export function syncSettingsUI() {
+  const volumeSlider = document.getElementById('opt-volume');
+  if (volumeSlider) volumeSlider.value = Math.round(state.masterVolume * 100);
+  const qualitySelect = document.getElementById('opt-quality');
+  if (qualitySelect) qualitySelect.value = state.quality || 'high';
+  const shakeCheckbox = document.getElementById('opt-shake');
+  if (shakeCheckbox) shakeCheckbox.checked = state.screenShake !== false;
+}
+
 export function initMenu(onSave, onTitle) {
   const tabs = document.querySelectorAll('.menu-tab');
   const pages = document.querySelectorAll('.menu-page');
@@ -364,6 +373,14 @@ export function initMenu(onSave, onTitle) {
     setMasterVolume(state.masterVolume);
   });
   volumeSlider.addEventListener('change', () => saveGame());
+
+  const shakeCheckbox = document.getElementById('opt-shake');
+  shakeCheckbox.checked = state.screenShake !== false;
+  shakeCheckbox.addEventListener('change', () => {
+    state.screenShake = shakeCheckbox.checked;
+    sfx.uiClick();
+    saveGame();
+  });
 
   const qualitySelect = document.getElementById('opt-quality');
   qualitySelect.value = state.quality || 'high';

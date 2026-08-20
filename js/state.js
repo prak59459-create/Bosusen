@@ -32,6 +32,7 @@ export const state = {
   fieldQuests: {}, // { questId: 'accepted' | 'ready_turnin' }
   masterVolume: 0.7,
   quality: 'high',
+  screenShake: true,
 };
 
 export function fieldQuestState(questId) {
@@ -170,6 +171,7 @@ export function saveGame() {
       fieldQuests: state.fieldQuests,
       masterVolume: state.masterVolume,
       quality: state.quality,
+      screenShake: state.screenShake,
       usedRevive: state.usedRevive,
       savedAt: Date.now(),
     };
@@ -207,6 +209,7 @@ export function loadGame() {
       fieldQuests: snap.fieldQuests || {},
       masterVolume: (snap.masterVolume != null) ? snap.masterVolume : 0.7,
       quality: snap.quality || 'high',
+      screenShake: (snap.screenShake != null) ? snap.screenShake : true,
       usedRevive: snap.usedRevive || false,
     });
     return true;
