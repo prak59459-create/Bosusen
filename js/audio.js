@@ -56,4 +56,5 @@ export const sfx = {
   menuOpen: () => playTone(400, 0.1, 'sine', 0.1, 550),
   menuClose: () => playTone(400, 0.1, 'sine', 0.1, 300),
   footstep: () => playNoise(0.06, 0.05),
+  lowHp: () => { playTone(220, 0.18, 'triangle', 0.18, 160); },
 };
