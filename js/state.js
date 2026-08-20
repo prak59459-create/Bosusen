@@ -169,6 +169,7 @@ export function saveGame() {
       questProgress: state.questProgress,
       fieldQuests: state.fieldQuests,
       masterVolume: state.masterVolume,
+      usedRevive: state.usedRevive,
       savedAt: Date.now(),
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(snapshot));
@@ -204,6 +205,7 @@ export function loadGame() {
       questProgress: snap.questProgress || {},
       fieldQuests: snap.fieldQuests || {},
       masterVolume: (snap.masterVolume != null) ? snap.masterVolume : 0.7,
+      usedRevive: snap.usedRevive || false,
     });
     return true;
   } catch (e) {
