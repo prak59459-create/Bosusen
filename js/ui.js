@@ -222,6 +222,7 @@ export function renderEquipmentTab() {
         unequipSlot(slot);
         renderEquipmentTab();
         renderStatusTab();
+        saveGame();
       });
     }
     slotsEl.appendChild(box);
@@ -259,6 +260,7 @@ export function renderEquipmentTab() {
       sfx.uiClick();
       renderEquipmentTab();
       renderStatusTab();
+      saveGame();
     });
     listEl.appendChild(row);
   });
@@ -290,6 +292,7 @@ export function renderSkillsTab() {
           showToast(`スキル解放: ${skill.name}`, 'skill');
           renderSkillsTab();
           renderStatusTab();
+          saveGame();
         }
       });
     }
