@@ -363,5 +363,5 @@ function animate() {
 animate();
 
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden') saveGame();
+  if (document.visibilityState === 'hidden' && (exploreActive || state.playing)) saveGame();
 });
