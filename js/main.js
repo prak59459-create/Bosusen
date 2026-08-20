@@ -9,7 +9,7 @@ import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, ad
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, syncSettingsUI } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
-import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS } from './world.js';
+import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
   setOnOpenShop, setOnToggleMap, getPlayerLocalPos, exploreActive, setMapOpen } from './explore.js';
 import { initSkirmishUI, resetSkirmish } from './skirmish.js';
@@ -162,6 +162,24 @@ function drawMap() {
     mapCtx.beginPath();
     mapCtx.arc(x, y, 4, 0, Math.PI * 2);
     mapCtx.fillStyle = done ? 'rgba(255,215,94,0.3)' : '#ffd75e';
+    mapCtx.fill();
+  });
+
+  explorePickups.forEach(p => {
+    if (!p.mesh.visible) return;
+    const x = cx + p.localPos.x * scale, y = cy + p.localPos.z * scale;
+    mapCtx.beginPath();
+    mapCtx.arc(x, y, 3.5, 0, Math.PI * 2);
+    mapCtx.fillStyle = '#8fd35f';
+    mapCtx.fill();
+  });
+  loreMarkers.forEach(m => {
+    const chapterKey = CHAPTERS[m.chapterIndex].key;
+    if (isQuestDone(chapterKey, m.questId)) return;
+    const x = cx + m.localPos.x * scale, y = cy + m.localPos.z * scale;
+    mapCtx.beginPath();
+    mapCtx.arc(x, y, 3.5, 0, Math.PI * 2);
+    mapCtx.fillStyle = '#b39ddb';
     mapCtx.fill();
   });
 
