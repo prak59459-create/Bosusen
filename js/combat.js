@@ -356,7 +356,7 @@ export function playerAction(type) {
       } else {
         state.combo = 0;
         log('強攻撃は外れてしまった...！');
-        showCenterMsg('MISS...', '#aaa', 700);
+        showCenterMsg('MISS...', '#888888', 700);
       }
       checkPhaseTransition();
       if (!endCheck()) setTimeout(bossTurn, 500);
@@ -407,7 +407,7 @@ export function playerAction(type) {
     state.playerStam = Math.min(state.playerMaxStam, state.playerStam + 20);
     updateBars();
     log('ガードの構え。次のダメージを軽減する。');
-    showCenterMsg('GUARD', '#aad', 500);
+    showCenterMsg('GUARD', '#6f8fc4', 500);
     sfx.guard();
     setTimeout(bossTurn, 400);
 
