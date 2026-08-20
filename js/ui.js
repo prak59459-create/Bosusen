@@ -3,6 +3,7 @@ import { state, computeStats, isQuestDone, completeQuest, addShards, addItem, ow
   equipItem, unequipSlot, unlockSkill, saveGame } from './state.js';
 import { sfx, setMasterVolume } from './audio.js';
 import { setQualityPreset } from './scene.js';
+import { setMapOpen } from './explore.js';
 
 export const els = {
   playerHPFill: document.getElementById('player-hp-fill'),
@@ -380,11 +381,13 @@ export function openMenu() {
   sfx.menuOpen();
   menuPausedPlaying = state.playing;
   state.playing = false;
+  setMapOpen(true);
 }
 export function closeMenu() {
   els.menuOverlay.classList.remove('open');
   sfx.menuClose();
   state.playing = menuPausedPlaying;
+  setMapOpen(false);
 }
 
 /* ============================================================
