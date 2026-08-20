@@ -86,7 +86,7 @@ function finishSkirmish(won) {
 
 function flee() {
   if (!active) return;
-  sfx.dodgeFail();
+  sfx.menuClose();
   showToast('その場を離れた', 'info');
   finishSkirmish(false);
 }
