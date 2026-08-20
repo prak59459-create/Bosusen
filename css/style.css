@@ -19,7 +19,7 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 #loading-screen.hidden { opacity:0; pointer-events:none; }
 .loading-title { font-size:clamp(32px,8vw,48px); font-weight:bold; letter-spacing:0.15em; color:#7a3fc4; text-shadow:0 0 20px rgba(180,100,255,0.6); }
 .loading-sub { font-size:clamp(12px,3vw,15px); letter-spacing:0.3em; opacity:0.7; margin-top:6px; margin-bottom:36px; }
-.loading-bar-wrap { width:min(320px,70vw); height:6px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden; }
+.loading-bar-wrap { width:min(320px,70vw); height:6px; background:rgba(120,80,200,0.15); border-radius:4px; overflow:hidden; }
 .loading-bar-fill { height:100%; width:0%; background:linear-gradient(90deg,#7744ff,#c9a6ff); transition:width 0.2s ease-out; }
 .loading-text { margin-top:14px; font-size:12px; opacity:0.6; }
 
