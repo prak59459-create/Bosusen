@@ -66,6 +66,7 @@ export function updateBars() {
   const hpPct = Math.max(0, state.playerHP / state.playerMaxHP * 100);
   els.playerHPFill.style.width = hpPct + '%';
   els.playerHPGhost.style.width = hpPct + '%';
+  els.playerHPFill.classList.toggle('critical', hpPct > 0 && hpPct <= 25);
   els.playerHPText.textContent = `${Math.max(0, Math.round(state.playerHP))}/${state.playerMaxHP}`;
   els.playerMPFill.style.width = Math.max(0, state.playerMP / state.playerMaxMP * 100) + '%';
   els.playerMPText.textContent = `${Math.max(0, Math.round(state.playerMP))}/${state.playerMaxMP}`;

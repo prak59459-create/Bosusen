@@ -47,6 +47,8 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 .stat-bar-fill { height:100%; position:relative; z-index:2; transition: width 0.3s ease-out; }
 .stat-bar-ghost { position:absolute; top:0; left:0; height:100%; z-index:1; background:#7a1414; transition: width 0.9s ease-out 0.25s; }
 .stat-bar-fill.hp { background: linear-gradient(#ff5a6b, #c81f37); }
+.stat-bar-fill.hp.critical { animation: hp-critical-pulse 0.8s infinite; }
+@keyframes hp-critical-pulse { 0%,100%{ filter:brightness(1); } 50%{ filter:brightness(1.5); } }
 #boss-hp-fill { float:right; }
 #boss-wrap .stat-bar-bg { direction:rtl; }
 .stat-bar-bg.small { height:clamp(8px,2.2vw,10px); }
