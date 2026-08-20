@@ -43,14 +43,14 @@
 .status-grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
 .status-row {
   display:flex; justify-content:space-between; align-items:center;
-  background:rgba(255,255,255,0.04); border:1px solid rgba(120,80,200,0.08);
+  background:rgba(120,80,200,0.06); border:1px solid rgba(120,80,200,0.18);
   border-radius:8px; padding:10px 14px; font-size:13px;
 }
 .status-row b { font-size:16px; color:#7a3fc4; }
 
 .equip-slots { display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
 .equip-slot-box {
-  flex:1; min-width:150px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+  flex:1; min-width:150px; background:rgba(120,80,200,0.06); border:1px solid rgba(120,80,200,0.18);
   border-radius:10px; padding:12px; text-align:center;
 }
 .equip-slot-label { font-size:11px; opacity:0.6; margin-bottom:6px; }
@@ -63,7 +63,7 @@
 .item-list, .equip-list { display:flex; flex-direction:column; gap:10px; }
 .item-row {
   display:flex; justify-content:space-between; align-items:center; gap:10px;
-  background:rgba(255,255,255,0.04); border:1px solid rgba(120,80,200,0.08);
+  background:rgba(120,80,200,0.06); border:1px solid rgba(120,80,200,0.18);
   border-radius:10px; padding:12px 14px;
 }
 .item-row.equipped { border-color: rgba(140,220,140,0.4); }
@@ -80,7 +80,7 @@
 
 .skill-tree { display:flex; flex-direction:column; gap:10px; }
 .skill-node {
-  background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1);
+  background:rgba(120,80,200,0.06); border:1px solid rgba(120,80,200,0.18);
   border-radius:10px; padding:14px;
 }
 .skill-node.unlocked { border-color: rgba(140,220,140,0.4); background:rgba(140,220,140,0.06); }
