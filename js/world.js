@@ -254,6 +254,7 @@ CHAPTERS.forEach((chapter, i) => {
       chapterIndex: i,
       questId: skirmishQuest.id,
       quest: skirmishQuest,
+      name: `${chapter.enemyName}の眷属`,
       localPos: targetLocal,
       mesh: targetMesh,
       light: targetLight,

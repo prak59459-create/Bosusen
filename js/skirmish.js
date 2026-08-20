@@ -34,7 +34,7 @@ export function startSkirmish(target) {
   currentTarget = target;
   enemyMaxHP = target.hp || 30;
   enemyHP = enemyMaxHP;
-  els.name.textContent = `結晶獣（フィールド）`;
+  els.name.textContent = target.name || '結晶獣（フィールド）';
   els.log.textContent = '襲いかかってきた！';
   updateEnemyBar();
   els.panel.style.display = 'flex';
@@ -85,6 +85,7 @@ function finishSkirmish(won) {
 
 function flee() {
   if (!active) return;
+  sfx.dodgeFail();
   showToast('その場を離れた', 'info');
   finishSkirmish(false);
 }
