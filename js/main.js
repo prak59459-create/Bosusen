@@ -285,6 +285,7 @@ initMenu(
   () => {},
   () => {
     els.menuOverlay.classList.remove('open');
+    saveGame();
     exitExploreMode();
     document.getElementById('start-screen').style.display = 'flex';
     state.playing = false;
