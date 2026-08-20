@@ -6,7 +6,7 @@ import { bossGlow, torchFires } from './scene.js';
 import { sfx } from './audio.js';
 import { rand } from './utils.js';
 import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake } from './effects.js';
-import { els, updateBars, log, showCenterMsg, setButtonsEnabled, renderQuestTracker } from './ui.js';
+import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
 import { CHAPTERS, levelStatsFor } from './data.js';
 import { state, computeStats, addShards } from './state.js';
 
@@ -39,6 +39,10 @@ function bossHitPoint() {
 function gainCombo() {
   state.combo++;
   state.maxCombo = Math.max(state.maxCombo || 0, state.combo);
+  if (state.combo === 8) {
+    showToast('コンボ最大火力に到達！', 'quest');
+    sfx.skillUnlock();
+  }
 }
 
 function rollCrit(critPct) {
