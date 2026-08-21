@@ -38,6 +38,7 @@ export const state = {
   quality: 'high',
   screenShake: true,
   difficulty: 'normal',
+  newGamePlus: 0,
 };
 
 const DIFFICULTY_MULT = {
@@ -234,6 +235,7 @@ export function saveGame() {
       quality: state.quality,
       screenShake: state.screenShake,
       difficulty: state.difficulty,
+      newGamePlus: state.newGamePlus,
       usedRevive: state.usedRevive,
       savedAt: Date.now(),
     };
@@ -277,6 +279,7 @@ export function loadGame() {
       quality: snap.quality || 'high',
       screenShake: (snap.screenShake != null) ? snap.screenShake : true,
       difficulty: snap.difficulty || 'normal',
+      newGamePlus: snap.newGamePlus || 0,
       usedRevive: snap.usedRevive || false,
     });
     return true;

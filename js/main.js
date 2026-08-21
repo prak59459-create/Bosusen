@@ -247,7 +247,7 @@ els.startBtn.addEventListener('click', () => {
   if (!playerReady) return;
   resumeAudio();
   Object.assign(state, {
-    chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0,
+    chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0, newGamePlus: 0,
     equipment: { weapon: null, armor: null, accessory: null },
     inventory: [], unlockedSkills: [], foundTreasures: [], achievements: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
   });
@@ -286,7 +286,7 @@ els.retryBtn.addEventListener('click', () => {
   els.endScreen.style.display = 'none';
   if (isFinalWin) {
     Object.assign(state, {
-      chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0,
+      chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0, newGamePlus: 0,
       equipment: { weapon: null, armor: null, accessory: null },
       inventory: [], unlockedSkills: [], foundTreasures: [], achievements: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
     });
@@ -295,6 +295,18 @@ els.retryBtn.addEventListener('click', () => {
     setupChapterBattle(state.chapterIndex);
     startBattlePhase();
   }
+});
+
+els.ngPlusBtn.addEventListener('click', () => {
+  els.endScreen.style.display = 'none';
+  state.newGamePlus = (state.newGamePlus || 0) + 1;
+  Object.assign(state, {
+    chapterIndex: 0,
+    questProgress: {}, fieldQuests: {}, foundTreasures: [], usedRevive: false,
+  });
+  showToast(`周回+${state.newGamePlus} を開始！ 装備・スキル・実績は引き継がれる。結晶獣がより強くなる。`, 'info');
+  goExplore(null);
+  saveGame();
 });
 
 setCombatCallbacks({

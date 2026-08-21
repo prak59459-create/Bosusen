@@ -127,6 +127,7 @@ function renderEndingChoices(chapter) {
         els.endStory.textContent = ending.text;
         els.endChoices.innerHTML = '';
         els.retryBtn.style.display = 'inline-block';
+        els.ngPlusBtn.style.display = 'inline-block';
         sfx.victory();
       });
     }
@@ -140,6 +141,7 @@ function finishGame(won) {
   const isFinal = state.chapterIndex === CHAPTERS.length - 1;
   els.nextBtn.style.display = 'none';
   els.retryBtn.style.display = 'none';
+  els.ngPlusBtn.style.display = 'none';
   els.endStory.textContent = '';
   els.endRewards.textContent = '';
   els.endChoices.innerHTML = '';
@@ -466,7 +468,8 @@ export function setupChapterBattle(chapterIndex) {
   state.level = level;
   const stats = computeStats();
   const dMult = difficultyMult();
-  const scaledBossHP = Math.round(chapter.hp * dMult.hp);
+  const ngPlusMult = 1 + (state.newGamePlus || 0) * 0.25;
+  const scaledBossHP = Math.round(chapter.hp * dMult.hp * ngPlusMult);
   Object.assign(state, {
     playerHP: stats.maxHP, playerMaxHP: stats.maxHP,
     playerMP: stats.maxMP, playerMaxMP: stats.maxMP,

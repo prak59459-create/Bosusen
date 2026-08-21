@@ -53,6 +53,7 @@ export const els = {
   endChoices: document.getElementById('end-choices'),
   nextBtn: document.getElementById('next-btn'),
   retryBtn: document.getElementById('retry-btn'),
+  ngPlusBtn: document.getElementById('ngplus-btn'),
   menuBtn: document.getElementById('menu-btn'),
   menuOverlay: document.getElementById('menu-overlay'),
   menuCloseBtn: document.getElementById('menu-close-btn'),
