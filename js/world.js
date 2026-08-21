@@ -481,6 +481,7 @@ CHAPTERS.forEach((chapter, i) => {
   marker.position.set(local.x, 2.2, local.z);
   worldGroup.add(marker);
   addOutline(marker, 0x0a0816, 0.03);
+  addGlowDecal(local.x, local.z, 3.2, theme.glow);
 
   const base = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.7, 0.6, 24), makeToonMaterial({ color: theme.color }));
   base.position.set(local.x, 0.3, local.z);
@@ -529,6 +530,7 @@ CHAPTERS.forEach((chapter, i) => {
     targetMesh.position.set(targetLocal.x, 1.4, targetLocal.z);
     worldGroup.add(targetMesh);
     addOutline(targetMesh, 0x0a0816, 0.03);
+    addGlowDecal(targetLocal.x, targetLocal.z, 2.4, 0xff4444);
     const targetLight = new THREE.PointLight(0xff4444, 2, 16, 2);
     targetLight.position.set(targetLocal.x, 2.5, targetLocal.z);
     worldGroup.add(targetLight);
