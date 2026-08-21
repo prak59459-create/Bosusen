@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { scene, makeToonMaterial, addOutline, renderer } from './scene.js';
 import { CHAPTERS } from './data.js';
 import { makeCanvas } from './utils.js';
+import { mergeGeometries } from 'buffergeometryutils';
 
 /* ============================================================
    オープンワールド・ハブ ―― 数km四方の広大な大陸に4聖域・
@@ -262,6 +263,67 @@ worldGroup.add(boundary);
   rockMesh.count = placed;
   rockMesh.instanceMatrix.needsUpdate = true;
   worldGroup.add(rockMesh);
+}
+
+/* ---------- 草むら（クロスビルボード・InstancedMesh）で近景の地面密度を強化 ---------- */
+{
+  const size = 64;
+  const gCanvas = makeCanvas(size);
+  const gctx = gCanvas.getContext('2d');
+  gctx.clearRect(0, 0, size, size);
+  for (let b = 0; b < 7; b++) {
+    const bx = size * 0.5 + (Math.random() - 0.5) * size * 0.5;
+    const bottom = size * 0.98;
+    const topY = size * (0.08 + Math.random() * 0.25);
+    const bend = (Math.random() - 0.5) * size * 0.3;
+    const g = Math.random() > 0.5 ? '68,120,54' : '92,150,66';
+    gctx.strokeStyle = `rgba(${g},0.95)`;
+    gctx.lineWidth = 2 + Math.random() * 1.5;
+    gctx.beginPath();
+    gctx.moveTo(bx, bottom);
+    gctx.quadraticCurveTo(bx + bend * 0.5, (bottom + topY) / 2, bx + bend, topY);
+    gctx.stroke();
+  }
+  const grassTex = new THREE.CanvasTexture(gCanvas);
+  grassTex.colorSpace = THREE.SRGBColorSpace;
+  const grassMat = new THREE.MeshBasicMaterial({ map: grassTex, transparent: true, alphaTest: 0.3, side: THREE.DoubleSide, depthWrite: true });
+  const plane = new THREE.PlaneGeometry(1.4, 1.7);
+  plane.translate(0, 0.85, 0);
+  const plane2 = plane.clone();
+  plane2.rotateY(Math.PI / 2);
+  const crossGeo = mergeGeometries([plane, plane2]);
+  const GRASS_COUNT = 3600;
+  const grassMesh = new THREE.InstancedMesh(crossGeo, grassMat, GRASS_COUNT);
+  const dummy2 = new THREE.Object3D();
+  let gPlaced = 0, gGuard = 0;
+  while (gPlaced < GRASS_COUNT && gGuard < GRASS_COUNT * 6) {
+    gGuard++;
+    const r = 0.02 + Math.random() * 0.9;
+    const ang = Math.random() * Math.PI * 2;
+    const dist = r * WORLD_RADIUS;
+    const x = Math.cos(ang) * dist, z = Math.sin(ang) * dist;
+    let onRoad = false;
+    for (let i = 0; i < CHAPTERS.length; i++) {
+      const zAng = zoneAngle(i);
+      const zx = Math.cos(zAng) * ZONE_DIST, zz = Math.sin(zAng) * ZONE_DIST;
+      const dx = zx, dz = zz;
+      const len = Math.hypot(dx, dz);
+      const t = Math.max(0, Math.min(1, ((x * dx + z * dz) / (len * len))));
+      const px = dx * t, pz = dz * t;
+      if (Math.hypot(x - px, z - pz) < 14 && t <= 1) { onRoad = true; break; }
+    }
+    if (onRoad || dist < 12) continue;
+    const scale = 0.6 + Math.random() * 0.9;
+    dummy2.position.set(x, 0, z);
+    dummy2.rotation.y = Math.random() * Math.PI;
+    dummy2.scale.set(scale, scale * (0.7 + Math.random() * 0.6), scale);
+    dummy2.updateMatrix();
+    grassMesh.setMatrixAt(gPlaced, dummy2.matrix);
+    gPlaced++;
+  }
+  grassMesh.count = gPlaced;
+  grassMesh.instanceMatrix.needsUpdate = true;
+  worldGroup.add(grassMesh);
 }
 
 /* ---------- 聖域ごとの色つき地帯（バイオームパッチ） ---------- */
