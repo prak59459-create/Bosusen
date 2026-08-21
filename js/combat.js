@@ -68,7 +68,7 @@ export function checkPhaseTransition() {
     state.phase2 = true;
     els.phaseTag.style.display = 'inline-block';
     log(`${chapter.enemyName}が覚醒した！攻撃が激化する！`);
-    if (chapter.awakenLine) log(chapter.awakenLine);
+    if (chapter.awakenLine && state.showBossTaunts !== false) log(chapter.awakenLine);
     showCenterMsg('BOSS AWAKENS!!', '#ff4444', 1400);
     sfx.roar();
     b.userData.body.emissiveIntensity = 1.1;
@@ -194,7 +194,7 @@ function finishGame(won) {
     } else {
       els.endTitle.textContent = `🎉 勝利！${chapter.enemyName}を打ち破った 🎉`;
       els.endTitle.style.color = '#5fd35f';
-      els.endStory.textContent = VICTORY_LINES[Math.floor(Math.random() * VICTORY_LINES.length)];
+      if (state.showBossTaunts !== false) els.endStory.textContent = VICTORY_LINES[Math.floor(Math.random() * VICTORY_LINES.length)];
       els.nextBtn.style.display = 'inline-block';
     }
     if (onChapterWin) onChapterWin(state.chapterIndex, isFinal);
@@ -202,7 +202,7 @@ function finishGame(won) {
     els.endTitle.textContent = '💀 敗北... 💀';
     els.endTitle.style.color = '#e04a4a';
     els.endRank.textContent = '';
-    els.endStory.textContent = DEFEAT_LINES[Math.floor(Math.random() * DEFEAT_LINES.length)];
+    if (state.showBossTaunts !== false) els.endStory.textContent = DEFEAT_LINES[Math.floor(Math.random() * DEFEAT_LINES.length)];
     state.winStreak = 0;
     sfx.defeat();
     els.retryBtn.textContent = 'この章に再挑戦';
@@ -531,7 +531,7 @@ export function startBattlePhase() {
   log(`戦闘開始！ ${chapter.enemyName}が姿を現した！`);
   const tauntPool = chapter.taunts || BOSS_TAUNTS;
   const taunt = tauntPool[Math.floor(Math.random() * tauntPool.length)];
-  log(taunt);
+  if (state.showBossTaunts !== false) log(taunt);
   sfx.roar();
 }
 

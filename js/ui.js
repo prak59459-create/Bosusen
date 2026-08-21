@@ -466,6 +466,8 @@ export function syncSettingsUI() {
   if (difficultySelect) difficultySelect.value = state.difficulty || 'normal';
   const objectiveHintCheckbox = document.getElementById('opt-objective-hint');
   if (objectiveHintCheckbox) objectiveHintCheckbox.checked = state.showObjectiveHint !== false;
+  const bossTauntsCheckbox = document.getElementById('opt-boss-taunts');
+  if (bossTauntsCheckbox) bossTauntsCheckbox.checked = state.showBossTaunts !== false;
 }
 
 export function initMenu(onSave, onTitle) {
@@ -508,6 +510,14 @@ export function initMenu(onSave, onTitle) {
     saveGame();
   });
 
+  const bossTauntsCheckbox = document.getElementById('opt-boss-taunts');
+  bossTauntsCheckbox.checked = state.showBossTaunts !== false;
+  bossTauntsCheckbox.addEventListener('change', () => {
+    state.showBossTaunts = bossTauntsCheckbox.checked;
+    sfx.uiClick();
+    saveGame();
+  });
+
   const difficultySelect = document.getElementById('opt-difficulty');
   difficultySelect.value = state.difficulty || 'normal';
   difficultySelect.addEventListener('change', () => {
@@ -534,7 +544,7 @@ export function initMenu(onSave, onTitle) {
   });
   document.getElementById('reset-settings-btn').addEventListener('click', () => {
     Object.assign(state, {
-      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true,
+      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true,
     });
     setMasterVolume(state.masterVolume);
     setQualityPreset(state.quality);
