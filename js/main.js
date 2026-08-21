@@ -1,8 +1,9 @@
+import * as THREE from 'three';
 import { camera, composer, camFittedPos, camLookAt, mountRenderer, torchFires, bossGlow, setQualityPreset } from './scene.js';
 import { player, loadPlayerModel, playerMixer, playerReady } from './player.js';
 import * as EnemyModule from './enemy.js';
 import { spawnEnemy } from './enemy.js';
-import { updateParticles, updateShakeAndApplyCamera, triggerShake } from './effects.js';
+import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles } from './effects.js';
 import { resumeAudio, sfx, setMasterVolume } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
 import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, computeStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin } from './state.js';
@@ -282,7 +283,7 @@ els.continueBtn.addEventListener('click', () => {
   const login = checkDailyLogin();
   if (login) {
     showToast(`ログインボーナス（${login.streak}日連続） 結晶の欠片 +${login.reward}`, 'quest');
-    checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
+    checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
     saveGame();
   }
 });
@@ -321,8 +322,8 @@ els.ngPlusBtn.addEventListener('click', () => {
     questProgress: {}, fieldQuests: {}, foundTreasures: [], usedRevive: false,
   });
   showToast(`周回+${state.newGamePlus} を開始！ 装備・スキル・実績は引き継がれる。結晶獣がより強くなる。`, 'info');
-  checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
   goExplore(null);
+  checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
   saveGame();
 });
 
