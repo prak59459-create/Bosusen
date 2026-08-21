@@ -261,4 +261,5 @@ export const ACHIEVEMENTS = [
   { id:'collector',    name:'蒐集家',         desc:'商店の武具をすべて購入する。', reward:50 },
   { id:'skill_master', name:'結晶技の極致',   desc:'すべての結晶技スキルを習得する。', reward:60 },
   { id:'hard_clear',   name:'不屈の意志',     desc:'難易度「難しい」で結晶獣を撃破する。', reward:50 },
+  { id:'flawless',     name:'無傷の勝利',     desc:'被ダメージ0で結晶獣を撃破する。', reward:45 },
 ];
