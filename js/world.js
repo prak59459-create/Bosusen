@@ -391,6 +391,31 @@ function addAODecal(x, z, radius) {
   worldGroup.add(decal);
 }
 
+const glowDecalCache = {};
+function addGlowDecal(x, z, radius, color) {
+  if (!glowDecalCache[color]) {
+    const size = 128;
+    const canvas = makeCanvas(size);
+    const ctx = canvas.getContext('2d');
+    const c = new THREE.Color(color);
+    const r255 = c.r * 255 | 0, g255 = c.g * 255 | 0, b255 = c.b * 255 | 0;
+    const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    grad.addColorStop(0, `rgba(${r255},${g255},${b255},0.55)`);
+    grad.addColorStop(0.5, `rgba(${r255},${g255},${b255},0.22)`);
+    grad.addColorStop(1, `rgba(${r255},${g255},${b255},0)`);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, size, size);
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    glowDecalCache[color] = new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+  }
+  const decal = new THREE.Mesh(new THREE.CircleGeometry(radius, 20), glowDecalCache[color]);
+  decal.rotation.x = -Math.PI / 2;
+  decal.position.set(x, 0.03, z);
+  worldGroup.add(decal);
+  return decal;
+}
+
 /* ---------- ゾーンごとの装飾プロップ ---------- */
 function scatterProps(center, theme, chapterIndex, count = 16, spread = 40) {
   const rnd = () => Math.random() - 0.5;
@@ -542,6 +567,7 @@ CHAPTERS.forEach((chapter, i) => {
     pickupMesh.position.set(pickupLocal.x, 1.1, pickupLocal.z);
     worldGroup.add(pickupMesh);
     addOutline(pickupMesh, 0x0a0816, 0.02);
+    addGlowDecal(pickupLocal.x, pickupLocal.z, 1.6, 0xffcc44);
     const pickupLight = new THREE.PointLight(0xffcc44, 1.8, 10, 2);
     pickupLight.position.set(pickupLocal.x, 1.6, pickupLocal.z);
     worldGroup.add(pickupLight);
@@ -578,6 +604,7 @@ CHAPTERS.forEach((chapter, i) => {
     tMesh.position.set(tLocal.x, 1.2, tLocal.z);
     worldGroup.add(tMesh);
     addOutline(tMesh, 0x0a0816, 0.02);
+    addGlowDecal(tLocal.x, tLocal.z, 1.8, 0xffd700);
     const tLight = new THREE.PointLight(0xffaa00, 2.2, 11, 2);
     tLight.position.set(tLocal.x, 1.8, tLocal.z);
     worldGroup.add(tLight);
