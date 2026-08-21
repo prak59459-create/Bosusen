@@ -164,8 +164,11 @@ function finishGame(won) {
     state.bossesDefeated++;
     state.lifetimeBestCombo = Math.max(state.lifetimeBestCombo, state.maxCombo || 0);
     addShards(shardReward);
+    const comboBonus = Math.min(30, Math.floor((state.maxCombo || 0) / 2));
+    if (comboBonus > 0) addShards(comboBonus);
     const rankBonusNote = RANK_BONUS[rank] > 1 ? `（ランク${rank}ボーナス+${Math.round((RANK_BONUS[rank]-1)*100)}%）` : '';
-    els.endRewards.textContent = `獲得経験値 +${chapter.xp} / 結晶の欠片 +${shardReward}${rankBonusNote}（累計 ${state.totalShardsEarned}）`;
+    const comboBonusNote = comboBonus > 0 ? ` / コンボボーナス +${comboBonus}` : '';
+    els.endRewards.textContent = `獲得経験値 +${chapter.xp} / 結晶の欠片 +${shardReward}${rankBonusNote}${comboBonusNote}（累計 ${state.totalShardsEarned}）`;
     checkAchievements(undefined, rank).forEach(a => showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'));
 
     if (isFinal) {
