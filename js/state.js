@@ -166,6 +166,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (state.newGamePlus >= 1) tryUnlock('ng_plus');
   if (shopItemIds && shopItemIds.every(id => state.inventory.includes(id))) tryUnlock('collector');
   if (SKILLS.every(s => state.unlockedSkills.includes(s.id))) tryUnlock('skill_master');
+  if (state.difficulty === 'hard') tryUnlock('hard_clear');
   const otherIds = ACHIEVEMENTS.filter(a => a.id !== 'completionist').map(a => a.id);
   if (otherIds.every(id => state.achievements.includes(id))) tryUnlock('completionist');
   return newly;
