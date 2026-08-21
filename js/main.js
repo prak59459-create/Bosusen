@@ -455,11 +455,7 @@ window.addEventListener('keydown', (e) => {
 });
 
 window.addEventListener('keydown', (e) => {
-  if (e.repeat || !exploreActive) return;
-  if (e.key === 'm' || e.key === 'M') {
-    if (mapScreen.style.display === 'flex') closeMap(); else openMap();
-  } else if (e.key === 'Tab') {
-    e.preventDefault();
-    if (els.menuOverlay.classList.contains('open')) closeMenu(); else openMenu();
-  }
+  if (e.repeat || !exploreActive || e.key !== 'Tab') return;
+  e.preventDefault();
+  if (els.menuOverlay.classList.contains('open')) closeMenu(); else openMenu();
 });
