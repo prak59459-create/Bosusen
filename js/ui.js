@@ -400,14 +400,20 @@ export function renderItemsTab() {
     listEl.innerHTML += '<div class="empty-hint">所持品はまだありません。</div>';
     return;
   }
-  state.inventory.forEach(id => {
+  const slotOrder = { weapon: 0, armor: 1, accessory: 2 };
+  const slotLabel = { weapon: '武器', armor: '防具', accessory: '装飾' };
+  const sorted = [...state.inventory].filter(id => ITEMS[id]).sort((a, b) => {
+    const sa = slotOrder[ITEMS[a].slot], sb = slotOrder[ITEMS[b].slot];
+    return sa !== sb ? sa - sb : ITEMS[a].name.localeCompare(ITEMS[b].name, 'ja');
+  });
+  sorted.forEach(id => {
     const item = ITEMS[id];
-    if (!item) return;
+    const equipped = state.equipment[item.slot] === id;
     const row = document.createElement('div');
-    row.className = 'item-row';
+    row.className = 'item-row' + (equipped ? ' equipped' : '');
     row.innerHTML = `
       <div class="item-row-main">
-        <div class="item-row-name">${item.name}<span class="item-slot-tag">${item.slot === 'weapon' ? '武器' : item.slot === 'armor' ? '防具' : '装飾'}</span></div>
+        <div class="item-row-name">${item.name}<span class="item-slot-tag">${slotLabel[item.slot]}${equipped ? ' ・装備中' : ''}</span></div>
         <div class="item-row-desc">${item.desc}</div>
       </div>
     `;
