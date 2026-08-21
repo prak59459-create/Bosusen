@@ -459,6 +459,7 @@ window.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   if (shopScreen.style.display === 'flex') closeShop();
   else if (mapScreen.style.display === 'flex') closeMap();
+  else if (!els.menuOverlay.classList.contains('open') && state.playing && document.getElementById('dodge-zone').style.display !== 'flex') openMenu();
 });
 
 window.addEventListener('keydown', (e) => {
