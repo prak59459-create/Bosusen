@@ -195,6 +195,7 @@ export function renderStatusTab() {
   document.getElementById('st-shards').textContent = state.shards;
   document.getElementById('st-bosses').textContent = state.bossesDefeated || 0;
   document.getElementById('st-combo').textContent = state.lifetimeBestCombo || 0;
+  document.getElementById('st-ngplus').textContent = state.newGamePlus || 0;
 
   const achList = document.getElementById('achievement-list');
   if (achList) {
