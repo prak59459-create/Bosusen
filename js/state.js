@@ -10,6 +10,7 @@ export const state = {
   totalShardsEarned: 0,
   bossesDefeated: 0,
   lifetimeBestCombo: 0,
+  chapterClearCounts: {},
 
   playerHP: 100, playerMaxHP: 100,
   playerMP: 50, playerMaxMP: 50,
@@ -253,6 +254,7 @@ export function saveGame() {
       totalShardsEarned: state.totalShardsEarned,
       bossesDefeated: state.bossesDefeated,
       lifetimeBestCombo: state.lifetimeBestCombo,
+      chapterClearCounts: state.chapterClearCounts,
       equipment: state.equipment,
       inventory: state.inventory,
       unlockedSkills: state.unlockedSkills,
@@ -299,6 +301,7 @@ export function loadGame() {
       totalShardsEarned: snap.totalShardsEarned || 0,
       bossesDefeated: snap.bossesDefeated || 0,
       lifetimeBestCombo: snap.lifetimeBestCombo || 0,
+      chapterClearCounts: snap.chapterClearCounts || {},
       equipment: snap.equipment || { weapon:null, armor:null, accessory:null },
       inventory: snap.inventory || [],
       unlockedSkills: snap.unlockedSkills || [],

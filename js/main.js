@@ -35,7 +35,8 @@ function showStory(chapterIndex, prependText) {
   els.storyTitle.textContent = chapter.title;
   els.storyText.textContent = prependText ? (prependText + '\n\n―――\n\n' + chapter.storyBefore) : chapter.storyBefore;
   const doneCount = chapterQuestsDone(chapter.key);
-  els.questPreview.textContent = `この聖域のクエスト: ${doneCount}/${chapter.quests.length} 達成済み`;
+  const clearCount = state.chapterClearCounts[chapter.key] || 0;
+  els.questPreview.textContent = `この聖域のクエスト: ${doneCount}/${chapter.quests.length} 達成済み${clearCount > 0 ? `｜結晶獣 撃破回数: ${clearCount}` : ''}`;
   setupChapterBattle(chapterIndex);
   document.getElementById('start-screen').style.display = 'none';
   document.getElementById('quest-board-screen').style.display = 'none';
@@ -255,7 +256,7 @@ els.startBtn.addEventListener('click', () => {
   if (!playerReady) return;
   resumeAudio();
   Object.assign(state, {
-    chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0, newGamePlus: 0,
+    chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0, newGamePlus: 0, chapterClearCounts: {},
     equipment: { weapon: null, armor: null, accessory: null },
     inventory: [], unlockedSkills: [], foundTreasures: [], achievements: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
   });
@@ -301,7 +302,7 @@ els.retryBtn.addEventListener('click', () => {
   els.endScreen.style.display = 'none';
   if (isFinalWin) {
     Object.assign(state, {
-      chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0, newGamePlus: 0,
+      chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0, newGamePlus: 0, chapterClearCounts: {},
       equipment: { weapon: null, armor: null, accessory: null },
       inventory: [], unlockedSkills: [], foundTreasures: [], achievements: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
     });
