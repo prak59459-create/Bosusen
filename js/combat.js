@@ -460,6 +460,7 @@ export function setupChapterBattle(chapterIndex) {
     bossHP: chapter.hp, bossMaxHP: chapter.hp,
     healUses: 3, guarding: false, playing: false, turnBusy: false,
     combo: 0, maxCombo: 0, phase2: false, turns: 0, damageTaken: 0, skillCooldown: 0,
+    usedRevive: false,
   });
   els.phaseTag.style.display = 'none';
   spawnEnemy(chapter.enemyDef);
