@@ -187,15 +187,29 @@ ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 {
   const posAttr = ground.geometry.attributes.position;
+  const colors = new Float32Array(posAttr.count * 3);
   for (let i = 0; i < posAttr.count; i++) {
     const x = posAttr.getX(i), y = posAttr.getY(i);
     const r = Math.hypot(x, y) / WORLD_RADIUS;
     const wave = Math.sin(x * 0.0035) * Math.cos(y * 0.004) * 1.6 + Math.sin(x * 0.012 + y * 0.01) * 0.4;
     posAttr.setZ(i, wave * Math.max(0, 1 - r));
+
+    // 大域的な色ムラを頂点カラーで加え、タイリングの反復感を軽減する
+    const tint = (
+      Math.sin(x * 0.00042 + 1.7) * Math.cos(y * 0.00051 - 0.9) * 0.5 +
+      Math.sin(x * 0.0011 - y * 0.0009) * 0.5
+    ); // -1..1程度
+    const warmth = tint * 0.10;
+    colors[i * 3] = 1.0 + warmth * 0.6;
+    colors[i * 3 + 1] = 1.0 + warmth * 0.15;
+    colors[i * 3 + 2] = 1.0 - warmth * 0.55;
   }
+  ground.geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
   posAttr.needsUpdate = true;
   ground.geometry.computeVertexNormals();
 }
+groundMat.vertexColors = true;
+groundMat.needsUpdate = true;
 worldGroup.add(ground);
 
 // 世界の果ての結晶壁
