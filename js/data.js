@@ -224,6 +224,9 @@ export const ITEMS = {
   armor_voidguard:     { id:'armor_voidguard', slot:'armor', name:'虚無守りの鎧', def:16, hp:25, desc:'ヴォイドの侵蝕そのものを僅かに退ける、最後の聖域で得られる鎧。' },
   accessory_lens:      { id:'accessory_lens', slot:'accessory', name:'観測者のレンズ', crit:6, desc:'かけると、かすかに敵の弱点が見える気がする片眼鏡。' },
   accessory_core_shard: { id:'accessory_core_shard', slot:'accessory', name:'コアの欠片', mp:15, crit:4, desc:'プライム・コアからこぼれ落ちた、温かい光を放つ欠片。' },
+  sword_traveler:      { id:'sword_traveler', slot:'weapon', name:'旅商人の片刃', atk:6, crit:3, desc:'行商人が護身用に扱っていた軽量な片刃剣。振りが速い。' },
+  armor_wanderer:      { id:'armor_wanderer', slot:'armor', name:'旅人のマント', def:4, hp:10, desc:'各地を巡った行商人が譲ってくれた、丈夫な旅装束。' },
+  accessory_charm:     { id:'accessory_charm', slot:'accessory', name:'小さな護符', hp:12, mp:8, desc:'旅の安全を願って作られた素朴な護符。じんわりと力が湧く。' },
 };
 
 /* ---------- スキルツリー定義 ---------- */

@@ -303,9 +303,12 @@ CHAPTERS.forEach((chapter, i) => {
 
 /* ---------- 商店（ハブ、結晶の欠片で武器を購入）---------- */
 export const SHOP_ITEMS = [
+  { itemId: 'sword_traveler', cost: 35 },
+  { itemId: 'armor_wanderer', cost: 45 },
+  { itemId: 'accessory_charm', cost: 50 },
   { itemId: 'sword_thornblade', cost: 60 },
-  { itemId: 'sword_echo', cost: 140 },
   { itemId: 'armor_archive', cost: 100 },
+  { itemId: 'sword_echo', cost: 140 },
 ];
 export const shopLocalPos = new THREE.Vector3(8, 0, -4);
 {
