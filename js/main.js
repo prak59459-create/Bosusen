@@ -280,6 +280,7 @@ els.continueBtn.addEventListener('click', () => {
   const login = checkDailyLogin();
   if (login) {
     showToast(`ログインボーナス（${login.streak}日連続） 結晶の欠片 +${login.reward}`, 'quest');
+    checkAchievements().forEach(a => showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'));
     saveGame();
   }
 });
