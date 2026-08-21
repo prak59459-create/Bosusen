@@ -7,7 +7,7 @@ import { sfx } from './audio.js';
 import { rand } from './utils.js';
 import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake } from './effects.js';
 import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
-import { CHAPTERS, levelStatsFor, BOSS_TAUNTS } from './data.js';
+import { CHAPTERS, levelStatsFor, BOSS_TAUNTS, VICTORY_LINES } from './data.js';
 import { state, computeStats, addShards, difficultyMult, checkAchievements } from './state.js';
 
 let dodgeActive = false;
@@ -193,6 +193,7 @@ function finishGame(won) {
     } else {
       els.endTitle.textContent = `🎉 勝利！${chapter.enemyName}を打ち破った 🎉`;
       els.endTitle.style.color = '#5fd35f';
+      els.endStory.textContent = VICTORY_LINES[Math.floor(Math.random() * VICTORY_LINES.length)];
       els.nextBtn.style.display = 'inline-block';
     }
     if (onChapterWin) onChapterWin(state.chapterIndex, isFinal);

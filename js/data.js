@@ -263,6 +263,13 @@ export const BOSS_TAUNTS = [
   '「記憶など、この地では何の意味も持たない」',
 ];
 
+export const VICTORY_LINES = [
+  '「……見事だ。エーテルの奔流が、お前を選んだのかもしれない」',
+  '「これで、この地に安らぎが少し戻るだろう」',
+  '「アッシュ、お前の剣は本物だ」',
+  '「まだ、道は長い。だが今は……勝利を噛み締めろ」',
+];
+
 export const ACHIEVEMENTS = [
   { id:'first_boss',   name:'初陣の証',       desc:'結晶獣を初めて撃破する。', reward:20 },
   { id:'boss_master',  name:'結晶獣狩り',     desc:'結晶獣を4体撃破する。', reward:50 },
