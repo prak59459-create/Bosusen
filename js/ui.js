@@ -312,10 +312,9 @@ export function renderEquipmentTab() {
     if (!equipped) {
       const equippedId = state.equipment[item.slot];
       const equippedItem = equippedId ? ITEMS[equippedId] : null;
-      const scoreOf = it => (it.atk||0)*1.5 + (it.def||0)*1.5 + (it.crit||0)*1.2 + (it.hp||0)*0.3 + (it.mp||0)*0.2;
       if (!equippedItem) upgradeTag = ' <span style="color:#2e8b45;">▲装備なし</span>';
       else {
-        const diff = scoreOf(item) - scoreOf(equippedItem);
+        const diff = itemScore(item) - itemScore(equippedItem);
         if (diff > 0) upgradeTag = ' <span style="color:#2e8b45;">▲強化</span>';
         else if (diff < 0) upgradeTag = ' <span style="color:#a3790a;">▼弱化</span>';
       }
