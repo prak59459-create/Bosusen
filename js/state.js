@@ -177,6 +177,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (state.lifetimeBestCombo >= 30) tryUnlock('combo_30');
   if (state.lifetimeBestCombo >= 50) tryUnlock('combo_50');
   if (state.totalDistanceTraveled >= 10000) tryUnlock('wanderer');
+  if (state.totalDistanceTraveled >= 50000) tryUnlock('pilgrim');
   if (state.totalShardsEarned >= 300) tryUnlock('shard_rich');
   if (hiddenTreasureTotal != null && state.foundTreasures.length >= hiddenTreasureTotal) tryUnlock('treasure_hunter');
   if (lastRank === 'S') tryUnlock('rank_s');
