@@ -144,6 +144,7 @@ export function unlockAchievement(id) {
   const ach = ACHIEVEMENTS.find(a => a.id === id);
   if (!ach) return null;
   state.achievements.push(id);
+  if (ach.reward) addShards(ach.reward);
   return ach;
 }
 

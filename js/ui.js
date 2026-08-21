@@ -206,7 +206,7 @@ export function renderStatusTab() {
       row.innerHTML = `
         <div>
           <div class="item-row-name">${unlocked ? '🏆 ' : '🔒 '}${a.name}</div>
-          <div class="item-row-desc">${a.desc}</div>
+          <div class="item-row-desc">${a.desc}（報酬: 欠片${a.reward || 0}）</div>
         </div>
       `;
       achList.appendChild(row);

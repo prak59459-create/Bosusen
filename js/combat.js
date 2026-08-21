@@ -156,7 +156,7 @@ function finishGame(won) {
     state.lifetimeBestCombo = Math.max(state.lifetimeBestCombo, state.maxCombo || 0);
     addShards(shardReward);
     els.endRewards.textContent = `獲得経験値 +${chapter.xp} / 結晶の欠片 +${shardReward}（累計 ${state.totalShardsEarned}）`;
-    checkAchievements().forEach(a => showToast(`実績解除: ${a.name}`, 'quest'));
+    checkAchievements().forEach(a => showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'));
 
     if (isFinal) {
       els.endTitle.textContent = '選択のとき';
