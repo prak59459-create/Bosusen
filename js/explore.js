@@ -386,6 +386,7 @@ export function updateExplore(dt) {
 function updateNearestObjective() {
   const el = document.getElementById('nearest-objective');
   if (!el) return;
+  if (state.showObjectiveHint === false) { el.style.display = 'none'; return; }
   const candidates = [];
   fieldTargets.forEach(t => {
     const chapterKey = CHAPTERS[t.chapterIndex].key;

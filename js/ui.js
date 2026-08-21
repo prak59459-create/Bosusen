@@ -451,6 +451,8 @@ export function syncSettingsUI() {
   if (shakeCheckbox) shakeCheckbox.checked = state.screenShake !== false;
   const difficultySelect = document.getElementById('opt-difficulty');
   if (difficultySelect) difficultySelect.value = state.difficulty || 'normal';
+  const objectiveHintCheckbox = document.getElementById('opt-objective-hint');
+  if (objectiveHintCheckbox) objectiveHintCheckbox.checked = state.showObjectiveHint !== false;
 }
 
 export function initMenu(onSave, onTitle) {
@@ -481,6 +483,14 @@ export function initMenu(onSave, onTitle) {
   shakeCheckbox.checked = state.screenShake !== false;
   shakeCheckbox.addEventListener('change', () => {
     state.screenShake = shakeCheckbox.checked;
+    sfx.uiClick();
+    saveGame();
+  });
+
+  const objectiveHintCheckbox = document.getElementById('opt-objective-hint');
+  objectiveHintCheckbox.checked = state.showObjectiveHint !== false;
+  objectiveHintCheckbox.addEventListener('change', () => {
+    state.showObjectiveHint = objectiveHintCheckbox.checked;
     sfx.uiClick();
     saveGame();
   });
