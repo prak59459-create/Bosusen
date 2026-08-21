@@ -240,10 +240,31 @@ export function renderStatusTab() {
 /* ============================================================
    メニュー：装備タブ
    ============================================================ */
+function itemScore(item) {
+  return (item.atk || 0) * 1.5 + (item.def || 0) * 1.5 + (item.crit || 0) * 1.2 + (item.hp || 0) * 0.3 + (item.mp || 0) * 0.2;
+}
+
 export function renderEquipmentTab() {
   const slotsEl = document.getElementById('equip-slots');
   const listEl = document.getElementById('equip-list');
   const slotNames = { weapon: '武器', armor: '防具', accessory: '装飾' };
+  const autoBtn = document.getElementById('auto-equip-btn');
+  if (autoBtn) {
+    autoBtn.onclick = () => {
+      let changed = false;
+      Object.keys(slotNames).forEach(slot => {
+        const candidates = state.inventory.filter(id => ITEMS[id] && ITEMS[id].slot === slot);
+        if (candidates.length === 0) return;
+        const best = candidates.reduce((a, b) => itemScore(ITEMS[a]) >= itemScore(ITEMS[b]) ? a : b);
+        if (state.equipment[slot] !== best) { equipItem(best); changed = true; }
+      });
+      sfx.uiClick();
+      showToast(changed ? '最強装備に切り替えました' : 'すでに最適な装備です', 'info');
+      renderEquipmentTab();
+      renderStatusTab();
+      saveGame();
+    };
+  }
   slotsEl.innerHTML = '';
   Object.keys(slotNames).forEach(slot => {
     const itemId = state.equipment[slot];
