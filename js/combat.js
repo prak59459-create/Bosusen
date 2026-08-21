@@ -312,7 +312,11 @@ export function playerAction(type) {
   if (!state.playing || state.turnBusy) return;
 
   if (type === 'attack' && state.playerStam < 10) { log('スタミナが足りない！'); return; }
-  if (type === 'heavy' && state.playerStam < 30) { log('スタミナが足りない！'); return; }
+  const stats0 = computeStats();
+  const stamMult = Math.max(0.4, 1 + (stats0.staminaCostPct || 0));
+  const attackStamCost = Math.round(10 * stamMult);
+  const heavyStamCost = Math.round(30 * stamMult);
+  if (type === 'heavy' && state.playerStam < heavyStamCost) { log('スタミナが足りない！'); return; }
   if (type === 'skill' && (state.playerMP < 25 || state.skillCooldown > 0)) { log('結晶技は使えない！'); return; }
   if (type === 'heal' && state.healUses <= 0) { log('回復はもう使えない！'); return; }
 
@@ -326,7 +330,7 @@ export function playerAction(type) {
   const b = getBoss();
 
   if (type === 'attack') {
-    state.playerStam -= 10;
+    state.playerStam -= attackStamCost;
     playerMotionBeat('attack');
     animateLunge(player, new THREE.Vector3(1, 0, -1), 0.7, 300);
     sfx.swing();
@@ -349,7 +353,7 @@ export function playerAction(type) {
     }, 250);
 
   } else if (type === 'heavy') {
-    state.playerStam -= 30;
+    state.playerStam -= heavyStamCost;
     playerMotionBeat('heavy');
     animateLunge(player, new THREE.Vector3(1, 0, -1), 1.0, 480);
     sfx.swing();

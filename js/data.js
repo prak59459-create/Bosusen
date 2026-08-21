@@ -238,5 +238,6 @@ export const SKILLS = [
   { id:'dodge_up',  name:'疾風の反射神経',   cost:40, desc:'ガード／パリィの受付時間が+15%長くなる。', effect:{ dodgeWindowPct:0.15 } },
   { id:'parry_up',  name:'パリィの極意',     cost:50, desc:'パリィ成功時の反撃ダメージが+50%される。', effect:{ parryBonusPct:0.5 } },
   { id:'heal_up',   name:'癒しの心得',       cost:35, desc:'回復技のHP回復量が+40%される。', effect:{ healBonusPct:0.4 } },
+  { id:'stam_up',   name:'省エネの型',       cost:35, desc:'攻撃／強攻撃のスタミナ消費が-20%される。', effect:{ staminaCostPct:-0.2 } },
   { id:'revive',    name:'蘇生の残光',       cost:80, desc:'戦闘不能になったとき、一度だけHP30%で復活する。', effect:{ revive:true } },
 ];
