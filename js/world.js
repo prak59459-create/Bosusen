@@ -226,6 +226,44 @@ boundary.rotation.x = Math.PI / 2;
 boundary.position.y = 2;
 worldGroup.add(boundary);
 
+/* ---------- 遠方の野生地帯に散らばる岩・小石（InstancedMesh） ---------- */
+{
+  const rockGeo = new THREE.DodecahedronGeometry(1, 0);
+  const rockMat = makeToonMaterial({ color: 0x726a72, emissive: 0x14101a, emissiveIntensity: 0.25 });
+  const ROCK_COUNT = 2600;
+  const rockMesh = new THREE.InstancedMesh(rockGeo, rockMat, ROCK_COUNT);
+  rockMesh.castShadow = true;
+  rockMesh.receiveShadow = true;
+  const dummy = new THREE.Object3D();
+  let placed = 0;
+  let guard = 0;
+  while (placed < ROCK_COUNT && guard < ROCK_COUNT * 6) {
+    guard++;
+    const r = 0.24 + Math.random() * 0.68; // 起伏帯（0.22〜0.94付近）に集中させる
+    const ang = Math.random() * Math.PI * 2;
+    const dist = r * WORLD_RADIUS;
+    const x = Math.cos(ang) * dist, z = Math.sin(ang) * dist;
+    // 各聖域への道や拠点周辺（半径60m）は避けて自然な野原にのみ配置する
+    let tooClose = false;
+    for (let i = 0; i < CHAPTERS.length; i++) {
+      const zx = Math.cos((i / CHAPTERS.length) * Math.PI * 2 - Math.PI / 2) * ZONE_DIST;
+      const zz = Math.sin((i / CHAPTERS.length) * Math.PI * 2 - Math.PI / 2) * ZONE_DIST;
+      if (Math.hypot(x - zx, z - zz) < 70) { tooClose = true; break; }
+    }
+    if (tooClose || dist < 90) continue;
+    const scale = 0.5 + Math.random() * 2.1;
+    dummy.position.set(x, scale * 0.35, z);
+    dummy.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+    dummy.scale.set(scale, scale * (0.6 + Math.random() * 0.5), scale);
+    dummy.updateMatrix();
+    rockMesh.setMatrixAt(placed, dummy.matrix);
+    placed++;
+  }
+  rockMesh.count = placed;
+  rockMesh.instanceMatrix.needsUpdate = true;
+  worldGroup.add(rockMesh);
+}
+
 /* ---------- 聖域ごとの色つき地帯（バイオームパッチ） ---------- */
 function buildBiomePatch(theme) {
   const size = 512;
