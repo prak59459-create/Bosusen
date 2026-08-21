@@ -65,6 +65,7 @@ export const els = {
 
 let wasHpCritical = false;
 const TITLE_TIERS = [
+  { min: 21, title: '神話の' },
   { min: 15, title: '至高の' },
   { min: 10, title: '伝説の' },
   { min: 6,  title: '熟練の' },
