@@ -327,12 +327,37 @@ CHAPTERS.forEach((_, i) => {
   }
 });
 
+/* ---------- 接地感を出す簡易AOブロブ ---------- */
+function buildAODecalTexture() {
+  const size = 128;
+  const canvas = makeCanvas(size);
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  grad.addColorStop(0, 'rgba(10,8,16,0.45)');
+  grad.addColorStop(0.6, 'rgba(10,8,16,0.2)');
+  grad.addColorStop(1, 'rgba(10,8,16,0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, size, size);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+const aoDecalTex = buildAODecalTexture();
+const aoDecalMat = new THREE.MeshBasicMaterial({ map: aoDecalTex, transparent: true, depthWrite: false });
+function addAODecal(x, z, radius) {
+  const decal = new THREE.Mesh(new THREE.CircleGeometry(radius, 16), aoDecalMat);
+  decal.rotation.x = -Math.PI / 2;
+  decal.position.set(x, 0.02, z);
+  worldGroup.add(decal);
+}
+
 /* ---------- ゾーンごとの装飾プロップ ---------- */
 function scatterProps(center, theme, chapterIndex, count = 16, spread = 40) {
   const rnd = () => Math.random() - 0.5;
   const propMat = makeToonMaterial({ color: theme.color });
   for (let i = 0; i < count; i++) {
     const ox = center.x + rnd() * spread, oz = center.z + rnd() * spread;
+    addAODecal(ox, oz, 0.9 + Math.random() * 0.6);
     let mesh;
     if (chapterIndex === 0) {
       mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.5, 2.2 + Math.random(), 8), propMat);
