@@ -148,7 +148,7 @@ export function unlockAchievement(id) {
   return ach;
 }
 
-export function checkAchievements(hiddenTreasureTotal) {
+export function checkAchievements(hiddenTreasureTotal, lastRank) {
   const newly = [];
   const tryUnlock = id => { const a = unlockAchievement(id); if (a) newly.push(a); };
   if (state.bossesDefeated >= 1) tryUnlock('first_boss');
@@ -157,6 +157,7 @@ export function checkAchievements(hiddenTreasureTotal) {
   if (state.lifetimeBestCombo >= 20) tryUnlock('combo_20');
   if (state.totalShardsEarned >= 300) tryUnlock('shard_rich');
   if (hiddenTreasureTotal != null && state.foundTreasures.length >= hiddenTreasureTotal) tryUnlock('treasure_hunter');
+  if (lastRank === 'S') tryUnlock('rank_s');
   return newly;
 }
 

@@ -159,7 +159,7 @@ function finishGame(won) {
     addShards(shardReward);
     const rankBonusNote = RANK_BONUS[rank] > 1 ? `（ランク${rank}ボーナス+${Math.round((RANK_BONUS[rank]-1)*100)}%）` : '';
     els.endRewards.textContent = `獲得経験値 +${chapter.xp} / 結晶の欠片 +${shardReward}${rankBonusNote}（累計 ${state.totalShardsEarned}）`;
-    checkAchievements().forEach(a => showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'));
+    checkAchievements(undefined, rank).forEach(a => showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'));
 
     if (isFinal) {
       els.endTitle.textContent = '選択のとき';

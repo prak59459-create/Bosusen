@@ -250,4 +250,5 @@ export const ACHIEVEMENTS = [
   { id:'combo_20',     name:'無双の剣',       desc:'コンボを20以上つなげる。', reward:40 },
   { id:'treasure_hunter', name:'秘宝の探求者', desc:'すべての結晶の秘宝を発見する。', reward:60 },
   { id:'shard_rich',   name:'結晶長者',       desc:'結晶の欠片を累計300獲得する。', reward:30 },
+  { id:'rank_s',       name:'完璧なる一撃',   desc:'結晶獣戦で評価ランクSを獲得する。', reward:40 },
 ];
