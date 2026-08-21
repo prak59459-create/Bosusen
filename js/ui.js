@@ -390,8 +390,14 @@ export function renderSkillsTab() {
 export function renderItemsTab() {
   const listEl = document.getElementById('item-list');
   listEl.innerHTML = '';
+  const totalItems = Object.keys(ITEMS).length;
+  const progressRow = document.createElement('div');
+  progressRow.className = 'empty-hint';
+  progressRow.style.padding = '2px 4px 12px';
+  progressRow.textContent = `所持: ${state.inventory.length} / ${totalItems}`;
+  listEl.appendChild(progressRow);
   if (state.inventory.length === 0) {
-    listEl.innerHTML = '<div class="empty-hint">所持品はまだありません。</div>';
+    listEl.innerHTML += '<div class="empty-hint">所持品はまだありません。</div>';
     return;
   }
   state.inventory.forEach(id => {
