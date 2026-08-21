@@ -353,6 +353,11 @@ setLoadingProgress(0.05, '結晶データを読み込み中...');
 loadPlayerModel((frac) => {
   setLoadingProgress(0.1 + frac * 0.85, `アッシュの記憶を再構築中... ${Math.round(frac * 100)}%`);
 }).then(() => {
+  if (!playerReady) {
+    setLoadingProgress(1, '読み込みに失敗しました。ページを再読み込みしてください。');
+    els.startBtn.textContent = '読み込み失敗';
+    return;
+  }
   setLoadingProgress(1, '準備完了');
   els.startBtn.textContent = '物語を始める';
   els.startBtn.style.opacity = '1';
