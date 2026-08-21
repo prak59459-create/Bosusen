@@ -170,9 +170,15 @@ function tryTurnInOrAccept(giver) {
 }
 
 function tryDefeatTarget(target) {
+  const chapterKey = CHAPTERS[target.chapterIndex].key;
+  if (isQuestDone(chapterKey, target.questId)) return;
   const fState = fieldQuestState(target.questId);
   if (fState === 'accepted') {
     startSkirmish(target);
+  } else if (fState === 'ready_turnin') {
+    showToast('依頼人の元へ戻って報告しよう', 'info');
+  } else {
+    showToast('まずは依頼人から討伐を受注しよう', 'info');
   }
 }
 
