@@ -395,7 +395,7 @@ export function playerAction(type) {
     sfx.swing();
     setTimeout(() => {
       if (!state.playing) return;
-      const success = Math.random() > 0.12;
+      const success = Math.random() > 0.12 * (1 - (stats.heavyAccuracyPct || 0));
       if (success) {
         const crit = rollCrit(stats.crit);
         let dmg = Math.round((rand(20, 32) + stats.atk) * comboMult);
