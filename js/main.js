@@ -238,7 +238,7 @@ els.startBtn.addEventListener('click', () => {
   if (!playerReady) return;
   resumeAudio();
   Object.assign(state, {
-    chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0,
+    chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0,
     equipment: { weapon: null, armor: null, accessory: null },
     inventory: [], unlockedSkills: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
   });
@@ -277,7 +277,7 @@ els.retryBtn.addEventListener('click', () => {
   els.endScreen.style.display = 'none';
   if (isFinalWin) {
     Object.assign(state, {
-      chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0,
+      chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0,
       equipment: { weapon: null, armor: null, accessory: null },
       inventory: [], unlockedSkills: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
     });

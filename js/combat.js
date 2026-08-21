@@ -152,6 +152,8 @@ function finishGame(won) {
 
     const shardReward = Math.round(chapter.shardsBase * difficultyMult().shards);
     state.xp += chapter.xp;
+    state.bossesDefeated++;
+    state.lifetimeBestCombo = Math.max(state.lifetimeBestCombo, state.maxCombo || 0);
     addShards(shardReward);
     els.endRewards.textContent = `獲得経験値 +${chapter.xp} / 結晶の欠片 +${shardReward}（累計 ${state.totalShardsEarned}）`;
 

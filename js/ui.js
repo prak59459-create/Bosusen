@@ -192,6 +192,8 @@ export function renderStatusTab() {
   document.getElementById('st-hp').textContent = s.maxHP;
   document.getElementById('st-mp').textContent = s.maxMP;
   document.getElementById('st-shards').textContent = state.shards;
+  document.getElementById('st-bosses').textContent = state.bossesDefeated || 0;
+  document.getElementById('st-combo').textContent = state.lifetimeBestCombo || 0;
 }
 
 /* ============================================================
