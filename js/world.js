@@ -256,10 +256,50 @@ function addBiomePatch(center, theme, radius) {
 }
 
 /* ---------- 道（ハブ～各聖域） ---------- */
+function buildRoadTexture() {
+  const size = 512;
+  const canvas = makeCanvas(size);
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#463a63';
+  ctx.fillRect(0, 0, size, size);
+  for (let i = 0; i < 900; i++) {
+    const x = Math.random() * size, y = Math.random() * size;
+    const v = 50 + Math.random() * 40;
+    ctx.fillStyle = `rgba(${v},${v - 6},${v + 20},${0.10 + Math.random() * 0.14})`;
+    ctx.beginPath();
+    ctx.ellipse(x, y, 2 + Math.random() * 3, 1.5 + Math.random() * 2, Math.random() * Math.PI, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  for (let i = 0; i < 220; i++) {
+    const x = Math.random() * size, y = Math.random() * size;
+    const r = 3 + Math.random() * 5;
+    ctx.fillStyle = `rgba(30,22,45,${0.15 + Math.random() * 0.15})`;
+    ctx.beginPath();
+    ctx.ellipse(x, y, r, r * 0.6, Math.random() * Math.PI, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.strokeStyle = 'rgba(20,14,30,0.25)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(size * 0.12, 0); ctx.lineTo(size * 0.12, size);
+  ctx.moveTo(size * 0.88, 0); ctx.lineTo(size * 0.88, size);
+  ctx.stroke();
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.generateMipmaps = true;
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  return tex;
+}
+const roadTex = buildRoadTexture();
 CHAPTERS.forEach((_, i) => {
   const local = zoneLocalPos(i);
   const segments = 24;
-  const roadMat = makeToonMaterial({ color: 0x4a3f6a, emissive: 0x120a20, emissiveIntensity: 0.3 });
+  const segLen = local.length() / segments;
+  const roadMap = roadTex.clone();
+  roadMap.needsUpdate = true;
+  roadMap.repeat.set(1, Math.max(1, Math.round(segLen / 6)));
+  const roadMat = makeToonMaterial({ map: roadMap, color: 0xffffff, emissive: 0x120a20, emissiveIntensity: 0.15 });
   for (let s = 0; s < segments; s++) {
     const t0 = s / segments, t1 = (s + 1) / segments;
     const midT = (t0 + t1) / 2;
