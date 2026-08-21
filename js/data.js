@@ -270,6 +270,12 @@ export const VICTORY_LINES = [
   '「まだ、道は長い。だが今は……勝利を噛み締めろ」',
 ];
 
+export const DEFEAT_LINES = [
+  '「まだ、其処までか……修練が足りぬようだ」',
+  '「エーテルに呑まれるな。次こそは違う結末を」',
+  '「立ち上がれ。物語はまだ終わっていない」',
+];
+
 export const ACHIEVEMENTS = [
   { id:'first_boss',   name:'初陣の証',       desc:'結晶獣を初めて撃破する。', reward:20 },
   { id:'boss_master',  name:'結晶獣狩り',     desc:'結晶獣を4体撃破する。', reward:50 },

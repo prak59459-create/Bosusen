@@ -7,7 +7,7 @@ import { sfx } from './audio.js';
 import { rand } from './utils.js';
 import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake } from './effects.js';
 import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
-import { CHAPTERS, levelStatsFor, BOSS_TAUNTS, VICTORY_LINES } from './data.js';
+import { CHAPTERS, levelStatsFor, BOSS_TAUNTS, VICTORY_LINES, DEFEAT_LINES } from './data.js';
 import { state, computeStats, addShards, difficultyMult, checkAchievements } from './state.js';
 
 let dodgeActive = false;
@@ -201,6 +201,7 @@ function finishGame(won) {
     els.endTitle.textContent = '💀 敗北... 💀';
     els.endTitle.style.color = '#e04a4a';
     els.endRank.textContent = '';
+    els.endStory.textContent = DEFEAT_LINES[Math.floor(Math.random() * DEFEAT_LINES.length)];
     state.winStreak = 0;
     sfx.defeat();
     els.retryBtn.textContent = 'この章に再挑戦';
