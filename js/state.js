@@ -199,6 +199,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (Object.values(state.chapterClearCounts).some(c => c >= 5)) tryUnlock('veteran_hunter');
   if (state.winStreak >= 3) tryUnlock('win_streak_3');
   if (state.winStreak >= 5) tryUnlock('win_streak_5');
+  if (totalQuestsDone() >= totalQuestsAll()) tryUnlock('quest_complete');
   const otherIds = ACHIEVEMENTS.filter(a => a.id !== 'completionist').map(a => a.id);
   if (otherIds.every(id => state.achievements.includes(id))) tryUnlock('completionist');
   return newly;
