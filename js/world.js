@@ -194,7 +194,12 @@ ground.receiveShadow = true;
     const wave = Math.sin(x * 0.0035) * Math.cos(y * 0.004) * 1.6
       + Math.sin(x * 0.012 + y * 0.01) * 0.4
       + Math.sin(x * 0.05 - y * 0.043) * 0.08;
-    posAttr.setZ(i, wave * Math.max(0, 1 - r));
+    // ハブ・道・聖域周辺（中心付近）は平坦に保ち、遠方でのみ緩やかに起伏させる。
+    // 世界の果て付近は境界の結晶壁と自然に馴染むよう再び滑らかにする。
+    const rampIn = Math.min(1, Math.max(0, (r - 0.22) / 0.18));
+    const rampOut = Math.min(1, Math.max(0, (0.94 - r) / 0.08));
+    const falloff = rampIn * rampOut;
+    posAttr.setZ(i, wave * falloff);
 
     // 大域的な色ムラを頂点カラーで加え、タイリングの反復感を軽減する
     const tint = (
