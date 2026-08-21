@@ -177,6 +177,9 @@ export function renderQuestBoard(chapterIndex, onResolve) {
   const chapter = CHAPTERS[chapterIndex];
   els.qbChapterTag.textContent = chapter.sanctuaryLabel;
   els.qbQuestList.innerHTML = '';
+  const doneCount = chapter.quests.filter(q => isQuestDone(chapter.key, q.id)).length;
+  const progressFill = document.getElementById('qb-progress-fill');
+  if (progressFill) progressFill.style.width = `${Math.round((doneCount / chapter.quests.length) * 100)}%`;
   chapter.quests.forEach(q => {
     const done = isQuestDone(chapter.key, q.id);
     const card = document.createElement('div');
