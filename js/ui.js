@@ -308,9 +308,21 @@ export function renderEquipmentTab() {
     if (item.crit) statParts.push(`会心+${item.crit}%`);
     if (item.hp) statParts.push(`HP+${item.hp}`);
     if (item.mp) statParts.push(`エーテル+${item.mp}`);
+    let upgradeTag = '';
+    if (!equipped) {
+      const equippedId = state.equipment[item.slot];
+      const equippedItem = equippedId ? ITEMS[equippedId] : null;
+      const scoreOf = it => (it.atk||0)*1.5 + (it.def||0)*1.5 + (it.crit||0)*1.2 + (it.hp||0)*0.3 + (it.mp||0)*0.2;
+      if (!equippedItem) upgradeTag = ' <span style="color:#2e8b45;">▲装備なし</span>';
+      else {
+        const diff = scoreOf(item) - scoreOf(equippedItem);
+        if (diff > 0) upgradeTag = ' <span style="color:#2e8b45;">▲強化</span>';
+        else if (diff < 0) upgradeTag = ' <span style="color:#a3790a;">▼弱化</span>';
+      }
+    }
     row.innerHTML = `
       <div class="item-row-main">
-        <div class="item-row-name">${item.name}</div>
+        <div class="item-row-name">${item.name}${upgradeTag}</div>
         <div class="item-row-stats">${statParts.join(' / ')}</div>
         <div class="item-row-desc">${item.desc}</div>
       </div>
