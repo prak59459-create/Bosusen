@@ -13,6 +13,7 @@ export const state = {
   chapterClearCounts: {},
   winStreak: 0,
   bestWinStreak: 0,
+  totalDistanceTraveled: 0,
 
   playerHP: 100, playerMaxHP: 100,
   playerMP: 50, playerMaxMP: 50,
@@ -175,6 +176,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (state.lifetimeBestCombo >= 20) tryUnlock('combo_20');
   if (state.lifetimeBestCombo >= 30) tryUnlock('combo_30');
   if (state.lifetimeBestCombo >= 50) tryUnlock('combo_50');
+  if (state.totalDistanceTraveled >= 10000) tryUnlock('wanderer');
   if (state.totalShardsEarned >= 300) tryUnlock('shard_rich');
   if (hiddenTreasureTotal != null && state.foundTreasures.length >= hiddenTreasureTotal) tryUnlock('treasure_hunter');
   if (lastRank === 'S') tryUnlock('rank_s');
@@ -265,6 +267,7 @@ export function saveGame() {
       chapterClearCounts: state.chapterClearCounts,
       winStreak: state.winStreak,
       bestWinStreak: state.bestWinStreak,
+      totalDistanceTraveled: state.totalDistanceTraveled,
       equipment: state.equipment,
       inventory: state.inventory,
       unlockedSkills: state.unlockedSkills,
@@ -315,6 +318,7 @@ export function loadGame() {
       chapterClearCounts: snap.chapterClearCounts || {},
       winStreak: snap.winStreak || 0,
       bestWinStreak: snap.bestWinStreak || 0,
+      totalDistanceTraveled: snap.totalDistanceTraveled || 0,
       equipment: snap.equipment || { weapon:null, armor:null, accessory:null },
       inventory: snap.inventory || [],
       unlockedSkills: snap.unlockedSkills || [],

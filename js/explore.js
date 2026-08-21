@@ -267,6 +267,7 @@ export function updateExplore(dt) {
     facing = moveAng;
     localPos.x += Math.sin(moveAng) * speed * dt;
     localPos.z += Math.cos(moveAng) * speed * dt;
+    state.totalDistanceTraveled = (state.totalDistanceTraveled || 0) + speed * dt;
     const r = Math.hypot(localPos.x, localPos.z);
     if (r > WORLD_RADIUS - 4) {
       const s = (WORLD_RADIUS - 4) / r;
@@ -380,6 +381,7 @@ export function updateExplore(dt) {
   if (objectiveTimer <= 0) {
     objectiveTimer = 0.5;
     updateNearestObjective();
+    checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
   }
 }
 

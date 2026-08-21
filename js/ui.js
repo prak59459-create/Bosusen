@@ -214,6 +214,7 @@ export function renderStatusTab() {
   document.getElementById('st-ngplus').textContent = state.newGamePlus || 0;
   document.getElementById('st-loginstreak').textContent = state.loginStreak || 0;
   document.getElementById('st-winstreak').textContent = state.bestWinStreak || 0;
+  document.getElementById('st-distance').textContent = `${Math.round(state.totalDistanceTraveled || 0)}m`;
 
   const achList = document.getElementById('achievement-list');
   if (achList) {
