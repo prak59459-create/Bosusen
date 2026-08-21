@@ -7,7 +7,7 @@ import { sfx } from './audio.js';
 import { rand } from './utils.js';
 import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake } from './effects.js';
 import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
-import { CHAPTERS, levelStatsFor } from './data.js';
+import { CHAPTERS, levelStatsFor, BOSS_TAUNTS } from './data.js';
 import { state, computeStats, addShards, difficultyMult, checkAchievements } from './state.js';
 
 let dodgeActive = false;
@@ -525,6 +525,8 @@ export function startBattlePhase() {
   state.playing = true;
   updateBars();
   log(`戦闘開始！ ${CHAPTERS[state.chapterIndex].enemyName}が姿を現した！`);
+  const taunt = BOSS_TAUNTS[Math.floor(Math.random() * BOSS_TAUNTS.length)];
+  log(taunt);
   sfx.roar();
 }
 

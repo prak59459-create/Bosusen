@@ -255,6 +255,14 @@ export const SKILLS = [
   { id:'revive_up', name:'蘇生の輝き',       cost:60, desc:'蘇生時の復活HPが+20%される（要：蘇生の残光）。', effect:{ reviveHpPct:0.2 } },
 ];
 
+export const BOSS_TAUNTS = [
+  '「……侵入者か。この地に眠るものを暴くつもりか」',
+  '「エーテルの匂いがする。お前もいずれ結晶に還る」',
+  '「無駄なことを。虚無はすべてを飲み込む」',
+  '「その剣で、私を止められるとでも？」',
+  '「記憶など、この地では何の意味も持たない」',
+];
+
 export const ACHIEVEMENTS = [
   { id:'first_boss',   name:'初陣の証',       desc:'結晶獣を初めて撃破する。', reward:20 },
   { id:'boss_master',  name:'結晶獣狩り',     desc:'結晶獣を4体撃破する。', reward:50 },
