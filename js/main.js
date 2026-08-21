@@ -473,4 +473,5 @@ window.addEventListener('keydown', (e) => {
   if (document.getElementById('story-screen').style.display === 'flex') { e.preventDefault(); els.storyBtn.click(); }
   else if (document.getElementById('quest-board-screen').style.display === 'flex') { e.preventDefault(); els.qbFightBtn.click(); }
   else if (els.endScreen.style.display === 'flex' && els.nextBtn.style.display !== 'none') { e.preventDefault(); els.nextBtn.click(); }
+  else if (els.endScreen.style.display === 'flex' && els.retryBtn.style.display !== 'none') { e.preventDefault(); els.retryBtn.click(); }
 });
