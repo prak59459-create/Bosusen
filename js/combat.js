@@ -490,7 +490,7 @@ export function setupChapterBattle(chapterIndex) {
     playerMP: stats.maxMP, playerMaxMP: stats.maxMP,
     playerStam: base.maxStam, playerMaxStam: base.maxStam,
     bossHP: scaledBossHP, bossMaxHP: scaledBossHP,
-    healUses: 3 + (stats.healUsesBonus || 0), guarding: false, playing: false, turnBusy: false,
+    healUses: 3 + (stats.healUsesBonus || 0), healUsesMax: 3 + (stats.healUsesBonus || 0), guarding: false, playing: false, turnBusy: false,
     combo: 0, maxCombo: 0, phase2: false, turns: 0, damageTaken: 0, skillCooldown: 0,
     usedRevive: false,
   });

@@ -265,4 +265,5 @@ export const ACHIEVEMENTS = [
   { id:'hard_clear',   name:'不屈の意志',     desc:'難易度「難しい」で結晶獣を撃破する。', reward:50 },
   { id:'flawless',     name:'無傷の勝利',     desc:'被ダメージ0で結晶獣を撃破する。', reward:45 },
   { id:'week_streak',  name:'旅の常連',       desc:'7日連続でログインする。', reward:40 },
+  { id:'no_heal',      name:'自信の証',       desc:'回復を一度も使わずに結晶獣を撃破する。', reward:35 },
 ];
