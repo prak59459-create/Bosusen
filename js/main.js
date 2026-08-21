@@ -77,11 +77,17 @@ function renderShop() {
     const item = ITEMS[entry.itemId];
     const owned = ownsItem(entry.itemId);
     const canBuy = !owned && state.shards >= entry.cost;
+    const statParts = [];
+    if (item.atk) statParts.push(`攻撃+${item.atk}`);
+    if (item.def) statParts.push(`防御+${item.def}`);
+    if (item.hp) statParts.push(`HP+${item.hp}`);
+    if (item.mp) statParts.push(`エーテル+${item.mp}`);
+    if (item.crit) statParts.push(`クリ+${item.crit}%`);
     const card = document.createElement('div');
     card.className = 'shop-item-card';
     card.innerHTML = `
       <div>
-        <div class="shop-item-name">${item.name}</div>
+        <div class="shop-item-name">${item.name}<span class="item-slot-tag">${statParts.join(' / ')}</span></div>
         <div class="shop-item-desc">${item.desc}</div>
       </div>
       <button class="shop-buy-btn" ${owned || !canBuy ? 'disabled' : ''}>${owned ? '所持済み' : `${entry.cost} 欠片`}</button>
