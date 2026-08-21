@@ -46,6 +46,8 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyR' && !e.repeat) {
     sprintLock = !sprintLock;
     keys.sprint = sprintLock;
+    const ind = document.getElementById('sprint-lock-indicator');
+    if (ind) ind.style.display = sprintLock ? 'block' : 'none';
   }
 });
 window.addEventListener('keyup', (e) => {
@@ -142,6 +144,8 @@ export function exitExploreMode() {
   scene.fog.far = BATTLE_FOG.far;
   keys.forward = keys.back = keys.left = keys.right = keys.sprint = false;
   sprintLock = false;
+  const ind = document.getElementById('sprint-lock-indicator');
+  if (ind) ind.style.display = 'none';
   joyVec = { x: 0, y: 0 };
   const hud = document.getElementById('explore-hud');
   if (hud) hud.style.display = 'none';

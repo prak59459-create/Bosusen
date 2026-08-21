@@ -271,6 +271,11 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   background:rgba(255,255,255,0.85); border:1px solid rgba(150,100,220,0.35); border-radius:20px;
   padding:8px 18px; font-size:13px; color:#3d2f5c; backdrop-filter: blur(6px); white-space:nowrap;
 }
+#sprint-lock-indicator {
+  position:absolute; top: max(56px, env(safe-area-inset-top) + 42px); left:50%; transform:translateX(-50%);
+  background:rgba(255,215,94,0.85); border:1px solid rgba(180,140,20,0.4); border-radius:14px;
+  padding:5px 14px; font-size:12px; font-weight:bold; color:#4a3a10;
+}
 #joy-base {
   position:absolute; left: max(24px, env(safe-area-inset-left));
   bottom: max(28px, env(safe-area-inset-bottom));
