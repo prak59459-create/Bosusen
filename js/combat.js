@@ -300,6 +300,14 @@ function resolveDodge(clicked, move, isParry) {
       else log(`${move.name}が直撃！ ${dmg} ダメージ`);
       state.playerHP -= dmg;
       state.damageTaken += dmg;
+      if (state.guarding && stats.guardReflectPct) {
+        const reflectDmg = Math.round(dmg * stats.guardReflectPct);
+        if (reflectDmg > 0) {
+          state.bossHP -= reflectDmg;
+          log(`反射の盾！ ${reflectDmg} ダメージを跳ね返した`);
+          spawnDamageNumber(bossHitPoint(), `-${reflectDmg}`, '#88ccff', false);
+        }
+      }
       state.combo = 0;
       sfx.dodgeFail();
       if (playerModel) flashHit(playerModel);

@@ -245,6 +245,7 @@ export const SKILLS = [
   { id:'stam_up',   name:'省エネの型',       cost:35, desc:'攻撃／強攻撃のスタミナ消費が-20%される。', effect:{ staminaCostPct:-0.2 } },
   { id:'heal_extra', name:'秘薬の心得',      cost:45, desc:'戦闘開始時の回復回数が+1される。', effect:{ healUsesBonus:1 } },
   { id:'shard_up',   name:'結晶感応',        cost:40, desc:'結晶獣撃破時の結晶の欠片獲得量が+20%される。', effect:{ shardPct:0.2 } },
+  { id:'guard_reflect', name:'反射の盾',      cost:45, desc:'ガード成功時、被ダメージの30%を結晶獣に反射する。', effect:{ guardReflectPct:0.3 } },
   { id:'revive',    name:'蘇生の残光',       cost:80, desc:'戦闘不能になったとき、一度だけHP30%で復活する。', effect:{ revive:true } },
 ];
 
