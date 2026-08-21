@@ -200,6 +200,11 @@ export function renderStatusTab() {
   const achList = document.getElementById('achievement-list');
   if (achList) {
     achList.innerHTML = '';
+    const progressRow = document.createElement('div');
+    progressRow.className = 'empty-hint';
+    progressRow.style.padding = '4px 4px 12px';
+    progressRow.textContent = `実績達成: ${state.achievements.length} / ${ACHIEVEMENTS.length}`;
+    achList.appendChild(progressRow);
     ACHIEVEMENTS.forEach(a => {
       const unlocked = state.achievements.includes(a.id);
       const row = document.createElement('div');
