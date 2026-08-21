@@ -191,7 +191,9 @@ ground.receiveShadow = true;
   for (let i = 0; i < posAttr.count; i++) {
     const x = posAttr.getX(i), y = posAttr.getY(i);
     const r = Math.hypot(x, y) / WORLD_RADIUS;
-    const wave = Math.sin(x * 0.0035) * Math.cos(y * 0.004) * 1.6 + Math.sin(x * 0.012 + y * 0.01) * 0.4;
+    const wave = Math.sin(x * 0.0035) * Math.cos(y * 0.004) * 1.6
+      + Math.sin(x * 0.012 + y * 0.01) * 0.4
+      + Math.sin(x * 0.05 - y * 0.043) * 0.08;
     posAttr.setZ(i, wave * Math.max(0, 1 - r));
 
     // 大域的な色ムラを頂点カラーで加え、タイリングの反復感を軽減する
