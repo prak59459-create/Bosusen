@@ -64,7 +64,20 @@ export const els = {
 };
 
 let wasHpCritical = false;
+const TITLE_TIERS = [
+  { min: 10, title: '伝説の' },
+  { min: 6,  title: '熟練の' },
+  { min: 3,  title: '見習い' },
+];
+function playerTitle() {
+  const count = (state.achievements || []).length;
+  const tier = TITLE_TIERS.find(t => count >= t.min);
+  return tier ? `【${tier.title}】` : '';
+}
+
 export function updateBars() {
+  const titleEl = document.getElementById('player-title');
+  if (titleEl) titleEl.textContent = playerTitle();
   const hpPct = Math.max(0, state.playerHP / state.playerMaxHP * 100);
   els.playerHPFill.style.width = hpPct + '%';
   els.playerHPGhost.style.width = hpPct + '%';
