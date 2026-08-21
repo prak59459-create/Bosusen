@@ -199,6 +199,7 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 .big-btn:hover { filter:brightness(1.15); }
 .big-btn.ghost { background:transparent; border:1px solid rgba(120,80,200,0.5); color:#5a3f8c; }
 .big-btn.small-btn { font-size:15px; padding:12px 28px; min-height:44px; margin-top:12px; width:100%; max-width:280px; }
+#delete-save-btn { border-color:rgba(192,57,43,0.4); color:#c0392b; }
 #end-screen { display:none; }
 #story-screen, #quest-board-screen { display:none; }
 #end-title { font-size:clamp(30px,8vw,46px); font-weight:bold; margin-bottom:10px; }
