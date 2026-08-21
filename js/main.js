@@ -5,7 +5,7 @@ import { spawnEnemy } from './enemy.js';
 import { updateParticles, updateShakeAndApplyCamera, triggerShake } from './effects.js';
 import { resumeAudio, sfx, setMasterVolume } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
-import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, computeStats, isQuestDone, fieldQuestState } from './state.js';
+import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, computeStats, isQuestDone, fieldQuestState, checkAchievements } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, syncSettingsUI } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
@@ -305,6 +305,7 @@ els.ngPlusBtn.addEventListener('click', () => {
     questProgress: {}, fieldQuests: {}, foundTreasures: [], usedRevive: false,
   });
   showToast(`周回+${state.newGamePlus} を開始！ 装備・スキル・実績は引き継がれる。結晶獣がより強くなる。`, 'info');
+  checkAchievements().forEach(a => showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'));
   goExplore(null);
   saveGame();
 });

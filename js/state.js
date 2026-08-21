@@ -161,6 +161,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank) {
   if (state.totalShardsEarned >= 300) tryUnlock('shard_rich');
   if (hiddenTreasureTotal != null && state.foundTreasures.length >= hiddenTreasureTotal) tryUnlock('treasure_hunter');
   if (lastRank === 'S') tryUnlock('rank_s');
+  if (state.newGamePlus >= 1) tryUnlock('ng_plus');
   const otherIds = ACHIEVEMENTS.filter(a => a.id !== 'completionist').map(a => a.id);
   if (otherIds.every(id => state.achievements.includes(id))) tryUnlock('completionist');
   return newly;

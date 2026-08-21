@@ -256,4 +256,5 @@ export const ACHIEVEMENTS = [
   { id:'shard_rich',   name:'結晶長者',       desc:'結晶の欠片を累計300獲得する。', reward:30 },
   { id:'rank_s',       name:'完璧なる一撃',   desc:'結晶獣戦で評価ランクSを獲得する。', reward:40 },
   { id:'completionist', name:'エーテリアの伝説', desc:'他のすべての実績を解除する。', reward:100 },
+  { id:'ng_plus',      name:'周回の覚悟',     desc:'装備を引き継いで周回+に挑む。', reward:30 },
 ];
