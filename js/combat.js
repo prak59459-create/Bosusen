@@ -163,6 +163,8 @@ function finishGame(won) {
     state.xp += chapter.xp;
     state.bossesDefeated++;
     state.chapterClearCounts[chapter.key] = (state.chapterClearCounts[chapter.key] || 0) + 1;
+    state.winStreak++;
+    state.bestWinStreak = Math.max(state.bestWinStreak, state.winStreak);
     state.lifetimeBestCombo = Math.max(state.lifetimeBestCombo, state.maxCombo || 0);
     addShards(shardReward);
     const comboBonus = Math.min(30, Math.floor((state.maxCombo || 0) / 2));
@@ -192,6 +194,7 @@ function finishGame(won) {
     els.endTitle.textContent = '💀 敗北... 💀';
     els.endTitle.style.color = '#e04a4a';
     els.endRank.textContent = '';
+    state.winStreak = 0;
     sfx.defeat();
     els.retryBtn.textContent = 'この章に再挑戦';
     els.retryBtn.style.display = 'inline-block';

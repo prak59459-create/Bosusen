@@ -213,6 +213,7 @@ export function renderStatusTab() {
   document.getElementById('st-combo').textContent = state.lifetimeBestCombo || 0;
   document.getElementById('st-ngplus').textContent = state.newGamePlus || 0;
   document.getElementById('st-loginstreak').textContent = state.loginStreak || 0;
+  document.getElementById('st-winstreak').textContent = state.bestWinStreak || 0;
 
   const achList = document.getElementById('achievement-list');
   if (achList) {

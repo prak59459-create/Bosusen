@@ -11,6 +11,8 @@ export const state = {
   bossesDefeated: 0,
   lifetimeBestCombo: 0,
   chapterClearCounts: {},
+  winStreak: 0,
+  bestWinStreak: 0,
 
   playerHP: 100, playerMaxHP: 100,
   playerMP: 50, playerMaxMP: 50,
@@ -181,6 +183,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (state.loginStreak >= 7) tryUnlock('week_streak');
   if (lastRank != null && state.healUses === state.healUsesMax) tryUnlock('no_heal');
   if (Object.values(state.chapterClearCounts).some(c => c >= 5)) tryUnlock('veteran_hunter');
+  if (state.winStreak >= 3) tryUnlock('win_streak_3');
   const otherIds = ACHIEVEMENTS.filter(a => a.id !== 'completionist').map(a => a.id);
   if (otherIds.every(id => state.achievements.includes(id))) tryUnlock('completionist');
   return newly;
@@ -256,6 +259,8 @@ export function saveGame() {
       bossesDefeated: state.bossesDefeated,
       lifetimeBestCombo: state.lifetimeBestCombo,
       chapterClearCounts: state.chapterClearCounts,
+      winStreak: state.winStreak,
+      bestWinStreak: state.bestWinStreak,
       equipment: state.equipment,
       inventory: state.inventory,
       unlockedSkills: state.unlockedSkills,
@@ -303,6 +308,8 @@ export function loadGame() {
       bossesDefeated: snap.bossesDefeated || 0,
       lifetimeBestCombo: snap.lifetimeBestCombo || 0,
       chapterClearCounts: snap.chapterClearCounts || {},
+      winStreak: snap.winStreak || 0,
+      bestWinStreak: snap.bestWinStreak || 0,
       equipment: snap.equipment || { weapon:null, armor:null, accessory:null },
       inventory: snap.inventory || [],
       unlockedSkills: snap.unlockedSkills || [],
