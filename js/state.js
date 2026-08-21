@@ -39,6 +39,8 @@ export const state = {
   screenShake: true,
   difficulty: 'normal',
   newGamePlus: 0,
+  lastLoginDate: null,
+  loginStreak: 0,
 };
 
 const DIFFICULTY_MULT = {
@@ -175,6 +177,17 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   return newly;
 }
 
+export function checkDailyLogin() {
+  const today = new Date().toISOString().slice(0, 10);
+  if (state.lastLoginDate === today) return null;
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  state.loginStreak = (state.lastLoginDate === yesterday) ? state.loginStreak + 1 : 1;
+  state.lastLoginDate = today;
+  const reward = 10 + Math.min(state.loginStreak, 7) * 5;
+  addShards(reward);
+  return { streak: state.loginStreak, reward };
+}
+
 export function resetSkills() {
   if (state.unlockedSkills.length === 0) return 0;
   const refund = state.unlockedSkills.reduce((sum, id) => {
@@ -245,6 +258,8 @@ export function saveGame() {
       screenShake: state.screenShake,
       difficulty: state.difficulty,
       newGamePlus: state.newGamePlus,
+      lastLoginDate: state.lastLoginDate,
+      loginStreak: state.loginStreak,
       usedRevive: state.usedRevive,
       savedAt: Date.now(),
     };
@@ -289,6 +304,8 @@ export function loadGame() {
       screenShake: (snap.screenShake != null) ? snap.screenShake : true,
       difficulty: snap.difficulty || 'normal',
       newGamePlus: snap.newGamePlus || 0,
+      lastLoginDate: snap.lastLoginDate || null,
+      loginStreak: snap.loginStreak || 0,
       usedRevive: snap.usedRevive || false,
     });
     return true;

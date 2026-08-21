@@ -5,7 +5,7 @@ import { spawnEnemy } from './enemy.js';
 import { updateParticles, updateShakeAndApplyCamera, triggerShake } from './effects.js';
 import { resumeAudio, sfx, setMasterVolume } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
-import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, computeStats, isQuestDone, fieldQuestState, checkAchievements } from './state.js';
+import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, computeStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, syncSettingsUI } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
@@ -260,6 +260,7 @@ els.startBtn.addEventListener('click', () => {
   });
   goExplore(null);
   showToast('光る結晶の目印に近づいて、崩壊の古城へ入ろう', 'info');
+  checkDailyLogin();
 });
 
 els.continueBtn.addEventListener('click', () => {
@@ -276,6 +277,11 @@ els.continueBtn.addEventListener('click', () => {
   goExplore(state.chapterIndex);
   renderQuestTracker();
   updateBars();
+  const login = checkDailyLogin();
+  if (login) {
+    showToast(`ログインボーナス（${login.streak}日連続） 結晶の欠片 +${login.reward}`, 'quest');
+    saveGame();
+  }
 });
 
 els.nextBtn.addEventListener('click', () => {
