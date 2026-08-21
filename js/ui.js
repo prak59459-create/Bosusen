@@ -519,6 +519,17 @@ export function initMenu(onSave, onTitle) {
     sfx.uiClick();
     if (onSave) onSave();
   });
+  document.getElementById('reset-settings-btn').addEventListener('click', () => {
+    Object.assign(state, {
+      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true,
+    });
+    setMasterVolume(state.masterVolume);
+    setQualityPreset(state.quality);
+    syncSettingsUI();
+    sfx.uiClick();
+    showToast('設定を初期値に戻しました', 'info');
+    saveGame();
+  });
   document.getElementById('title-btn').addEventListener('click', () => {
     closeMenu();
     if (onTitle) onTitle();
