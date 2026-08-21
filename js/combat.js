@@ -450,9 +450,9 @@ export function setupChapterBattle(chapterIndex) {
   const chapter = CHAPTERS[chapterIndex];
   const level = chapterIndex + 1;
   const base = levelStatsFor(level);
-  const stats = computeStats();
   state.chapterIndex = chapterIndex;
   state.level = level;
+  const stats = computeStats();
   Object.assign(state, {
     playerHP: stats.maxHP, playerMaxHP: stats.maxHP,
     playerMP: stats.maxMP, playerMaxMP: stats.maxMP,
