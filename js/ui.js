@@ -356,12 +356,19 @@ export function renderSkillsTab() {
   const treeEl = document.getElementById('skill-tree');
   treeEl.innerHTML = '';
   const remainingCost = SKILLS.filter(s => !state.unlockedSkills.includes(s.id)).reduce((sum, s) => sum + s.cost, 0);
-  if (remainingCost > 0) {
+  {
     const progressRow = document.createElement('div');
     progressRow.className = 'empty-hint';
-    progressRow.style.padding = '2px 4px 12px';
-    progressRow.textContent = `習得済み ${state.unlockedSkills.length} / ${SKILLS.length}（残り全習得に必要な欠片: ${remainingCost}）`;
+    progressRow.style.padding = '2px 4px 8px';
+    progressRow.textContent = remainingCost > 0
+      ? `習得済み ${state.unlockedSkills.length} / ${SKILLS.length}（残り全習得に必要な欠片: ${remainingCost}）`
+      : `習得済み ${state.unlockedSkills.length} / ${SKILLS.length}`;
     treeEl.appendChild(progressRow);
+    const skillProgressBar = document.createElement('div');
+    skillProgressBar.className = 'qb-progress-bar';
+    skillProgressBar.style.margin = '0 0 16px';
+    skillProgressBar.innerHTML = `<div class="qb-progress-fill" style="width:${Math.round((state.unlockedSkills.length / SKILLS.length) * 100)}%"></div>`;
+    treeEl.appendChild(skillProgressBar);
   }
   SKILLS.forEach(skill => {
     const unlocked = state.unlockedSkills.includes(skill.id);
