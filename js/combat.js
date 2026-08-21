@@ -62,6 +62,7 @@ export function checkPhaseTransition() {
     state.bossLowHpWarned = true;
     log(`${chapter.enemyName}の力が尽きかけている！ 一気に畳みかけろ！`);
     showCenterMsg('FINISH HIM!', '#ff8844', 1000);
+    sfx.lowBossHp();
   }
   if (chapter.hasPhases && !state.phase2 && state.bossHP <= state.bossMaxHP * 0.5) {
     state.phase2 = true;
