@@ -34,6 +34,62 @@ export function zoneLocalPos(i) {
   return new THREE.Vector3(Math.cos(ang) * ZONE_DIST, 0, Math.sin(ang) * ZONE_DIST);
 }
 
+/* ============================================================
+   35のバイオーム ―― 大自然・砂漠・サイバー都市など多彩な地帯を
+   世界中にランダムに散りばめ、地面の色と植生を大きく変化させる
+   ============================================================ */
+const BIOME_DEFS = [
+  { name: '青緑の草原', color: 0x4a8a3f, category: 'forest' },
+  { name: '深緑の大森林', color: 0x2c5c2a, category: 'forest' },
+  { name: '黄金の丘陵', color: 0x9aa03a, category: 'forest' },
+  { name: '花咲く高原', color: 0x6bb04a, category: 'forest' },
+  { name: '霧の針葉樹林', color: 0x35594a, category: 'forest' },
+  { name: '紅葉の森', color: 0x9a4a2a, category: 'forest' },
+  { name: '苔むした渓谷', color: 0x3c6b3c, category: 'forest' },
+  { name: '乾いた大砂漠', color: 0xd8b168, category: 'desert' },
+  { name: '赤土の荒野', color: 0xc07a45, category: 'desert' },
+  { name: '塩の平原', color: 0xdcd3b8, category: 'desert' },
+  { name: '黄砂の丘', color: 0xcaa25a, category: 'desert' },
+  { name: '砕けた岩漠', color: 0xa8875f, category: 'desert' },
+  { name: 'ネオン都市の外郭', color: 0x2233aa, category: 'cyber' },
+  { name: '電脳工業地帯', color: 0x224455, category: 'cyber' },
+  { name: 'サイバー廃墟街', color: 0x442266, category: 'cyber' },
+  { name: '光る回路平野', color: 0x1a3a6a, category: 'cyber' },
+  { name: 'ホロ広告の荒地', color: 0x662255, category: 'cyber' },
+  { name: '凍てつく雪原', color: 0xdbe6ec, category: 'snow' },
+  { name: '氷結した山麓', color: 0xb8ccdc, category: 'snow' },
+  { name: '白銀のツンドラ', color: 0xc8d8d4, category: 'snow' },
+  { name: '極寒の凍土', color: 0xa0bcc8, category: 'snow' },
+  { name: '瘴気の沼地', color: 0x445a34, category: 'swamp' },
+  { name: '腐れ木の湿原', color: 0x384a2c, category: 'swamp' },
+  { name: '毒沼の窪地', color: 0x4a6a2e, category: 'swamp' },
+  { name: '灼熱の溶岩地帯', color: 0x6a2216, category: 'volcanic' },
+  { name: '噴煙の火山麓', color: 0x502218, category: 'volcanic' },
+  { name: '赤熱の亀裂地', color: 0x7a2a12, category: 'volcanic' },
+  { name: '紫水晶の洞野', color: 0x6a3aa0, category: 'crystal' },
+  { name: '蒼晶の輝原', color: 0x2a6aa0, category: 'crystal' },
+  { name: '虹晶の断層', color: 0x9a4aa0, category: 'crystal' },
+  { name: '灰燼の死地', color: 0x5a5248, category: 'wasteland' },
+  { name: '朽ちた荒野', color: 0x6a5a48, category: 'wasteland' },
+  { name: '崩落した廃土', color: 0x4a4238, category: 'wasteland' },
+  { name: '珊瑚色の岩場', color: 0xd06a7a, category: 'crystal' },
+  { name: '常春の楽園', color: 0x5ac06a, category: 'forest' },
+];
+const BIOME_SEEDS = BIOME_DEFS.map(() => {
+  const r = 0.2 + Math.random() * 0.72;
+  const ang = Math.random() * Math.PI * 2;
+  return { x: Math.cos(ang) * r * WORLD_RADIUS, z: Math.sin(ang) * r * WORLD_RADIUS };
+});
+function nearestBiome(x, z) {
+  let best = -1, bestD = Infinity;
+  for (let i = 0; i < BIOME_SEEDS.length; i++) {
+    const s = BIOME_SEEDS[i];
+    const d = (x - s.x) * (x - s.x) + (z - s.z) * (z - s.z);
+    if (d < bestD) { bestD = d; best = i; }
+  }
+  return best;
+}
+
 /* ---------- 地面（広域タイル張りテクスチャ） ---------- */
 function buildTileTexture() {
   const size = 2048;
@@ -177,6 +233,7 @@ function buildNormalMapFromCanvas(srcCanvas) {
 }
 
 const { tex: groundTex, canvas: groundCanvas } = buildTileTexture();
+const biomeColorCache = BIOME_DEFS.map(b => new THREE.Color(b.color));
 const groundNormalTex = buildNormalMapFromCanvas(groundCanvas);
 const groundMat = makeToonMaterial({ map: groundTex, color: 0xffffff });
 groundMat.normalMap = groundNormalTex;
@@ -208,9 +265,21 @@ ground.receiveShadow = true;
       Math.sin(x * 0.0011 - y * 0.0009) * 0.5
     ); // -1..1程度
     const warmth = tint * 0.10;
-    colors[i * 3] = 1.0 + warmth * 0.6;
-    colors[i * 3 + 1] = 1.0 + warmth * 0.15;
-    colors[i * 3 + 2] = 1.0 - warmth * 0.55;
+    let cr = 1.0 + warmth * 0.6;
+    let cg = 1.0 + warmth * 0.15;
+    let cb = 1.0 - warmth * 0.55;
+
+    // 35バイオームによる大域的な色分け（ハブ・道周辺は淡く抑えて視認性を保つ）
+    const biomeIdx = nearestBiome(x, y);
+    const bc = biomeColorCache[biomeIdx];
+    const biomeStrength = 0.55 * falloff + 0.08;
+    cr = cr * (1 - biomeStrength) + bc.r * 2 * biomeStrength;
+    cg = cg * (1 - biomeStrength) + bc.g * 2 * biomeStrength;
+    cb = cb * (1 - biomeStrength) + bc.b * 2 * biomeStrength;
+
+    colors[i * 3] = cr;
+    colors[i * 3 + 1] = cg;
+    colors[i * 3 + 2] = cb;
   }
   ground.geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
   posAttr.needsUpdate = true;
@@ -324,6 +393,112 @@ worldGroup.add(boundary);
   grassMesh.count = gPlaced;
   grassMesh.instanceMatrix.needsUpdate = true;
   worldGroup.add(grassMesh);
+}
+
+/* ---------- 35バイオームごとの特色ある植生・構造物を散布 ---------- */
+{
+  function isNearRoad(x, z) {
+    for (let i = 0; i < CHAPTERS.length; i++) {
+      const zAng = zoneAngle(i);
+      const zx = Math.cos(zAng) * ZONE_DIST, zz = Math.sin(zAng) * ZONE_DIST;
+      const len = Math.hypot(zx, zz);
+      const t = Math.max(0, Math.min(1, (x * zx + z * zz) / (len * len)));
+      const px = zx * t, pz = zz * t;
+      if (t <= 1 && Math.hypot(x - px, z - pz) < 20) return true;
+    }
+    return Math.hypot(x, z) < 90;
+  }
+
+  function buildPropGeoMat(category, color) {
+    const c = new THREE.Color(color);
+    switch (category) {
+      case 'forest': {
+        const trunk = new THREE.CylinderGeometry(0.25, 0.35, 2.2, 6);
+        trunk.translate(0, 1.1, 0);
+        const leaves = new THREE.ConeGeometry(1.6, 3.2, 7);
+        leaves.translate(0, 3.4, 0);
+        const geo = mergeGeometries([trunk, leaves]);
+        return { geo, mat: makeToonMaterial({ color: c.clone().offsetHSL(0, 0, -0.1), emissive: 0x0a1608, emissiveIntensity: 0.15 }) };
+      }
+      case 'desert': {
+        const body = new THREE.CylinderGeometry(0.35, 0.45, 2.6, 8);
+        body.translate(0, 1.3, 0);
+        const arm = new THREE.CylinderGeometry(0.2, 0.25, 1.2, 6);
+        arm.translate(0.5, 1.8, 0);
+        arm.rotateZ(0.5);
+        const geo = mergeGeometries([body, arm]);
+        return { geo, mat: makeToonMaterial({ color: c, emissive: 0x1a1204, emissiveIntensity: 0.1 }) };
+      }
+      case 'cyber': {
+        const pole = new THREE.BoxGeometry(0.4, 3.6, 0.4);
+        pole.translate(0, 1.8, 0);
+        const cap = new THREE.BoxGeometry(0.9, 0.3, 0.9);
+        cap.translate(0, 3.6, 0);
+        const geo = mergeGeometries([pole, cap]);
+        return { geo, mat: makeToonMaterial({ color: 0x1a1a22, emissive: c, emissiveIntensity: 1.1 }) };
+      }
+      case 'snow': {
+        const geo = new THREE.IcosahedronGeometry(1.1, 0);
+        geo.translate(0, 0.9, 0);
+        return { geo, mat: makeToonMaterial({ color: c, emissive: 0x1a2228, emissiveIntensity: 0.2 }) };
+      }
+      case 'swamp': {
+        const trunk = new THREE.CylinderGeometry(0.3, 0.5, 2.6, 6);
+        trunk.translate(0.2, 1.3, 0);
+        trunk.rotateZ(0.25);
+        const geo = mergeGeometries([trunk]);
+        return { geo, mat: makeToonMaterial({ color: c, emissive: 0x0c1206, emissiveIntensity: 0.15 }) };
+      }
+      case 'volcanic': {
+        const geo = new THREE.DodecahedronGeometry(1.0, 0);
+        geo.translate(0, 0.8, 0);
+        return { geo, mat: makeToonMaterial({ color: 0x2a1a14, emissive: c, emissiveIntensity: 0.9 }) };
+      }
+      case 'crystal': {
+        const geo = new THREE.OctahedronGeometry(1.3, 0);
+        geo.scale(0.5, 1.8, 0.5);
+        geo.translate(0, 1.4, 0);
+        return { geo, mat: makeToonMaterial({ color: c, emissive: c, emissiveIntensity: 0.55, transparent: true, opacity: 0.88 }) };
+      }
+      default: { // wasteland
+        const geo = new THREE.TetrahedronGeometry(1.2, 0);
+        geo.translate(0, 0.7, 0);
+        return { geo, mat: makeToonMaterial({ color: c, emissive: 0x080604, emissiveIntensity: 0.1 }) };
+      }
+    }
+  }
+
+  BIOME_DEFS.forEach((biome, bi) => {
+    const seed = BIOME_SEEDS[bi];
+    const { geo, mat } = buildPropGeoMat(biome.category, biome.color);
+    const COUNT = 46;
+    const mesh = new THREE.InstancedMesh(geo, mat, COUNT);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    const dummy = new THREE.Object3D();
+    let placed = 0, guard = 0;
+    const spread = 260;
+    while (placed < COUNT && guard < COUNT * 8) {
+      guard++;
+      const ang = Math.random() * Math.PI * 2;
+      const dist = Math.random() * spread;
+      const x = seed.x + Math.cos(ang) * dist;
+      const z = seed.z + Math.sin(ang) * dist;
+      const r = Math.hypot(x, z) / WORLD_RADIUS;
+      if (r > 0.95 || isNearRoad(x, z)) continue;
+      if (nearestBiome(x, z) !== bi) continue; // 自分のバイオーム領域内にのみ配置
+      const scale = 0.7 + Math.random() * 0.9;
+      dummy.position.set(x, 0, z);
+      dummy.rotation.y = Math.random() * Math.PI * 2;
+      dummy.scale.set(scale, scale * (0.8 + Math.random() * 0.4), scale);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(placed, dummy.matrix);
+      placed++;
+    }
+    mesh.count = placed;
+    mesh.instanceMatrix.needsUpdate = true;
+    worldGroup.add(mesh);
+  });
 }
 
 /* ---------- 聖域ごとの色つき地帯（バイオームパッチ） ---------- */
