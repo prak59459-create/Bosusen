@@ -239,6 +239,7 @@ export const SKILLS = [
   { id:'parry_up',  name:'パリィの極意',     cost:50, desc:'パリィ成功時の反撃ダメージが+50%される。', effect:{ parryBonusPct:0.5 } },
   { id:'heal_up',   name:'癒しの心得',       cost:35, desc:'回復技のHP回復量が+40%される。', effect:{ healBonusPct:0.4 } },
   { id:'stam_up',   name:'省エネの型',       cost:35, desc:'攻撃／強攻撃のスタミナ消費が-20%される。', effect:{ staminaCostPct:-0.2 } },
+  { id:'heal_extra', name:'秘薬の心得',      cost:45, desc:'戦闘開始時の回復回数が+1される。', effect:{ healUsesBonus:1 } },
   { id:'revive',    name:'蘇生の残光',       cost:80, desc:'戦闘不能になったとき、一度だけHP30%で復活する。', effect:{ revive:true } },
 ];
 
