@@ -9,7 +9,7 @@ import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, ad
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, syncSettingsUI } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
-import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers } from './world.js';
+import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, hiddenTreasures } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
   setOnOpenShop, setOnToggleMap, getPlayerLocalPos, exploreActive, setMapOpen } from './explore.js';
 import { initSkirmishUI, resetSkirmish } from './skirmish.js';
@@ -183,6 +183,15 @@ function drawMap() {
     mapCtx.fill();
   });
 
+  hiddenTreasures.forEach(t => {
+    if (!t.mesh.visible) return;
+    const x = cx + t.localPos.x * scale, y = cy + t.localPos.z * scale;
+    mapCtx.beginPath();
+    mapCtx.arc(x, y, 3.5, 0, Math.PI * 2);
+    mapCtx.fillStyle = '#ffd700';
+    mapCtx.fill();
+  });
+
   const sx = cx + shopLocalPos.x * scale, sy = cy + shopLocalPos.z * scale;
   mapCtx.beginPath();
   mapCtx.arc(sx, sy, 5, 0, Math.PI * 2);
@@ -240,7 +249,7 @@ els.startBtn.addEventListener('click', () => {
   Object.assign(state, {
     chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0,
     equipment: { weapon: null, armor: null, accessory: null },
-    inventory: [], unlockedSkills: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
+    inventory: [], unlockedSkills: [], foundTreasures: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
   });
   goExplore(null);
   showToast('光る結晶の目印に近づいて、崩壊の古城へ入ろう', 'info');
@@ -279,7 +288,7 @@ els.retryBtn.addEventListener('click', () => {
     Object.assign(state, {
       chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0,
       equipment: { weapon: null, armor: null, accessory: null },
-      inventory: [], unlockedSkills: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
+      inventory: [], unlockedSkills: [], foundTreasures: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
     });
     document.getElementById('start-screen').style.display = 'flex';
   } else {

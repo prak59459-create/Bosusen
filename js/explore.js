@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { camera, scene, setCameraMode } from './scene.js';
 import { player, crossfadeTo } from './player.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
-  explorePickups, loreMarkers, shopLocalPos, refreshZoneVisuals } from './world.js';
+  explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals } from './world.js';
 import { CHAPTERS } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
   fieldQuestState, acceptFieldQuest, saveGame } from './state.js';
@@ -113,6 +113,9 @@ export function enterExploreMode(spawnLocal) {
   explorePickups.forEach(p => {
     if (isQuestDone(CHAPTERS[p.chapterIndex].key, p.questId)) p.mesh.visible = false;
   });
+  hiddenTreasures.forEach(t => {
+    t.mesh.visible = !state.foundTreasures.includes(t.id);
+  });
   fieldTargets.forEach(t => {
     if (isQuestDone(CHAPTERS[t.chapterIndex].key, t.questId) || fieldQuestState(t.questId) === 'ready_turnin') {
       t.material.emissiveIntensity = 0.1;
@@ -192,6 +195,16 @@ function tryCollectPickup(pickup) {
   showToast(`クエスト達成: ${pickup.quest.title}｜${pickup.quest.result}`, 'quest');
   pickup.mesh.visible = false;
   renderQuestTracker();
+  saveGame();
+}
+
+function tryCollectTreasure(t) {
+  if (state.foundTreasures.includes(t.id)) return;
+  state.foundTreasures.push(t.id);
+  addShards(t.shardReward);
+  sfx.shardGet();
+  showToast(`結晶の秘宝を発見！ 結晶の欠片 +${t.shardReward}`, 'quest');
+  t.mesh.visible = false;
   saveGame();
 }
 
@@ -306,6 +319,13 @@ export function updateExplore(dt) {
   for (const p of explorePickups) {
     if (p.mesh.visible && Math.hypot(localPos.x - p.localPos.x, localPos.z - p.localPos.z) < p.radius) {
       tryCollectPickup(p);
+    }
+  }
+
+  // 隠しボーナスアイテム（結晶の秘宝）
+  for (const t of hiddenTreasures) {
+    if (t.mesh.visible && Math.hypot(localPos.x - t.localPos.x, localPos.z - t.localPos.z) < t.radius) {
+      tryCollectTreasure(t);
     }
   }
 

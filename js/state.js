@@ -30,6 +30,7 @@ export const state = {
   equipment: { weapon: null, armor: null, accessory: null },
   inventory: [], // array of item ids owned but not necessarily equipped
   unlockedSkills: [], // array of skill ids
+  foundTreasures: [], // array of hidden treasure ids collected
   questProgress: {}, // { chapterKey: { questId: true } }
   fieldQuests: {}, // { questId: 'accepted' | 'ready_turnin' }
   masterVolume: 0.7,
@@ -194,6 +195,7 @@ export function saveGame() {
       equipment: state.equipment,
       inventory: state.inventory,
       unlockedSkills: state.unlockedSkills,
+      foundTreasures: state.foundTreasures,
       questProgress: state.questProgress,
       fieldQuests: state.fieldQuests,
       masterVolume: state.masterVolume,
@@ -235,6 +237,7 @@ export function loadGame() {
       equipment: snap.equipment || { weapon:null, armor:null, accessory:null },
       inventory: snap.inventory || [],
       unlockedSkills: snap.unlockedSkills || [],
+      foundTreasures: snap.foundTreasures || [],
       questProgress: snap.questProgress || {},
       fieldQuests: snap.fieldQuests || {},
       masterVolume: (snap.masterVolume != null) ? snap.masterVolume : 0.7,

@@ -180,6 +180,7 @@ export const questGivers = [];
 export const fieldTargets = [];
 export const explorePickups = [];
 export const loreMarkers = [];
+export const hiddenTreasures = [];
 
 CHAPTERS.forEach((chapter, i) => {
   const theme = ZONE_THEME[i];
@@ -298,6 +299,23 @@ CHAPTERS.forEach((chapter, i) => {
     monuLight.position.set(loreLocal.x, 2, loreLocal.z);
     worldGroup.add(monuLight);
     loreMarkers.push({ chapterIndex: i, questId: loreQuest.id, quest: loreQuest, localPos: loreLocal, mesh: monuMesh, radius: 3 });
+  }
+
+  // ---- 隠しボーナスアイテム（結晶の秘宝）----
+  {
+    const treasureId = `treasure_${chapter.key}`;
+    const ang = zoneAngle(i) + Math.PI * (0.85 + Math.random() * 0.3);
+    const dist = 90 + Math.random() * 80;
+    const tLocal = new THREE.Vector3(local.x + Math.cos(ang) * dist, 0, local.z + Math.sin(ang) * dist);
+    const tMat = makeToonMaterial({ color: 0xffd700, emissive: 0xffaa00, emissiveIntensity: 2.4 });
+    const tMesh = new THREE.Mesh(new THREE.DodecahedronGeometry(0.55, 0), tMat);
+    tMesh.position.set(tLocal.x, 1.2, tLocal.z);
+    worldGroup.add(tMesh);
+    addOutline(tMesh, 0x0a0816, 0.02);
+    const tLight = new THREE.PointLight(0xffaa00, 2.2, 11, 2);
+    tLight.position.set(tLocal.x, 1.8, tLocal.z);
+    worldGroup.add(tLight);
+    hiddenTreasures.push({ id: treasureId, chapterIndex: i, localPos: tLocal, mesh: tMesh, light: tLight, radius: 3, shardReward: 15 + i * 5 });
   }
 });
 
