@@ -263,7 +263,11 @@ els.startBtn.addEventListener('click', () => {
   });
   goExplore(null);
   showToast('光る結晶の目印に近づいて、崩壊の古城へ入ろう', 'info');
-  checkDailyLogin();
+  const login = checkDailyLogin();
+  if (login) {
+    showToast(`ログインボーナス（${login.streak}日連続） 結晶の欠片 +${login.reward}`, 'quest');
+    saveGame();
+  }
 });
 
 els.continueBtn.addEventListener('click', () => {
