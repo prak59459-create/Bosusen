@@ -258,6 +258,43 @@ function addBiomePatch(center, theme, radius) {
   worldGroup.add(patch);
 }
 
+/* ---------- 水たまり（地面の質感アクセント） ---------- */
+function buildPuddleTexture() {
+  const size = 128;
+  const canvas = makeCanvas(size);
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  grad.addColorStop(0, 'rgba(140,190,220,0.55)');
+  grad.addColorStop(0.55, 'rgba(110,160,200,0.35)');
+  grad.addColorStop(0.85, 'rgba(70,110,150,0.18)');
+  grad.addColorStop(1, 'rgba(70,110,150,0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, size, size);
+  ctx.strokeStyle = 'rgba(230,245,255,0.5)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.ellipse(size * 0.42, size * 0.4, size * 0.18, size * 0.08, -0.4, 0, Math.PI * 2);
+  ctx.stroke();
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+const puddleTex = buildPuddleTexture();
+const puddleMat = new THREE.MeshBasicMaterial({ map: puddleTex, transparent: true, depthWrite: false });
+function scatterPuddles(center, spread, count) {
+  for (let i = 0; i < count; i++) {
+    const ang = Math.random() * Math.PI * 2;
+    const dist = Math.random() * spread;
+    const x = center.x + Math.cos(ang) * dist, z = center.z + Math.sin(ang) * dist;
+    const r = 2 + Math.random() * 4;
+    const puddle = new THREE.Mesh(new THREE.CircleGeometry(r, 20), puddleMat);
+    puddle.rotation.x = -Math.PI / 2;
+    puddle.rotation.z = Math.random() * Math.PI;
+    puddle.position.set(x, 0.025, z);
+    worldGroup.add(puddle);
+  }
+}
+
 /* ---------- ハブ中央の光の柱 ---------- */
 {
   const hubMat = makeToonMaterial({ color: 0xccbbff, emissive: 0x8866ff, emissiveIntensity: 1.4 });
@@ -268,6 +305,7 @@ function addBiomePatch(center, theme, radius) {
   hubLight.position.set(0, 6, 0);
   worldGroup.add(hubLight);
   addBiomePatch(new THREE.Vector3(0, 0, 0), { color: 0x5a4f7a }, 60);
+  scatterPuddles(new THREE.Vector3(0, 0, 0), 55, 3);
 }
 
 /* ---------- 道（ハブ～各聖域） ---------- */
@@ -427,6 +465,7 @@ CHAPTERS.forEach((chapter, i) => {
   worldGroup.add(markerLight);
 
   scatterProps(local, theme, i);
+  scatterPuddles(local, 45, 2 + Math.floor(Math.random() * 2));
 
   zoneMarkers.push({
     chapterIndex: i,
