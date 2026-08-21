@@ -8,7 +8,7 @@ import { rand } from './utils.js';
 import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake } from './effects.js';
 import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
 import { CHAPTERS, levelStatsFor } from './data.js';
-import { state, computeStats, addShards } from './state.js';
+import { state, computeStats, addShards, difficultyMult } from './state.js';
 
 let dodgeActive = false;
 let dodgeAnimHandle = null;
@@ -150,9 +150,10 @@ function finishGame(won) {
     crossfadeTo('Idle', 0.4);
     els.endRank.textContent = `評価ランク: ${calcRank()}`;
 
+    const shardReward = Math.round(chapter.shardsBase * difficultyMult().shards);
     state.xp += chapter.xp;
-    addShards(chapter.shardsBase);
-    els.endRewards.textContent = `獲得経験値 +${chapter.xp} / 結晶の欠片 +${chapter.shardsBase}（累計 ${state.totalShardsEarned}）`;
+    addShards(shardReward);
+    els.endRewards.textContent = `獲得経験値 +${chapter.xp} / 結晶の欠片 +${shardReward}（累計 ${state.totalShardsEarned}）`;
 
     if (isFinal) {
       els.endTitle.textContent = '選択のとき';
@@ -277,7 +278,7 @@ function resolveDodge(clicked, move, isParry) {
       crossfadeTo('Walk', 0.1);
       setTimeout(() => crossfadeTo('Idle', 0.25), 260);
     } else {
-      let dmg = Math.round(rand(move.min, move.max));
+      let dmg = Math.round(rand(move.min, move.max) * difficultyMult().dmg);
       if (state.guarding) { dmg = Math.round(dmg / 2); }
       const stats = computeStats();
       dmg = Math.round(dmg * (100 / (100 + stats.def)));
@@ -453,11 +454,13 @@ export function setupChapterBattle(chapterIndex) {
   state.chapterIndex = chapterIndex;
   state.level = level;
   const stats = computeStats();
+  const dMult = difficultyMult();
+  const scaledBossHP = Math.round(chapter.hp * dMult.hp);
   Object.assign(state, {
     playerHP: stats.maxHP, playerMaxHP: stats.maxHP,
     playerMP: stats.maxMP, playerMaxMP: stats.maxMP,
     playerStam: base.maxStam, playerMaxStam: base.maxStam,
-    bossHP: chapter.hp, bossMaxHP: chapter.hp,
+    bossHP: scaledBossHP, bossMaxHP: scaledBossHP,
     healUses: 3, guarding: false, playing: false, turnBusy: false,
     combo: 0, maxCombo: 0, phase2: false, turns: 0, damageTaken: 0, skillCooldown: 0,
     usedRevive: false,

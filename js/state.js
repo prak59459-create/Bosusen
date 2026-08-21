@@ -33,7 +33,17 @@ export const state = {
   masterVolume: 0.7,
   quality: 'high',
   screenShake: true,
+  difficulty: 'normal',
 };
+
+const DIFFICULTY_MULT = {
+  easy:   { hp: 0.7, dmg: 0.7, shards: 0.8 },
+  normal: { hp: 1.0, dmg: 1.0, shards: 1.0 },
+  hard:   { hp: 1.35, dmg: 1.3, shards: 1.3 },
+};
+export function difficultyMult() {
+  return DIFFICULTY_MULT[state.difficulty] || DIFFICULTY_MULT.normal;
+}
 
 export function fieldQuestState(questId) {
   return state.fieldQuests[questId] || null;
@@ -172,6 +182,7 @@ export function saveGame() {
       masterVolume: state.masterVolume,
       quality: state.quality,
       screenShake: state.screenShake,
+      difficulty: state.difficulty,
       usedRevive: state.usedRevive,
       savedAt: Date.now(),
     };
@@ -210,6 +221,7 @@ export function loadGame() {
       masterVolume: (snap.masterVolume != null) ? snap.masterVolume : 0.7,
       quality: snap.quality || 'high',
       screenShake: (snap.screenShake != null) ? snap.screenShake : true,
+      difficulty: snap.difficulty || 'normal',
       usedRevive: snap.usedRevive || false,
     });
     return true;

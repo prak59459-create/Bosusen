@@ -337,6 +337,8 @@ export function syncSettingsUI() {
   if (qualitySelect) qualitySelect.value = state.quality || 'high';
   const shakeCheckbox = document.getElementById('opt-shake');
   if (shakeCheckbox) shakeCheckbox.checked = state.screenShake !== false;
+  const difficultySelect = document.getElementById('opt-difficulty');
+  if (difficultySelect) difficultySelect.value = state.difficulty || 'normal';
 }
 
 export function initMenu(onSave, onTitle) {
@@ -368,6 +370,15 @@ export function initMenu(onSave, onTitle) {
   shakeCheckbox.addEventListener('change', () => {
     state.screenShake = shakeCheckbox.checked;
     sfx.uiClick();
+    saveGame();
+  });
+
+  const difficultySelect = document.getElementById('opt-difficulty');
+  difficultySelect.value = state.difficulty || 'normal';
+  difficultySelect.addEventListener('change', () => {
+    state.difficulty = difficultySelect.value;
+    sfx.uiClick();
+    showToast(`難易度を「${{easy:'簡単',normal:'普通',hard:'難しい'}[state.difficulty]}」に変更しました`, 'info');
     saveGame();
   });
 
