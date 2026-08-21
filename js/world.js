@@ -225,14 +225,29 @@ function buildBiomePatch(theme) {
   const canvas = makeCanvas(size);
   const ctx = canvas.getContext('2d');
   const col = new THREE.Color(theme.color);
+  const r255 = col.r * 255 | 0, g255 = col.g * 255 | 0, b255 = col.b * 255 | 0;
   const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  grad.addColorStop(0, `rgba(${col.r*255|0},${col.g*255|0},${col.b*255|0},0.8)`);
-  grad.addColorStop(0.7, `rgba(${col.r*255|0},${col.g*255|0},${col.b*255|0},0.35)`);
+  grad.addColorStop(0, `rgba(${r255},${g255},${b255},0.8)`);
+  grad.addColorStop(0.7, `rgba(${r255},${g255},${b255},0.35)`);
   grad.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, size, size);
+  // 内部にざらつきと斑点を足して、単なる均一グラデーションではなく地面と馴染む質感にする
+  for (let i = 0; i < 1200; i++) {
+    const ang = Math.random() * Math.PI * 2;
+    const rad = Math.random() * size * 0.48;
+    const x = size / 2 + Math.cos(ang) * rad, y = size / 2 + Math.sin(ang) * rad;
+    const fall = 1 - rad / (size * 0.5);
+    const v = Math.random() > 0.5 ? 1.25 : 0.75;
+    ctx.fillStyle = `rgba(${Math.min(255, r255 * v) | 0},${Math.min(255, g255 * v) | 0},${Math.min(255, b255 * v) | 0},${0.10 * fall})`;
+    ctx.beginPath();
+    ctx.ellipse(x, y, 2 + Math.random() * 3, 2 + Math.random() * 3, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
+  tex.generateMipmaps = true;
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
   return new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false });
 }
 
