@@ -254,6 +254,14 @@ export function completeQuest(chapterKey, questId) {
   state.questProgress[chapterKey][questId] = true;
 }
 
+export function totalQuestsDone() {
+  return CHAPTERS.reduce((sum, c) => sum + chapterQuestsDone(c.key), 0);
+}
+
+export function totalQuestsAll() {
+  return CHAPTERS.reduce((sum, c) => sum + c.quests.length, 0);
+}
+
 export function chapterQuestsDone(chapterKey) {
   const chapter = CHAPTERS.find(c => c.key === chapterKey);
   if (!chapter) return 0;

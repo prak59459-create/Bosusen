@@ -1,6 +1,6 @@
 import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS } from './data.js';
 import { state, computeStats, isQuestDone, ownsItem,
-  equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements } from './state.js';
+  equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll } from './state.js';
 import { sfx, setMasterVolume } from './audio.js';
 import { setQualityPreset } from './scene.js';
 import { setMapOpen } from './explore.js';
@@ -216,6 +216,7 @@ export function renderStatusTab() {
   document.getElementById('st-loginstreak').textContent = state.loginStreak || 0;
   document.getElementById('st-winstreak').textContent = state.bestWinStreak || 0;
   document.getElementById('st-distance').textContent = `${Math.round(state.totalDistanceTraveled || 0)}m`;
+  document.getElementById('st-quests').textContent = `${totalQuestsDone()} / ${totalQuestsAll()}`;
 
   const achList = document.getElementById('achievement-list');
   if (achList) {
