@@ -194,6 +194,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (lastRank != null && state.damageTaken === 0) tryUnlock('flawless');
   if (state.loginStreak >= 7) tryUnlock('week_streak');
   if (lastRank != null && state.healUses === state.healUsesMax) tryUnlock('no_heal');
+  if (lastRank != null && !state.guardUsedThisBattle) tryUnlock('no_guard');
   if (Object.values(state.chapterClearCounts).some(c => c >= 5)) tryUnlock('veteran_hunter');
   if (state.winStreak >= 3) tryUnlock('win_streak_3');
   if (state.winStreak >= 5) tryUnlock('win_streak_5');

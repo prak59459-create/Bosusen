@@ -466,6 +466,7 @@ export function playerAction(type) {
 
   } else if (type === 'guard') {
     state.guarding = true;
+    state.guardUsedThisBattle = true;
     state.playerStam = Math.min(state.playerMaxStam, state.playerStam + 20);
     updateBars();
     log('ガードの構え。次のダメージを軽減する。');
@@ -508,6 +509,7 @@ export function setupChapterBattle(chapterIndex) {
     combo: 0, maxCombo: 0, phase2: false, turns: 0, damageTaken: 0, skillCooldown: 0,
     usedRevive: false,
     bossLowHpWarned: false,
+    guardUsedThisBattle: false,
   });
   els.phaseTag.style.display = 'none';
   spawnEnemy(chapter.enemyDef);
