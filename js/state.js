@@ -80,7 +80,7 @@ export function computeStats() {
     mpBonus += item.mp || 0;
   });
 
-  let atkPct = 0, defPct = 0, dodgeWindowPct = 0, parryBonusPct = 0, healBonusPct = 0, staminaCostPct = 0, healUsesBonus = 0;
+  let atkPct = 0, defPct = 0, dodgeWindowPct = 0, parryBonusPct = 0, healBonusPct = 0, staminaCostPct = 0, healUsesBonus = 0, shardPct = 0;
   state.unlockedSkills.forEach(id => {
     const skill = SKILLS.find(s => s.id === id);
     if (!skill) return;
@@ -94,6 +94,7 @@ export function computeStats() {
     if (e.healBonusPct) healBonusPct += e.healBonusPct;
     if (e.staminaCostPct) staminaCostPct += e.staminaCostPct;
     if (e.healUsesBonus) healUsesBonus += e.healUsesBonus;
+    if (e.shardPct) shardPct += e.shardPct;
   });
 
   atk = Math.round(atk * (1 + atkPct));
@@ -110,6 +111,7 @@ export function computeStats() {
     healBonusPct,
     staminaCostPct,
     healUsesBonus,
+    shardPct,
     hasRevive: state.unlockedSkills.includes('revive'),
   };
 }

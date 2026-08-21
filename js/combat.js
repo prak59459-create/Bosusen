@@ -152,7 +152,8 @@ function finishGame(won) {
     els.endRank.textContent = `評価ランク: ${rank}`;
 
     const RANK_BONUS = { S: 1.5, A: 1.2, B: 1.0, C: 1.0 };
-    const shardReward = Math.round(chapter.shardsBase * difficultyMult().shards * RANK_BONUS[rank]);
+    const shardPct = computeStats().shardPct || 0;
+    const shardReward = Math.round(chapter.shardsBase * difficultyMult().shards * RANK_BONUS[rank] * (1 + shardPct));
     state.xp += chapter.xp;
     state.bossesDefeated++;
     state.lifetimeBestCombo = Math.max(state.lifetimeBestCombo, state.maxCombo || 0);
