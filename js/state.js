@@ -172,6 +172,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (state.lifetimeBestCombo >= 10) tryUnlock('combo_10');
   if (state.lifetimeBestCombo >= 20) tryUnlock('combo_20');
   if (state.lifetimeBestCombo >= 30) tryUnlock('combo_30');
+  if (state.lifetimeBestCombo >= 50) tryUnlock('combo_50');
   if (state.totalShardsEarned >= 300) tryUnlock('shard_rich');
   if (hiddenTreasureTotal != null && state.foundTreasures.length >= hiddenTreasureTotal) tryUnlock('treasure_hunter');
   if (lastRank === 'S') tryUnlock('rank_s');
