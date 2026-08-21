@@ -330,6 +330,7 @@ export const SHOP_ITEMS = [
   { itemId: 'armor_eternal', cost: 220 },
   { itemId: 'accessory_starlight', cost: 200 },
   { itemId: 'sword_primecore', cost: 260 },
+  { itemId: 'accessory_legend', cost: 150, requiresAchievement: 'completionist' },
 ];
 export const shopLocalPos = new THREE.Vector3(8, 0, -4);
 {

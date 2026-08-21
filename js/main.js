@@ -76,7 +76,8 @@ function renderShop() {
   SHOP_ITEMS.forEach(entry => {
     const item = ITEMS[entry.itemId];
     const owned = ownsItem(entry.itemId);
-    const canBuy = !owned && state.shards >= entry.cost;
+    const locked = entry.requiresAchievement && !state.achievements.includes(entry.requiresAchievement);
+    const canBuy = !owned && !locked && state.shards >= entry.cost;
     const statParts = [];
     if (item.atk) statParts.push(`攻撃+${item.atk}`);
     if (item.def) statParts.push(`防御+${item.def}`);
@@ -87,14 +88,14 @@ function renderShop() {
     card.className = 'shop-item-card';
     card.innerHTML = `
       <div>
-        <div class="shop-item-name">${item.name}<span class="item-slot-tag">${statParts.join(' / ')}</span></div>
-        <div class="shop-item-desc">${item.desc}</div>
+        <div class="shop-item-name">${locked ? '🔒 ' : ''}${item.name}<span class="item-slot-tag">${statParts.join(' / ')}</span></div>
+        <div class="shop-item-desc">${locked ? '実績「エーテリアの伝説」の解除が必要' : item.desc}</div>
       </div>
-      <button class="shop-buy-btn" ${owned || !canBuy ? 'disabled' : ''}>${owned ? '所持済み' : `${entry.cost} 欠片`}</button>
+      <button class="shop-buy-btn" ${owned || !canBuy ? 'disabled' : ''}>${owned ? '所持済み' : (locked ? 'ロック中' : `${entry.cost} 欠片`)}</button>
     `;
     const btn = card.querySelector('.shop-buy-btn');
     btn.addEventListener('click', () => {
-      if (owned || state.shards < entry.cost) return;
+      if (owned || locked || state.shards < entry.cost) return;
       if (!spendShards(entry.cost)) return;
       addItem(entry.itemId);
       sfx.shardGet();
