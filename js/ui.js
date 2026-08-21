@@ -199,6 +199,8 @@ export function renderQuestBoard(chapterIndex, onResolve) {
    ============================================================ */
 export function renderStatusTab() {
   const s = computeStats();
+  const title = playerTitle();
+  document.getElementById('st-title').textContent = title ? title.replace(/[【】]/g, '') : 'なし';
   document.getElementById('st-level').textContent = state.level;
   document.getElementById('st-atk').textContent = s.atk;
   document.getElementById('st-def').textContent = s.def;
