@@ -496,7 +496,7 @@ export function setupChapterBattle(chapterIndex) {
   Object.assign(state, {
     playerHP: stats.maxHP, playerMaxHP: stats.maxHP,
     playerMP: stats.maxMP, playerMaxMP: stats.maxMP,
-    playerStam: base.maxStam, playerMaxStam: base.maxStam,
+    playerStam: stats.maxStam, playerMaxStam: stats.maxStam,
     bossHP: scaledBossHP, bossMaxHP: scaledBossHP,
     healUses: 3 + (stats.healUsesBonus || 0), healUsesMax: 3 + (stats.healUsesBonus || 0), guarding: false, playing: false, turnBusy: false,
     combo: 0, maxCombo: 0, phase2: false, turns: 0, damageTaken: 0, skillCooldown: 0,
