@@ -416,7 +416,16 @@ export function renderItemsTab() {
         <div class="item-row-name">${item.name}<span class="item-slot-tag">${slotLabel[item.slot]}${equipped ? ' ・装備中' : ''}</span></div>
         <div class="item-row-desc">${item.desc}</div>
       </div>
+      <button class="item-row-btn" ${equipped ? 'disabled' : ''}>${equipped ? '装備中' : '装備する'}</button>
     `;
+    row.querySelector('.item-row-btn').addEventListener('click', () => {
+      if (equipped) return;
+      equipItem(id);
+      sfx.uiClick();
+      renderItemsTab();
+      renderStatusTab();
+      saveGame();
+    });
     listEl.appendChild(row);
   });
 }
