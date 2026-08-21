@@ -133,6 +133,17 @@ export function addShards(n) {
   state.totalShardsEarned += n;
 }
 
+export function resetSkills() {
+  if (state.unlockedSkills.length === 0) return 0;
+  const refund = state.unlockedSkills.reduce((sum, id) => {
+    const skill = SKILLS.find(s => s.id === id);
+    return sum + (skill ? skill.cost : 0);
+  }, 0);
+  state.shards += refund;
+  state.unlockedSkills = [];
+  return refund;
+}
+
 export function ownsItem(id) {
   return state.inventory.includes(id);
 }

@@ -1,6 +1,6 @@
 import { CHAPTERS, ITEMS, SKILLS } from './data.js';
 import { state, computeStats, isQuestDone, ownsItem,
-  equipItem, unequipSlot, unlockSkill, saveGame, clearSave, hasSaveGame } from './state.js';
+  equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame } from './state.js';
 import { sfx, setMasterVolume } from './audio.js';
 import { setQualityPreset } from './scene.js';
 import { setMapOpen } from './explore.js';
@@ -295,6 +295,22 @@ export function renderSkillsTab() {
     }
     treeEl.appendChild(node);
   });
+
+  if (state.unlockedSkills.length > 0) {
+    const resetRow = document.createElement('div');
+    resetRow.className = 'skill-reset-row';
+    resetRow.innerHTML = `<button class="skill-reset-btn">習得スキルをリセットして欠片を返却</button>`;
+    resetRow.querySelector('.skill-reset-btn').addEventListener('click', () => {
+      if (!window.confirm('習得したスキルをすべてリセットし、消費した結晶の欠片を返却します。よろしいですか？')) return;
+      const refund = resetSkills();
+      sfx.uiClick();
+      showToast(`スキルをリセットしました（結晶の欠片 +${refund}）`, 'info');
+      renderSkillsTab();
+      renderStatusTab();
+      saveGame();
+    });
+    treeEl.appendChild(resetRow);
+  }
 }
 
 /* ============================================================
