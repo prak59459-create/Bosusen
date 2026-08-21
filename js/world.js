@@ -132,11 +132,55 @@ function buildTileTexture() {
   tex.magFilter = THREE.LinearFilter;
   const maxAniso = renderer.capabilities ? renderer.capabilities.getMaxAnisotropy() : 1;
   tex.anisotropy = maxAniso || 4;
+  return { tex, canvas };
+}
+
+// カラーテクスチャの輝度からノーマルマップを生成し、微細な凹凸感をライティングに反映する
+function buildNormalMapFromCanvas(srcCanvas) {
+  const size = srcCanvas.width;
+  const src = srcCanvas.getContext('2d').getImageData(0, 0, size, size).data;
+  const lum = new Float32Array(size * size);
+  for (let i = 0; i < size * size; i++) {
+    const o = i * 4;
+    lum[i] = (src[o] * 0.299 + src[o + 1] * 0.587 + src[o + 2] * 0.114) / 255;
+  }
+  const nCanvas = makeCanvas(size);
+  const nCtx = nCanvas.getContext('2d');
+  const out = nCtx.createImageData(size, size);
+  const strength = 2.2;
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const xL = lum[y * size + ((x - 1 + size) % size)];
+      const xR = lum[y * size + ((x + 1) % size)];
+      const yU = lum[((y - 1 + size) % size) * size + x];
+      const yD = lum[((y + 1) % size) * size + x];
+      const dx = (xL - xR) * strength;
+      const dy = (yU - yD) * strength;
+      const dz = 1.0;
+      const len = Math.hypot(dx, dy, dz);
+      const o = (y * size + x) * 4;
+      out.data[o] = ((dx / len) * 0.5 + 0.5) * 255;
+      out.data[o + 1] = ((dy / len) * 0.5 + 0.5) * 255;
+      out.data[o + 2] = ((dz / len) * 0.5 + 0.5) * 255;
+      out.data[o + 3] = 255;
+    }
+  }
+  nCtx.putImageData(out, 0, 0);
+  const tex = new THREE.CanvasTexture(nCanvas);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(WORLD_RADIUS / 4, WORLD_RADIUS / 4);
+  tex.generateMipmaps = true;
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.magFilter = THREE.LinearFilter;
   return tex;
 }
 
-const groundTex = buildTileTexture();
+const { tex: groundTex, canvas: groundCanvas } = buildTileTexture();
+const groundNormalTex = buildNormalMapFromCanvas(groundCanvas);
 const groundMat = makeToonMaterial({ map: groundTex, color: 0xffffff });
+groundMat.normalMap = groundNormalTex;
+groundMat.normalScale = new THREE.Vector2(0.6, 0.6);
+groundMat.needsUpdate = true;
 const GROUND_SEGMENTS = 128;
 const ground = new THREE.Mesh(new THREE.PlaneGeometry(WORLD_RADIUS * 2, WORLD_RADIUS * 2, GROUND_SEGMENTS, GROUND_SEGMENTS), groundMat);
 ground.rotation.x = -Math.PI / 2;
