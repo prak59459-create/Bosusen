@@ -486,7 +486,6 @@ export function playerAction(type) {
 export function setupChapterBattle(chapterIndex) {
   const chapter = CHAPTERS[chapterIndex];
   const level = chapterIndex + 1;
-  const base = levelStatsFor(level);
   state.chapterIndex = chapterIndex;
   state.level = level;
   const stats = computeStats();
