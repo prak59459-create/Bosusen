@@ -399,6 +399,16 @@ function updateNearestObjective() {
       candidates.push({ name: `依頼人: ${g.name}`, pos: g.localPos });
     }
   });
+  explorePickups.forEach(p => {
+    if (p.mesh.visible) candidates.push({ name: '採取物', pos: p.localPos });
+  });
+  loreMarkers.forEach(m => {
+    const chapterKey = CHAPTERS[m.chapterIndex].key;
+    if (!isQuestDone(chapterKey, m.questId)) candidates.push({ name: '石碑', pos: m.localPos });
+  });
+  hiddenTreasures.forEach(t => {
+    if (t.mesh.visible) candidates.push({ name: '結晶の秘宝', pos: t.localPos });
+  });
   if (candidates.length === 0) { el.style.display = 'none'; return; }
   let nearest = null, nearestDist = Infinity;
   candidates.forEach(c => {
