@@ -447,6 +447,7 @@ CHAPTERS.forEach((chapter, i) => {
     const npc = makeHumanoidMesh(0xd8c8a0, theme.glow);
     npc.position.set(npcPos.x, 0, npcPos.z);
     worldGroup.add(npc);
+    addAODecal(npcPos.x, npcPos.z, 0.7);
 
     // ---- 討伐目標（聖域からさらに数百m先）----
     const targetAng = zoneAngle(i) + (Math.random() - 0.5) * 0.6;
@@ -518,6 +519,7 @@ CHAPTERS.forEach((chapter, i) => {
     monuMesh.rotation.y = Math.random() * Math.PI;
     worldGroup.add(monuMesh);
     addOutline(monuMesh, 0x0a0816, 0.02);
+    addAODecal(loreLocal.x, loreLocal.z, 0.8);
     const monuLight = new THREE.PointLight(0x8899ff, 1.4, 9, 2);
     monuLight.position.set(loreLocal.x, 2, loreLocal.z);
     worldGroup.add(monuLight);
