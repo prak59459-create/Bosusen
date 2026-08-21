@@ -349,7 +349,7 @@ export function renderSkillsTab() {
         if (unlockSkill(skill.id)) {
           sfx.skillUnlock();
           showToast(`スキル解放: ${skill.name}`, 'skill');
-          checkAchievements().forEach(a => showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'));
+          checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
           renderSkillsTab();
           renderStatusTab();
           saveGame();

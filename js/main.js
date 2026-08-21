@@ -100,7 +100,7 @@ function renderShop() {
       addItem(entry.itemId);
       sfx.shardGet();
       showToast(`${item.name} を購入した`, 'quest');
-      checkAchievements(undefined, undefined, SHOP_ITEMS.filter(e => !e.requiresAchievement).map(e => e.itemId)).forEach(a => showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'));
+      checkAchievements(undefined, undefined, SHOP_ITEMS.filter(e => !e.requiresAchievement).map(e => e.itemId)).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
       saveGame();
       renderShop();
     });
@@ -281,7 +281,7 @@ els.continueBtn.addEventListener('click', () => {
   const login = checkDailyLogin();
   if (login) {
     showToast(`ログインボーナス（${login.streak}日連続） 結晶の欠片 +${login.reward}`, 'quest');
-    checkAchievements().forEach(a => showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'));
+    checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
     saveGame();
   }
 });
@@ -320,7 +320,7 @@ els.ngPlusBtn.addEventListener('click', () => {
     questProgress: {}, fieldQuests: {}, foundTreasures: [], usedRevive: false,
   });
   showToast(`周回+${state.newGamePlus} を開始！ 装備・スキル・実績は引き継がれる。結晶獣がより強くなる。`, 'info');
-  checkAchievements().forEach(a => showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'));
+  checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
   goExplore(null);
   saveGame();
 });
