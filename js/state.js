@@ -1,4 +1,4 @@
-import { CHAPTERS, ITEMS, SKILLS, levelStatsFor } from './data.js';
+import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, levelStatsFor } from './data.js';
 
 const SAVE_KEY = 'aetheria_save_v1';
 
@@ -31,6 +31,7 @@ export const state = {
   inventory: [], // array of item ids owned but not necessarily equipped
   unlockedSkills: [], // array of skill ids
   foundTreasures: [], // array of hidden treasure ids collected
+  achievements: [], // array of unlocked achievement ids
   questProgress: {}, // { chapterKey: { questId: true } }
   fieldQuests: {}, // { questId: 'accepted' | 'ready_turnin' }
   masterVolume: 0.7,
@@ -136,6 +137,26 @@ export function addShards(n) {
   state.totalShardsEarned += n;
 }
 
+export function unlockAchievement(id) {
+  if (state.achievements.includes(id)) return null;
+  const ach = ACHIEVEMENTS.find(a => a.id === id);
+  if (!ach) return null;
+  state.achievements.push(id);
+  return ach;
+}
+
+export function checkAchievements(hiddenTreasureTotal) {
+  const newly = [];
+  const tryUnlock = id => { const a = unlockAchievement(id); if (a) newly.push(a); };
+  if (state.bossesDefeated >= 1) tryUnlock('first_boss');
+  if (state.bossesDefeated >= 4) tryUnlock('boss_master');
+  if (state.lifetimeBestCombo >= 10) tryUnlock('combo_10');
+  if (state.lifetimeBestCombo >= 20) tryUnlock('combo_20');
+  if (state.totalShardsEarned >= 300) tryUnlock('shard_rich');
+  if (hiddenTreasureTotal != null && state.foundTreasures.length >= hiddenTreasureTotal) tryUnlock('treasure_hunter');
+  return newly;
+}
+
 export function resetSkills() {
   if (state.unlockedSkills.length === 0) return 0;
   const refund = state.unlockedSkills.reduce((sum, id) => {
@@ -198,6 +219,7 @@ export function saveGame() {
       inventory: state.inventory,
       unlockedSkills: state.unlockedSkills,
       foundTreasures: state.foundTreasures,
+      achievements: state.achievements,
       questProgress: state.questProgress,
       fieldQuests: state.fieldQuests,
       masterVolume: state.masterVolume,
@@ -240,6 +262,7 @@ export function loadGame() {
       inventory: snap.inventory || [],
       unlockedSkills: snap.unlockedSkills || [],
       foundTreasures: snap.foundTreasures || [],
+      achievements: snap.achievements || [],
       questProgress: snap.questProgress || {},
       fieldQuests: snap.fieldQuests || {},
       masterVolume: (snap.masterVolume != null) ? snap.masterVolume : 0.7,

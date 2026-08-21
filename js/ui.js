@@ -1,4 +1,4 @@
-import { CHAPTERS, ITEMS, SKILLS } from './data.js';
+import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS } from './data.js';
 import { state, computeStats, isQuestDone, ownsItem,
   equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame } from './state.js';
 import { sfx, setMasterVolume } from './audio.js';
@@ -194,6 +194,24 @@ export function renderStatusTab() {
   document.getElementById('st-shards').textContent = state.shards;
   document.getElementById('st-bosses').textContent = state.bossesDefeated || 0;
   document.getElementById('st-combo').textContent = state.lifetimeBestCombo || 0;
+
+  const achList = document.getElementById('achievement-list');
+  if (achList) {
+    achList.innerHTML = '';
+    ACHIEVEMENTS.forEach(a => {
+      const unlocked = state.achievements.includes(a.id);
+      const row = document.createElement('div');
+      row.className = 'item-row' + (unlocked ? ' equipped' : '');
+      row.style.opacity = unlocked ? '1' : '0.45';
+      row.innerHTML = `
+        <div>
+          <div class="item-row-name">${unlocked ? '🏆 ' : '🔒 '}${a.name}</div>
+          <div class="item-row-desc">${a.desc}</div>
+        </div>
+      `;
+      achList.appendChild(row);
+    });
+  }
 }
 
 /* ============================================================

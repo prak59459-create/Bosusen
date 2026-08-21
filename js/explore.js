@@ -5,7 +5,7 @@ import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTar
   explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals } from './world.js';
 import { CHAPTERS } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
-  fieldQuestState, acceptFieldQuest, saveGame } from './state.js';
+  fieldQuestState, acceptFieldQuest, saveGame, checkAchievements } from './state.js';
 import { showToast, renderQuestTracker } from './ui.js';
 import { sfx } from './audio.js';
 import { startSkirmish, isSkirmishActive } from './skirmish.js';
@@ -205,6 +205,7 @@ function tryCollectTreasure(t) {
   sfx.shardGet();
   showToast(`結晶の秘宝を発見！ 結晶の欠片 +${t.shardReward}`, 'quest');
   t.mesh.visible = false;
+  checkAchievements(hiddenTreasures.length).forEach(a => showToast(`実績解除: ${a.name}`, 'quest'));
   saveGame();
 }
 

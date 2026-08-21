@@ -8,7 +8,7 @@ import { rand } from './utils.js';
 import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake } from './effects.js';
 import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
 import { CHAPTERS, levelStatsFor } from './data.js';
-import { state, computeStats, addShards, difficultyMult } from './state.js';
+import { state, computeStats, addShards, difficultyMult, checkAchievements } from './state.js';
 
 let dodgeActive = false;
 let dodgeAnimHandle = null;
@@ -156,6 +156,7 @@ function finishGame(won) {
     state.lifetimeBestCombo = Math.max(state.lifetimeBestCombo, state.maxCombo || 0);
     addShards(shardReward);
     els.endRewards.textContent = `獲得経験値 +${chapter.xp} / 結晶の欠片 +${shardReward}（累計 ${state.totalShardsEarned}）`;
+    checkAchievements().forEach(a => showToast(`実績解除: ${a.name}`, 'quest'));
 
     if (isFinal) {
       els.endTitle.textContent = '選択のとき';

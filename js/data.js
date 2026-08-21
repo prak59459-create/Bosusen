@@ -241,3 +241,12 @@ export const SKILLS = [
   { id:'stam_up',   name:'省エネの型',       cost:35, desc:'攻撃／強攻撃のスタミナ消費が-20%される。', effect:{ staminaCostPct:-0.2 } },
   { id:'revive',    name:'蘇生の残光',       cost:80, desc:'戦闘不能になったとき、一度だけHP30%で復活する。', effect:{ revive:true } },
 ];
+
+export const ACHIEVEMENTS = [
+  { id:'first_boss',   name:'初陣の証',       desc:'結晶獣を初めて撃破する。' },
+  { id:'boss_master',  name:'結晶獣狩り',     desc:'結晶獣を4体撃破する。' },
+  { id:'combo_10',     name:'連撃の達人',     desc:'コンボを10以上つなげる。' },
+  { id:'combo_20',     name:'無双の剣',       desc:'コンボを20以上つなげる。' },
+  { id:'treasure_hunter', name:'秘宝の探求者', desc:'すべての結晶の秘宝を発見する。' },
+  { id:'shard_rich',   name:'結晶長者',       desc:'結晶の欠片を累計300獲得する。' },
+];
