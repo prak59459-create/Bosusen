@@ -307,6 +307,11 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 #sprint-lock-btn.active {
   background:rgba(255,215,94,0.9); border-color:rgba(180,140,20,0.5);
 }
+#nearest-objective {
+  position:absolute; top: max(90px, env(safe-area-inset-top) + 76px); left:50%; transform:translateX(-50%);
+  background:rgba(255,255,255,0.7); border:1px solid rgba(150,100,220,0.3); border-radius:14px;
+  padding:5px 14px; font-size:12px; color:#3d2f5c; white-space:nowrap;
+}
 
 @media (max-width: 700px), (max-height: 480px) {
   #hud-bottom {

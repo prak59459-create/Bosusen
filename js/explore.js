@@ -27,6 +27,7 @@ const camCurrentPos = new THREE.Vector3();
 const camLookTarget = new THREE.Vector3();
 let stepTimer = 0;
 let camInit = false;
+let objectiveTimer = 0;
 
 const EXPLORE_FOG = { near: 260, far: 3200 };
 const BATTLE_FOG = { near: 34, far: 80 };
@@ -154,6 +155,8 @@ export function exitExploreMode() {
   if (ind) ind.style.display = 'none';
   const btn = document.getElementById('sprint-lock-btn');
   if (btn) btn.classList.remove('active');
+  const objEl = document.getElementById('nearest-objective');
+  if (objEl) objEl.style.display = 'none';
   joyVec = { x: 0, y: 0 };
   const hud = document.getElementById('explore-hud');
   if (hud) hud.style.display = 'none';
@@ -372,6 +375,38 @@ export function updateExplore(dt) {
   } else if (!nearShop) {
     shopHintShown = false;
   }
+
+  objectiveTimer -= dt;
+  if (objectiveTimer <= 0) {
+    objectiveTimer = 0.5;
+    updateNearestObjective();
+  }
+}
+
+function updateNearestObjective() {
+  const el = document.getElementById('nearest-objective');
+  if (!el) return;
+  const candidates = [];
+  fieldTargets.forEach(t => {
+    const chapterKey = CHAPTERS[t.chapterIndex].key;
+    if (fieldQuestState(t.questId) === 'accepted' && !isQuestDone(chapterKey, t.questId)) {
+      candidates.push({ name: `討伐: ${t.name}`, pos: t.localPos });
+    }
+  });
+  questGivers.forEach(g => {
+    const chapterKey = CHAPTERS[g.chapterIndex].key;
+    if (!isQuestDone(chapterKey, g.questId) && fieldQuestState(g.questId) !== 'accepted') {
+      candidates.push({ name: `依頼人: ${g.name}`, pos: g.localPos });
+    }
+  });
+  if (candidates.length === 0) { el.style.display = 'none'; return; }
+  let nearest = null, nearestDist = Infinity;
+  candidates.forEach(c => {
+    const d = Math.hypot(localPos.x - c.pos.x, localPos.z - c.pos.z);
+    if (d < nearestDist) { nearestDist = d; nearest = c; }
+  });
+  el.style.display = 'block';
+  el.textContent = `${nearest.name}（残り${Math.round(nearestDist)}m）`;
 }
 
 export function getExploreLocalPos() { return localPos; }
