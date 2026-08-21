@@ -331,6 +331,14 @@ export function renderEquipmentTab() {
 export function renderSkillsTab() {
   const treeEl = document.getElementById('skill-tree');
   treeEl.innerHTML = '';
+  const remainingCost = SKILLS.filter(s => !state.unlockedSkills.includes(s.id)).reduce((sum, s) => sum + s.cost, 0);
+  if (remainingCost > 0) {
+    const progressRow = document.createElement('div');
+    progressRow.className = 'empty-hint';
+    progressRow.style.padding = '2px 4px 12px';
+    progressRow.textContent = `習得済み ${state.unlockedSkills.length} / ${SKILLS.length}（残り全習得に必要な欠片: ${remainingCost}）`;
+    treeEl.appendChild(progressRow);
+  }
   SKILLS.forEach(skill => {
     const unlocked = state.unlockedSkills.includes(skill.id);
     const canAfford = state.shards >= skill.cost;
