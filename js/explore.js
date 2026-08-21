@@ -161,6 +161,7 @@ function tryTurnInOrAccept(giver) {
     if (giver.quest.reward.itemId) addItem(giver.quest.reward.itemId);
     sfx.questDone();
     showToast(`クエスト達成: ${giver.quest.title}（結晶の欠片 +${giver.quest.reward.shards}）`, 'quest');
+    checkAchievements(hiddenTreasures.length).forEach(a => showToast(`実績解除: ${a.name}`, 'quest'));
     renderQuestTracker();
     saveGame();
   } else if (fState === 'accepted') {
@@ -193,6 +194,7 @@ function tryCollectPickup(pickup) {
   if (pickup.quest.reward.itemId) addItem(pickup.quest.reward.itemId);
   sfx.shardGet();
   showToast(`クエスト達成: ${pickup.quest.title}｜${pickup.quest.result}`, 'quest');
+  checkAchievements(hiddenTreasures.length).forEach(a => showToast(`実績解除: ${a.name}`, 'quest'));
   pickup.mesh.visible = false;
   renderQuestTracker();
   saveGame();
@@ -216,6 +218,7 @@ function tryReadLore(monu) {
   addShards(monu.quest.reward.shards);
   sfx.questDone();
   showToast(`クエスト達成: ${monu.quest.title}｜${monu.quest.result}`, 'quest');
+  checkAchievements(hiddenTreasures.length).forEach(a => showToast(`実績解除: ${a.name}`, 'quest'));
   renderQuestTracker();
   saveGame();
 }
