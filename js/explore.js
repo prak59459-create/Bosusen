@@ -33,6 +33,7 @@ const BATTLE_FOG = { near: 34, far: 80 };
 
 const keys = { forward: false, back: false, left: false, right: false, sprint: false };
 let joyVec = { x: 0, y: 0 }; // タッチ用ベクトル(-1..1)
+let sprintLock = false;
 
 window.addEventListener('keydown', (e) => {
   if (!exploreActive) return;
@@ -42,13 +43,17 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = true;
   if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.sprint = true;
   if (e.code === 'KeyM' && onToggleMap) onToggleMap();
+  if (e.code === 'KeyR' && !e.repeat) {
+    sprintLock = !sprintLock;
+    keys.sprint = sprintLock;
+  }
 });
 window.addEventListener('keyup', (e) => {
   if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.forward = false;
   if (e.code === 'KeyS' || e.code === 'ArrowDown') keys.back = false;
   if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = false;
   if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = false;
-  if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.sprint = false;
+  if ((e.code === 'ShiftLeft' || e.code === 'ShiftRight') && !sprintLock) keys.sprint = false;
 });
 
 /* ---------- 仮想スティック(モバイル/マウスドラッグ両対応) ---------- */
@@ -136,6 +141,7 @@ export function exitExploreMode() {
   scene.fog.near = BATTLE_FOG.near;
   scene.fog.far = BATTLE_FOG.far;
   keys.forward = keys.back = keys.left = keys.right = keys.sprint = false;
+  sprintLock = false;
   joyVec = { x: 0, y: 0 };
   const hud = document.getElementById('explore-hud');
   if (hud) hud.style.display = 'none';
