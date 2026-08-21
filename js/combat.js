@@ -155,7 +155,8 @@ function finishGame(won) {
 
     const RANK_BONUS = { S: 1.5, A: 1.2, B: 1.0, C: 1.0 };
     const shardPct = computeStats().shardPct || 0;
-    const shardReward = Math.round(chapter.shardsBase * difficultyMult().shards * RANK_BONUS[rank] * (1 + shardPct));
+    const ngPlusShardMult = 1 + (state.newGamePlus || 0) * 0.2;
+    const shardReward = Math.round(chapter.shardsBase * difficultyMult().shards * RANK_BONUS[rank] * (1 + shardPct) * ngPlusShardMult);
     state.xp += chapter.xp;
     state.bossesDefeated++;
     state.lifetimeBestCombo = Math.max(state.lifetimeBestCombo, state.maxCombo || 0);
