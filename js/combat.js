@@ -204,7 +204,7 @@ export function bossTurn() {
 
   if (state.skillCooldown > 0) state.skillCooldown--;
   state.playerStam = Math.min(state.playerMaxStam, state.playerStam + 8);
-  state.playerMP = Math.min(state.playerMaxMP, state.playerMP + 6);
+  state.playerMP = Math.min(state.playerMaxMP, state.playerMP + 6 + (computeStats().mpRegenBonus || 0));
   updateBars();
 
   const chapter = CHAPTERS[state.chapterIndex];
