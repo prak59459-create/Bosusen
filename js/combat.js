@@ -169,7 +169,11 @@ function finishGame(won) {
     const rankBonusNote = RANK_BONUS[rank] > 1 ? `（ランク${rank}ボーナス+${Math.round((RANK_BONUS[rank]-1)*100)}%）` : '';
     const comboBonusNote = comboBonus > 0 ? ` / コンボボーナス +${comboBonus}` : '';
     els.endRewards.textContent = `獲得経験値 +${chapter.xp} / 結晶の欠片 +${shardReward}${rankBonusNote}${comboBonusNote}（累計 ${state.totalShardsEarned}）`;
-    checkAchievements(undefined, rank).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
+    checkAchievements(undefined, rank).forEach((a, i) => {
+      sfx.achievement();
+      showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest');
+      setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300);
+    });
 
     if (isFinal) {
       els.endTitle.textContent = '選択のとき';
