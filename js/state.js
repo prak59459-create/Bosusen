@@ -180,6 +180,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (state.totalDistanceTraveled >= 10000) tryUnlock('wanderer');
   if (state.totalDistanceTraveled >= 50000) tryUnlock('pilgrim');
   if (state.totalShardsEarned >= 300) tryUnlock('shard_rich');
+  if (state.totalShardsEarned >= 1000) tryUnlock('shard_tycoon');
   if (hiddenTreasureTotal != null && state.foundTreasures.length >= hiddenTreasureTotal) tryUnlock('treasure_hunter');
   if (lastRank === 'S') tryUnlock('rank_s');
   if (state.newGamePlus >= 1) tryUnlock('ng_plus');

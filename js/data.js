@@ -261,6 +261,7 @@ export const ACHIEVEMENTS = [
   { id:'combo_20',     name:'無双の剣',       desc:'コンボを20以上つなげる。', reward:40 },
   { id:'treasure_hunter', name:'秘宝の探求者', desc:'すべての結晶の秘宝を発見する。', reward:60 },
   { id:'shard_rich',   name:'結晶長者',       desc:'結晶の欠片を累計300獲得する。', reward:30 },
+  { id:'shard_tycoon', name:'結晶王',         desc:'結晶の欠片を累計1000獲得する。', reward:70 },
   { id:'rank_s',       name:'完璧なる一撃',   desc:'結晶獣戦で評価ランクSを獲得する。', reward:40 },
   { id:'completionist', name:'エーテリアの伝説', desc:'他のすべての実績を解除する。', reward:100 },
   { id:'ng_plus',      name:'周回の覚悟',     desc:'装備を引き継いで周回+に挑む。', reward:30 },
