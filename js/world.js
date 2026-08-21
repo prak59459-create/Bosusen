@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { scene, makeToonMaterial, addOutline } from './scene.js';
+import { scene, makeToonMaterial, addOutline, renderer } from './scene.js';
 import { CHAPTERS } from './data.js';
 import { makeCanvas } from './utils.js';
 
@@ -35,38 +35,123 @@ export function zoneLocalPos(i) {
 
 /* ---------- 地面（広域タイル張りテクスチャ） ---------- */
 function buildTileTexture() {
-  const size = 1024;
+  const size = 2048;
   const canvas = makeCanvas(size);
   const ctx = canvas.getContext('2d');
+
+  // ベースの大域的な色ムラ（大きな草地パッチ）
   ctx.fillStyle = '#bfe0a0';
   ctx.fillRect(0, 0, size, size);
-  for (let i = 0; i < 5000; i++) {
-    const x = Math.random() * size, y = Math.random() * size;
-    const v = 140 + Math.random() * 60;
-    ctx.fillStyle = `rgba(${v * 0.7},${v},${v * 0.55},${0.08 + Math.random() * 0.12})`;
-    ctx.fillRect(x, y, 2 + Math.random() * 3, 2 + Math.random() * 3);
+  for (let i = 0; i < 26; i++) {
+    const cx = Math.random() * size, cy = Math.random() * size;
+    const r = 140 + Math.random() * 260;
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    const tint = Math.random() > 0.5 ? '160,200,120' : '190,220,150';
+    g.addColorStop(0, `rgba(${tint},${0.10 + Math.random() * 0.10})`);
+    g.addColorStop(1, 'rgba(160,200,120,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
   }
-  for (let i = 0; i < 30; i++) {
-    ctx.strokeStyle = 'rgba(120,150,90,0.25)';
+
+  // 中間スケールのざらつき（土・砂利の粒立ち）
+  for (let i = 0; i < 9000; i++) {
+    const x = Math.random() * size, y = Math.random() * size;
+    const v = 130 + Math.random() * 70;
+    ctx.fillStyle = `rgba(${v * 0.7},${v},${v * 0.55},${0.06 + Math.random() * 0.10})`;
+    ctx.fillRect(x, y, 1.5 + Math.random() * 2.5, 1.5 + Math.random() * 2.5);
+  }
+
+  // 細かい草の穂（短いストローク）
+  for (let i = 0; i < 4200; i++) {
+    const x = Math.random() * size, y = Math.random() * size;
+    const len = 3 + Math.random() * 6;
+    const ang = Math.random() * Math.PI;
+    const dark = Math.random() > 0.5;
+    ctx.strokeStyle = dark ? 'rgba(70,110,55,0.35)' : 'rgba(210,235,150,0.4)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + Math.cos(ang) * len, y - len - Math.sin(ang) * 2);
+    ctx.stroke();
+  }
+
+  // 小さな花・クローバーの点在
+  for (let i = 0; i < 260; i++) {
+    const x = Math.random() * size, y = Math.random() * size;
+    const petals = Math.random() > 0.7 ? 4 : 0;
+    if (petals) {
+      ctx.fillStyle = 'rgba(255,250,220,0.55)';
+      for (let p = 0; p < petals; p++) {
+        const a = (p / petals) * Math.PI * 2;
+        ctx.beginPath();
+        ctx.ellipse(x + Math.cos(a) * 2.5, y + Math.sin(a) * 2.5, 1.6, 1, a, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.fillStyle = 'rgba(255,220,90,0.7)';
+      ctx.beginPath();
+      ctx.arc(x, y, 1.1, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.fillStyle = 'rgba(90,140,70,0.3)';
+      ctx.beginPath();
+      ctx.arc(x, y, 1.5 + Math.random(), 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // 小石・砂利
+  for (let i = 0; i < 700; i++) {
+    const x = Math.random() * size, y = Math.random() * size;
+    const r = 1 + Math.random() * 2.2;
+    const v = 150 + Math.random() * 50;
+    ctx.fillStyle = `rgba(${v},${v - 8},${v - 20},0.28)`;
+    ctx.beginPath();
+    ctx.ellipse(x, y, r, r * 0.7, Math.random() * Math.PI, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 獣道・ひび割れ風のライン
+  for (let i = 0; i < 34; i++) {
+    ctx.strokeStyle = 'rgba(110,140,80,0.2)';
     ctx.lineWidth = 1 + Math.random() * 2;
     ctx.beginPath();
     let x = Math.random() * size, y = Math.random() * size;
     ctx.moveTo(x, y);
-    for (let j = 0; j < 5; j++) { x += (Math.random() - 0.5) * 90; y += (Math.random() - 0.5) * 90; ctx.lineTo(x, y); }
+    for (let j = 0; j < 6; j++) { x += (Math.random() - 0.5) * 90; y += (Math.random() - 0.5) * 90; ctx.lineTo(x, y); }
     ctx.stroke();
   }
+
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
   tex.repeat.set(WORLD_RADIUS / 4, WORLD_RADIUS / 4);
+  tex.generateMipmaps = true;
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  const maxAniso = renderer.capabilities ? renderer.capabilities.getMaxAnisotropy() : 1;
+  tex.anisotropy = maxAniso || 4;
   return tex;
 }
 
 const groundTex = buildTileTexture();
 const groundMat = makeToonMaterial({ map: groundTex, color: 0xffffff });
-const ground = new THREE.Mesh(new THREE.PlaneGeometry(WORLD_RADIUS * 2, WORLD_RADIUS * 2, 1, 1), groundMat);
+const GROUND_SEGMENTS = 128;
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(WORLD_RADIUS * 2, WORLD_RADIUS * 2, GROUND_SEGMENTS, GROUND_SEGMENTS), groundMat);
 ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
+{
+  const posAttr = ground.geometry.attributes.position;
+  for (let i = 0; i < posAttr.count; i++) {
+    const x = posAttr.getX(i), y = posAttr.getY(i);
+    const r = Math.hypot(x, y) / WORLD_RADIUS;
+    const wave = Math.sin(x * 0.0035) * Math.cos(y * 0.004) * 1.6 + Math.sin(x * 0.012 + y * 0.01) * 0.4;
+    posAttr.setZ(i, wave * Math.max(0, 1 - r));
+  }
+  posAttr.needsUpdate = true;
+  ground.geometry.computeVertexNormals();
+}
 worldGroup.add(ground);
 
 // 世界の果ての結晶壁
