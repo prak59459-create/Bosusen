@@ -1,6 +1,6 @@
 import { CHAPTERS, ITEMS, SKILLS } from './data.js';
 import { state, computeStats, isQuestDone, ownsItem,
-  equipItem, unequipSlot, unlockSkill, saveGame, clearSave } from './state.js';
+  equipItem, unequipSlot, unlockSkill, saveGame, clearSave, hasSaveGame } from './state.js';
 import { sfx, setMasterVolume } from './audio.js';
 import { setQualityPreset } from './scene.js';
 import { setMapOpen } from './explore.js';
@@ -391,6 +391,7 @@ export function initMenu(onSave, onTitle) {
     if (onTitle) onTitle();
   });
   document.getElementById('delete-save-btn').addEventListener('click', () => {
+    if (!hasSaveGame()) { showToast('セーブデータはありません', 'info'); return; }
     if (!window.confirm('セーブデータを削除します。よろしいですか？（この操作は取り消せません）')) return;
     clearSave();
     els.continueBtn.style.display = 'none';
