@@ -58,6 +58,11 @@ function rollCrit(critPct) {
 export function checkPhaseTransition() {
   const chapter = CHAPTERS[state.chapterIndex];
   const b = getBoss();
+  if (!state.bossLowHpWarned && state.bossHP > 0 && state.bossHP <= state.bossMaxHP * 0.15) {
+    state.bossLowHpWarned = true;
+    log(`${chapter.enemyName}の力が尽きかけている！ 一気に畳みかけろ！`);
+    showCenterMsg('FINISH HIM!', '#ff8844', 1000);
+  }
   if (chapter.hasPhases && !state.phase2 && state.bossHP <= state.bossMaxHP * 0.5) {
     state.phase2 = true;
     els.phaseTag.style.display = 'inline-block';
@@ -500,6 +505,7 @@ export function setupChapterBattle(chapterIndex) {
     healUses: 3 + (stats.healUsesBonus || 0), healUsesMax: 3 + (stats.healUsesBonus || 0), guarding: false, playing: false, turnBusy: false,
     combo: 0, maxCombo: 0, phase2: false, turns: 0, damageTaken: 0, skillCooldown: 0,
     usedRevive: false,
+    bossLowHpWarned: false,
   });
   els.phaseTag.style.display = 'none';
   spawnEnemy(chapter.enemyDef);
