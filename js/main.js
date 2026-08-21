@@ -7,7 +7,7 @@ import { resumeAudio, sfx, setMasterVolume } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
 import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, computeStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
-  renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, syncSettingsUI } from './ui.js';
+  renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, syncSettingsUI, openMenu, closeMenu } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
 import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, hiddenTreasures } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
@@ -452,4 +452,14 @@ window.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   if (shopScreen.style.display === 'flex') closeShop();
   else if (mapScreen.style.display === 'flex') closeMap();
+});
+
+window.addEventListener('keydown', (e) => {
+  if (e.repeat || !exploreActive) return;
+  if (e.key === 'm' || e.key === 'M') {
+    if (mapScreen.style.display === 'flex') closeMap(); else openMap();
+  } else if (e.key === 'Tab') {
+    e.preventDefault();
+    if (els.menuOverlay.classList.contains('open')) closeMenu(); else openMenu();
+  }
 });
