@@ -148,14 +148,17 @@ function finishGame(won) {
     sfx.victory();
     showCenterMsg('VICTORY!', '#5fd35f', 2000);
     crossfadeTo('Idle', 0.4);
-    els.endRank.textContent = `評価ランク: ${calcRank()}`;
+    const rank = calcRank();
+    els.endRank.textContent = `評価ランク: ${rank}`;
 
-    const shardReward = Math.round(chapter.shardsBase * difficultyMult().shards);
+    const RANK_BONUS = { S: 1.5, A: 1.2, B: 1.0, C: 1.0 };
+    const shardReward = Math.round(chapter.shardsBase * difficultyMult().shards * RANK_BONUS[rank]);
     state.xp += chapter.xp;
     state.bossesDefeated++;
     state.lifetimeBestCombo = Math.max(state.lifetimeBestCombo, state.maxCombo || 0);
     addShards(shardReward);
-    els.endRewards.textContent = `獲得経験値 +${chapter.xp} / 結晶の欠片 +${shardReward}（累計 ${state.totalShardsEarned}）`;
+    const rankBonusNote = RANK_BONUS[rank] > 1 ? `（ランク${rank}ボーナス+${Math.round((RANK_BONUS[rank]-1)*100)}%）` : '';
+    els.endRewards.textContent = `獲得経験値 +${chapter.xp} / 結晶の欠片 +${shardReward}${rankBonusNote}（累計 ${state.totalShardsEarned}）`;
     checkAchievements().forEach(a => showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'));
 
     if (isFinal) {
