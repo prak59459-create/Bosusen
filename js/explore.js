@@ -35,6 +35,15 @@ const keys = { forward: false, back: false, left: false, right: false, sprint: f
 let joyVec = { x: 0, y: 0 }; // タッチ用ベクトル(-1..1)
 let sprintLock = false;
 
+function toggleSprintLock() {
+  sprintLock = !sprintLock;
+  keys.sprint = sprintLock;
+  const ind = document.getElementById('sprint-lock-indicator');
+  if (ind) ind.style.display = sprintLock ? 'block' : 'none';
+  const btn = document.getElementById('sprint-lock-btn');
+  if (btn) btn.classList.toggle('active', sprintLock);
+}
+
 window.addEventListener('keydown', (e) => {
   if (!exploreActive) return;
   if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.forward = true;
@@ -43,12 +52,7 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = true;
   if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.sprint = true;
   if (e.code === 'KeyM' && onToggleMap) onToggleMap();
-  if (e.code === 'KeyR' && !e.repeat) {
-    sprintLock = !sprintLock;
-    keys.sprint = sprintLock;
-    const ind = document.getElementById('sprint-lock-indicator');
-    if (ind) ind.style.display = sprintLock ? 'block' : 'none';
-  }
+  if (e.code === 'KeyR' && !e.repeat) toggleSprintLock();
 });
 window.addEventListener('keyup', (e) => {
   if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.forward = false;
@@ -63,6 +67,8 @@ let joyBase = null, joyKnob = null, joyPointerId = null, joyOrigin = { x: 0, y: 
 export function initJoystick() {
   joyBase = document.getElementById('joy-base');
   joyKnob = document.getElementById('joy-knob');
+  const sprintBtn = document.getElementById('sprint-lock-btn');
+  if (sprintBtn) sprintBtn.addEventListener('click', () => { if (exploreActive) toggleSprintLock(); });
   if (!joyBase || !joyKnob) return;
 
   const onDown = (e) => {
@@ -146,6 +152,8 @@ export function exitExploreMode() {
   sprintLock = false;
   const ind = document.getElementById('sprint-lock-indicator');
   if (ind) ind.style.display = 'none';
+  const btn = document.getElementById('sprint-lock-btn');
+  if (btn) btn.classList.remove('active');
   joyVec = { x: 0, y: 0 };
   const hud = document.getElementById('explore-hud');
   if (hud) hud.style.display = 'none';

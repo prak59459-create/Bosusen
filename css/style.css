@@ -297,6 +297,16 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   background:rgba(230,220,250,0.8); border:2px solid rgba(180,140,255,0.4); color:#2a1f3d;
   pointer-events:auto; cursor:pointer;
 }
+#sprint-lock-btn {
+  position:absolute; right: max(18px, env(safe-area-inset-right));
+  bottom: max(90px, env(safe-area-inset-bottom) + 62px);
+  width:52px; height:52px; border-radius:50%; font-size:22px;
+  background:rgba(230,220,250,0.8); border:2px solid rgba(180,140,255,0.4); color:#2a1f3d;
+  pointer-events:auto; cursor:pointer;
+}
+#sprint-lock-btn.active {
+  background:rgba(255,215,94,0.9); border-color:rgba(180,140,20,0.5);
+}
 
 @media (max-width: 700px), (max-height: 480px) {
   #hud-bottom {
