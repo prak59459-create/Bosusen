@@ -200,7 +200,7 @@ function finishGame(won) {
     els.retryBtn.style.display = 'inline-block';
     if (onChapterLose) onChapterLose(state.chapterIndex);
   }
-  els.endStats.textContent = `経過ターン数: ${state.turns} / 被ダメージ合計: ${Math.round(state.damageTaken)} / 最大コンボ: ${state.maxCombo || 0}`;
+  els.endStats.textContent = `経過ターン数: ${state.turns} / 被ダメージ合計: ${Math.round(state.damageTaken)} / 最大コンボ: ${state.maxCombo || 0} / 習得スキル: ${state.unlockedSkills.length}`;
   els.endScreen.style.display = 'flex';
 }
 
