@@ -526,8 +526,10 @@ export function setupChapterBattle(chapterIndex) {
 export function startBattlePhase() {
   state.playing = true;
   updateBars();
-  log(`戦闘開始！ ${CHAPTERS[state.chapterIndex].enemyName}が姿を現した！`);
-  const taunt = BOSS_TAUNTS[Math.floor(Math.random() * BOSS_TAUNTS.length)];
+  const chapter = CHAPTERS[state.chapterIndex];
+  log(`戦闘開始！ ${chapter.enemyName}が姿を現した！`);
+  const tauntPool = chapter.taunts || BOSS_TAUNTS;
+  const taunt = tauntPool[Math.floor(Math.random() * tauntPool.length)];
   log(taunt);
   sfx.roar();
 }
