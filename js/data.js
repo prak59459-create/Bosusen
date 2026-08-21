@@ -256,6 +256,7 @@ export const SKILLS = [
 export const ACHIEVEMENTS = [
   { id:'first_boss',   name:'初陣の証',       desc:'結晶獣を初めて撃破する。', reward:20 },
   { id:'boss_master',  name:'結晶獣狩り',     desc:'結晶獣を4体撃破する。', reward:50 },
+  { id:'boss_slayer',  name:'結晶獣の天敵',   desc:'結晶獣を累計10体撃破する。', reward:60 },
   { id:'combo_10',     name:'連撃の達人',     desc:'コンボを10以上つなげる。', reward:20 },
   { id:'combo_20',     name:'無双の剣',       desc:'コンボを20以上つなげる。', reward:40 },
   { id:'treasure_hunter', name:'秘宝の探求者', desc:'すべての結晶の秘宝を発見する。', reward:60 },

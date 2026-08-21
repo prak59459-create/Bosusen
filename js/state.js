@@ -172,6 +172,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   const tryUnlock = id => { const a = unlockAchievement(id); if (a) newly.push(a); };
   if (state.bossesDefeated >= 1) tryUnlock('first_boss');
   if (state.bossesDefeated >= 4) tryUnlock('boss_master');
+  if (state.bossesDefeated >= 10) tryUnlock('boss_slayer');
   if (state.lifetimeBestCombo >= 10) tryUnlock('combo_10');
   if (state.lifetimeBestCombo >= 20) tryUnlock('combo_20');
   if (state.lifetimeBestCombo >= 30) tryUnlock('combo_30');
