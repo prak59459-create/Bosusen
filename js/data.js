@@ -259,4 +259,5 @@ export const ACHIEVEMENTS = [
   { id:'completionist', name:'エーテリアの伝説', desc:'他のすべての実績を解除する。', reward:100 },
   { id:'ng_plus',      name:'周回の覚悟',     desc:'装備を引き継いで周回+に挑む。', reward:30 },
   { id:'collector',    name:'蒐集家',         desc:'商店の武具をすべて購入する。', reward:50 },
+  { id:'skill_master', name:'結晶技の極致',   desc:'すべての結晶技スキルを習得する。', reward:60 },
 ];

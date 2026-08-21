@@ -1,6 +1,6 @@
 import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS } from './data.js';
 import { state, computeStats, isQuestDone, ownsItem,
-  equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame } from './state.js';
+  equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements } from './state.js';
 import { sfx, setMasterVolume } from './audio.js';
 import { setQualityPreset } from './scene.js';
 import { setMapOpen } from './explore.js';
@@ -307,6 +307,7 @@ export function renderSkillsTab() {
         if (unlockSkill(skill.id)) {
           sfx.skillUnlock();
           showToast(`スキル解放: ${skill.name}`, 'skill');
+          checkAchievements().forEach(a => showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'));
           renderSkillsTab();
           renderStatusTab();
           saveGame();
