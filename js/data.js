@@ -227,6 +227,9 @@ export const ITEMS = {
   sword_traveler:      { id:'sword_traveler', slot:'weapon', name:'旅商人の片刃', atk:6, crit:3, desc:'行商人が護身用に扱っていた軽量な片刃剣。振りが速い。' },
   armor_wanderer:      { id:'armor_wanderer', slot:'armor', name:'旅人のマント', def:4, hp:10, desc:'各地を巡った行商人が譲ってくれた、丈夫な旅装束。' },
   accessory_charm:     { id:'accessory_charm', slot:'accessory', name:'小さな護符', hp:12, mp:8, desc:'旅の安全を願って作られた素朴な護符。じんわりと力が湧く。' },
+  sword_primecore:     { id:'sword_primecore', slot:'weapon', name:'プライムコアの聖剣', atk:22, crit:6, desc:'プライム・コアの結晶を鍛え上げた、最果ての剣。持つ者を選ぶ。' },
+  armor_eternal:       { id:'armor_eternal', slot:'armor', name:'永劫の鎧', def:22, hp:35, desc:'幾多の結晶病を退けてきたという伝説の鎧。時を超えて輝く。' },
+  accessory_starlight: { id:'accessory_starlight', slot:'accessory', name:'星霜の結晶', mp:25, crit:8, hp:15, desc:'星々の記憶を宿すという、最も澄んだ結晶。' },
 };
 
 /* ---------- スキルツリー定義 ---------- */

@@ -327,6 +327,9 @@ export const SHOP_ITEMS = [
   { itemId: 'sword_thornblade', cost: 60 },
   { itemId: 'armor_archive', cost: 100 },
   { itemId: 'sword_echo', cost: 140 },
+  { itemId: 'armor_eternal', cost: 220 },
+  { itemId: 'accessory_starlight', cost: 200 },
+  { itemId: 'sword_primecore', cost: 260 },
 ];
 export const shopLocalPos = new THREE.Vector3(8, 0, -4);
 {
