@@ -146,6 +146,7 @@ export const CHAPTERS = [
     sanctuaryLabel: '聖域 IV',
     title: '虚無の塔・プライム・コア',
     enemyName: 'ヴォイド・エコー',
+    awakenLine: '「……ようやく、本気を出せる。虚無の深淵を見せてやろう」',
     taunts: [
       '「終わりも、始まりも……虚無の中では同じこと」',
       '「プライム・コアは……お前などに触れさせぬ」',

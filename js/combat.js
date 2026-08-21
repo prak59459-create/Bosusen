@@ -68,6 +68,7 @@ export function checkPhaseTransition() {
     state.phase2 = true;
     els.phaseTag.style.display = 'inline-block';
     log(`${chapter.enemyName}が覚醒した！攻撃が激化する！`);
+    if (chapter.awakenLine) log(chapter.awakenLine);
     showCenterMsg('BOSS AWAKENS!!', '#ff4444', 1400);
     sfx.roar();
     b.userData.body.emissiveIntensity = 1.1;
