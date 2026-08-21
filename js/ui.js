@@ -226,9 +226,14 @@ export function renderStatusTab() {
     achList.innerHTML = '';
     const progressRow = document.createElement('div');
     progressRow.className = 'empty-hint';
-    progressRow.style.padding = '4px 4px 12px';
+    progressRow.style.padding = '4px 4px 8px';
     progressRow.textContent = `実績達成: ${state.achievements.length} / ${ACHIEVEMENTS.length}`;
     achList.appendChild(progressRow);
+    const achProgressBar = document.createElement('div');
+    achProgressBar.className = 'qb-progress-bar';
+    achProgressBar.style.margin = '0 0 16px';
+    achProgressBar.innerHTML = `<div class="qb-progress-fill" style="width:${Math.round((state.achievements.length / ACHIEVEMENTS.length) * 100)}%"></div>`;
+    achList.appendChild(achProgressBar);
     ACHIEVEMENTS.forEach(a => {
       const unlocked = state.achievements.includes(a.id);
       const row = document.createElement('div');
