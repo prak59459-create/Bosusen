@@ -76,6 +76,9 @@ const shopShardsEl = document.getElementById('shop-shards');
 
 function renderShop() {
   shopItemList.innerHTML = '';
+  const ownedCount = SHOP_ITEMS.filter(e => ownsItem(e.itemId)).length;
+  const shopProgressFill = document.getElementById('shop-progress-fill');
+  if (shopProgressFill) shopProgressFill.style.width = `${Math.round((ownedCount / SHOP_ITEMS.length) * 100)}%`;
   SHOP_ITEMS.forEach(entry => {
     const item = ITEMS[entry.itemId];
     const owned = ownsItem(entry.itemId);
