@@ -76,7 +76,7 @@ export function computeStats() {
     mpBonus += item.mp || 0;
   });
 
-  let atkPct = 0, defPct = 0, dodgeWindowPct = 0, parryBonusPct = 0;
+  let atkPct = 0, defPct = 0, dodgeWindowPct = 0, parryBonusPct = 0, healBonusPct = 0;
   state.unlockedSkills.forEach(id => {
     const skill = SKILLS.find(s => s.id === id);
     if (!skill) return;
@@ -87,6 +87,7 @@ export function computeStats() {
     if (e.crit) crit += e.crit;
     if (e.dodgeWindowPct) dodgeWindowPct += e.dodgeWindowPct;
     if (e.parryBonusPct) parryBonusPct += e.parryBonusPct;
+    if (e.healBonusPct) healBonusPct += e.healBonusPct;
   });
 
   atk = Math.round(atk * (1 + atkPct));
@@ -100,6 +101,7 @@ export function computeStats() {
     dmgMult: base.dmgMult,
     dodgeWindowPct,
     parryBonusPct,
+    healBonusPct,
     hasRevive: state.unlockedSkills.includes('revive'),
   };
 }

@@ -432,7 +432,7 @@ export function playerAction(type) {
 
   } else if (type === 'heal') {
     state.healUses--;
-    const heal = Math.round(rand(20, 32) + stats.maxHP * 0.05);
+    const heal = Math.round((rand(20, 32) + stats.maxHP * 0.05) * (1 + stats.healBonusPct));
     state.playerHP = Math.min(state.playerMaxHP, state.playerHP + heal);
     state.combo = 0;
     updateBars();
