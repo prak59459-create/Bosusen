@@ -1,6 +1,6 @@
-import { CHAPTERS, ITEMS, SKILLS } from './data.js';
+import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS } from './data.js';
 import { state, computeStats, isQuestDone, ownsItem,
-  equipItem, unequipSlot, unlockSkill, saveGame } from './state.js';
+  equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll } from './state.js';
 import { sfx, setMasterVolume } from './audio.js';
 import { setQualityPreset } from './scene.js';
 import { setMapOpen } from './explore.js';
@@ -53,6 +53,7 @@ export const els = {
   endChoices: document.getElementById('end-choices'),
   nextBtn: document.getElementById('next-btn'),
   retryBtn: document.getElementById('retry-btn'),
+  ngPlusBtn: document.getElementById('ngplus-btn'),
   menuBtn: document.getElementById('menu-btn'),
   menuOverlay: document.getElementById('menu-overlay'),
   menuCloseBtn: document.getElementById('menu-close-btn'),
@@ -63,13 +64,28 @@ export const els = {
 };
 
 let wasHpCritical = false;
+const TITLE_TIERS = [
+  { min: 21, title: '神話の' },
+  { min: 15, title: '至高の' },
+  { min: 10, title: '伝説の' },
+  { min: 6,  title: '熟練の' },
+  { min: 3,  title: '見習い' },
+];
+function playerTitle() {
+  const count = (state.achievements || []).length;
+  const tier = TITLE_TIERS.find(t => count >= t.min);
+  return tier ? `【${tier.title}】` : '';
+}
+
 export function updateBars() {
+  const titleEl = document.getElementById('player-title');
+  if (titleEl) titleEl.textContent = playerTitle();
   const hpPct = Math.max(0, state.playerHP / state.playerMaxHP * 100);
   els.playerHPFill.style.width = hpPct + '%';
   els.playerHPGhost.style.width = hpPct + '%';
   const isCritical = hpPct > 0 && hpPct <= 25;
   els.playerHPFill.classList.toggle('critical', isCritical);
-  if (isCritical && !wasHpCritical) sfx.lowHp();
+  if (isCritical && !wasHpCritical) { sfx.lowHp(); showCenterMsg('DANGER!', '#ff5555', 900); }
   wasHpCritical = isCritical;
   els.playerHPText.textContent = `${Math.max(0, Math.round(state.playerHP))}/${state.playerMaxHP}`;
   els.playerMPFill.style.width = Math.max(0, state.playerMP / state.playerMaxMP * 100) + '%';
@@ -161,6 +177,9 @@ export function renderQuestBoard(chapterIndex, onResolve) {
   const chapter = CHAPTERS[chapterIndex];
   els.qbChapterTag.textContent = chapter.sanctuaryLabel;
   els.qbQuestList.innerHTML = '';
+  const doneCount = chapter.quests.filter(q => isQuestDone(chapter.key, q.id)).length;
+  const progressFill = document.getElementById('qb-progress-fill');
+  if (progressFill) progressFill.style.width = `${Math.round((doneCount / chapter.quests.length) * 100)}%`;
   chapter.quests.forEach(q => {
     const done = isQuestDone(chapter.key, q.id);
     const card = document.createElement('div');
@@ -185,6 +204,8 @@ export function renderQuestBoard(chapterIndex, onResolve) {
    ============================================================ */
 export function renderStatusTab() {
   const s = computeStats();
+  const title = playerTitle();
+  document.getElementById('st-title').textContent = title ? title.replace(/[【】]/g, '') : 'なし';
   document.getElementById('st-level').textContent = state.level;
   document.getElementById('st-atk').textContent = s.atk;
   document.getElementById('st-def').textContent = s.def;
@@ -192,15 +213,71 @@ export function renderStatusTab() {
   document.getElementById('st-hp').textContent = s.maxHP;
   document.getElementById('st-mp').textContent = s.maxMP;
   document.getElementById('st-shards').textContent = state.shards;
+  document.getElementById('st-bosses').textContent = state.bossesDefeated || 0;
+  document.getElementById('st-combo').textContent = state.lifetimeBestCombo || 0;
+  document.getElementById('st-ngplus').textContent = state.newGamePlus || 0;
+  document.getElementById('st-loginstreak').textContent = state.loginStreak || 0;
+  document.getElementById('st-winstreak').textContent = state.bestWinStreak || 0;
+  document.getElementById('st-distance').textContent = `${Math.round(state.totalDistanceTraveled || 0)}m`;
+  document.getElementById('st-quests').textContent = `${totalQuestsDone()} / ${totalQuestsAll()}`;
+
+  const achList = document.getElementById('achievement-list');
+  if (achList) {
+    achList.innerHTML = '';
+    const progressRow = document.createElement('div');
+    progressRow.className = 'empty-hint';
+    progressRow.style.padding = '4px 4px 8px';
+    progressRow.textContent = `実績達成: ${state.achievements.length} / ${ACHIEVEMENTS.length}`;
+    achList.appendChild(progressRow);
+    const achProgressBar = document.createElement('div');
+    achProgressBar.className = 'qb-progress-bar';
+    achProgressBar.style.margin = '0 0 16px';
+    achProgressBar.innerHTML = `<div class="qb-progress-fill" style="width:${Math.round((state.achievements.length / ACHIEVEMENTS.length) * 100)}%"></div>`;
+    achList.appendChild(achProgressBar);
+    ACHIEVEMENTS.forEach(a => {
+      const unlocked = state.achievements.includes(a.id);
+      const row = document.createElement('div');
+      row.className = 'item-row' + (unlocked ? ' equipped' : '');
+      row.style.opacity = unlocked ? '1' : '0.45';
+      row.innerHTML = `
+        <div>
+          <div class="item-row-name">${unlocked ? '🏆 ' : '🔒 '}${a.name}</div>
+          <div class="item-row-desc">${a.desc}（報酬: 欠片${a.reward || 0}）</div>
+        </div>
+      `;
+      achList.appendChild(row);
+    });
+  }
 }
 
 /* ============================================================
    メニュー：装備タブ
    ============================================================ */
+function itemScore(item) {
+  return (item.atk || 0) * 1.5 + (item.def || 0) * 1.5 + (item.crit || 0) * 1.2 + (item.hp || 0) * 0.3 + (item.mp || 0) * 0.2;
+}
+
 export function renderEquipmentTab() {
   const slotsEl = document.getElementById('equip-slots');
   const listEl = document.getElementById('equip-list');
   const slotNames = { weapon: '武器', armor: '防具', accessory: '装飾' };
+  const autoBtn = document.getElementById('auto-equip-btn');
+  if (autoBtn) {
+    autoBtn.onclick = () => {
+      let changed = false;
+      Object.keys(slotNames).forEach(slot => {
+        const candidates = state.inventory.filter(id => ITEMS[id] && ITEMS[id].slot === slot);
+        if (candidates.length === 0) return;
+        const best = candidates.reduce((a, b) => itemScore(ITEMS[a]) >= itemScore(ITEMS[b]) ? a : b);
+        if (state.equipment[slot] !== best) { equipItem(best); changed = true; }
+      });
+      sfx.uiClick();
+      showToast(changed ? '最強装備に切り替えました' : 'すでに最適な装備です', 'info');
+      renderEquipmentTab();
+      renderStatusTab();
+      saveGame();
+    };
+  }
   slotsEl.innerHTML = '';
   Object.keys(slotNames).forEach(slot => {
     const itemId = state.equipment[slot];
@@ -240,9 +317,20 @@ export function renderEquipmentTab() {
     if (item.crit) statParts.push(`会心+${item.crit}%`);
     if (item.hp) statParts.push(`HP+${item.hp}`);
     if (item.mp) statParts.push(`エーテル+${item.mp}`);
+    let upgradeTag = '';
+    if (!equipped) {
+      const equippedId = state.equipment[item.slot];
+      const equippedItem = equippedId ? ITEMS[equippedId] : null;
+      if (!equippedItem) upgradeTag = ' <span style="color:#2e8b45;">▲装備なし</span>';
+      else {
+        const diff = itemScore(item) - itemScore(equippedItem);
+        if (diff > 0) upgradeTag = ' <span style="color:#2e8b45;">▲強化</span>';
+        else if (diff < 0) upgradeTag = ' <span style="color:#a3790a;">▼弱化</span>';
+      }
+    }
     row.innerHTML = `
       <div class="item-row-main">
-        <div class="item-row-name">${item.name}</div>
+        <div class="item-row-name">${item.name}${upgradeTag}</div>
         <div class="item-row-stats">${statParts.join(' / ')}</div>
         <div class="item-row-desc">${item.desc}</div>
       </div>
@@ -267,6 +355,21 @@ export function renderEquipmentTab() {
 export function renderSkillsTab() {
   const treeEl = document.getElementById('skill-tree');
   treeEl.innerHTML = '';
+  const remainingCost = SKILLS.filter(s => !state.unlockedSkills.includes(s.id)).reduce((sum, s) => sum + s.cost, 0);
+  {
+    const progressRow = document.createElement('div');
+    progressRow.className = 'empty-hint';
+    progressRow.style.padding = '2px 4px 8px';
+    progressRow.textContent = remainingCost > 0
+      ? `習得済み ${state.unlockedSkills.length} / ${SKILLS.length}（残り全習得に必要な欠片: ${remainingCost}）`
+      : `習得済み ${state.unlockedSkills.length} / ${SKILLS.length}`;
+    treeEl.appendChild(progressRow);
+    const skillProgressBar = document.createElement('div');
+    skillProgressBar.className = 'qb-progress-bar';
+    skillProgressBar.style.margin = '0 0 16px';
+    skillProgressBar.innerHTML = `<div class="qb-progress-fill" style="width:${Math.round((state.unlockedSkills.length / SKILLS.length) * 100)}%"></div>`;
+    treeEl.appendChild(skillProgressBar);
+  }
   SKILLS.forEach(skill => {
     const unlocked = state.unlockedSkills.includes(skill.id);
     const canAfford = state.shards >= skill.cost;
@@ -285,6 +388,7 @@ export function renderSkillsTab() {
         if (unlockSkill(skill.id)) {
           sfx.skillUnlock();
           showToast(`スキル解放: ${skill.name}`, 'skill');
+          checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
           renderSkillsTab();
           renderStatusTab();
           saveGame();
@@ -293,6 +397,22 @@ export function renderSkillsTab() {
     }
     treeEl.appendChild(node);
   });
+
+  if (state.unlockedSkills.length > 0) {
+    const resetRow = document.createElement('div');
+    resetRow.className = 'skill-reset-row';
+    resetRow.innerHTML = `<button class="skill-reset-btn">習得スキルをリセットして欠片を返却</button>`;
+    resetRow.querySelector('.skill-reset-btn').addEventListener('click', () => {
+      if (!window.confirm('習得したスキルをすべてリセットし、消費した結晶の欠片を返却します。よろしいですか？')) return;
+      const refund = resetSkills();
+      sfx.uiClick();
+      showToast(`スキルをリセットしました（結晶の欠片 +${refund}）`, 'info');
+      renderSkillsTab();
+      renderStatusTab();
+      saveGame();
+    });
+    treeEl.appendChild(resetRow);
+  }
 }
 
 /* ============================================================
@@ -301,21 +421,42 @@ export function renderSkillsTab() {
 export function renderItemsTab() {
   const listEl = document.getElementById('item-list');
   listEl.innerHTML = '';
+  const totalItems = Object.keys(ITEMS).length;
+  const progressRow = document.createElement('div');
+  progressRow.className = 'empty-hint';
+  progressRow.style.padding = '2px 4px 12px';
+  progressRow.textContent = `所持: ${state.inventory.length} / ${totalItems}`;
+  listEl.appendChild(progressRow);
   if (state.inventory.length === 0) {
-    listEl.innerHTML = '<div class="empty-hint">所持品はまだありません。</div>';
+    listEl.innerHTML += '<div class="empty-hint">所持品はまだありません。</div>';
     return;
   }
-  state.inventory.forEach(id => {
+  const slotOrder = { weapon: 0, armor: 1, accessory: 2 };
+  const slotLabel = { weapon: '武器', armor: '防具', accessory: '装飾' };
+  const sorted = [...state.inventory].filter(id => ITEMS[id]).sort((a, b) => {
+    const sa = slotOrder[ITEMS[a].slot], sb = slotOrder[ITEMS[b].slot];
+    return sa !== sb ? sa - sb : ITEMS[a].name.localeCompare(ITEMS[b].name, 'ja');
+  });
+  sorted.forEach(id => {
     const item = ITEMS[id];
-    if (!item) return;
+    const equipped = state.equipment[item.slot] === id;
     const row = document.createElement('div');
-    row.className = 'item-row';
+    row.className = 'item-row' + (equipped ? ' equipped' : '');
     row.innerHTML = `
       <div class="item-row-main">
-        <div class="item-row-name">${item.name}<span class="item-slot-tag">${item.slot === 'weapon' ? '武器' : item.slot === 'armor' ? '防具' : '装飾'}</span></div>
+        <div class="item-row-name">${item.name}<span class="item-slot-tag">${slotLabel[item.slot]}${equipped ? ' ・装備中' : ''}</span></div>
         <div class="item-row-desc">${item.desc}</div>
       </div>
+      <button class="item-row-btn" ${equipped ? 'disabled' : ''}>${equipped ? '装備中' : '装備する'}</button>
     `;
+    row.querySelector('.item-row-btn').addEventListener('click', () => {
+      if (equipped) return;
+      equipItem(id);
+      sfx.uiClick();
+      renderItemsTab();
+      renderStatusTab();
+      saveGame();
+    });
     listEl.appendChild(row);
   });
 }
@@ -337,6 +478,12 @@ export function syncSettingsUI() {
   if (qualitySelect) qualitySelect.value = state.quality || 'high';
   const shakeCheckbox = document.getElementById('opt-shake');
   if (shakeCheckbox) shakeCheckbox.checked = state.screenShake !== false;
+  const difficultySelect = document.getElementById('opt-difficulty');
+  if (difficultySelect) difficultySelect.value = state.difficulty || 'normal';
+  const objectiveHintCheckbox = document.getElementById('opt-objective-hint');
+  if (objectiveHintCheckbox) objectiveHintCheckbox.checked = state.showObjectiveHint !== false;
+  const bossTauntsCheckbox = document.getElementById('opt-boss-taunts');
+  if (bossTauntsCheckbox) bossTauntsCheckbox.checked = state.showBossTaunts !== false;
 }
 
 export function initMenu(onSave, onTitle) {
@@ -371,6 +518,31 @@ export function initMenu(onSave, onTitle) {
     saveGame();
   });
 
+  const objectiveHintCheckbox = document.getElementById('opt-objective-hint');
+  objectiveHintCheckbox.checked = state.showObjectiveHint !== false;
+  objectiveHintCheckbox.addEventListener('change', () => {
+    state.showObjectiveHint = objectiveHintCheckbox.checked;
+    sfx.uiClick();
+    saveGame();
+  });
+
+  const bossTauntsCheckbox = document.getElementById('opt-boss-taunts');
+  bossTauntsCheckbox.checked = state.showBossTaunts !== false;
+  bossTauntsCheckbox.addEventListener('change', () => {
+    state.showBossTaunts = bossTauntsCheckbox.checked;
+    sfx.uiClick();
+    saveGame();
+  });
+
+  const difficultySelect = document.getElementById('opt-difficulty');
+  difficultySelect.value = state.difficulty || 'normal';
+  difficultySelect.addEventListener('change', () => {
+    state.difficulty = difficultySelect.value;
+    sfx.uiClick();
+    showToast(`難易度を「${{easy:'簡単',normal:'普通',hard:'難しい'}[state.difficulty]}」に変更しました`, 'info');
+    saveGame();
+  });
+
   const qualitySelect = document.getElementById('opt-quality');
   qualitySelect.value = state.quality || 'high';
   qualitySelect.addEventListener('change', () => {
@@ -386,7 +558,28 @@ export function initMenu(onSave, onTitle) {
     sfx.uiClick();
     if (onSave) onSave();
   });
+  document.getElementById('reset-settings-btn').addEventListener('click', () => {
+    Object.assign(state, {
+      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true,
+    });
+    setMasterVolume(state.masterVolume);
+    setQualityPreset(state.quality);
+    syncSettingsUI();
+    sfx.uiClick();
+    showToast('設定を初期値に戻しました', 'info');
+    saveGame();
+  });
   document.getElementById('title-btn').addEventListener('click', () => {
+    closeMenu();
+    if (onTitle) onTitle();
+  });
+  document.getElementById('delete-save-btn').addEventListener('click', () => {
+    if (!hasSaveGame()) { showToast('セーブデータはありません', 'info'); return; }
+    if (!window.confirm('セーブデータを削除します。よろしいですか？（この操作は取り消せません）')) return;
+    clearSave();
+    els.continueBtn.style.display = 'none';
+    showToast('セーブデータを削除しました', 'info');
+    sfx.menuClose();
     closeMenu();
     if (onTitle) onTitle();
   });

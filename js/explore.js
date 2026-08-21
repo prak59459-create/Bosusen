@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 import { camera, scene, setCameraMode } from './scene.js';
 import { player, crossfadeTo } from './player.js';
+import { spawnParticles } from './effects.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
-  explorePickups, loreMarkers, shopLocalPos, refreshZoneVisuals } from './world.js';
+  explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals } from './world.js';
 import { CHAPTERS } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
-  fieldQuestState, acceptFieldQuest, saveGame } from './state.js';
+  fieldQuestState, acceptFieldQuest, saveGame, checkAchievements } from './state.js';
 import { showToast, renderQuestTracker } from './ui.js';
 import { sfx } from './audio.js';
 import { startSkirmish, isSkirmishActive } from './skirmish.js';
@@ -26,12 +27,23 @@ const camCurrentPos = new THREE.Vector3();
 const camLookTarget = new THREE.Vector3();
 let stepTimer = 0;
 let camInit = false;
+let objectiveTimer = 0;
 
 const EXPLORE_FOG = { near: 260, far: 3200 };
 const BATTLE_FOG = { near: 34, far: 80 };
 
 const keys = { forward: false, back: false, left: false, right: false, sprint: false };
 let joyVec = { x: 0, y: 0 }; // タッチ用ベクトル(-1..1)
+let sprintLock = false;
+
+function toggleSprintLock() {
+  sprintLock = !sprintLock;
+  keys.sprint = sprintLock;
+  const ind = document.getElementById('sprint-lock-indicator');
+  if (ind) ind.style.display = sprintLock ? 'block' : 'none';
+  const btn = document.getElementById('sprint-lock-btn');
+  if (btn) btn.classList.toggle('active', sprintLock);
+}
 
 window.addEventListener('keydown', (e) => {
   if (!exploreActive) return;
@@ -41,13 +53,14 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = true;
   if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.sprint = true;
   if (e.code === 'KeyM' && onToggleMap) onToggleMap();
+  if (e.code === 'KeyR' && !e.repeat) toggleSprintLock();
 });
 window.addEventListener('keyup', (e) => {
   if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.forward = false;
   if (e.code === 'KeyS' || e.code === 'ArrowDown') keys.back = false;
   if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = false;
   if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = false;
-  if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.sprint = false;
+  if ((e.code === 'ShiftLeft' || e.code === 'ShiftRight') && !sprintLock) keys.sprint = false;
 });
 
 /* ---------- 仮想スティック(モバイル/マウスドラッグ両対応) ---------- */
@@ -55,6 +68,8 @@ let joyBase = null, joyKnob = null, joyPointerId = null, joyOrigin = { x: 0, y: 
 export function initJoystick() {
   joyBase = document.getElementById('joy-base');
   joyKnob = document.getElementById('joy-knob');
+  const sprintBtn = document.getElementById('sprint-lock-btn');
+  if (sprintBtn) sprintBtn.addEventListener('click', () => { if (exploreActive) toggleSprintLock(); });
   if (!joyBase || !joyKnob) return;
 
   const onDown = (e) => {
@@ -113,6 +128,9 @@ export function enterExploreMode(spawnLocal) {
   explorePickups.forEach(p => {
     if (isQuestDone(CHAPTERS[p.chapterIndex].key, p.questId)) p.mesh.visible = false;
   });
+  hiddenTreasures.forEach(t => {
+    t.mesh.visible = !state.foundTreasures.includes(t.id);
+  });
   fieldTargets.forEach(t => {
     if (isQuestDone(CHAPTERS[t.chapterIndex].key, t.questId) || fieldQuestState(t.questId) === 'ready_turnin') {
       t.material.emissiveIntensity = 0.1;
@@ -132,6 +150,13 @@ export function exitExploreMode() {
   scene.fog.near = BATTLE_FOG.near;
   scene.fog.far = BATTLE_FOG.far;
   keys.forward = keys.back = keys.left = keys.right = keys.sprint = false;
+  sprintLock = false;
+  const ind = document.getElementById('sprint-lock-indicator');
+  if (ind) ind.style.display = 'none';
+  const btn = document.getElementById('sprint-lock-btn');
+  if (btn) btn.classList.remove('active');
+  const objEl = document.getElementById('nearest-objective');
+  if (objEl) objEl.style.display = 'none';
   joyVec = { x: 0, y: 0 };
   const hud = document.getElementById('explore-hud');
   if (hud) hud.style.display = 'none';
@@ -158,6 +183,7 @@ function tryTurnInOrAccept(giver) {
     if (giver.quest.reward.itemId) addItem(giver.quest.reward.itemId);
     sfx.questDone();
     showToast(`クエスト達成: ${giver.quest.title}（結晶の欠片 +${giver.quest.reward.shards}）`, 'quest');
+    checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
     renderQuestTracker();
     saveGame();
   } else if (fState === 'accepted') {
@@ -190,8 +216,20 @@ function tryCollectPickup(pickup) {
   if (pickup.quest.reward.itemId) addItem(pickup.quest.reward.itemId);
   sfx.shardGet();
   showToast(`クエスト達成: ${pickup.quest.title}｜${pickup.quest.result}`, 'quest');
+  checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
   pickup.mesh.visible = false;
   renderQuestTracker();
+  saveGame();
+}
+
+function tryCollectTreasure(t) {
+  if (state.foundTreasures.includes(t.id)) return;
+  state.foundTreasures.push(t.id);
+  addShards(t.shardReward);
+  sfx.shardGet();
+  showToast(`結晶の秘宝を発見！ 結晶の欠片 +${t.shardReward}`, 'quest');
+  t.mesh.visible = false;
+  checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
   saveGame();
 }
 
@@ -202,6 +240,7 @@ function tryReadLore(monu) {
   addShards(monu.quest.reward.shards);
   sfx.questDone();
   showToast(`クエスト達成: ${monu.quest.title}｜${monu.quest.result}`, 'quest');
+  checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
   renderQuestTracker();
   saveGame();
 }
@@ -228,6 +267,7 @@ export function updateExplore(dt) {
     facing = moveAng;
     localPos.x += Math.sin(moveAng) * speed * dt;
     localPos.z += Math.cos(moveAng) * speed * dt;
+    state.totalDistanceTraveled = (state.totalDistanceTraveled || 0) + speed * dt;
     const r = Math.hypot(localPos.x, localPos.z);
     if (r > WORLD_RADIUS - 4) {
       const s = (WORLD_RADIUS - 4) / r;
@@ -309,6 +349,13 @@ export function updateExplore(dt) {
     }
   }
 
+  // 隠しボーナスアイテム（結晶の秘宝）
+  for (const t of hiddenTreasures) {
+    if (t.mesh.visible && Math.hypot(localPos.x - t.localPos.x, localPos.z - t.localPos.z) < t.radius) {
+      tryCollectTreasure(t);
+    }
+  }
+
   // ロアクエスト（石碑）
   let nearLore = null;
   for (const m of loreMarkers) {
@@ -329,6 +376,50 @@ export function updateExplore(dt) {
   } else if (!nearShop) {
     shopHintShown = false;
   }
+
+  objectiveTimer -= dt;
+  if (objectiveTimer <= 0) {
+    objectiveTimer = 0.5;
+    updateNearestObjective();
+    checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
+  }
+}
+
+function updateNearestObjective() {
+  const el = document.getElementById('nearest-objective');
+  if (!el) return;
+  if (state.showObjectiveHint === false) { el.style.display = 'none'; return; }
+  const candidates = [];
+  fieldTargets.forEach(t => {
+    const chapterKey = CHAPTERS[t.chapterIndex].key;
+    if (fieldQuestState(t.questId) === 'accepted' && !isQuestDone(chapterKey, t.questId)) {
+      candidates.push({ name: `討伐: ${t.name}`, pos: t.localPos });
+    }
+  });
+  questGivers.forEach(g => {
+    const chapterKey = CHAPTERS[g.chapterIndex].key;
+    if (!isQuestDone(chapterKey, g.questId) && fieldQuestState(g.questId) !== 'accepted') {
+      candidates.push({ name: `依頼人: ${g.name}`, pos: g.localPos });
+    }
+  });
+  explorePickups.forEach(p => {
+    if (p.mesh.visible) candidates.push({ name: '採取物', pos: p.localPos });
+  });
+  loreMarkers.forEach(m => {
+    const chapterKey = CHAPTERS[m.chapterIndex].key;
+    if (!isQuestDone(chapterKey, m.questId)) candidates.push({ name: '石碑', pos: m.localPos });
+  });
+  hiddenTreasures.forEach(t => {
+    if (t.mesh.visible) candidates.push({ name: '結晶の秘宝', pos: t.localPos });
+  });
+  if (candidates.length === 0) { el.style.display = 'none'; return; }
+  let nearest = null, nearestDist = Infinity;
+  candidates.forEach(c => {
+    const d = Math.hypot(localPos.x - c.pos.x, localPos.z - c.pos.z);
+    if (d < nearestDist) { nearestDist = d; nearest = c; }
+  });
+  el.style.display = 'block';
+  el.textContent = `${nearest.name}（残り${Math.round(nearestDist)}m）`;
 }
 
 export function getExploreLocalPos() { return localPos; }

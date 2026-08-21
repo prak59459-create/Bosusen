@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#05040a">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f6f2ff">
 <title>AETHERIA: ECHOES OF THE VOID</title>
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/menu.css">
@@ -47,6 +47,7 @@
   <div class="chapter-tag" id="qb-chapter-tag">聖域 I</div>
   <h1 id="qb-title">クエストボード</h1>
   <p class="qb-hint">結晶獣に挑む前に、聖域に残る欠片を回収せよ。すべて達成すると報酬が増える。</p>
+  <div class="qb-progress-bar"><div class="qb-progress-fill" id="qb-progress-fill"></div></div>
   <div id="qb-quest-list"></div>
   <button class="big-btn" id="qb-fight-btn">結晶獣と戦う</button>
 </div>
@@ -60,11 +61,12 @@
   <div id="end-choices"></div>
   <button class="big-btn" id="next-btn">つづきへ</button>
   <button class="big-btn" id="retry-btn">もう一度挑む</button>
+  <button class="big-btn ghost" id="ngplus-btn" style="display:none;">装備を引き継いで周回+</button>
 </div>
 
 <div id="ui">
   <div class="bar-wrap" id="player-wrap">
-    <div class="name-row"><span class="name">アッシュ</span><span class="lv" id="player-lv">Lv.1</span></div>
+    <div class="name-row"><span class="name"><span id="player-title"></span>アッシュ</span><span class="lv" id="player-lv">Lv.1</span></div>
     <div class="stat-bar-bg"><div class="stat-bar-fill hp" id="player-hp-fill" style="width:100%"></div><div class="stat-bar-ghost" id="player-hp-ghost"></div></div>
     <div class="stat-label">HP <span id="player-hp-text">100/100</span></div>
     <div class="stat-bar-bg small"><div class="stat-bar-fill mp" id="player-mp-fill" style="width:100%"></div></div>
@@ -124,6 +126,7 @@
     <div class="menu-body">
       <div class="menu-page active" id="page-status">
         <div class="status-grid">
+          <div class="status-row"><span>称号</span><b id="st-title">なし</b></div>
           <div class="status-row"><span>レベル</span><b id="st-level">1</b></div>
           <div class="status-row"><span>攻撃力</span><b id="st-atk">10</b></div>
           <div class="status-row"><span>防御力</span><b id="st-def">5</b></div>
@@ -131,9 +134,18 @@
           <div class="status-row"><span>最大HP</span><b id="st-hp">100</b></div>
           <div class="status-row"><span>最大エーテル</span><b id="st-mp">50</b></div>
           <div class="status-row"><span>結晶の欠片</span><b id="st-shards">0</b></div>
+          <div class="status-row"><span>結晶獣 撃破数</span><b id="st-bosses">0</b></div>
+          <div class="status-row"><span>自己ベストコンボ</span><b id="st-combo">0</b></div>
+          <div class="status-row"><span>周回数</span><b id="st-ngplus">0</b></div>
+          <div class="status-row"><span>連続ログイン</span><b id="st-loginstreak">0</b></div>
+          <div class="status-row"><span>最高連勝数</span><b id="st-winstreak">0</b></div>
+          <div class="status-row"><span>累計踏破距離</span><b id="st-distance">0m</b></div>
+          <div class="status-row"><span>達成クエスト数</span><b id="st-quests">0</b></div>
         </div>
+        <div id="achievement-list" class="item-list" style="margin-top:16px;"></div>
       </div>
       <div class="menu-page" id="page-equipment">
+        <div class="skill-reset-row"><button class="skill-node-btn" id="auto-equip-btn">最強装備に切り替え</button></div>
         <div class="equip-slots" id="equip-slots"></div>
         <div class="equip-list" id="equip-list"></div>
       </div>
@@ -160,16 +172,37 @@
           <label for="opt-shake">画面揺れ</label>
           <input type="checkbox" id="opt-shake" checked>
         </div>
+        <div class="system-row">
+          <label for="opt-objective-hint">最寄り目標の距離表示</label>
+          <input type="checkbox" id="opt-objective-hint" checked>
+        </div>
+        <div class="system-row">
+          <label for="opt-boss-taunts">結晶獣の台詞表示</label>
+          <input type="checkbox" id="opt-boss-taunts" checked>
+        </div>
+        <div class="system-row">
+          <label for="opt-difficulty">難易度</label>
+          <select id="opt-difficulty">
+            <option value="easy">簡単</option>
+            <option value="normal">普通</option>
+            <option value="hard">難しい</option>
+          </select>
+        </div>
         <button class="big-btn small-btn" id="save-btn">今すぐセーブ</button>
+        <button class="big-btn small-btn ghost" id="reset-settings-btn">設定を初期値に戻す</button>
         <button class="big-btn small-btn ghost" id="title-btn">タイトルに戻る</button>
+        <button class="big-btn small-btn ghost" id="delete-save-btn">セーブデータを削除</button>
       </div>
     </div>
   </div>
 </div>
 
 <div id="explore-hud">
-  <div id="explore-hint">WASD / 矢印キー / スティックで移動（Shiftで走る）。光る目印に近づくと自動で反応する</div>
+  <div id="explore-hint">WASD / 矢印キー / スティックで移動（Shiftで走る、Rで走行固定）。光る目印に近づくと自動で反応する（Mでマップ、Tabでメニューを開く）</div>
+  <div id="sprint-lock-indicator" style="display:none;">🏃 走行固定 ON</div>
+  <div id="nearest-objective" style="display:none;"></div>
   <button id="map-btn" title="マップ">🗺</button>
+  <button id="sprint-lock-btn" title="走行固定">🏃</button>
   <div id="joy-base"><div id="joy-knob"></div></div>
 </div>
 
@@ -188,6 +221,7 @@
   <div class="chapter-tag">商店</div>
   <h1>旅の行商人</h1>
   <p class="qb-hint">結晶の欠片で武器や防具と交換できる。</p>
+  <div class="qb-progress-bar"><div class="qb-progress-fill" id="shop-progress-fill"></div></div>
   <div id="shop-item-list"></div>
   <div id="shop-shards"></div>
   <button class="big-btn ghost" id="shop-close-btn">閉じる</button>
@@ -202,6 +236,7 @@
     <span><i style="background:#ffd75e"></i>依頼人</span>
     <span><i style="background:#8fd35f"></i>採取物</span>
     <span><i style="background:#b39ddb"></i>石碑</span>
+    <span><i style="background:#ffd700"></i>秘宝</span>
     <span><i style="background:#d4a84a"></i>商店</span>
   </div>
   <button class="big-btn ghost" id="map-close-btn">閉じる</button>
