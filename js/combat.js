@@ -296,6 +296,7 @@ function resolveDodge(clicked, move, isParry) {
       spawnDamageNumber(bossHitPoint(), `-${counterDmg}`, '#ffd75e', true);
       triggerShake(0.18, 0.3);
       state.playerStam = Math.min(state.playerMaxStam, state.playerStam + 25);
+      if (stats.parryMpRestore) state.playerMP = Math.min(state.playerMaxMP, state.playerMP + stats.parryMpRestore);
       crossfadeTo('Walk', 0.1);
       setTimeout(() => crossfadeTo('Idle', 0.25), 260);
       checkPhaseTransition();

@@ -88,7 +88,7 @@ export function computeStats() {
     mpBonus += item.mp || 0;
   });
 
-  let atkPct = 0, defPct = 0, dodgeWindowPct = 0, parryBonusPct = 0, healBonusPct = 0, staminaCostPct = 0, healUsesBonus = 0, shardPct = 0, critDmgPct = 0, guardReflectPct = 0, mpRegenBonus = 0, reviveHpPct = 0, staminaMaxBonus = 0, heavyAccuracyPct = 0;
+  let atkPct = 0, defPct = 0, dodgeWindowPct = 0, parryBonusPct = 0, healBonusPct = 0, staminaCostPct = 0, healUsesBonus = 0, shardPct = 0, critDmgPct = 0, guardReflectPct = 0, mpRegenBonus = 0, reviveHpPct = 0, staminaMaxBonus = 0, heavyAccuracyPct = 0, parryMpRestore = 0;
   state.unlockedSkills.forEach(id => {
     const skill = SKILLS.find(s => s.id === id);
     if (!skill) return;
@@ -109,6 +109,7 @@ export function computeStats() {
     if (e.reviveHpPct) reviveHpPct += e.reviveHpPct;
     if (e.staminaMaxBonus) staminaMaxBonus += e.staminaMaxBonus;
     if (e.heavyAccuracyPct) heavyAccuracyPct += e.heavyAccuracyPct;
+    if (e.parryMpRestore) parryMpRestore += e.parryMpRestore;
   });
 
   atk = Math.round(atk * (1 + atkPct));
@@ -131,6 +132,7 @@ export function computeStats() {
     mpRegenBonus,
     reviveHpPct,
     heavyAccuracyPct,
+    parryMpRestore,
     hasRevive: state.unlockedSkills.includes('revive'),
   };
 }

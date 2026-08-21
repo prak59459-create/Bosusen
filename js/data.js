@@ -250,6 +250,7 @@ export const SKILLS = [
   { id:'mp_regen_up', name:'エーテル還流',    cost:40, desc:'毎ターンのエーテル自然回復量が+4される。', effect:{ mpRegenBonus:4 } },
   { id:'stam_max_up', name:'鍛え抜かれた肉体', cost:35, desc:'最大スタミナが+25される。', effect:{ staminaMaxBonus:25 } },
   { id:'heavy_accuracy', name:'確実なる一撃', cost:35, desc:'強攻撃の失敗率が半分になる。', effect:{ heavyAccuracyPct:0.5 } },
+  { id:'parry_mp',     name:'反撃の共鳴',     cost:35, desc:'ジャストガード成功時にエーテルを15回復する。', effect:{ parryMpRestore:15 } },
   { id:'revive',    name:'蘇生の残光',       cost:80, desc:'戦闘不能になったとき、一度だけHP30%で復活する。', effect:{ revive:true } },
   { id:'revive_up', name:'蘇生の輝き',       cost:60, desc:'蘇生時の復活HPが+20%される（要：蘇生の残光）。', effect:{ reviveHpPct:0.2 } },
 ];
