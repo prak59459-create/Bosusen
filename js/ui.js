@@ -84,7 +84,7 @@ export function updateBars() {
   els.playerHPGhost.style.width = hpPct + '%';
   const isCritical = hpPct > 0 && hpPct <= 25;
   els.playerHPFill.classList.toggle('critical', isCritical);
-  if (isCritical && !wasHpCritical) sfx.lowHp();
+  if (isCritical && !wasHpCritical) { sfx.lowHp(); showCenterMsg('DANGER!', '#ff5555', 900); }
   wasHpCritical = isCritical;
   els.playerHPText.textContent = `${Math.max(0, Math.round(state.playerHP))}/${state.playerMaxHP}`;
   els.playerMPFill.style.width = Math.max(0, state.playerMP / state.playerMaxMP * 100) + '%';
