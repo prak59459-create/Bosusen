@@ -93,6 +93,7 @@ function renderShop() {
       addItem(entry.itemId);
       sfx.shardGet();
       showToast(`${item.name} を購入した`, 'quest');
+      checkAchievements(undefined, undefined, SHOP_ITEMS.map(e => e.itemId)).forEach(a => showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'));
       saveGame();
       renderShop();
     });

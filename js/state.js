@@ -153,7 +153,7 @@ export function unlockAchievement(id) {
   return ach;
 }
 
-export function checkAchievements(hiddenTreasureTotal, lastRank) {
+export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   const newly = [];
   const tryUnlock = id => { const a = unlockAchievement(id); if (a) newly.push(a); };
   if (state.bossesDefeated >= 1) tryUnlock('first_boss');
@@ -164,6 +164,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank) {
   if (hiddenTreasureTotal != null && state.foundTreasures.length >= hiddenTreasureTotal) tryUnlock('treasure_hunter');
   if (lastRank === 'S') tryUnlock('rank_s');
   if (state.newGamePlus >= 1) tryUnlock('ng_plus');
+  if (shopItemIds && shopItemIds.every(id => state.inventory.includes(id))) tryUnlock('collector');
   const otherIds = ACHIEVEMENTS.filter(a => a.id !== 'completionist').map(a => a.id);
   if (otherIds.every(id => state.achievements.includes(id))) tryUnlock('completionist');
   return newly;
