@@ -184,6 +184,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (lastRank != null && state.healUses === state.healUsesMax) tryUnlock('no_heal');
   if (Object.values(state.chapterClearCounts).some(c => c >= 5)) tryUnlock('veteran_hunter');
   if (state.winStreak >= 3) tryUnlock('win_streak_3');
+  if (state.winStreak >= 5) tryUnlock('win_streak_5');
   const otherIds = ACHIEVEMENTS.filter(a => a.id !== 'completionist').map(a => a.id);
   if (otherIds.every(id => state.achievements.includes(id))) tryUnlock('completionist');
   return newly;

@@ -271,4 +271,5 @@ export const ACHIEVEMENTS = [
   { id:'combo_30',     name:'刃の舞踏者',     desc:'コンボを30以上つなげる。', reward:55 },
   { id:'veteran_hunter', name:'手練れの討伐者', desc:'同じ結晶獣を5回撃破する。', reward:45 },
   { id:'win_streak_3', name:'連勝の炎',       desc:'結晶獣戦に3連勝する。', reward:35 },
+  { id:'win_streak_5', name:'不敗の英雄',     desc:'結晶獣戦に5連勝する。', reward:60 },
 ];
