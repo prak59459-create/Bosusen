@@ -249,15 +249,39 @@ export function renderStatusTab() {
     achProgressBar.style.margin = '0 0 16px';
     achProgressBar.innerHTML = `<div class="qb-progress-fill" style="width:${Math.round((state.achievements.length / ACHIEVEMENTS.length) * 100)}%"></div>`;
     achList.appendChild(achProgressBar);
+    const ACH_PROGRESS = {
+      boss_master: [state.bossesDefeated || 0, 4],
+      boss_slayer: [state.bossesDefeated || 0, 10],
+      combo_10: [state.lifetimeBestCombo || 0, 10],
+      combo_20: [state.lifetimeBestCombo || 0, 20],
+      combo_30: [state.lifetimeBestCombo || 0, 30],
+      combo_50: [state.lifetimeBestCombo || 0, 50],
+      wanderer: [Math.round(state.totalDistanceTraveled || 0), 10000],
+      pilgrim: [Math.round(state.totalDistanceTraveled || 0), 50000],
+      shard_rich: [state.totalShardsEarned || 0, 300],
+      shard_tycoon: [state.totalShardsEarned || 0, 1000],
+      week_streak: [state.loginStreak || 0, 7],
+      win_streak_3: [state.winStreak || 0, 3],
+      win_streak_5: [state.winStreak || 0, 5],
+      biome_explorer: [(state.discoveredBiomes || []).length, 10],
+      biome_master: [(state.discoveredBiomes || []).length, 35],
+      firefly_catcher: [state.firefliesCaught || 0, 50],
+      butterfly_catcher: [state.butterfliesCaught || 0, 50],
+      crit_master: [state.totalCrits || 0, 100],
+      parry_master: [state.totalParries || 0, 30],
+    };
     ACHIEVEMENTS.forEach(a => {
       const unlocked = state.achievements.includes(a.id);
       const row = document.createElement('div');
       row.className = 'item-row' + (unlocked ? ' equipped' : '');
       row.style.opacity = unlocked ? '1' : '0.45';
+      const prog = !unlocked && ACH_PROGRESS[a.id];
+      const progHtml = prog ? `<div class="qb-progress-bar" style="margin-top:4px;"><div class="qb-progress-fill" style="width:${Math.min(100, Math.round(prog[0] / prog[1] * 100))}%"></div></div><div class="item-row-desc">${Math.min(prog[0], prog[1])} / ${prog[1]}</div>` : '';
       row.innerHTML = `
         <div>
           <div class="item-row-name">${unlocked ? '🏆 ' : '🔒 '}${a.name}</div>
           <div class="item-row-desc">${a.desc}（報酬: 欠片${a.reward || 0}）</div>
+          ${progHtml}
         </div>
       `;
       achList.appendChild(row);
