@@ -231,6 +231,12 @@ window.addEventListener('keydown', (e) => {
     sfx.uiClick();
     saveGame();
   }
+  if (e.code === 'KeyN' && !e.repeat) {
+    localPos.set(HUB_SPAWN.x, 0, HUB_SPAWN.z);
+    spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1, 0)), 0x9fe0ff, 16);
+    sfx.uiClick();
+    showToast('拠点へ帰還した', 'quest');
+  }
   if (e.code === 'KeyT' && !e.repeat) {
     const unfound = hiddenTreasures.filter(tr => !state.foundTreasures.includes(tr.id));
     pingDirection(unfound, '未発見の秘宝', 'すべての秘宝を発見済みです');
