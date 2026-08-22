@@ -335,6 +335,8 @@ worldGroup.add(boundary);
 }
 
 /* ---------- 草むら（クロスビルボード・InstancedMesh）で近景の地面密度を強化 ---------- */
+let windGrassMesh = null;
+const windGrassData = [];
 {
   const size = 64;
   const gCanvas = makeCanvas(size);
@@ -362,7 +364,7 @@ worldGroup.add(boundary);
   plane2.rotateY(Math.PI / 2);
   const crossGeo = mergeGeometries([plane, plane2]);
   const GRASS_COUNT = 3600;
-  const grassMesh = new THREE.InstancedMesh(crossGeo, grassMat, GRASS_COUNT);
+  windGrassMesh = new THREE.InstancedMesh(crossGeo, grassMat, GRASS_COUNT);
   const dummy2 = new THREE.Object3D();
   let gPlaced = 0, gGuard = 0;
   while (gPlaced < GRASS_COUNT && gGuard < GRASS_COUNT * 6) {
@@ -385,14 +387,16 @@ worldGroup.add(boundary);
     const scale = 0.6 + Math.random() * 0.9;
     dummy2.position.set(x, 0, z);
     dummy2.rotation.y = Math.random() * Math.PI;
-    dummy2.scale.set(scale, scale * (0.7 + Math.random() * 0.6), scale);
+    const yMul = 0.7 + Math.random() * 0.6;
+    dummy2.scale.set(scale, scale * yMul, scale);
     dummy2.updateMatrix();
-    grassMesh.setMatrixAt(gPlaced, dummy2.matrix);
+    windGrassMesh.setMatrixAt(gPlaced, dummy2.matrix);
+    windGrassData.push({ x, z, baseRotY: dummy2.rotation.y, scale, yMul, phase: Math.random() * Math.PI * 2 });
     gPlaced++;
   }
-  grassMesh.count = gPlaced;
-  grassMesh.instanceMatrix.needsUpdate = true;
-  worldGroup.add(grassMesh);
+  windGrassMesh.count = gPlaced;
+  windGrassMesh.instanceMatrix.needsUpdate = true;
+  worldGroup.add(windGrassMesh);
 }
 
 /* ---------- 35バイオームごとの特色ある植生・構造物を散布 ---------- */
@@ -1150,4 +1154,20 @@ export function updateShootingStars(t, dt, centerX, centerZ, isNight) {
     starMesh.setMatrixAt(i, starDummy.matrix);
   }
   starMesh.instanceMatrix.needsUpdate = true;
+}
+
+/* ---------- 草むらの風揺れ ---------- */
+const windDummy = new THREE.Object3D();
+export function updateGrassWind(t) {
+  if (!windGrassMesh) return;
+  for (let i = 0; i < windGrassData.length; i++) {
+    const d = windGrassData[i];
+    const sway = Math.sin(t * 1.4 + d.phase) * 0.18;
+    windDummy.position.set(d.x, 0, d.z);
+    windDummy.rotation.set(sway * 0.6, d.baseRotY, sway);
+    windDummy.scale.set(d.scale, d.scale * d.yMul, d.scale);
+    windDummy.updateMatrix();
+    windGrassMesh.setMatrixAt(i, windDummy.matrix);
+  }
+  windGrassMesh.instanceMatrix.needsUpdate = true;
 }
