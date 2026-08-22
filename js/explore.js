@@ -248,18 +248,27 @@ window.addEventListener('keydown', (e) => {
     });
   }
   if (e.code === 'KeyP' && !e.repeat) {
-    try {
-      const dataUrl = renderer.domElement.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = dataUrl;
-      link.download = `bosusen-${Date.now()}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      sfx.uiClick();
-    } catch (err) {
-      console.error('スクリーンショットの保存に失敗', err);
-    }
+    const hud = document.getElementById('explore-hud');
+    const hadHidden = hud && hud.classList.contains('hidden');
+    if (hud && !hadHidden) hud.classList.add('photo-capture-hide');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        try {
+          const dataUrl = renderer.domElement.toDataURL('image/png');
+          const link = document.createElement('a');
+          link.href = dataUrl;
+          link.download = `bosusen-${Date.now()}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          sfx.uiClick();
+        } catch (err) {
+          console.error('スクリーンショットの保存に失敗', err);
+        } finally {
+          if (hud && !hadHidden) hud.classList.remove('photo-capture-hide');
+        }
+      });
+    });
   }
   if (e.code === 'Space' && !e.repeat) doJump();
 });

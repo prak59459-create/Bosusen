@@ -498,3 +498,5 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 
 .system-check-row { display:flex; align-items:center; gap:8px; font-size:13px; margin:6px 0 10px; opacity:0.9; cursor:pointer; }
 .system-check-row input { width:16px; height:16px; }
+
+.photo-capture-hide { visibility: hidden !important; }
