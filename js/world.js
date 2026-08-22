@@ -1353,6 +1353,44 @@ export function updateCrows(t) {
   crowMesh.instanceMatrix.needsUpdate = true;
 }
 
+/* ---------- 溶岩地帯を這う火蜥蜴 ---------- */
+const volcanicSeeds = BIOME_SEEDS.filter((_, i) => BIOME_DEFS[i].category === 'volcanic');
+const SALAMANDER_COUNT = Math.min(70, volcanicSeeds.length * 5);
+const salamanderGeo = new THREE.CapsuleGeometry(0.2, 0.55, 2, 6);
+const salamanderMat = makeToonMaterial({ color: 0x2a1a14, emissive: 0xff5a1a, emissiveIntensity: 0.8 });
+const salamanderMesh = new THREE.InstancedMesh(salamanderGeo, salamanderMat, SALAMANDER_COUNT);
+salamanderMesh.castShadow = true;
+const salamanderData = [];
+for (let i = 0; i < SALAMANDER_COUNT; i++) {
+  const seed = volcanicSeeds[i % Math.max(1, volcanicSeeds.length)] || { x: 0, z: 0 };
+  const ang0 = Math.random() * Math.PI * 2;
+  const dist0 = Math.random() * 130;
+  salamanderData.push({
+    homeX: seed.x + Math.cos(ang0) * dist0,
+    homeZ: seed.z + Math.sin(ang0) * dist0,
+    crawlSpeed: 0.6 + Math.random() * 0.6,
+    roamRadius: 5 + Math.random() * 9,
+    phase: Math.random() * Math.PI * 2,
+  });
+}
+worldGroup.add(salamanderMesh);
+const salamanderDummy = new THREE.Object3D();
+export function updateSalamanders(t) {
+  for (let i = 0; i < SALAMANDER_COUNT; i++) {
+    const d = salamanderData[i];
+    const ang = t * 0.09 + d.phase;
+    const x = d.homeX + Math.cos(ang) * d.roamRadius;
+    const z = d.homeZ + Math.sin(ang * 1.6) * d.roamRadius;
+    const wiggle = Math.sin(t * d.crawlSpeed * 5 + d.phase) * 0.15;
+    salamanderDummy.position.set(x, 0.18, z);
+    salamanderDummy.rotation.x = Math.PI / 2;
+    salamanderDummy.rotation.z = -ang - Math.PI / 2 + wiggle;
+    salamanderDummy.updateMatrix();
+    salamanderMesh.setMatrixAt(i, salamanderDummy.matrix);
+  }
+  salamanderMesh.instanceMatrix.needsUpdate = true;
+}
+
 /* ---------- 流れ星（時折プレイヤー頭上を横切る） ---------- */
 const STAR_COUNT = 5;
 const starGeo = new THREE.SphereGeometry(0.5, 6, 6);
