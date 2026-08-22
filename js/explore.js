@@ -3,7 +3,7 @@ import { camera, scene, setCameraMode } from './scene.js';
 import { player, crossfadeTo } from './player.js';
 import { spawnParticles } from './effects.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
-  explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt } from './world.js';
+  explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, puddlePositions } from './world.js';
 import { CHAPTERS } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
   fieldQuestState, acceptFieldQuest, saveGame, checkAchievements } from './state.js';
@@ -390,8 +390,13 @@ export function updateExplore(dt) {
     stepTimer -= dt;
     if (stepTimer <= 0) {
       sfx.footstep();
-      spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.05, 0)), 0xcabf9a, 4);
-      spawnFootprint(player.position, facing);
+      const inPuddle = puddlePositions.some(p => Math.hypot(localPos.x - p.x, localPos.z - p.z) < p.r);
+      if (inPuddle) {
+        spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.05, 0)), 0x9fc4e0, 8);
+      } else {
+        spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.05, 0)), 0xcabf9a, 4);
+        spawnFootprint(player.position, facing);
+      }
       stepTimer = sprinting ? 0.22 : 0.36;
     }
     if (sprinting || dashing) {

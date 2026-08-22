@@ -571,6 +571,7 @@ function buildPuddleTexture() {
 }
 const puddleTex = buildPuddleTexture();
 const puddleMat = new THREE.MeshBasicMaterial({ map: puddleTex, transparent: true, depthWrite: false });
+export const puddlePositions = [];
 function scatterPuddles(center, spread, count) {
   for (let i = 0; i < count; i++) {
     const ang = Math.random() * Math.PI * 2;
@@ -582,6 +583,7 @@ function scatterPuddles(center, spread, count) {
     puddle.rotation.z = Math.random() * Math.PI;
     puddle.position.set(x, 0.025, z);
     worldGroup.add(puddle);
+    puddlePositions.push({ x, z, r });
   }
 }
 
