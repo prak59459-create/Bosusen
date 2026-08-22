@@ -80,7 +80,7 @@ const BIOME_SEEDS = BIOME_DEFS.map(() => {
   const ang = Math.random() * Math.PI * 2;
   return { x: Math.cos(ang) * r * WORLD_RADIUS, z: Math.sin(ang) * r * WORLD_RADIUS };
 });
-function nearestBiome(x, z) {
+export function nearestBiome(x, z) {
   let best = -1, bestD = Infinity;
   for (let i = 0; i < BIOME_SEEDS.length; i++) {
     const s = BIOME_SEEDS[i];
@@ -1170,4 +1170,38 @@ export function updateGrassWind(t) {
     windGrassMesh.setMatrixAt(i, windDummy.matrix);
   }
   windGrassMesh.instanceMatrix.needsUpdate = true;
+}
+
+/* ---------- 沼地バイオームに降る雨 ---------- */
+const RAIN_COUNT = 400;
+const rainGeo = new THREE.CylinderGeometry(0.02, 0.02, 1.1, 3);
+const rainMat = new THREE.MeshBasicMaterial({ color: 0x9fc4e0, transparent: true, opacity: 0.55 });
+const rainMesh = new THREE.InstancedMesh(rainGeo, rainMat, RAIN_COUNT);
+rainMesh.visible = false;
+const rainData = [];
+for (let i = 0; i < RAIN_COUNT; i++) {
+  rainData.push({
+    ox: (Math.random() - 0.5) * 60,
+    oz: (Math.random() - 0.5) * 60,
+    y: Math.random() * 25,
+    speed: 18 + Math.random() * 8,
+  });
+}
+worldGroup.add(rainMesh);
+const rainDummy = new THREE.Object3D();
+export function updateRain(t, dt, centerX, centerZ) {
+  const biomeIdx = nearestBiome(centerX, centerZ);
+  const cat = BIOME_DEFS[biomeIdx] ? BIOME_DEFS[biomeIdx].category : null;
+  const isRaining = cat === 'swamp';
+  rainMesh.visible = isRaining;
+  if (!isRaining) return;
+  for (let i = 0; i < RAIN_COUNT; i++) {
+    const d = rainData[i];
+    d.y -= d.speed * dt;
+    if (d.y < 0) d.y += 25;
+    rainDummy.position.set(centerX + d.ox, d.y, centerZ + d.oz);
+    rainDummy.updateMatrix();
+    rainMesh.setMatrixAt(i, rainDummy.matrix);
+  }
+  rainMesh.instanceMatrix.needsUpdate = true;
 }
