@@ -651,6 +651,12 @@ export function initMenu(onSave, onTitle) {
     closeMenu();
     if (onTitle) onTitle();
   });
+  document.getElementById('replay-tutorial-btn').addEventListener('click', () => {
+    state.seenExploreTutorial = false;
+    sfx.uiClick();
+    showToast('次に探索を始めるとチュートリアルが表示されます', 'info');
+    saveGame();
+  });
   document.getElementById('export-save-btn').addEventListener('click', () => {
     const raw = exportSaveData();
     if (!raw) { showToast('セーブデータはありません', 'info'); return; }
