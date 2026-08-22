@@ -6,7 +6,7 @@ import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTar
   explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions, collectNearbyFireflies, collectNearbyButterflies } from './world.js';
 import { CHAPTERS } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
-  fieldQuestState, acceptFieldQuest, saveGame, checkAchievements } from './state.js';
+  fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot } from './state.js';
 import { showToast, renderQuestTracker, showCenterMsg } from './ui.js';
 import { sfx, startAmbientWind, stopAmbientWind } from './audio.js';
 import { startSkirmish, isSkirmishActive } from './skirmish.js';
@@ -213,6 +213,23 @@ function returnToHub() {
   }
 }
 
+let activeLoadoutKey = 'a';
+function quickSwapLoadout() {
+  const nextKey = activeLoadoutKey === 'a' ? 'b' : 'a';
+  const loadout = state.savedLoadouts && state.savedLoadouts[nextKey];
+  if (!loadout) { showToast(`セット${nextKey.toUpperCase()}はまだ記憶されていません（装備タブで記憶できます）`, 'info'); return; }
+  const slotNames = ['weapon', 'armor', 'accessory'];
+  slotNames.forEach(slot => {
+    const id = loadout[slot];
+    if (id && state.inventory.includes(id)) equipItem(id);
+    else if (!id) unequipSlot(slot);
+  });
+  activeLoadoutKey = nextKey;
+  sfx.uiClick();
+  showToast(`装備セット${nextKey.toUpperCase()}に切り替えた`, 'quest');
+  saveGame();
+}
+
 function doJump() {
   if (jumpsUsed >= MAX_JUMPS) return;
   isJumping = true;
@@ -271,6 +288,7 @@ window.addEventListener('keydown', (e) => {
     saveGame();
   }
   if (e.code === 'KeyN' && !e.repeat) returnToHub();
+  if (e.code === 'KeyL' && !e.repeat) quickSwapLoadout();
   if (e.code === 'KeyT' && !e.repeat) {
     const unfound = hiddenTreasures.filter(tr => !state.foundTreasures.includes(tr.id));
     pingDirection(unfound, '未発見の秘宝', 'すべての秘宝を発見済みです');
