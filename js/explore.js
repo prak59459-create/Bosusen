@@ -155,6 +155,7 @@ const EMOTES = [
 ];
 let emoteIdx = 0;
 let lastHubReturnAt = -Infinity;
+let staminaWasEmpty = false;
 const DASH_DURATION = 0.18;
 const DASH_SPEED = 70;
 const DASH_COOLDOWN = 2.2;
@@ -635,6 +636,13 @@ export function updateExplore(dt) {
     const pct = (exploreStamina / STAMINA_MAX) * 100;
     staminaEl.style.width = pct + '%';
     staminaEl.classList.toggle('low', pct < 30);
+  }
+  if (exploreStamina <= 0 && !staminaWasEmpty) {
+    staminaWasEmpty = true;
+    sfx.dodgeFail();
+    showToast('スタミナ切れ！', 'info');
+  } else if (exploreStamina > 0) {
+    staminaWasEmpty = false;
   }
   const dashIconEl = document.getElementById('dash-cooldown-icon');
   if (dashIconEl) dashIconEl.classList.toggle('ready', dashCooldown <= 0 && exploreStamina >= DASH_STAMINA_COST);
