@@ -3,7 +3,7 @@ import { camera, composer, camFittedPos, camLookAt, mountRenderer, torchFires, b
 import { player, loadPlayerModel, playerMixer, playerReady, setCompanionVisible, updateCompanion } from './player.js';
 import * as EnemyModule from './enemy.js';
 import { spawnEnemy } from './enemy.js';
-import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles } from './effects.js';
+import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles, rumble } from './effects.js';
 import { resumeAudio, sfx, setMasterVolume, setRainIntensity, setBiomeDrone } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
 import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, addShards, computeStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, totalQuestsDone, totalQuestsAll } from './state.js';
@@ -137,6 +137,15 @@ function renderShop() {
     shopItemList.appendChild(card);
   });
   shopShardsEl.textContent = `所持している結晶の欠片: ${state.shards}`;
+}
+
+const rumbleTestBtn = document.getElementById('rumble-test-btn');
+if (rumbleTestBtn) {
+  rumbleTestBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    rumble(0.8, 350);
+    showToast('ゲームパッドを振動させました（未接続の場合は反応しません）', 'info');
+  });
 }
 
 const shopAffordableFilterEl = document.getElementById('shop-affordable-filter');
