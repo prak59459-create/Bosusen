@@ -305,6 +305,9 @@ export function enterExploreMode(spawnLocal) {
   questGivers.forEach(g => {
     if (g.beam) g.beam.visible = !isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId);
   });
+  loreMarkers.forEach(m => {
+    if (m.beam) m.beam.visible = !isQuestDone(CHAPTERS[m.chapterIndex].key, m.questId);
+  });
   camInit = false;
   document.getElementById('explore-hud').style.display = 'flex';
   document.getElementById('ui').classList.add('exploring');
@@ -413,6 +416,7 @@ function tryReadLore(monu) {
   sfx.questDone();
   showToast(`クエスト達成: ${monu.quest.title}｜${monu.quest.result}`, 'quest');
   checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
+  if (monu.beam) monu.beam.visible = false;
   renderQuestTracker();
   saveGame();
 }

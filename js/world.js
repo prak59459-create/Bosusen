@@ -930,7 +930,11 @@ CHAPTERS.forEach((chapter, i) => {
     const monuLight = new THREE.PointLight(0x8899ff, 1.4, 9, 2);
     monuLight.position.set(loreLocal.x, 2, loreLocal.z);
     worldGroup.add(monuLight);
-    loreMarkers.push({ chapterIndex: i, questId: loreQuest.id, quest: loreQuest, localPos: loreLocal, mesh: monuMesh, radius: 3 });
+    const monuBeamMat = new THREE.MeshBasicMaterial({ color: 0x8899ff, transparent: true, opacity: 0.2, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false });
+    const monuBeam = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.05, 25, 8, 1, true), monuBeamMat);
+    monuBeam.position.set(loreLocal.x, 12.5, loreLocal.z);
+    worldGroup.add(monuBeam);
+    loreMarkers.push({ chapterIndex: i, questId: loreQuest.id, quest: loreQuest, localPos: loreLocal, mesh: monuMesh, radius: 3, beam: monuBeam });
   }
 
   // ---- 隠しボーナスアイテム（結晶の秘宝）----
