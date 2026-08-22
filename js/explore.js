@@ -143,6 +143,13 @@ let sprintLock = false;
 let dashCooldown = 0;
 let dashTimer = 0;
 let dashTrailTimer = 0;
+const EMOTES = [
+  { label: '🎉 お祝い！', colors: [0xffd700, 0xff6a9f, 0x66eaff, 0x9fff7a] },
+  { label: '👋 やあ！', colors: [0x66eaff, 0x9fe0ff] },
+  { label: '✨ すごい！', colors: [0xffd700, 0xfff2a8] },
+  { label: '💪 頑張るぞ！', colors: [0xff5a5a, 0xffcc44] },
+];
+let emoteIdx = 0;
 const DASH_DURATION = 0.18;
 const DASH_SPEED = 70;
 const DASH_COOLDOWN = 2.2;
@@ -241,11 +248,13 @@ window.addEventListener('keydown', (e) => {
   }
   if (e.code === 'KeyE' && !e.repeat) doDash();
   if (e.code === 'KeyF' && !e.repeat) {
+    const emote = EMOTES[emoteIdx % EMOTES.length];
+    emoteIdx++;
     sfx.achievement();
-    const colors = [0xffd700, 0xff6a9f, 0x66eaff, 0x9fff7a];
-    colors.forEach((c, i) => {
+    emote.colors.forEach((c, i) => {
       spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6 + i * 0.15, 0)), c, 10);
     });
+    showToast(emote.label, 'info');
   }
   if (e.code === 'KeyP' && !e.repeat) {
     const hud = document.getElementById('explore-hud');
