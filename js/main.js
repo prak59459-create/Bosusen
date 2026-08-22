@@ -765,7 +765,7 @@ function animate() {
       if (d < nearestTreasureDist) nearestTreasureDist = d;
     });
     const isSensingTreasure = nearestTreasureDist < 30;
-    if (isSensingTreasure && !wasSensingTreasure) sfx.spiritChime();
+    if (isSensingTreasure && !wasSensingTreasure && state.proximitySounds !== false) sfx.spiritChime();
     wasSensingTreasure = isSensingTreasure;
     updateCompanion(t, dt, isSensingTreasure);
     let nearestFieldTargetDist = Infinity;
@@ -776,7 +776,7 @@ function animate() {
       if (d < nearestFieldTargetDist) nearestFieldTargetDist = d;
     });
     const isSensingFieldTarget = nearestFieldTargetDist < 25;
-    if (isSensingFieldTarget && !wasSensingFieldTarget) sfx.targetSense();
+    if (isSensingFieldTarget && !wasSensingFieldTarget && state.proximitySounds !== false) sfx.targetSense();
     wasSensingFieldTarget = isSensingFieldTarget;
     let nearestQuestGiverDist = Infinity;
     questGivers.forEach(g => {
@@ -785,7 +785,7 @@ function animate() {
       if (d < nearestQuestGiverDist) nearestQuestGiverDist = d;
     });
     const isSensingQuestGiver = nearestQuestGiverDist < 20;
-    if (isSensingQuestGiver && !wasSensingQuestGiver) sfx.giverSense();
+    if (isSensingQuestGiver && !wasSensingQuestGiver && state.proximitySounds !== false) sfx.giverSense();
     wasSensingQuestGiver = isSensingQuestGiver;
     updateLeaves(t, lp.x, lp.z);
     const starWish = updateShootingStars(t, dt, lp.x, lp.z, isNightTime(t));
