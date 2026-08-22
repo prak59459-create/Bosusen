@@ -108,6 +108,7 @@ function endCheck() {
     const stats = computeStats();
     if (stats.hasRevive && !state.usedRevive) {
       state.usedRevive = true;
+      state.totalRevives = (state.totalRevives || 0) + 1;
       state.playerHP = Math.round(state.playerMaxHP * (0.3 + (stats.reviveHpPct || 0)));
       updateBars();
       log('蘇生の残光が発動！ 力尽きる寸前で意識を取り戻した！');

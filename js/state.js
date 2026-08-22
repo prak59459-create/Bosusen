@@ -48,6 +48,7 @@ export const state = {
   highContrast: false,
   reduceNpcChatter: false,
   companionName: 'イリス',
+  totalRevives: 0,
   pinnedAchievement: null,
   questTrackerCollapsed: false,
   savedLoadouts: { a: null, b: null },
@@ -224,6 +225,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (state.difficulty === 'hard') tryUnlock('hard_clear');
   if (lastRank != null && state.damageTaken === 0) tryUnlock('flawless');
   if (lastRank != null && state.turns > 0 && state.turns <= 5) tryUnlock('speed_clear');
+  if ((state.totalRevives || 0) >= 1) tryUnlock('revived');
   if (state.loginStreak >= 7) tryUnlock('week_streak');
   if (lastRank != null && state.healUses === state.healUsesMax) tryUnlock('no_heal');
   if (lastRank != null && !state.guardUsedThisBattle) tryUnlock('no_guard');
@@ -347,6 +349,7 @@ export function saveGame() {
       highContrast: state.highContrast,
       reduceNpcChatter: state.reduceNpcChatter,
       companionName: state.companionName,
+      totalRevives: state.totalRevives,
       pinnedAchievement: state.pinnedAchievement,
       questTrackerCollapsed: state.questTrackerCollapsed,
       savedLoadouts: state.savedLoadouts,
@@ -430,6 +433,7 @@ export function loadGame() {
       highContrast: snap.highContrast || false,
       reduceNpcChatter: snap.reduceNpcChatter || false,
       companionName: snap.companionName || 'イリス',
+      totalRevives: snap.totalRevives || 0,
       pinnedAchievement: snap.pinnedAchievement || null,
       questTrackerCollapsed: snap.questTrackerCollapsed || false,
       savedLoadouts: snap.savedLoadouts || { a: null, b: null },
