@@ -24,6 +24,9 @@ function toggleHelpOverlay() {
 }
 document.getElementById('help-btn').addEventListener('click', toggleHelpOverlay);
 document.getElementById('help-close-btn').addEventListener('click', toggleHelpOverlay);
+document.getElementById('help-overlay').addEventListener('click', (e) => {
+  if (e.target.id === 'help-overlay') toggleHelpOverlay();
+});
 window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyH' && !e.repeat) toggleHelpOverlay();
   if (e.code === 'KeyB' && !e.repeat && exploreActive) cycleRadarZoom();
