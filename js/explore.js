@@ -348,7 +348,15 @@ export function updateExplore(dt) {
     const name = biomeNameAt(localPos.x, localPos.z);
     if (name && name !== currentBiomeName) {
       currentBiomeName = name;
-      showToast(`${name} に入った`, 'quest');
+      const isNew = !state.discoveredBiomes.includes(name);
+      if (isNew) {
+        state.discoveredBiomes.push(name);
+        showToast(`新しいバイオーム発見: ${name}（${state.discoveredBiomes.length}/35）`, 'quest');
+        checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
+        saveGame();
+      } else {
+        showToast(`${name} に入った`, 'quest');
+      }
     }
   }
 

@@ -320,4 +320,6 @@ export const ACHIEVEMENTS = [
   { id:'combo_50',     name:'虚無を斬る者',   desc:'コンボを50以上つなげる。', reward:80 },
   { id:'wanderer',     name:'放浪者',         desc:'累計10,000m以上を踏破する。', reward:35 },
   { id:'pilgrim',      name:'大陸の巡礼者',   desc:'累計50,000m以上を踏破する。', reward:60 },
+  { id:'biome_explorer', name:'大陸の地理学者', desc:'10種類のバイオームを発見する。', reward:35 },
+  { id:'biome_master', name:'万象の踏破者',   desc:'すべてのバイオームを発見する。', reward:80 },
 ];

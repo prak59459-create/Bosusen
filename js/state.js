@@ -35,6 +35,7 @@ export const state = {
   inventory: [], // array of item ids owned but not necessarily equipped
   unlockedSkills: [], // array of skill ids
   foundTreasures: [], // array of hidden treasure ids collected
+  discoveredBiomes: [], // array of discovered biome names
   achievements: [], // array of unlocked achievement ids
   questProgress: {}, // { chapterKey: { questId: true } }
   fieldQuests: {}, // { questId: 'accepted' | 'ready_turnin' }
@@ -200,6 +201,8 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (state.winStreak >= 3) tryUnlock('win_streak_3');
   if (state.winStreak >= 5) tryUnlock('win_streak_5');
   if (totalQuestsDone() >= totalQuestsAll()) tryUnlock('quest_complete');
+  if (state.discoveredBiomes.length >= 10) tryUnlock('biome_explorer');
+  if (state.discoveredBiomes.length >= 35) tryUnlock('biome_master');
   const otherIds = ACHIEVEMENTS.filter(a => a.id !== 'completionist').map(a => a.id);
   if (otherIds.every(id => state.achievements.includes(id))) tryUnlock('completionist');
   return newly;
@@ -290,6 +293,7 @@ export function saveGame() {
       inventory: state.inventory,
       unlockedSkills: state.unlockedSkills,
       foundTreasures: state.foundTreasures,
+      discoveredBiomes: state.discoveredBiomes,
       achievements: state.achievements,
       questProgress: state.questProgress,
       fieldQuests: state.fieldQuests,
@@ -342,6 +346,7 @@ export function loadGame() {
       inventory: snap.inventory || [],
       unlockedSkills: snap.unlockedSkills || [],
       foundTreasures: snap.foundTreasures || [],
+      discoveredBiomes: snap.discoveredBiomes || [],
       achievements: snap.achievements || [],
       questProgress: snap.questProgress || {},
       fieldQuests: snap.fieldQuests || {},
