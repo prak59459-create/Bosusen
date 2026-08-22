@@ -151,6 +151,7 @@ const EMOTES = [
   { label: '💪 頑張るぞ！', colors: [0xff5a5a, 0xffcc44] },
 ];
 let emoteIdx = 0;
+let lastHubReturnAt = -Infinity;
 const DASH_DURATION = 0.18;
 const DASH_SPEED = 70;
 const DASH_COOLDOWN = 2.2;
@@ -232,6 +233,9 @@ window.addEventListener('keydown', (e) => {
     saveGame();
   }
   if (e.code === 'KeyN' && !e.repeat) {
+    const now = performance.now();
+    if (now - lastHubReturnAt < 5000) { showToast('拠点帰還はクールダウン中', 'info'); return; }
+    lastHubReturnAt = now;
     localPos.set(HUB_SPAWN.x, 0, HUB_SPAWN.z);
     spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1, 0)), 0x9fe0ff, 16);
     sfx.uiClick();
