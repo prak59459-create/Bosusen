@@ -167,6 +167,8 @@ export function addScreenshotToGallery(dataUrl) {
 function renderScreenshotGallery() {
   const el = document.getElementById('screenshot-gallery');
   if (!el) return;
+  const labelEl = document.getElementById('screenshot-gallery-label');
+  if (labelEl) labelEl.style.display = screenshotGallery.length > 0 ? 'block' : 'none';
   el.innerHTML = '';
   screenshotGallery.forEach(url => {
     const img = document.createElement('img');
