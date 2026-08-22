@@ -30,6 +30,8 @@ let camInit = false;
 let objectiveTimer = 0;
 let jumpVelY = 0;
 let isJumping = false;
+let jumpsUsed = 0;
+const MAX_JUMPS = 2;
 const GRAVITY = 32;
 const JUMP_SPEED = 11;
 let exploreStamina = 100;
@@ -62,7 +64,13 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.sprint = true;
   if (e.code === 'KeyM' && onToggleMap) onToggleMap();
   if (e.code === 'KeyR' && !e.repeat) toggleSprintLock();
-  if (e.code === 'Space' && !isJumping) { isJumping = true; jumpVelY = JUMP_SPEED; sfx.footstep(); }
+  if (e.code === 'Space' && !e.repeat && jumpsUsed < MAX_JUMPS) {
+    isJumping = true;
+    jumpVelY = JUMP_SPEED * (jumpsUsed === 0 ? 1 : 0.85);
+    jumpsUsed++;
+    sfx.footstep();
+    if (jumpsUsed > 1) spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.6, 0)), 0xbfe0ff, 8);
+  }
 });
 window.addEventListener('keyup', (e) => {
   if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.forward = false;
@@ -132,6 +140,7 @@ export function enterExploreMode(spawnLocal) {
   if (spawnLocal) localPos.copy(spawnLocal);
   jumpVelY = 0;
   isJumping = false;
+  jumpsUsed = 0;
   exploreStamina = STAMINA_MAX;
   player.position.set(HUB_OFFSET.x + localPos.x, 0, HUB_OFFSET.z + localPos.z);
   player.rotation.y = facing + Math.PI;
@@ -316,6 +325,7 @@ export function updateExplore(dt) {
       ny = 0;
       isJumping = false;
       jumpVelY = 0;
+      jumpsUsed = 0;
       spawnParticles(player.position.clone().set(player.position.x, 0.05, player.position.z), 0xcabf9a, 10);
     }
     player.position.y = ny;
