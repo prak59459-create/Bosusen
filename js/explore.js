@@ -30,8 +30,12 @@ const footprintGeo = new THREE.PlaneGeometry(0.22, 0.4);
 const footprintMat = new THREE.MeshBasicMaterial({ color: 0x3a2a18, transparent: true, opacity: 0.35, depthWrite: false });
 const footprints = [];
 let footSide = 1;
-function spawnFootprint(pos, rotY) {
+const FOOTPRINT_COLOR_BY_CATEGORY = {
+  desert: 0x8a6a3a, snow: 0xaacfe0, cyber: 0x2a3a4a, volcanic: 0x1a0f08,
+};
+function spawnFootprint(pos, rotY, category) {
   const mat = footprintMat.clone();
+  if (FOOTPRINT_COLOR_BY_CATEGORY[category]) mat.color.setHex(FOOTPRINT_COLOR_BY_CATEGORY[category]);
   const mesh = new THREE.Mesh(footprintGeo, mat);
   mesh.rotation.x = -Math.PI / 2;
   mesh.rotation.z = rotY;
@@ -533,7 +537,7 @@ export function updateExplore(dt) {
         else if (cat === 'cyber') sfx.footstepMetal();
         else sfx.footstep();
         spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.05, 0)), DUST_COLOR_BY_CATEGORY[cat] || 0xcabf9a, 4);
-        spawnFootprint(player.position, facing);
+        spawnFootprint(player.position, facing, cat);
       }
       stepTimer = sprinting ? 0.22 : 0.36;
     }
