@@ -67,6 +67,18 @@ export function triggerShake(mag, dur) {
   if (state.screenShake === false) return;
   shakeState.mag = mag; shakeState.time = dur;
 }
+export function rumble(strength = 0.5, duration = 200) {
+  try {
+    const gp = navigator.getGamepads ? navigator.getGamepads()[0] : null;
+    if (gp && gp.vibrationActuator) {
+      gp.vibrationActuator.playEffect('dual-rumble', {
+        duration,
+        strongMagnitude: strength,
+        weakMagnitude: strength * 0.7,
+      });
+    }
+  } catch (e) {}
+}
 export function triggerCritFlash() {
   const el = document.getElementById('crit-flash');
   if (!el) return;

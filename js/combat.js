@@ -5,7 +5,7 @@ import { player, crossfadeTo, playerMotionBeat, playerModel } from './player.js'
 import { bossGlow, torchFires } from './scene.js';
 import { sfx } from './audio.js';
 import { rand } from './utils.js';
-import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake, triggerCritFlash, spawnShockwave } from './effects.js';
+import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake, triggerCritFlash, spawnShockwave, rumble } from './effects.js';
 import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
 import { CHAPTERS, levelStatsFor, BOSS_TAUNTS, VICTORY_LINES, DEFEAT_LINES } from './data.js';
 import { state, computeStats, addShards, difficultyMult, checkAchievements } from './state.js';
@@ -77,6 +77,7 @@ export function checkPhaseTransition() {
     bossGlow.intensity = 5.5;
     bossGlow.color.setHex(0xff0000);
     triggerShake(0.3, 0.6);
+    rumble(0.9, 500);
     spawnShockwave(b.position.clone().add(new THREE.Vector3(0, 2.5, 0)), 0xff2222);
     const startScale = b.scale.x;
     const t0 = performance.now();
@@ -353,6 +354,7 @@ function resolveDodge(clicked, move, isParry) {
       spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.3, 0)), 0xff5555, 10);
       spawnDamageNumber(player.position.clone().add(new THREE.Vector3(0, 2.4, 0)), `-${dmg}`, '#ff6666', dmg > 18);
       triggerShake(Math.min(0.25, dmg / 100), 0.35);
+      rumble(Math.min(0.8, dmg / 40), 220);
     }
     state.guarding = false;
     updateBars();
