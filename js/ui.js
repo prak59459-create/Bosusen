@@ -592,6 +592,28 @@ export function renderCompendiumTab() {
       bestiaryList.appendChild(row);
     });
   }
+  const loreList = document.getElementById('lore-list');
+  const loreProgress = document.getElementById('lore-progress');
+  if (loreList) {
+    loreList.innerHTML = '';
+    const lore = state.collectedLore || [];
+    if (loreProgress) loreProgress.textContent = `${lore.length}`;
+    if (lore.length === 0) {
+      loreList.innerHTML = '<div class="empty-hint">まだ伝承の石碑を発見していません。</div>';
+    } else {
+      lore.forEach(entry => {
+        const row = document.createElement('div');
+        row.className = 'item-row equipped';
+        row.innerHTML = `
+          <div class="item-row-main">
+            <div class="item-row-name">${entry.title}</div>
+            <div class="item-row-desc">${entry.text}</div>
+          </div>
+        `;
+        loreList.appendChild(row);
+      });
+    }
+  }
 }
 
 /* ============================================================

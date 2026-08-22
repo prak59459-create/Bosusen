@@ -521,6 +521,8 @@ function tryReadLore(monu) {
   addShards(monu.quest.reward.shards);
   sfx.questDone();
   showToast(`クエスト達成: ${monu.quest.title}｜${monu.quest.result}`, 'quest');
+  if (!state.collectedLore) state.collectedLore = [];
+  state.collectedLore.push({ title: monu.quest.title, text: monu.quest.result });
   checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
   if (monu.beam) monu.beam.visible = false;
   renderQuestTracker();

@@ -42,6 +42,7 @@ export const state = {
   starWishesMade: 0,
   screenshotsTaken: 0,
   emotesUsedSet: [],
+  collectedLore: [],
   butterfliesCaught: 0,
   achievements: [], // array of unlocked achievement ids
   questProgress: {}, // { chapterKey: { questId: true } }
@@ -326,6 +327,7 @@ export function saveGame() {
       starWishesMade: state.starWishesMade,
       screenshotsTaken: state.screenshotsTaken,
       emotesUsedSet: state.emotesUsedSet,
+      collectedLore: state.collectedLore,
       totalParries: state.totalParries,
       butterfliesCaught: state.butterfliesCaught,
       achievements: state.achievements,
@@ -397,6 +399,7 @@ export function loadGame() {
       starWishesMade: snap.starWishesMade || 0,
       screenshotsTaken: snap.screenshotsTaken || 0,
       emotesUsedSet: snap.emotesUsedSet || [],
+      collectedLore: snap.collectedLore || [],
       totalParries: snap.totalParries || 0,
       butterfliesCaught: snap.butterfliesCaught || 0,
       achievements: snap.achievements || [],
