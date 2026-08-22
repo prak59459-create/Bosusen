@@ -1314,3 +1314,40 @@ export function updateSandstorm(t, dt, centerX, centerZ) {
   }
   sandMesh.instanceMatrix.needsUpdate = true;
 }
+
+/* ---------- サイバー都市バイオームに浮かぶ光る電脳パーティクル ---------- */
+const CYBER_COUNT = 260;
+const cyberGeo = new THREE.BoxGeometry(0.12, 0.12, 0.12);
+const cyberMat = new THREE.MeshBasicMaterial({ color: 0x66eaff, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending });
+const cyberMesh = new THREE.InstancedMesh(cyberGeo, cyberMat, CYBER_COUNT);
+cyberMesh.visible = false;
+const cyberData = [];
+for (let i = 0; i < CYBER_COUNT; i++) {
+  cyberData.push({
+    ox: (Math.random() - 0.5) * 55,
+    oz: (Math.random() - 0.5) * 55,
+    y: Math.random() * 14,
+    speed: 1.2 + Math.random() * 2,
+    phase: Math.random() * Math.PI * 2,
+  });
+}
+worldGroup.add(cyberMesh);
+const cyberDummy = new THREE.Object3D();
+export function updateCyberMotes(t, dt, centerX, centerZ) {
+  const biomeIdx = nearestBiome(centerX, centerZ);
+  const cat = BIOME_DEFS[biomeIdx] ? BIOME_DEFS[biomeIdx].category : null;
+  const isCyber = cat === 'cyber';
+  cyberMesh.visible = isCyber;
+  if (!isCyber) return;
+  for (let i = 0; i < CYBER_COUNT; i++) {
+    const d = cyberData[i];
+    d.y += d.speed * dt;
+    if (d.y > 14) d.y -= 14;
+    const sway = Math.sin(t * 2 + d.phase) * 0.8;
+    cyberDummy.position.set(centerX + d.ox + sway, d.y, centerZ + d.oz);
+    cyberDummy.rotation.set(t * 2 + d.phase, t * 1.5, 0);
+    cyberDummy.updateMatrix();
+    cyberMesh.setMatrixAt(i, cyberDummy.matrix);
+  }
+  cyberMesh.instanceMatrix.needsUpdate = true;
+}
