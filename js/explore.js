@@ -130,6 +130,12 @@ const AMBIENT_LINES_RAIN = [
 const AMBIENT_LINES_SNOW = [
   '「この雪原は美しいが、油断すると凍えるぞ」', '「暖かい格好をしてきたか？」', '「雪解けはまだ先だな」',
 ];
+const AMBIENT_LINES_VOLCANIC = [
+  '「この熱気には慣れたものだが、お前は大丈夫か？」', '「溶岩には近づきすぎるなよ」', '「灰が舞う日は特に注意しろ」',
+];
+const AMBIENT_LINES_DESERT = [
+  '「水は十分に持ってきたか？」', '「この砂漠は昼と夜で顔つきが変わる」', '「砂嵐には気をつけろよ」',
+];
 const npcChatterCooldown = new WeakMap();
 let camInit = false;
 let objectiveTimer = 0;
@@ -790,7 +796,8 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
           const done = isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId);
           const pending = !done && fieldQuestState(g.questId) === 'accepted';
           const gCat = biomeCategoryAt(g.localPos.x, g.localPos.z);
-          const pool = done ? AMBIENT_LINES_DONE : (pending ? AMBIENT_LINES_PENDING : (gCat === 'snow' ? AMBIENT_LINES_SNOW : (isRaining ? AMBIENT_LINES_RAIN : (isNightTime(absTime) ? AMBIENT_LINES_NIGHT : AMBIENT_LINES))));
+          const CAT_LINES = { snow: AMBIENT_LINES_SNOW, volcanic: AMBIENT_LINES_VOLCANIC, desert: AMBIENT_LINES_DESERT };
+          const pool = done ? AMBIENT_LINES_DONE : (pending ? AMBIENT_LINES_PENDING : (CAT_LINES[gCat] || (isRaining ? AMBIENT_LINES_RAIN : (isNightTime(absTime) ? AMBIENT_LINES_NIGHT : AMBIENT_LINES))));
           const line = pool[Math.floor(Math.random() * pool.length)];
           showToast(`${g.name}：${line}`, 'info');
         }
