@@ -663,7 +663,6 @@ function animate() {
   setCompanionVisible(exploreActive);
   if (exploreActive) {
     drawRadar();
-    updateCompanion(t, dt);
     updateDayNightCycle(t);
     const dayCounterEl = document.getElementById('day-counter');
     const curDay = getDayCount(t);
@@ -676,6 +675,13 @@ function animate() {
       sfx.pickup();
     }
     const lp = getPlayerLocalPos();
+    let nearestTreasureDist = Infinity;
+    hiddenTreasures.forEach(tr => {
+      if (state.foundTreasures.includes(tr.id)) return;
+      const d = Math.hypot(tr.localPos.x - lp.x, tr.localPos.z - lp.z);
+      if (d < nearestTreasureDist) nearestTreasureDist = d;
+    });
+    updateCompanion(t, dt, nearestTreasureDist < 30);
     updateLeaves(t, lp.x, lp.z);
     const starWish = updateShootingStars(t, dt, lp.x, lp.z, isNightTime(t));
     if (starWish) {

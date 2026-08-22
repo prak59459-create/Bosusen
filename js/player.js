@@ -86,7 +86,7 @@ scene.add(companionOrb);
 const companionTrail = new THREE.Vector3();
 export function setCompanionVisible(v) { companionOrb.visible = v; }
 let companionGolden = false;
-export function updateCompanion(t, dt) {
+export function updateCompanion(t, dt, sensingTreasure = false) {
   if (!companionOrb.visible) return;
   const isCompletionist = (state.achievements || []).includes('completionist');
   if (isCompletionist !== companionGolden) {
@@ -100,5 +100,8 @@ export function updateCompanion(t, dt) {
   const targetY = player.position.y + 1.9 + Math.sin(t * 2) * 0.25;
   companionTrail.set(targetX, targetY, targetZ);
   companionOrb.position.lerp(companionTrail, Math.min(1, dt * 4));
-  companionCore.scale.setScalar(1 + Math.sin(t * 5) * 0.12);
+  const pulseSpeed = sensingTreasure ? 12 : 5;
+  const pulseAmp = sensingTreasure ? 0.28 : 0.12;
+  companionCore.scale.setScalar(1 + Math.sin(t * pulseSpeed) * pulseAmp);
+  companionLight.intensity = sensingTreasure ? 1.6 + Math.sin(t * pulseSpeed) * 0.5 : 1.2;
 }
