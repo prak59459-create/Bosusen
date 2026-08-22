@@ -71,6 +71,12 @@ export const els = {
 };
 
 let wasHpCritical = false;
+export function applyUiTextScale(scale) {
+  const uiEl = document.getElementById('ui');
+  if (uiEl) uiEl.style.zoom = scale;
+  const hudEl = document.getElementById('explore-hud');
+  if (hudEl) hudEl.style.zoom = scale;
+}
 let achSortByProgress = false;
 const TITLE_TIERS = [
   { min: 21, title: '神話の' },
@@ -587,6 +593,9 @@ export function syncSettingsUI() {
   if (heartbeatCheckbox) heartbeatCheckbox.checked = state.lowHpHeartbeat !== false;
   const flashingCheckbox = document.getElementById('opt-reduce-flashing');
   if (flashingCheckbox) flashingCheckbox.checked = state.reduceFlashing === true;
+  const textScaleSelect = document.getElementById('opt-text-scale');
+  if (textScaleSelect) textScaleSelect.value = state.uiTextScale || 1;
+  applyUiTextScale(state.uiTextScale || 1);
 }
 
 export function initMenu(onSave, onTitle) {
@@ -680,6 +689,16 @@ export function initMenu(onSave, onTitle) {
     saveGame();
   });
 
+  const textScaleSelect = document.getElementById('opt-text-scale');
+  textScaleSelect.value = state.uiTextScale || 1;
+  applyUiTextScale(state.uiTextScale || 1);
+  textScaleSelect.addEventListener('change', () => {
+    state.uiTextScale = parseFloat(textScaleSelect.value);
+    applyUiTextScale(state.uiTextScale);
+    sfx.uiClick();
+    saveGame();
+  });
+
   const difficultySelect = document.getElementById('opt-difficulty');
   difficultySelect.value = state.difficulty || 'normal';
   difficultySelect.addEventListener('change', () => {
@@ -706,7 +725,7 @@ export function initMenu(onSave, onTitle) {
   });
   document.getElementById('reset-settings-btn').addEventListener('click', () => {
     Object.assign(state, {
-      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false,
+      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1,
     });
     setMasterVolume(state.masterVolume);
     setQualityPreset(state.quality);
