@@ -585,6 +585,8 @@ export function syncSettingsUI() {
   if (rumbleCheckbox) rumbleCheckbox.checked = state.gamepadRumble !== false;
   const heartbeatCheckbox = document.getElementById('opt-low-hp-heartbeat');
   if (heartbeatCheckbox) heartbeatCheckbox.checked = state.lowHpHeartbeat !== false;
+  const flashingCheckbox = document.getElementById('opt-reduce-flashing');
+  if (flashingCheckbox) flashingCheckbox.checked = state.reduceFlashing === true;
 }
 
 export function initMenu(onSave, onTitle) {
@@ -670,6 +672,14 @@ export function initMenu(onSave, onTitle) {
     saveGame();
   });
 
+  const flashingCheckbox = document.getElementById('opt-reduce-flashing');
+  flashingCheckbox.checked = state.reduceFlashing === true;
+  flashingCheckbox.addEventListener('change', () => {
+    state.reduceFlashing = flashingCheckbox.checked;
+    sfx.uiClick();
+    saveGame();
+  });
+
   const difficultySelect = document.getElementById('opt-difficulty');
   difficultySelect.value = state.difficulty || 'normal';
   difficultySelect.addEventListener('change', () => {
@@ -696,7 +706,7 @@ export function initMenu(onSave, onTitle) {
   });
   document.getElementById('reset-settings-btn').addEventListener('click', () => {
     Object.assign(state, {
-      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true,
+      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false,
     });
     setMasterVolume(state.masterVolume);
     setQualityPreset(state.quality);

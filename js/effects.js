@@ -81,6 +81,7 @@ export function rumble(strength = 0.5, duration = 200) {
   } catch (e) {}
 }
 export function triggerCritFlash() {
+  if (state.reduceFlashing) return;
   const el = document.getElementById('crit-flash');
   if (!el) return;
   el.classList.add('flash');

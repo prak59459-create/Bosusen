@@ -622,10 +622,12 @@ function animate() {
       thunderTimer -= dt;
       if (thunderTimer <= 0) {
         thunderTimer = 8 + Math.random() * 14;
-        const flashEl = document.getElementById('lightning-flash');
-        if (flashEl) {
-          flashEl.classList.add('flash');
-          setTimeout(() => flashEl.classList.remove('flash'), 90);
+        if (!state.reduceFlashing) {
+          const flashEl = document.getElementById('lightning-flash');
+          if (flashEl) {
+            flashEl.classList.add('flash');
+            setTimeout(() => flashEl.classList.remove('flash'), 90);
+          }
         }
         sfx.thunder();
         triggerLightning(lp.x, lp.z);
