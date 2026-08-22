@@ -203,8 +203,11 @@ export function renderQuestBoard(chapterIndex, onResolve) {
   const doneCount = chapter.quests.filter(q => isQuestDone(chapter.key, q.id)).length;
   const progressFill = document.getElementById('qb-progress-fill');
   if (progressFill) progressFill.style.width = `${Math.round((doneCount / chapter.quests.length) * 100)}%`;
+  const undoneFilterEl = document.getElementById('qb-undone-filter');
+  const undoneOnly = undoneFilterEl && undoneFilterEl.checked;
   chapter.quests.forEach(q => {
     const done = isQuestDone(chapter.key, q.id);
+    if (undoneOnly && done) return;
     const card = document.createElement('div');
     card.className = 'quest-card' + (done ? ' done' : '');
     const typeLabel = q.type === 'battle' ? '討伐' : (q.type === 'lore' ? '石碑' : '採取');
