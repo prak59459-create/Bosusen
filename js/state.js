@@ -247,6 +247,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (state.butterfliesCaught >= 50) tryUnlock('butterfly_catcher');
   if (CHAPTERS.every(c => (state.chapterClearCounts[c.key] || 0) > 0)) tryUnlock('bestiary_complete');
   if ((state.starWishesMade || 0) >= 20) tryUnlock('star_wisher');
+  if ((state.starWishesMade || 0) >= 50) tryUnlock('star_wisher_master');
   if ((state.screenshotsTaken || 0) >= 10) tryUnlock('photographer');
   if ((state.screenshotsTaken || 0) >= 50) tryUnlock('master_photographer');
   if ((state.emotesUsedSet || []).length >= 4) tryUnlock('emote_master');

@@ -356,6 +356,7 @@ export function renderStatusTab() {
       true_resident: [Math.round(state.totalPlaytimeSec || 0), 18000],
       bestiary_complete: [CHAPTERS.filter(c => (state.chapterClearCounts[c.key] || 0) > 0).length, CHAPTERS.length],
       star_wisher: [state.starWishesMade || 0, 20],
+      star_wisher_master: [state.starWishesMade || 0, 50],
       photographer: [state.screenshotsTaken || 0, 10],
       master_photographer: [state.screenshotsTaken || 0, 50],
       emote_master: [(state.emotesUsedSet || []).length, 4],
