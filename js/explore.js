@@ -803,7 +803,9 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
       const d = Math.hypot(localPos.x - g.localPos.x, localPos.z - g.localPos.z);
       if (d < 8) {
         const lastSaid = npcChatterCooldown.get(g) || 0;
-        if (performance.now() - lastSaid > 25000 && Math.random() < 0.35) {
+        const chatterCooldownMs = state.reduceNpcChatter ? 60000 : 25000;
+        const chatterChance = state.reduceNpcChatter ? 0.12 : 0.35;
+        if (performance.now() - lastSaid > chatterCooldownMs && Math.random() < chatterChance) {
           npcChatterCooldown.set(g, performance.now());
           const done = isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId);
           const pending = !done && fieldQuestState(g.questId) === 'accepted';
