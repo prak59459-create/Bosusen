@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { camera, composer, camFittedPos, camLookAt, mountRenderer, torchFires, bossGlow, setQualityPreset, updateDayNightCycle, isNightTime, isLowQuality } from './scene.js';
+import { camera, composer, camFittedPos, camLookAt, mountRenderer, torchFires, bossGlow, setQualityPreset, updateDayNightCycle, isNightTime, isLowQuality, getDayCount } from './scene.js';
 import { player, loadPlayerModel, playerMixer, playerReady, setCompanionVisible, updateCompanion } from './player.js';
 import * as EnemyModule from './enemy.js';
 import { spawnEnemy } from './enemy.js';
@@ -584,6 +584,8 @@ function animate() {
     drawRadar();
     updateCompanion(t, dt);
     updateDayNightCycle(t);
+    const dayCounterEl = document.getElementById('day-counter');
+    if (dayCounterEl) dayCounterEl.textContent = `${isNightTime(t) ? '🌙' : '☀️'} Day ${getDayCount(t)}`;
     const lp = getPlayerLocalPos();
     updateLeaves(t, lp.x, lp.z);
     updateShootingStars(t, dt, lp.x, lp.z, isNightTime(t));

@@ -207,6 +207,10 @@ export function updateDayNightCycle(t) {
 export function isNightTime(t) {
   return (Math.sin(t * 0.015) + 1) / 2 < 0.3;
 }
+const DAY_PERIOD = (Math.PI * 2) / 0.015;
+export function getDayCount(t) {
+  return Math.floor(t / DAY_PERIOD) + 1;
+}
 export const dirLight = new THREE.DirectionalLight(0xfff6e0, 1.8);
 dirLight.position.set(6, 13, 7);
 dirLight.castShadow = true;

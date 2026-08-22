@@ -325,6 +325,12 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 #mute-btn.muted {
   background:rgba(200,200,200,0.8); border-color:rgba(140,140,140,0.5);
 }
+#day-counter {
+  position:absolute; top: max(14px, env(safe-area-inset-top));
+  left: max(18px, env(safe-area-inset-left));
+  background:rgba(255,255,255,0.75); border:1px solid rgba(150,100,220,0.35);
+  border-radius:14px; padding:5px 12px; font-size:12px; font-weight:bold; color:#3d2f5c;
+}
 #explore-stamina-wrap {
   position:absolute; left: max(24px, env(safe-area-inset-left));
   bottom: max(140px, env(safe-area-inset-bottom) + 112px);
