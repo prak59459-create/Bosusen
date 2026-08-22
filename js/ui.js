@@ -1075,16 +1075,27 @@ const LOADING_TIPS = [
   '夜になると出現する野生生物や現象もある。',
   'ゲームパッドも対応しているので接続すればそのまま遊べる。',
   '図鑑タブで発見したバイオームや撃破したボスを確認できる。',
+  'Nキーで拠点へ即座に帰還できる。',
+  'Lキーで記憶した装備セットA/Bを切り替えられる。',
+  'Kキーでミュートを切り替えられる。',
+  'F3キーでFPSや座標のデバッグ情報を表示できる。',
+  '装備タブで自分だけの装備セットを2つまで記憶できる。',
 ];
+let loadingTipTimer = null;
 export function setLoadingProgress(pct, text) {
   els.loadingBarFill.style.width = `${Math.round(pct * 100)}%`;
   if (text) els.loadingText.textContent = text;
   const tipEl = document.getElementById('loading-tip');
-  if (tipEl && !tipEl.textContent) {
-    tipEl.textContent = `ヒント: ${LOADING_TIPS[Math.floor(Math.random() * LOADING_TIPS.length)]}`;
+  if (tipEl && !loadingTipTimer) {
+    const showRandomTip = () => {
+      tipEl.textContent = `ヒント: ${LOADING_TIPS[Math.floor(Math.random() * LOADING_TIPS.length)]}`;
+    };
+    showRandomTip();
+    loadingTipTimer = setInterval(showRandomTip, 4000);
   }
 }
 export function hideLoadingScreen() {
   els.loadingScreen.classList.add('hidden');
+  if (loadingTipTimer) { clearInterval(loadingTipTimer); loadingTipTimer = null; }
   setTimeout(() => { els.loadingScreen.style.display = 'none'; }, 600);
 }
