@@ -710,6 +710,7 @@ let afkVolumeReduced = false;
     if (afkVolumeReduced) {
       afkVolumeReduced = false;
       setMasterVolume(state.masterVolume);
+      showToast('おかえりなさい', 'info');
     }
   }, { passive: true });
 });
