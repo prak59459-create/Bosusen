@@ -170,6 +170,13 @@ function pingDirection(candidates, label, emptyMsg) {
   sfx.uiClick();
 }
 
+window.addEventListener('gamepadconnected', (e) => {
+  showToast(`ゲームパッドを接続しました: ${e.gamepad.id}`, 'info');
+});
+window.addEventListener('gamepaddisconnected', () => {
+  showToast('ゲームパッドが切断されました', 'info');
+});
+
 window.addEventListener('keydown', (e) => {
   if (!exploreActive) return;
   if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.forward = true;
