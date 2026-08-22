@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'gltfloader';
 import { scene, toonifyMaterial, addOutline } from './scene.js';
+import { state } from './state.js';
 
 export const player = new THREE.Group();
 player.position.set(-2.6, 0, -1.2);
@@ -84,8 +85,16 @@ companionOrb.visible = false;
 scene.add(companionOrb);
 const companionTrail = new THREE.Vector3();
 export function setCompanionVisible(v) { companionOrb.visible = v; }
+let companionGolden = false;
 export function updateCompanion(t, dt) {
   if (!companionOrb.visible) return;
+  const isCompletionist = (state.achievements || []).includes('completionist');
+  if (isCompletionist !== companionGolden) {
+    companionGolden = isCompletionist;
+    const color = companionGolden ? 0xffd700 : 0x9fe0ff;
+    companionMat.color.setHex(color);
+    companionLight.color.setHex(color);
+  }
   const targetX = player.position.x - Math.sin(player.rotation.y) * 1.6;
   const targetZ = player.position.z - Math.cos(player.rotation.y) * 1.6;
   const targetY = player.position.y + 1.9 + Math.sin(t * 2) * 0.25;
