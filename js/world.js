@@ -1391,6 +1391,77 @@ export function updateSalamanders(t) {
   salamanderMesh.instanceMatrix.needsUpdate = true;
 }
 
+/* ---------- サイバー都市バイオームを巡回する電脳ドローン ---------- */
+const cyberSeeds = BIOME_SEEDS.filter((_, i) => BIOME_DEFS[i].category === 'cyber');
+const DRONE_COUNT = Math.min(50, cyberSeeds.length * 6);
+const droneGeo = new THREE.OctahedronGeometry(0.35, 0);
+const droneMat = new THREE.MeshBasicMaterial({ color: 0x1a2a3a, emissive: 0x44ddff, emissiveIntensity: 1 });
+const droneMesh = new THREE.InstancedMesh(droneGeo, droneMat, DRONE_COUNT);
+const droneData = [];
+for (let i = 0; i < DRONE_COUNT; i++) {
+  const seed = cyberSeeds[i % Math.max(1, cyberSeeds.length)] || { x: 0, z: 0 };
+  droneData.push({
+    centerX: seed.x + (Math.random() - 0.5) * 100,
+    centerZ: seed.z + (Math.random() - 0.5) * 100,
+    radius: 8 + Math.random() * 20,
+    height: 4 + Math.random() * 6,
+    speed: 0.5 + Math.random() * 0.6,
+    phase: Math.random() * Math.PI * 2,
+  });
+}
+worldGroup.add(droneMesh);
+const droneDummy = new THREE.Object3D();
+export function updateDrones(t) {
+  for (let i = 0; i < DRONE_COUNT; i++) {
+    const d = droneData[i];
+    const ang = t * d.speed + d.phase;
+    const x = d.centerX + Math.cos(ang) * d.radius;
+    const z = d.centerZ + Math.sin(ang) * d.radius;
+    const y = d.height + Math.sin(t * 4 + d.phase) * 0.6;
+    droneDummy.position.set(x, y, z);
+    droneDummy.rotation.set(t * 2 + d.phase, t * 1.5, 0);
+    droneDummy.updateMatrix();
+    droneMesh.setMatrixAt(i, droneDummy.matrix);
+  }
+  droneMesh.instanceMatrix.needsUpdate = true;
+}
+
+/* ---------- 結晶バイオームを漂う精霊球 ---------- */
+const crystalSeeds = BIOME_SEEDS.filter((_, i) => BIOME_DEFS[i].category === 'crystal');
+const SPIRIT_COUNT = Math.min(60, crystalSeeds.length * 5);
+const spiritGeo = new THREE.IcosahedronGeometry(0.22, 0);
+const spiritMat = new THREE.MeshBasicMaterial({ color: 0xd0a0ff, transparent: true, opacity: 0.85 });
+const spiritMesh = new THREE.InstancedMesh(spiritGeo, spiritMat, SPIRIT_COUNT);
+const spiritData = [];
+for (let i = 0; i < SPIRIT_COUNT; i++) {
+  const seed = crystalSeeds[i % Math.max(1, crystalSeeds.length)] || { x: 0, z: 0 };
+  const ang0 = Math.random() * Math.PI * 2;
+  const dist0 = Math.random() * 90;
+  spiritData.push({
+    baseX: seed.x + Math.cos(ang0) * dist0,
+    baseZ: seed.z + Math.sin(ang0) * dist0,
+    baseY: 1 + Math.random() * 3,
+    speed: 0.4 + Math.random() * 0.6,
+    radius: 3 + Math.random() * 4,
+    phase: Math.random() * Math.PI * 2,
+  });
+}
+worldGroup.add(spiritMesh);
+const spiritDummy = new THREE.Object3D();
+export function updateSpirits(t) {
+  for (let i = 0; i < SPIRIT_COUNT; i++) {
+    const d = spiritData[i];
+    const x = d.baseX + Math.cos(t * d.speed + d.phase) * d.radius;
+    const z = d.baseZ + Math.sin(t * d.speed * 0.8 + d.phase) * d.radius;
+    const y = d.baseY + Math.sin(t * d.speed * 1.5 + d.phase) * 0.8;
+    spiritDummy.position.set(x, y, z);
+    spiritDummy.rotation.set(t * d.speed, t * d.speed * 1.3, 0);
+    spiritDummy.updateMatrix();
+    spiritMesh.setMatrixAt(i, spiritDummy.matrix);
+  }
+  spiritMesh.instanceMatrix.needsUpdate = true;
+}
+
 /* ---------- 流れ星（時折プレイヤー頭上を横切る） ---------- */
 const STAR_COUNT = 5;
 const starGeo = new THREE.SphereGeometry(0.5, 6, 6);
