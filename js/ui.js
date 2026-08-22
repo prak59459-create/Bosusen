@@ -287,6 +287,12 @@ export function renderStatusTab() {
     const h = Math.floor(totalSec / 3600), m = Math.floor((totalSec % 3600) / 60);
     document.getElementById('st-playtime').textContent = h > 0 ? `${h}時間${m}分` : `${m}分`;
   }
+  {
+    const bestTurns = state.bestTurnsPerChapter || {};
+    const allCleared = CHAPTERS.every(c => bestTurns[c.key] != null);
+    const total = CHAPTERS.reduce((sum, c) => sum + (bestTurns[c.key] || 0), 0);
+    document.getElementById('st-best-turns-total').textContent = allCleared ? `${total}ターン` : '-';
+  }
   document.getElementById('st-quests').textContent = `${totalQuestsDone()} / ${totalQuestsAll()}`;
   document.getElementById('st-biomes').textContent = `${(state.discoveredBiomes || []).length} / 35`;
   document.getElementById('st-fireflies').textContent = state.firefliesCaught || 0;
