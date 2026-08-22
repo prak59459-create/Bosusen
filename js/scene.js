@@ -224,15 +224,18 @@ scene.add(hemi);
 
 const DAY_SKY = new THREE.Color(0xcfe8ff);
 const NIGHT_SKY = new THREE.Color(0x0a0f2a);
+const GOLDEN_SKY = new THREE.Color(0xff9d5c);
 const _cycleColor = new THREE.Color();
 export function updateDayNightCycle(t) {
   const cycle = (Math.sin(t * 0.015) + 1) / 2; // 0=夜, 1=昼。約420秒で1周
   _cycleColor.copy(NIGHT_SKY).lerp(DAY_SKY, cycle);
+  const goldenAmount = Math.max(0, 1 - Math.abs(cycle - 0.42) / 0.18);
+  if (goldenAmount > 0) _cycleColor.lerp(GOLDEN_SKY, goldenAmount * 0.5);
   scene.background = _cycleColor;
   if (scene.fog) scene.fog.color.copy(_cycleColor);
   hemi.intensity = 0.22 + cycle * 0.58;
   dirLight.intensity = 0.35 + cycle * 1.55;
-  dirLight.color.setHSL(0.12, 0.55, 0.42 + cycle * 0.28);
+  dirLight.color.setHSL(0.12 - goldenAmount * 0.03, 0.55 + goldenAmount * 0.2, 0.42 + cycle * 0.28);
 }
 export function isNightTime(t) {
   return (Math.sin(t * 0.015) + 1) / 2 < 0.3;
