@@ -135,6 +135,7 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.sprint = true;
   if (e.code === 'KeyM' && onToggleMap) onToggleMap();
   if (e.code === 'KeyR' && !e.repeat) toggleSprintLock();
+  if (e.code === 'KeyC' && !e.repeat) { camOrbitYaw = 0; camOrbitPitch = 0.42; }
   if (e.code === 'KeyE' && !e.repeat && dashCooldown <= 0 && exploreStamina >= DASH_STAMINA_COST) {
     dashTimer = DASH_DURATION;
     dashCooldown = DASH_COOLDOWN;
