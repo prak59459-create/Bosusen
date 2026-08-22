@@ -457,6 +457,15 @@ mapCanvas.addEventListener('wheel', (e) => {
   mapZoomFactor = Math.max(1, Math.min(4, mapZoomFactor - Math.sign(e.deltaY) * 0.2));
   drawMap();
 }, { passive: false });
+const mapRecenterBtn = document.getElementById('map-recenter-btn');
+if (mapRecenterBtn) {
+  mapRecenterBtn.addEventListener('click', () => {
+    const pLocal = getPlayerLocalPos();
+    mapPanX = -pLocal.x * mapScaleInfo.scale;
+    mapPanY = -pLocal.z * mapScaleInfo.scale;
+    drawMap();
+  });
+}
 const mapZoomInBtn = document.getElementById('map-zoom-in-btn');
 if (mapZoomInBtn) mapZoomInBtn.addEventListener('click', () => { mapZoomFactor = Math.min(4, mapZoomFactor + 0.3); drawMap(); });
 const mapZoomOutBtn = document.getElementById('map-zoom-out-btn');
