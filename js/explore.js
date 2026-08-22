@@ -88,6 +88,8 @@ let stepTimer = 0;
 let speedTrailTimer = 0;
 let gpJumpHeld = false;
 let gpDashHeld = false;
+let gpMapHeld = false;
+let gpCamResetHeld = false;
 let fireflyCheckTimer = 0;
 let camInit = false;
 let objectiveTimer = 0;
@@ -460,6 +462,10 @@ export function updateExplore(dt) {
     const rx = gp.axes[2] || 0, ry = gp.axes[3] || 0;
     if (Math.abs(rx) > 0.2) camOrbitYaw -= rx * dt * 2.5;
     if (Math.abs(ry) > 0.2) camOrbitPitch = Math.max(0.05, Math.min(1.2, camOrbitPitch + ry * dt * 2));
+    if (gp.buttons[9] && gp.buttons[9].pressed && !gpMapHeld) { gpMapHeld = true; if (onToggleMap) onToggleMap(); }
+    if (!(gp.buttons[9] && gp.buttons[9].pressed)) gpMapHeld = false;
+    if (gp.buttons[3] && gp.buttons[3].pressed && !gpCamResetHeld) { gpCamResetHeld = true; camOrbitYaw = 0; camOrbitPitch = 0.42; }
+    if (!(gp.buttons[3] && gp.buttons[3].pressed)) gpCamResetHeld = false;
   }
 
   dashCooldown = Math.max(0, dashCooldown - dt);
