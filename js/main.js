@@ -337,6 +337,27 @@ setOnToggleMap(() => {
   if (mapScreen.style.display === 'flex') closeMap(); else openMap();
 });
 
+let volumeBeforeMute = null;
+document.getElementById('mute-btn').addEventListener('click', () => {
+  const btn = document.getElementById('mute-btn');
+  if (volumeBeforeMute === null) {
+    volumeBeforeMute = state.masterVolume;
+    state.masterVolume = 0;
+    setMasterVolume(0);
+    btn.textContent = '🔇';
+    btn.classList.add('muted');
+  } else {
+    state.masterVolume = volumeBeforeMute;
+    setMasterVolume(volumeBeforeMute);
+    volumeBeforeMute = null;
+    btn.textContent = '🔊';
+    btn.classList.remove('muted');
+  }
+  const volumeSlider = document.getElementById('opt-volume');
+  if (volumeSlider) volumeSlider.value = Math.round(state.masterVolume * 100);
+  saveGame();
+});
+
 function showQuestBoard(chapterIndex) {
   els.storyScreen.style.display = 'none';
   renderQuestBoard(chapterIndex, () => {

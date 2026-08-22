@@ -315,6 +315,16 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 #sprint-lock-btn.active {
   background:rgba(255,215,94,0.9); border-color:rgba(180,140,20,0.5);
 }
+#mute-btn {
+  position:absolute; right: max(18px, env(safe-area-inset-right));
+  bottom: max(152px, env(safe-area-inset-bottom) + 124px);
+  width:52px; height:52px; border-radius:50%; font-size:22px;
+  background:rgba(230,220,250,0.8); border:2px solid rgba(180,140,255,0.4); color:#2a1f3d;
+  pointer-events:auto; cursor:pointer;
+}
+#mute-btn.muted {
+  background:rgba(200,200,200,0.8); border-color:rgba(140,140,140,0.5);
+}
 #explore-stamina-wrap {
   position:absolute; left: max(24px, env(safe-area-inset-left));
   bottom: max(140px, env(safe-area-inset-bottom) + 112px);
