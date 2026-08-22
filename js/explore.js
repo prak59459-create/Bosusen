@@ -23,6 +23,15 @@ let facing = Math.PI; // 進行方向(ラジアン)
 const WALK_SPEED = 14;
 const SPRINT_SPEED = 34;
 const camOffset = new THREE.Vector3(0, 20, 42);
+const CAM_ZOOM_MIN = 20, CAM_ZOOM_MAX = 90, CAM_ZOOM_BASE = 42;
+let camZoomDist = CAM_ZOOM_BASE;
+window.addEventListener('wheel', (e) => {
+  if (!exploreActive) return;
+  camZoomDist = Math.max(CAM_ZOOM_MIN, Math.min(CAM_ZOOM_MAX, camZoomDist + e.deltaY * 0.05));
+  const zoomRatio = camZoomDist / CAM_ZOOM_BASE;
+  camOffset.y = 20 * zoomRatio;
+  camOffset.z = camZoomDist;
+}, { passive: true });
 const camCurrentPos = new THREE.Vector3();
 const camLookTarget = new THREE.Vector3();
 let stepTimer = 0;
