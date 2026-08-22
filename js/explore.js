@@ -255,6 +255,12 @@ window.addEventListener('keydown', (e) => {
       spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6 + i * 0.15, 0)), c, 10);
     });
     showToast(emote.label, 'info');
+    const usedIdx = (emoteIdx - 1) % EMOTES.length;
+    if (!state.emotesUsedSet) state.emotesUsedSet = [];
+    if (!state.emotesUsedSet.includes(usedIdx)) {
+      state.emotesUsedSet.push(usedIdx);
+      checkAchievements().forEach(a => { sfx.achievement(); showCenterMsg(`実績解除: ${a.name}`, '#ffd700', 2000); });
+    }
   }
   if (e.code === 'KeyP' && !e.repeat) {
     const hud = document.getElementById('explore-hud');

@@ -331,4 +331,5 @@ export const ACHIEVEMENTS = [
   { id:'bestiary_complete', name:'図鑑の完成者', desc:'すべてのボスを一度以上撃破する。', reward:60 },
   { id:'star_wisher', name:'星に願いを', desc:'流れ星に累計20回願いごとをする。', reward:30 },
   { id:'photographer', name:'旅の記録者', desc:'スクリーンショットを累計10枚撮影する。', reward:25 },
+  { id:'emote_master', name:'表現豊かな旅人', desc:'すべての種類のエモートを使用する。', reward:20 },
 ];

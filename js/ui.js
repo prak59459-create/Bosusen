@@ -296,6 +296,7 @@ export function renderStatusTab() {
       bestiary_complete: [CHAPTERS.filter(c => (state.chapterClearCounts[c.key] || 0) > 0).length, CHAPTERS.length],
       star_wisher: [state.starWishesMade || 0, 20],
       photographer: [state.screenshotsTaken || 0, 10],
+      emote_master: [(state.emotesUsedSet || []).length, 4],
     };
     let achOrder = ACHIEVEMENTS;
     if (achSortByProgress) {

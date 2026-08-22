@@ -41,6 +41,7 @@ export const state = {
   totalParries: 0,
   starWishesMade: 0,
   screenshotsTaken: 0,
+  emotesUsedSet: [],
   butterfliesCaught: 0,
   achievements: [], // array of unlocked achievement ids
   questProgress: {}, // { chapterKey: { questId: true } }
@@ -228,6 +229,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (CHAPTERS.every(c => (state.chapterClearCounts[c.key] || 0) > 0)) tryUnlock('bestiary_complete');
   if ((state.starWishesMade || 0) >= 20) tryUnlock('star_wisher');
   if ((state.screenshotsTaken || 0) >= 10) tryUnlock('photographer');
+  if ((state.emotesUsedSet || []).length >= 4) tryUnlock('emote_master');
   const otherIds = ACHIEVEMENTS.filter(a => a.id !== 'completionist').map(a => a.id);
   if (otherIds.every(id => state.achievements.includes(id))) tryUnlock('completionist');
   return newly;
@@ -323,6 +325,7 @@ export function saveGame() {
       totalCrits: state.totalCrits,
       starWishesMade: state.starWishesMade,
       screenshotsTaken: state.screenshotsTaken,
+      emotesUsedSet: state.emotesUsedSet,
       totalParries: state.totalParries,
       butterfliesCaught: state.butterfliesCaught,
       achievements: state.achievements,
@@ -393,6 +396,7 @@ export function loadGame() {
       totalCrits: snap.totalCrits || 0,
       starWishesMade: snap.starWishesMade || 0,
       screenshotsTaken: snap.screenshotsTaken || 0,
+      emotesUsedSet: snap.emotesUsedSet || [],
       totalParries: snap.totalParries || 0,
       butterfliesCaught: snap.butterfliesCaught || 0,
       achievements: snap.achievements || [],
