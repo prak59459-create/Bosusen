@@ -766,6 +766,8 @@ export function syncSettingsUI() {
   document.body.classList.toggle('high-contrast', state.highContrast === true);
   const reduceChatterCheckbox = document.getElementById('opt-reduce-chatter');
   if (reduceChatterCheckbox) reduceChatterCheckbox.checked = state.reduceNpcChatter === true;
+  const companionNameInput = document.getElementById('opt-companion-name');
+  if (companionNameInput) companionNameInput.value = state.companionName || 'イリス';
   const sensSlider = document.getElementById('opt-camera-sensitivity');
   if (sensSlider) sensSlider.value = Math.round((state.cameraSensitivity || 1) * 100);
   const sensValLabel = document.getElementById('opt-camera-sensitivity-val');
@@ -900,6 +902,15 @@ export function initMenu(onSave, onTitle) {
   reduceChatterCheckbox.checked = state.reduceNpcChatter === true;
   reduceChatterCheckbox.addEventListener('change', () => {
     state.reduceNpcChatter = reduceChatterCheckbox.checked;
+    sfx.uiClick();
+    saveGame();
+  });
+
+  const companionNameInput = document.getElementById('opt-companion-name');
+  companionNameInput.value = state.companionName || 'イリス';
+  companionNameInput.addEventListener('change', () => {
+    state.companionName = companionNameInput.value.trim() || 'イリス';
+    companionNameInput.value = state.companionName;
     sfx.uiClick();
     saveGame();
   });

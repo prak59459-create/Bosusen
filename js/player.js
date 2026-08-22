@@ -106,7 +106,7 @@ export function updateCompanion(t, dt, sensingTreasure = false) {
     companionLight.color.setHex(color);
     if (wasInitialized && tier > 0) {
       const tierNames = ['', '銅', '銀', '金'];
-      showToast(`相棒オーブが${tierNames[tier]}色に輝き始めた`, 'quest');
+      showToast(`${state.companionName || 'イリス'}が${tierNames[tier]}色に輝き始めた`, 'quest');
     }
   }
   const targetX = player.position.x - Math.sin(player.rotation.y) * 1.6;
