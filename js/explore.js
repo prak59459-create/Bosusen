@@ -46,7 +46,8 @@ function spawnFootprint(pos, rotY, category) {
     pos.z - Math.sin(rotY) * 0.18 * footSide
   );
   scene.add(mesh);
-  footprints.push({ mesh, life: 0, maxLife: 6 });
+  const maxLife = category === 'snow' ? 16 : (category === 'volcanic' ? 3 : 6);
+  footprints.push({ mesh, life: 0, maxLife });
 }
 function updateFootprints(dt) {
   for (let i = footprints.length - 1; i >= 0; i--) {
