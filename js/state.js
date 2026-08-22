@@ -36,6 +36,7 @@ export const state = {
   unlockedSkills: [], // array of skill ids
   foundTreasures: [], // array of hidden treasure ids collected
   discoveredBiomes: [], // array of discovered biome names
+  firefliesCaught: 0,
   achievements: [], // array of unlocked achievement ids
   questProgress: {}, // { chapterKey: { questId: true } }
   fieldQuests: {}, // { questId: 'accepted' | 'ready_turnin' }
@@ -203,6 +204,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (totalQuestsDone() >= totalQuestsAll()) tryUnlock('quest_complete');
   if (state.discoveredBiomes.length >= 10) tryUnlock('biome_explorer');
   if (state.discoveredBiomes.length >= 35) tryUnlock('biome_master');
+  if (state.firefliesCaught >= 50) tryUnlock('firefly_catcher');
   const otherIds = ACHIEVEMENTS.filter(a => a.id !== 'completionist').map(a => a.id);
   if (otherIds.every(id => state.achievements.includes(id))) tryUnlock('completionist');
   return newly;
@@ -294,6 +296,7 @@ export function saveGame() {
       unlockedSkills: state.unlockedSkills,
       foundTreasures: state.foundTreasures,
       discoveredBiomes: state.discoveredBiomes,
+      firefliesCaught: state.firefliesCaught,
       achievements: state.achievements,
       questProgress: state.questProgress,
       fieldQuests: state.fieldQuests,
@@ -347,6 +350,7 @@ export function loadGame() {
       unlockedSkills: snap.unlockedSkills || [],
       foundTreasures: snap.foundTreasures || [],
       discoveredBiomes: snap.discoveredBiomes || [],
+      firefliesCaught: snap.firefliesCaught || 0,
       achievements: snap.achievements || [],
       questProgress: snap.questProgress || {},
       fieldQuests: snap.fieldQuests || {},

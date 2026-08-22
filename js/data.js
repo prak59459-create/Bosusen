@@ -322,4 +322,5 @@ export const ACHIEVEMENTS = [
   { id:'pilgrim',      name:'大陸の巡礼者',   desc:'累計50,000m以上を踏破する。', reward:60 },
   { id:'biome_explorer', name:'大陸の地理学者', desc:'10種類のバイオームを発見する。', reward:35 },
   { id:'biome_master', name:'万象の踏破者',   desc:'すべてのバイオームを発見する。', reward:80 },
+  { id:'firefly_catcher', name:'蛍集めの名手', desc:'蛍を累計50匹捕まえる。', reward:30 },
 ];

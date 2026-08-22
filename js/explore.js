@@ -454,9 +454,12 @@ export function updateExplore(dt) {
     const caught = collectNearbyFireflies(localPos.x, localPos.z, 2.5);
     if (caught > 0) {
       addShards(caught * 2);
+      state.firefliesCaught = (state.firefliesCaught || 0) + caught;
       sfx.shardGet();
       spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.2, 0)), 0xbdffa0, 6 * caught);
       showToast(`蛍を捕まえた！ 結晶の欠片 +${caught * 2}`, 'quest');
+      checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
+      saveGame();
     }
   }
 
