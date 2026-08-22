@@ -6,9 +6,9 @@ import { spawnEnemy } from './enemy.js';
 import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles } from './effects.js';
 import { resumeAudio, sfx, setMasterVolume, setRainIntensity, setBiomeDrone } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
-import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, computeStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, totalQuestsDone, totalQuestsAll } from './state.js';
+import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, addShards, computeStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, totalQuestsDone, totalQuestsAll } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
-  renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, syncSettingsUI, openMenu, closeMenu } from './ui.js';
+  renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, showCenterMsg, syncSettingsUI, openMenu, closeMenu } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
 import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt, triggerLightning, updateLightning, updateButterflies, updateScorpions, updateFoxes, updateFrogs, updateCrows, updateSalamanders, updateDrones, updateSpirits, triggerRainbow, updateRainbow, updateHubSparks, updateGuideBeams } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
@@ -643,7 +643,15 @@ function animate() {
     updateCompanion(t, dt);
     updateDayNightCycle(t);
     const dayCounterEl = document.getElementById('day-counter');
-    if (dayCounterEl) dayCounterEl.textContent = `${isNightTime(t) ? '🌙' : '☀️'} Day ${getDayCount(t)}`;
+    const curDay = getDayCount(t);
+    if (dayCounterEl) dayCounterEl.textContent = `${isNightTime(t) ? '🌙' : '☀️'} Day ${curDay}`;
+    if (curDay > (state.lastBlessingDay || 0)) {
+      state.lastBlessingDay = curDay;
+      const blessing = 20 + Math.floor(Math.random() * 30);
+      addShards(blessing);
+      showCenterMsg(`本日の祝福！ +${blessing}シャード`, '#ffd700', 1800);
+      sfx.pickup();
+    }
     const lp = getPlayerLocalPos();
     updateLeaves(t, lp.x, lp.z);
     updateShootingStars(t, dt, lp.x, lp.z, isNightTime(t));
