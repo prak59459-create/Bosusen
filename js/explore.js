@@ -295,10 +295,12 @@ export function enterExploreMode(spawnLocal) {
     if (t.beam) t.beam.visible = !found;
   });
   fieldTargets.forEach(t => {
-    if (isQuestDone(CHAPTERS[t.chapterIndex].key, t.questId) || fieldQuestState(t.questId) === 'ready_turnin') {
+    const done = isQuestDone(CHAPTERS[t.chapterIndex].key, t.questId) || fieldQuestState(t.questId) === 'ready_turnin';
+    if (done) {
       t.material.emissiveIntensity = 0.1;
       t.light.intensity = 0.2;
     }
+    if (t.beam) t.beam.visible = !done;
   });
   camInit = false;
   document.getElementById('explore-hud').style.display = 'flex';

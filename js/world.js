@@ -862,6 +862,10 @@ CHAPTERS.forEach((chapter, i) => {
     const targetLight = new THREE.PointLight(0xff4444, 2, 16, 2);
     targetLight.position.set(targetLocal.x, 2.5, targetLocal.z);
     worldGroup.add(targetLight);
+    const targetBeamMat = new THREE.MeshBasicMaterial({ color: 0xff4444, transparent: true, opacity: 0.22, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false });
+    const targetBeam = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.08, 70, 8, 1, true), targetBeamMat);
+    targetBeam.position.set(targetLocal.x, 35, targetLocal.z);
+    worldGroup.add(targetBeam);
 
     questGivers.push({
       chapterIndex: i,
@@ -883,6 +887,7 @@ CHAPTERS.forEach((chapter, i) => {
       radius: 6,
       hp: 30 + i * 12,
       distanceFromZone: FIELD_TARGET_DIST,
+      beam: targetBeam,
     });
   }
 
