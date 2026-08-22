@@ -378,7 +378,7 @@ export function playerAction(type) {
       if (!state.playing) return;
       const crit = rollCrit(stats.crit);
       let dmg = Math.round((rand(8, 15) + stats.atk * 0.5) * comboMult);
-      if (crit) { dmg = Math.round(dmg * (1.5 + (stats.critDmgPct || 0))); triggerCritFlash(); }
+      if (crit) { dmg = Math.round(dmg * (1.5 + (stats.critDmgPct || 0))); triggerCritFlash(); state.totalCrits = (state.totalCrits || 0) + 1; }
       state.bossHP -= dmg;
       gainCombo();
       updateBars();
@@ -403,7 +403,7 @@ export function playerAction(type) {
       if (success) {
         const crit = rollCrit(stats.crit);
         let dmg = Math.round((rand(20, 32) + stats.atk) * comboMult);
-        if (crit) { dmg = Math.round(dmg * (1.5 + (stats.critDmgPct || 0))); triggerCritFlash(); }
+        if (crit) { dmg = Math.round(dmg * (1.5 + (stats.critDmgPct || 0))); triggerCritFlash(); state.totalCrits = (state.totalCrits || 0) + 1; }
         state.bossHP -= dmg;
         gainCombo();
         updateBars();
@@ -451,7 +451,7 @@ export function playerAction(type) {
         orb.material.dispose();
         const crit = rollCrit(stats.crit);
         let dmg = Math.round((rand(30, 45) + stats.atk) * comboMult);
-        if (crit) { dmg = Math.round(dmg * (1.5 + (stats.critDmgPct || 0))); triggerCritFlash(); }
+        if (crit) { dmg = Math.round(dmg * (1.5 + (stats.critDmgPct || 0))); triggerCritFlash(); state.totalCrits = (state.totalCrits || 0) + 1; }
         state.bossHP -= dmg;
         gainCombo();
         updateBars();

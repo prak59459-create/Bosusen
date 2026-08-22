@@ -324,4 +324,5 @@ export const ACHIEVEMENTS = [
   { id:'biome_master', name:'万象の踏破者',   desc:'すべてのバイオームを発見する。', reward:80 },
   { id:'firefly_catcher', name:'蛍集めの名手', desc:'蛍を累計50匹捕まえる。', reward:30 },
   { id:'butterfly_catcher', name:'蝶を追う者',  desc:'蝶を累計50匹捕まえる。', reward:30 },
+  { id:'crit_master', name:'会心の刃',         desc:'クリティカルヒットを累計100回発生させる。', reward:45 },
 ];
