@@ -292,6 +292,7 @@ export function renderStatusTab() {
       dedicated_player: [Math.round(state.totalPlaytimeSec || 0), 3600],
       true_resident: [Math.round(state.totalPlaytimeSec || 0), 18000],
       bestiary_complete: [CHAPTERS.filter(c => (state.chapterClearCounts[c.key] || 0) > 0).length, CHAPTERS.length],
+      star_wisher: [state.starWishesMade || 0, 20],
     };
     let achOrder = ACHIEVEMENTS;
     if (achSortByProgress) {

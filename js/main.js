@@ -671,8 +671,10 @@ function animate() {
     const starWish = updateShootingStars(t, dt, lp.x, lp.z, isNightTime(t));
     if (starWish) {
       addShards(15);
+      state.starWishesMade = (state.starWishesMade || 0) + 1;
       showToast('流れ星に願いを込めた… +15シャード', 'quest');
       sfx.shardGet();
+      checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
     }
     const isRaining = updateRain(t, dt, lp.x, lp.z);
     setRainIntensity(isRaining ? 1 : 0);
