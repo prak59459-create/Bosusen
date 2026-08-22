@@ -634,6 +634,8 @@ export function startBattlePhase() {
     tips.forEach((tip, i) => {
       setTimeout(() => showToast(tip, 'info'), 1500 + i * 2800);
     });
+  } else if (chapter.battleTip && (state.chapterClearCounts[chapter.key] || 0) > 0) {
+    setTimeout(() => showToast(`💡 ${chapter.battleTip}`, 'info'), 1800);
   }
 }
 
