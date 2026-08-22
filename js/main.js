@@ -453,6 +453,11 @@ mapCanvas.addEventListener('wheel', (e) => {
   mapZoomFactor = Math.max(1, Math.min(4, mapZoomFactor - Math.sign(e.deltaY) * 0.2));
   drawMap();
 }, { passive: false });
+mapCanvas.addEventListener('dblclick', (e) => {
+  e.preventDefault();
+  mapZoomFactor = 1;
+  drawMap();
+});
 mapCanvas.addEventListener('click', (e) => {
   if (!exploreActive) return;
   const rect = mapCanvas.getBoundingClientRect();
