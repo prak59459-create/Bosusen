@@ -269,6 +269,8 @@ export function renderStatusTab() {
       butterfly_catcher: [state.butterfliesCaught || 0, 50],
       crit_master: [state.totalCrits || 0, 100],
       parry_master: [state.totalParries || 0, 30],
+      quest_complete: [totalQuestsDone(), totalQuestsAll()],
+      veteran_hunter: [Math.max(0, ...Object.values(state.chapterClearCounts || {}), 0), 5],
     };
     ACHIEVEMENTS.forEach(a => {
       const unlocked = state.achievements.includes(a.id);
