@@ -423,6 +423,7 @@ export function playerAction(type) {
   setButtonsEnabled(false);
   state.guarding = false;
   state.turns++;
+  if (state.turns === 20) showToast('長期戦になっている……集中力を切らさずに攻め続けよう', 'info');
 
   const stats = computeStats();
   const comboMult = (1 + Math.min(state.combo, 8) * 0.08) * levelStatsFor(state.level).dmgMult;
