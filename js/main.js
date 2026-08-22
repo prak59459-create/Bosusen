@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { camera, composer, camFittedPos, camLookAt, mountRenderer, torchFires, bossGlow, setQualityPreset, updateDayNightCycle, isNightTime, isLowQuality, getDayCount } from './scene.js';
+import { camera, composer, camFittedPos, camLookAt, mountRenderer, torchFires, bossGlow, setQualityPreset, updateDayNightCycle, isNightTime, isLowQuality, getDayCount, getTimeOfDayLabel } from './scene.js';
 import { player, loadPlayerModel, playerMixer, playerReady, setCompanionVisible, updateCompanion } from './player.js';
 import * as EnemyModule from './enemy.js';
 import { spawnEnemy } from './enemy.js';
@@ -667,7 +667,7 @@ function animate() {
     updateDayNightCycle(t);
     const dayCounterEl = document.getElementById('day-counter');
     const curDay = getDayCount(t);
-    if (dayCounterEl) dayCounterEl.textContent = `${isNightTime(t) ? '🌙' : '☀️'} Day ${curDay}`;
+    if (dayCounterEl) dayCounterEl.textContent = `${isNightTime(t) ? '🌙' : '☀️'} Day ${curDay} ・${getTimeOfDayLabel(t)}`;
     if (curDay > (state.lastBlessingDay || 0)) {
       state.lastBlessingDay = curDay;
       const blessing = 20 + Math.floor(Math.random() * 30);

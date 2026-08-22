@@ -241,6 +241,13 @@ const DAY_PERIOD = (Math.PI * 2) / 0.015;
 export function getDayCount(t) {
   return Math.floor(t / DAY_PERIOD) + 1;
 }
+export function getTimeOfDayLabel(t) {
+  const cycle = (Math.sin(t * 0.015) + 1) / 2;
+  const rising = Math.cos(t * 0.015) < 0;
+  if (cycle < 0.3) return '夜';
+  if (cycle < 0.55) return rising ? '明け方' : '夕暮れ';
+  return '昼';
+}
 export const dirLight = new THREE.DirectionalLight(0xfff6e0, 1.8);
 dirLight.position.set(6, 13, 7);
 dirLight.castShadow = true;
