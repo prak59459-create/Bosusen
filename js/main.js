@@ -666,7 +666,12 @@ function animate() {
 animate();
 
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden' && (exploreActive || state.playing)) saveGame();
+  if (document.visibilityState === 'hidden') {
+    if (exploreActive || state.playing) saveGame();
+    setMasterVolume(0);
+  } else {
+    setMasterVolume(state.masterVolume);
+  }
 });
 
 window.addEventListener('keydown', (e) => {
