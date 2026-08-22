@@ -170,6 +170,15 @@ function finishGame(won) {
   if (won) {
     sfx.victory();
     showCenterMsg('VICTORY!', '#5fd35f', 2000);
+    const defeatBanner = document.getElementById('boss-intro-banner');
+    if (defeatBanner) {
+      defeatBanner.querySelector('.boss-intro-name').textContent = chapter.enemyName;
+      defeatBanner.querySelector('.boss-intro-sub').textContent = '撃破';
+      defeatBanner.classList.remove('show');
+      void defeatBanner.offsetWidth;
+      defeatBanner.classList.add('show');
+      setTimeout(() => { defeatBanner.querySelector('.boss-intro-sub').textContent = '討伐対象'; }, 3300);
+    }
     crossfadeTo('Idle', 0.4);
     spawnShockwave(player.position.clone().add(new THREE.Vector3(0, 1.4, 0)), 0x5fd35f);
     [0xffd700, 0x5fd35f, 0x9fe0ff].forEach((c, i) => {
