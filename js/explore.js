@@ -87,6 +87,7 @@ const camLookTarget = new THREE.Vector3();
 let stepTimer = 0;
 let speedTrailTimer = 0;
 let gpJumpHeld = false;
+let gpDashHeld = false;
 let fireflyCheckTimer = 0;
 let camInit = false;
 let objectiveTimer = 0;
@@ -125,6 +126,15 @@ function toggleSprintLock() {
   if (ind) ind.style.display = sprintLock ? 'block' : 'none';
   const btn = document.getElementById('sprint-lock-btn');
   if (btn) btn.classList.toggle('active', sprintLock);
+}
+
+function doDash() {
+  if (dashCooldown > 0 || exploreStamina < DASH_STAMINA_COST) return;
+  dashTimer = DASH_DURATION;
+  dashCooldown = DASH_COOLDOWN;
+  exploreStamina -= DASH_STAMINA_COST;
+  sfx.dodgeSuccess();
+  spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1, 0)), 0x9fe0ff, 12);
 }
 
 function doJump() {
@@ -184,13 +194,7 @@ window.addEventListener('keydown', (e) => {
     const unfinished = zoneMarkers.filter(z => z.chapterIndex >= state.chapterIndex);
     pingDirection(unfinished, '聖域', 'すべての聖域を制覇済みです');
   }
-  if (e.code === 'KeyE' && !e.repeat && dashCooldown <= 0 && exploreStamina >= DASH_STAMINA_COST) {
-    dashTimer = DASH_DURATION;
-    dashCooldown = DASH_COOLDOWN;
-    exploreStamina -= DASH_STAMINA_COST;
-    sfx.dodgeSuccess();
-    spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1, 0)), 0x9fe0ff, 12);
-  }
+  if (e.code === 'KeyE' && !e.repeat) doDash();
   if (e.code === 'KeyF' && !e.repeat) {
     sfx.achievement();
     const colors = [0xffd700, 0xff6a9f, 0x66eaff, 0x9fff7a];
@@ -450,7 +454,12 @@ export function updateExplore(dt) {
     if (Math.abs(gy) > deadzone) mz += gy;
     if (gp.buttons[0] && gp.buttons[0].pressed && !gpJumpHeld) { gpJumpHeld = true; doJump(); }
     if (!(gp.buttons[0] && gp.buttons[0].pressed)) gpJumpHeld = false;
+    if (gp.buttons[1] && gp.buttons[1].pressed && !gpDashHeld) { gpDashHeld = true; doDash(); }
+    if (!(gp.buttons[1] && gp.buttons[1].pressed)) gpDashHeld = false;
     keys.sprint = keys.sprint || (gp.buttons[10] && gp.buttons[10].pressed);
+    const rx = gp.axes[2] || 0, ry = gp.axes[3] || 0;
+    if (Math.abs(rx) > 0.2) camOrbitYaw -= rx * dt * 2.5;
+    if (Math.abs(ry) > 0.2) camOrbitPitch = Math.max(0.05, Math.min(1.2, camOrbitPitch + ry * dt * 2));
   }
 
   dashCooldown = Math.max(0, dashCooldown - dt);
