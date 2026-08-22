@@ -162,6 +162,10 @@ window.addEventListener('keydown', (e) => {
     const active = fieldTargets.filter(f => !(isQuestDone(CHAPTERS[f.chapterIndex].key, f.questId) || fieldQuestState(f.questId) === 'ready_turnin'));
     pingDirection(active, '討伐目標', '現在受注中の討伐目標はありません');
   }
+  if (e.code === 'KeyQ' && !e.repeat) {
+    const undone = questGivers.filter(g => !isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId));
+    pingDirection(undone, 'クエスト依頼人', 'すべての依頼人のクエストを達成済みです');
+  }
   if (e.code === 'KeyE' && !e.repeat && dashCooldown <= 0 && exploreStamina >= DASH_STAMINA_COST) {
     dashTimer = DASH_DURATION;
     dashCooldown = DASH_COOLDOWN;
