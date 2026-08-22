@@ -686,7 +686,7 @@ export function initMenu(onSave, onTitle) {
     state.masterVolume = volumeSlider.value / 100;
     setMasterVolume(state.masterVolume);
   });
-  volumeSlider.addEventListener('change', () => saveGame());
+  volumeSlider.addEventListener('change', () => { saveGame(); sfx.uiClick(); });
 
   const shakeCheckbox = document.getElementById('opt-shake');
   shakeCheckbox.checked = state.screenShake !== false;
