@@ -396,6 +396,13 @@ function takeScreenshot() {
         link.click();
         document.body.removeChild(link);
         sfx.uiClick();
+        const previewEl = document.getElementById('screenshot-preview');
+        if (previewEl) {
+          previewEl.src = dataUrl;
+          previewEl.classList.add('show');
+          clearTimeout(previewEl._hideTimer);
+          previewEl._hideTimer = setTimeout(() => previewEl.classList.remove('show'), 2500);
+        }
         const timeLabel = getTimeOfDayLabel(currentAbsTime);
         if (timeLabel === '明け方' || timeLabel === '夕暮れ') {
           addShards(10);
