@@ -7,7 +7,7 @@ import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTar
 import { CHAPTERS } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
   fieldQuestState, acceptFieldQuest, saveGame, checkAchievements } from './state.js';
-import { showToast, renderQuestTracker } from './ui.js';
+import { showToast, renderQuestTracker, showCenterMsg } from './ui.js';
 import { sfx, startAmbientWind, stopAmbientWind } from './audio.js';
 import { startSkirmish, isSkirmishActive } from './skirmish.js';
 
@@ -412,7 +412,7 @@ function tryTurnInOrAccept(giver) {
     if (giver.quest.reward.itemId) addItem(giver.quest.reward.itemId);
     sfx.questDone();
     showToast(`クエスト達成: ${giver.quest.title}（結晶の欠片 +${giver.quest.reward.shards}）`, 'quest');
-    checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
+    checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
     if (giver.beam) giver.beam.visible = false;
     renderQuestTracker();
     saveGame();
@@ -446,7 +446,7 @@ function tryCollectPickup(pickup) {
   if (pickup.quest.reward.itemId) addItem(pickup.quest.reward.itemId);
   sfx.shardGet();
   showToast(`クエスト達成: ${pickup.quest.title}｜${pickup.quest.result}`, 'quest');
-  checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
+  checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
   pickup.mesh.visible = false;
   if (pickup.beam) pickup.beam.visible = false;
   renderQuestTracker();
@@ -461,7 +461,7 @@ function tryCollectTreasure(t) {
   showToast(`結晶の秘宝を発見！ 結晶の欠片 +${t.shardReward}`, 'quest');
   t.mesh.visible = false;
   if (t.beam) t.beam.visible = false;
-  checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
+  checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
   saveGame();
 }
 
@@ -472,7 +472,7 @@ function tryReadLore(monu) {
   addShards(monu.quest.reward.shards);
   sfx.questDone();
   showToast(`クエスト達成: ${monu.quest.title}｜${monu.quest.result}`, 'quest');
-  checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
+  checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
   if (monu.beam) monu.beam.visible = false;
   renderQuestTracker();
   saveGame();
@@ -613,7 +613,7 @@ export function updateExplore(dt) {
   periodicAchCheckTimer -= dt;
   if (periodicAchCheckTimer <= 0) {
     periodicAchCheckTimer = 30;
-    checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
+    checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
     saveGame();
   }
 
@@ -647,7 +647,7 @@ export function updateExplore(dt) {
       sfx.shardGet();
       spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.2, 0)), 0xbdffa0, 6 * caught);
       showToast(`蛍を捕まえた！ 結晶の欠片 +${caught * 2}`, 'quest');
-      checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
+      checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
       saveGame();
     }
     const caughtB = collectNearbyButterflies(localPos.x, localPos.z, 2.2);
@@ -657,7 +657,7 @@ export function updateExplore(dt) {
       sfx.shardGet();
       spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.2, 0)), 0xff9fd0, 5 * caughtB);
       showToast(`蝶を捕まえた！ 結晶の欠片 +${caughtB}`, 'quest');
-      checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
+      checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
       saveGame();
     }
   }
@@ -675,7 +675,7 @@ export function updateExplore(dt) {
           spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.4 + i * 0.15, 0)), c, 8);
         });
         showToast(`新しいバイオーム発見: ${name}（${state.discoveredBiomes.length}/35） 結晶の欠片+5`, 'quest');
-        checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
+        checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
         saveGame();
       } else {
         showToast(`${name} に入った`, 'quest');
@@ -779,7 +779,7 @@ export function updateExplore(dt) {
   if (objectiveTimer <= 0) {
     objectiveTimer = 0.5;
     updateNearestObjective();
-    checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
+    checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
   }
 }
 
