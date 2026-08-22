@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'gltfloader';
 import { scene, toonifyMaterial, addOutline } from './scene.js';
 import { state } from './state.js';
+import { showToast } from './ui.js';
 
 export const player = new THREE.Group();
 player.position.set(-2.6, 0, -1.2);
@@ -98,10 +99,15 @@ export function updateCompanion(t, dt, sensingTreasure = false) {
   if (!companionOrb.visible) return;
   const tier = companionTierFor();
   if (tier !== companionTier) {
+    const wasInitialized = companionTier !== -1;
     companionTier = tier;
     const color = COMPANION_TIER_COLOR[tier];
     companionMat.color.setHex(color);
     companionLight.color.setHex(color);
+    if (wasInitialized && tier > 0) {
+      const tierNames = ['', '銅', '銀', '金'];
+      showToast(`相棒オーブが${tierNames[tier]}色に輝き始めた`, 'quest');
+    }
   }
   const targetX = player.position.x - Math.sin(player.rotation.y) * 1.6;
   const targetZ = player.position.z - Math.cos(player.rotation.y) * 1.6;
