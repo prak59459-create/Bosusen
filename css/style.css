@@ -560,3 +560,11 @@ body.high-contrast .quest-tracker, body.high-contrast #biome-label {
   letter-spacing: 0.05em; border-bottom: 1px solid rgba(150,100,220,0.25); padding-bottom: 4px;
 }
 .settings-section-title:first-child { margin-top: 0; }
+
+#photo-grid-overlay {
+  position: fixed; inset: 0; z-index: 60; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.35) 1px, transparent 1px);
+  background-size: 33.333% 33.333%;
+}

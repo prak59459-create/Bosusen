@@ -342,6 +342,14 @@ window.addEventListener('keydown', (e) => {
   if (['Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(e.code) && !e.repeat) {
     playEmote(parseInt(e.code.slice(-1), 10) - 1);
   }
+  if (e.code === 'KeyO' && !e.repeat) {
+    const gridEl = document.getElementById('photo-grid-overlay');
+    if (gridEl) {
+      const showing = gridEl.style.display === 'block';
+      gridEl.style.display = showing ? 'none' : 'block';
+      showToast(showing ? '構図グリッドを非表示' : '構図グリッドを表示（三分割法）', 'info');
+    }
+  }
   if (e.code === 'KeyP' && !e.repeat) takeScreenshot();
   if (e.code === 'Space' && !e.repeat) doJump();
 });
@@ -350,6 +358,9 @@ function takeScreenshot() {
   const hud = document.getElementById('explore-hud');
   const hadHidden = hud && hud.classList.contains('hidden');
   if (hud && !hadHidden) hud.classList.add('photo-capture-hide');
+  const gridEl = document.getElementById('photo-grid-overlay');
+  const gridWasShown = gridEl && gridEl.style.display === 'block';
+  if (gridWasShown) gridEl.style.display = 'none';
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       try {
@@ -373,6 +384,7 @@ function takeScreenshot() {
         console.error('スクリーンショットの保存に失敗', err);
       } finally {
         if (hud && !hadHidden) hud.classList.remove('photo-capture-hide');
+        if (gridWasShown) gridEl.style.display = 'block';
       }
     });
   });
