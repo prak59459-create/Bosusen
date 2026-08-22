@@ -879,6 +879,16 @@ export function initMenu(onSave, onTitle) {
     saveGame();
   });
 
+  const heartbeatTestBtn = document.getElementById('heartbeat-test-btn');
+  if (heartbeatTestBtn) {
+    heartbeatTestBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (state.lowHpHeartbeat === false) { showToast('「HP危険時の心拍音」が無効なため再生されません', 'info'); return; }
+      setHeartbeatActive(true);
+      setTimeout(() => setHeartbeatActive(false), 2700);
+    });
+  }
+
   const flashingCheckbox = document.getElementById('opt-reduce-flashing');
   flashingCheckbox.checked = state.reduceFlashing === true;
   flashingCheckbox.addEventListener('change', () => {
