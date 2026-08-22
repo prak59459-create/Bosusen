@@ -466,7 +466,7 @@ setOnToggleMap(() => {
 });
 
 let volumeBeforeMute = null;
-document.getElementById('mute-btn').addEventListener('click', () => {
+function toggleMute() {
   const btn = document.getElementById('mute-btn');
   if (volumeBeforeMute === null) {
     volumeBeforeMute = state.masterVolume;
@@ -484,6 +484,10 @@ document.getElementById('mute-btn').addEventListener('click', () => {
   const volumeSlider = document.getElementById('opt-volume');
   if (volumeSlider) volumeSlider.value = Math.round(state.masterVolume * 100);
   saveGame();
+}
+document.getElementById('mute-btn').addEventListener('click', toggleMute);
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'KeyK' && !e.repeat) toggleMute();
 });
 
 const qbUndoneFilterEl = document.getElementById('qb-undone-filter');
