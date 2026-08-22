@@ -48,6 +48,14 @@ function gainCombo() {
   }
 }
 
+function flashDenied(btnId) {
+  const el = document.getElementById(btnId);
+  if (!el) return;
+  el.classList.remove('denied');
+  void el.offsetWidth;
+  el.classList.add('denied');
+}
+
 function rollCrit(critPct) {
   return Math.random() * 100 < critPct;
 }
@@ -382,18 +390,21 @@ export function playerAction(type) {
     log('スタミナが足りない！');
     showToast('スタミナが足りません', 'info');
     sfx.dodgeFail();
+    flashDenied('btn-heavy');
     return;
   }
   if (type === 'skill' && (state.playerMP < 25 || state.skillCooldown > 0)) {
     log('結晶技は使えない！');
     showToast(state.skillCooldown > 0 ? '結晶技はクールダウン中です' : 'エーテルが足りません', 'info');
     sfx.dodgeFail();
+    flashDenied('btn-skill');
     return;
   }
   if (type === 'heal' && state.healUses <= 0) {
     log('回復はもう使えない！');
     showToast('回復の使用回数がありません', 'info');
     sfx.dodgeFail();
+    flashDenied('btn-heal');
     return;
   }
 
