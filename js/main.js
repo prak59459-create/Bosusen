@@ -36,6 +36,17 @@ window.addEventListener('keydown', (e) => {
     const debugEl = document.getElementById('debug-overlay');
     if (debugEl) debugEl.style.display = debugOverlayVisible ? 'block' : 'none';
   }
+  if (e.code === 'F4' && !e.repeat) {
+    e.preventDefault();
+    const order = ['high', 'medium', 'low'];
+    const idx = order.indexOf(state.quality || 'high');
+    state.quality = order[(idx + 1) % order.length];
+    setQualityPreset(state.quality);
+    const qSelect = document.getElementById('opt-quality');
+    if (qSelect) qSelect.value = state.quality;
+    showToast(`グラフィック品質: ${state.quality.toUpperCase()}`, 'info');
+    saveGame();
+  }
 });
 let debugOverlayVisible = false;
 
