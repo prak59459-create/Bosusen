@@ -574,6 +574,9 @@ export function enterExploreMode(spawnLocal) {
 
 export function exitExploreMode() {
   exploreActive = false;
+  cinematicIdleTime = 0;
+  const hudEl = document.getElementById('explore-hud');
+  if (hudEl) hudEl.classList.remove('cinematic-fade');
   stopAmbientWind();
   setCameraMode('battle');
   fovKickCur = 0;
@@ -685,6 +688,7 @@ function tryReadLore(monu) {
 }
 
 let currentAbsTime = 0;
+let cinematicIdleTime = 0;
 export function updateExplore(dt, absTime = 0, isRaining = false) {
   currentAbsTime = absTime;
   updateFootprints(dt);
@@ -760,6 +764,19 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
     mx = Math.sin(facing); mz = Math.cos(facing);
     len = 1;
     moving = true;
+  }
+  if (state.cinematicAutoHide) {
+    if (moving || dashing) {
+      cinematicIdleTime = 0;
+      const hudEl = document.getElementById('explore-hud');
+      if (hudEl) hudEl.classList.remove('cinematic-fade');
+    } else {
+      cinematicIdleTime += dt;
+      if (cinematicIdleTime > 8) {
+        const hudEl = document.getElementById('explore-hud');
+        if (hudEl) hudEl.classList.add('cinematic-fade');
+      }
+    }
   }
   const sprinting = keys.sprint && exploreStamina > 0.5 && moving && !dashing;
   const speed = dashing ? DASH_SPEED : (sprinting ? SPRINT_SPEED : WALK_SPEED);
