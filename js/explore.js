@@ -847,4 +847,5 @@ function updateNearestObjective() {
 export function getExploreLocalPos() { return localPos; }
 export function setExploreLocalPos(v) { localPos.copy(v); }
 export function getPlayerLocalPos() { return localPos; }
+export function getPlayerFacing() { return facing; }
 export function getZoneMarkersRef() { return zoneMarkers; }

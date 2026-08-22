@@ -12,7 +12,7 @@ import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQues
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
 import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt, triggerLightning, updateLightning, updateButterflies, updateScorpions, updateFoxes, updateFrogs, updateCrows, updateSalamanders, updateDrones, updateSpirits, triggerRainbow, updateRainbow, updateHubSparks, updateGuideBeams } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
-  setOnOpenShop, setOnToggleMap, getPlayerLocalPos, exploreActive, setMapOpen, setExploreLocalPos } from './explore.js';
+  setOnOpenShop, setOnToggleMap, getPlayerLocalPos, exploreActive, setMapOpen, setExploreLocalPos, getPlayerFacing } from './explore.js';
 import { initSkirmishUI, resetSkirmish } from './skirmish.js';
 
 mountRenderer();
@@ -205,13 +205,18 @@ function drawRadar() {
   radarCtx.fillText('E', w - 12, cy);
   radarCtx.fillText('W', 12, cy);
 
+  const facing = getPlayerFacing();
+  radarCtx.save();
+  radarCtx.translate(cx, cy);
+  radarCtx.rotate(facing);
   radarCtx.beginPath();
-  radarCtx.moveTo(cx, cy - 6);
-  radarCtx.lineTo(cx - 5, cy + 5);
-  radarCtx.lineTo(cx + 5, cy + 5);
+  radarCtx.moveTo(0, -6);
+  radarCtx.lineTo(-5, 5);
+  radarCtx.lineTo(5, 5);
   radarCtx.closePath();
   radarCtx.fillStyle = '#3d2f5c';
   radarCtx.fill();
+  radarCtx.restore();
 }
 
 let mapScaleInfo = { scale: 1, cx: 0, cy: 0 };
