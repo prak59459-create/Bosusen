@@ -657,6 +657,8 @@ export function syncSettingsUI() {
   if (flashingCheckbox) flashingCheckbox.checked = state.reduceFlashing === true;
   const invertYCheckbox = document.getElementById('opt-invert-camera-y');
   if (invertYCheckbox) invertYCheckbox.checked = state.invertCameraY === true;
+  const sensSlider = document.getElementById('opt-camera-sensitivity');
+  if (sensSlider) sensSlider.value = Math.round((state.cameraSensitivity || 1) * 100);
   const textScaleSelect = document.getElementById('opt-text-scale');
   if (textScaleSelect) textScaleSelect.value = state.uiTextScale || 1;
   applyUiTextScale(state.uiTextScale || 1);
@@ -761,6 +763,13 @@ export function initMenu(onSave, onTitle) {
     saveGame();
   });
 
+  const sensSlider = document.getElementById('opt-camera-sensitivity');
+  sensSlider.value = Math.round((state.cameraSensitivity || 1) * 100);
+  sensSlider.addEventListener('input', () => {
+    state.cameraSensitivity = sensSlider.value / 100;
+  });
+  sensSlider.addEventListener('change', () => saveGame());
+
   const textScaleSelect = document.getElementById('opt-text-scale');
   textScaleSelect.value = state.uiTextScale || 1;
   applyUiTextScale(state.uiTextScale || 1);
@@ -797,7 +806,7 @@ export function initMenu(onSave, onTitle) {
   });
   document.getElementById('reset-settings-btn').addEventListener('click', () => {
     Object.assign(state, {
-      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1, invertCameraY: false,
+      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1, invertCameraY: false, cameraSensitivity: 1,
     });
     setMasterVolume(state.masterVolume);
     setQualityPreset(state.quality);
