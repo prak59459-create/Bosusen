@@ -1235,6 +1235,48 @@ export function updateScorpions(t) {
   scorpionMesh.instanceMatrix.needsUpdate = true;
 }
 
+/* ---------- 雪原バイオームを駆ける白狐 ---------- */
+const snowSeeds = BIOME_SEEDS.filter((_, i) => BIOME_DEFS[i].category === 'snow');
+const FOX_COUNT = Math.min(80, snowSeeds.length * 4);
+const foxBody = new THREE.CapsuleGeometry(0.24, 0.5, 2, 6);
+foxBody.rotateZ(Math.PI / 2);
+const foxTail = new THREE.ConeGeometry(0.18, 0.5, 5);
+foxTail.rotateZ(-Math.PI / 2);
+foxTail.translate(-0.5, 0.1, 0);
+const foxGeo = mergeGeometries([foxBody, foxTail]);
+const foxMat = makeToonMaterial({ color: 0xf2f6fa, emissive: 0x10141a, emissiveIntensity: 0.15 });
+const foxMesh = new THREE.InstancedMesh(foxGeo, foxMat, FOX_COUNT);
+foxMesh.castShadow = true;
+const foxData = [];
+for (let i = 0; i < FOX_COUNT; i++) {
+  const seed = snowSeeds[i % Math.max(1, snowSeeds.length)] || { x: 0, z: 0 };
+  const ang0 = Math.random() * Math.PI * 2;
+  const dist0 = Math.random() * 150;
+  foxData.push({
+    homeX: seed.x + Math.cos(ang0) * dist0,
+    homeZ: seed.z + Math.sin(ang0) * dist0,
+    runSpeed: 0.6 + Math.random() * 0.5,
+    roamRadius: 10 + Math.random() * 16,
+    phase: Math.random() * Math.PI * 2,
+  });
+}
+worldGroup.add(foxMesh);
+const foxDummy = new THREE.Object3D();
+export function updateFoxes(t) {
+  for (let i = 0; i < FOX_COUNT; i++) {
+    const d = foxData[i];
+    const ang = t * 0.14 + d.phase;
+    const x = d.homeX + Math.cos(ang) * d.roamRadius;
+    const z = d.homeZ + Math.sin(ang * 1.3) * d.roamRadius;
+    const bound = Math.abs(Math.sin(t * d.runSpeed * 5 + d.phase)) * 0.3;
+    foxDummy.position.set(x, 0.35 + bound, z);
+    foxDummy.rotation.y = -ang - Math.PI / 2;
+    foxDummy.updateMatrix();
+    foxMesh.setMatrixAt(i, foxDummy.matrix);
+  }
+  foxMesh.instanceMatrix.needsUpdate = true;
+}
+
 /* ---------- 流れ星（時折プレイヤー頭上を横切る） ---------- */
 const STAR_COUNT = 5;
 const starGeo = new THREE.SphereGeometry(0.5, 6, 6);
