@@ -1277,6 +1277,45 @@ export function updateFoxes(t) {
   foxMesh.instanceMatrix.needsUpdate = true;
 }
 
+/* ---------- 沼地バイオームで跳ねるカエル ---------- */
+const swampSeeds = BIOME_SEEDS.filter((_, i) => BIOME_DEFS[i].category === 'swamp');
+const FROG_COUNT = Math.min(80, swampSeeds.length * 4);
+const frogGeo = new THREE.SphereGeometry(0.3, 8, 6);
+frogGeo.scale(1, 0.75, 1.15);
+const frogMat = makeToonMaterial({ color: 0x4a7a3a, emissive: 0x0a140a, emissiveIntensity: 0.15 });
+const frogMesh = new THREE.InstancedMesh(frogGeo, frogMat, FROG_COUNT);
+frogMesh.castShadow = true;
+const frogData = [];
+for (let i = 0; i < FROG_COUNT; i++) {
+  const seed = swampSeeds[i % Math.max(1, swampSeeds.length)] || { x: 0, z: 0 };
+  const ang0 = Math.random() * Math.PI * 2;
+  const dist0 = Math.random() * 130;
+  frogData.push({
+    homeX: seed.x + Math.cos(ang0) * dist0,
+    homeZ: seed.z + Math.sin(ang0) * dist0,
+    hopSpeed: 0.5 + Math.random() * 0.5,
+    roamRadius: 4 + Math.random() * 8,
+    phase: Math.random() * Math.PI * 2,
+  });
+}
+worldGroup.add(frogMesh);
+const frogDummy = new THREE.Object3D();
+export function updateFrogs(t) {
+  for (let i = 0; i < FROG_COUNT; i++) {
+    const d = frogData[i];
+    const ang = t * 0.08 + d.phase;
+    const x = d.homeX + Math.cos(ang) * d.roamRadius;
+    const z = d.homeZ + Math.sin(ang * 1.5) * d.roamRadius;
+    const hop = Math.max(0, Math.sin(t * d.hopSpeed * 3 + d.phase));
+    frogDummy.position.set(x, 0.15 + hop * 0.5, z);
+    frogDummy.rotation.y = -ang;
+    frogDummy.scale.set(1, 1 - hop * 0.3, 1 + hop * 0.2);
+    frogDummy.updateMatrix();
+    frogMesh.setMatrixAt(i, frogDummy.matrix);
+  }
+  frogMesh.instanceMatrix.needsUpdate = true;
+}
+
 /* ---------- 流れ星（時折プレイヤー頭上を横切る） ---------- */
 const STAR_COUNT = 5;
 const starGeo = new THREE.SphereGeometry(0.5, 6, 6);
