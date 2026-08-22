@@ -297,6 +297,7 @@ export function renderStatusTab() {
       star_wisher: [state.starWishesMade || 0, 20],
       photographer: [state.screenshotsTaken || 0, 10],
       emote_master: [(state.emotesUsedSet || []).length, 4],
+      lore_master: [(state.collectedLore || []).length, 8],
     };
     let achOrder = ACHIEVEMENTS;
     if (achSortByProgress) {

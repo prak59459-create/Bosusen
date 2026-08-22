@@ -332,4 +332,5 @@ export const ACHIEVEMENTS = [
   { id:'star_wisher', name:'星に願いを', desc:'流れ星に累計20回願いごとをする。', reward:30 },
   { id:'photographer', name:'旅の記録者', desc:'スクリーンショットを累計10枚撮影する。', reward:25 },
   { id:'emote_master', name:'表現豊かな旅人', desc:'すべての種類のエモートを使用する。', reward:20 },
+  { id:'lore_master', name:'伝承の語り部', desc:'伝承の石碑を累計8個発見する。', reward:35 },
 ];
