@@ -81,6 +81,36 @@ vignettePass.uniforms.offset.value = 1.35;
 vignettePass.uniforms.darkness.value = 0.6;
 composer.addPass(vignettePass);
 
+const colorGradeShader = {
+  uniforms: { tDiffuse: { value: null }, mode: { value: 0 } },
+  vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform int mode;
+    varying vec2 vUv;
+    void main() {
+      vec4 c = texture2D(tDiffuse, vUv);
+      if (mode == 1) {
+        float gray = dot(c.rgb, vec3(0.393, 0.769, 0.189));
+        float gray2 = dot(c.rgb, vec3(0.349, 0.686, 0.168));
+        float gray3 = dot(c.rgb, vec3(0.272, 0.534, 0.131));
+        c.rgb = vec3(gray, gray2, gray3);
+      } else if (mode == 2) {
+        float gray = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+        c.rgb = vec3(gray);
+      } else if (mode == 3) {
+        c.rgb = pow(c.rgb, vec3(0.85)) * 1.15;
+      }
+      gl_FragColor = c;
+    }
+  `,
+};
+export const colorGradePass = new ShaderPass(colorGradeShader);
+composer.addPass(colorGradePass);
+export function setPhotoFilter(mode) {
+  colorGradePass.uniforms.mode.value = mode;
+}
+
 export const smaaPass = new SMAAPass(window.innerWidth * renderer.getPixelRatio(), window.innerHeight * renderer.getPixelRatio());
 smaaPass.renderToScreen = true;
 composer.addPass(smaaPass);

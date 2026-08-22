@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { camera, scene, setCameraMode, renderer } from './scene.js';
+import { camera, scene, setCameraMode, renderer, setPhotoFilter } from './scene.js';
 import { player, crossfadeTo } from './player.js';
 import { spawnParticles } from './effects.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
@@ -76,6 +76,7 @@ window.addEventListener('wheel', (e) => {
 }, { passive: true });
 
 let camOrbitYaw = 0, camOrbitPitch = 0.42;
+let photoFilterMode = 0;
 let orbitDragging = false, orbitLastX = 0, orbitLastY = 0;
 window.addEventListener('mousedown', (e) => {
   if (!exploreActive || e.button !== 2) return;
@@ -211,6 +212,13 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyM' && onToggleMap) onToggleMap();
   if (e.code === 'KeyR' && !e.repeat) toggleSprintLock();
   if (e.code === 'KeyC' && !e.repeat) { camOrbitYaw = 0; camOrbitPitch = 0.42; }
+  if (e.code === 'KeyV' && !e.repeat) {
+    photoFilterMode = (photoFilterMode + 1) % 4;
+    setPhotoFilter(photoFilterMode);
+    const names = ['標準', 'セピア', 'モノクロ', '鮮やか'];
+    showToast(`フィルター: ${names[photoFilterMode]}`, 'info');
+    sfx.uiClick();
+  }
   if (e.code === 'KeyT' && !e.repeat) {
     const unfound = hiddenTreasures.filter(tr => !state.foundTreasures.includes(tr.id));
     pingDirection(unfound, '未発見の秘宝', 'すべての秘宝を発見済みです');
