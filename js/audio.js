@@ -120,5 +120,9 @@ export const sfx = {
   menuOpen: () => playTone(400, 0.1, 'sine', 0.1, 550),
   menuClose: () => playTone(400, 0.1, 'sine', 0.1, 300),
   footstep: () => playNoise(0.06, 0.05),
+  footstepSand: () => playNoise(0.1, 0.035),
+  footstepSnow: () => { playNoise(0.05, 0.06); playTone(1200, 0.03, 'square', 0.02, 900); },
+  footstepWater: () => { playNoise(0.08, 0.08); playTone(500, 0.06, 'sine', 0.05, 300); },
+  footstepMetal: () => playTone(700, 0.05, 'square', 0.04, 500),
   lowHp: () => { playTone(220, 0.18, 'triangle', 0.18, 160); },
 };
