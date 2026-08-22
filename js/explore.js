@@ -155,6 +155,20 @@ const EMOTES = [
 ];
 let emoteIdx = 0;
 let lastHubReturnAt = -Infinity;
+function playEmote(idx) {
+  const emote = EMOTES[idx];
+  if (!emote) return;
+  sfx.achievement();
+  emote.colors.forEach((c, i) => {
+    spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6 + i * 0.15, 0)), c, 10);
+  });
+  showToast(emote.label, 'info');
+  if (!state.emotesUsedSet) state.emotesUsedSet = [];
+  if (!state.emotesUsedSet.includes(idx)) {
+    state.emotesUsedSet.push(idx);
+    checkAchievements().forEach(a => { sfx.achievement(); showCenterMsg(`実績解除: ${a.name}`, '#ffd700', 2000); });
+  }
+}
 let staminaWasEmpty = false;
 const DASH_DURATION = 0.18;
 const DASH_SPEED = 70;
@@ -274,19 +288,11 @@ window.addEventListener('keydown', (e) => {
   }
   if (e.code === 'KeyE' && !e.repeat) doDash();
   if (e.code === 'KeyF' && !e.repeat) {
-    const emote = EMOTES[emoteIdx % EMOTES.length];
+    playEmote(emoteIdx % EMOTES.length);
     emoteIdx++;
-    sfx.achievement();
-    emote.colors.forEach((c, i) => {
-      spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6 + i * 0.15, 0)), c, 10);
-    });
-    showToast(emote.label, 'info');
-    const usedIdx = (emoteIdx - 1) % EMOTES.length;
-    if (!state.emotesUsedSet) state.emotesUsedSet = [];
-    if (!state.emotesUsedSet.includes(usedIdx)) {
-      state.emotesUsedSet.push(usedIdx);
-      checkAchievements().forEach(a => { sfx.achievement(); showCenterMsg(`実績解除: ${a.name}`, '#ffd700', 2000); });
-    }
+  }
+  if (['Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(e.code) && !e.repeat) {
+    playEmote(parseInt(e.code.slice(-1), 10) - 1);
   }
   if (e.code === 'KeyP' && !e.repeat) {
     const hud = document.getElementById('explore-hud');
