@@ -477,17 +477,32 @@ export function renderCompendiumTab() {
   const discovered = state.discoveredBiomes || [];
   if (progressEl) progressEl.textContent = `${discovered.length} / ${BIOME_NAMES.length}`;
   listEl.innerHTML = '';
-  BIOME_ENTRIES.forEach(({ name, category }) => {
-    const found = discovered.includes(name);
-    const icon = BIOME_CATEGORY_ICON[category] || '❓';
-    const row = document.createElement('div');
-    row.className = 'item-row' + (found ? ' equipped' : '');
-    row.innerHTML = `
-      <div class="item-row-main">
-        <div class="item-row-name">${found ? `${icon} ${name}` : '？？？'}</div>
-      </div>
-    `;
-    listEl.appendChild(row);
+  const CATEGORY_LABEL = {
+    forest: '大自然', desert: '砂漠', cyber: 'サイバー都市', snow: '雪原',
+    swamp: '沼地', volcanic: '溶岩地帯', crystal: '結晶', wasteland: '荒野',
+  };
+  const byCategory = {};
+  BIOME_ENTRIES.forEach(e => { (byCategory[e.category] = byCategory[e.category] || []).push(e); });
+  Object.keys(byCategory).forEach(cat => {
+    const entries = byCategory[cat];
+    const foundCount = entries.filter(e => discovered.includes(e.name)).length;
+    const header = document.createElement('div');
+    header.className = 'empty-hint';
+    header.style.padding = '10px 4px 4px';
+    header.textContent = `${BIOME_CATEGORY_ICON[cat] || ''} ${CATEGORY_LABEL[cat] || cat}（${foundCount}/${entries.length}）`;
+    listEl.appendChild(header);
+    entries.forEach(({ name, category }) => {
+      const found = discovered.includes(name);
+      const icon = BIOME_CATEGORY_ICON[category] || '❓';
+      const row = document.createElement('div');
+      row.className = 'item-row' + (found ? ' equipped' : '');
+      row.innerHTML = `
+        <div class="item-row-main">
+          <div class="item-row-name">${found ? `${icon} ${name}` : '？？？'}</div>
+        </div>
+      `;
+      listEl.appendChild(row);
+    });
   });
 }
 
