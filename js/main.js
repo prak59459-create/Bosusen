@@ -622,11 +622,13 @@ loadPlayerModel((frac) => {
     return;
   }
   setLoadingProgress(1, '準備完了');
-  els.startBtn.textContent = '物語を始める';
   els.startBtn.style.opacity = '1';
   els.startBtn.style.pointerEvents = 'auto';
   if (hasSaveGame()) {
+    els.startBtn.textContent = '新しく始める';
     els.continueBtn.style.display = 'inline-block';
+  } else {
+    els.startBtn.textContent = '物語を始める';
   }
   setTimeout(hideLoadingScreen, 300);
 });
