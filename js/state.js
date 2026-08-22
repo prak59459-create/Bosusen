@@ -240,6 +240,8 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (state.discoveredBiomes.length >= 10) tryUnlock('biome_explorer');
   if (state.discoveredBiomes.length >= 35) tryUnlock('biome_master');
   if (state.firefliesCaught >= 50) tryUnlock('firefly_catcher');
+  if (state.firefliesCaught >= 200) tryUnlock('firefly_master');
+  if (state.butterfliesCaught >= 200) tryUnlock('butterfly_master');
   if (state.totalCrits >= 100) tryUnlock('crit_master');
   if (state.totalParries >= 30) tryUnlock('parry_master');
   if ((state.totalPlaytimeSec || 0) >= 3600) tryUnlock('dedicated_player');

@@ -343,4 +343,6 @@ export const ACHIEVEMENTS = [
   { id:'comeback', name:'不屈の再挑戦者', desc:'3連敗した後、あきらめずに撃破する。', reward:30 },
   { id:'master_photographer', name:'熟練の記録者', desc:'スクリーンショットを累計50枚撮影する。', reward:45 },
   { id:'star_wisher_master', name:'星々の寵愛', desc:'流れ星に累計50回願いごとをする。', reward:50 },
+  { id:'firefly_master', name:'蛍火の達人', desc:'蛍を累計200匹捕まえる。', reward:40 },
+  { id:'butterfly_master', name:'蝶舞の達人', desc:'蝶を累計200匹捕まえる。', reward:40 },
 ];

@@ -348,6 +348,8 @@ export function renderStatusTab() {
       biome_master: [(state.discoveredBiomes || []).length, 35],
       firefly_catcher: [state.firefliesCaught || 0, 50],
       butterfly_catcher: [state.butterfliesCaught || 0, 50],
+      firefly_master: [state.firefliesCaught || 0, 200],
+      butterfly_master: [state.butterfliesCaught || 0, 200],
       crit_master: [state.totalCrits || 0, 100],
       parry_master: [state.totalParries || 0, 30],
       quest_complete: [totalQuestsDone(), totalQuestsAll()],
