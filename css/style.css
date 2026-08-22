@@ -348,8 +348,15 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   background:rgba(230,220,250,0.8); border:2px solid rgba(180,140,255,0.4); color:#2a1f3d;
   pointer-events:auto; cursor:pointer; display:none;
 }
+#emote-btn {
+  position:absolute; right: max(18px, env(safe-area-inset-right));
+  bottom: max(338px, env(safe-area-inset-bottom) + 310px);
+  width:52px; height:52px; border-radius:50%; font-size:22px;
+  background:rgba(230,220,250,0.8); border:2px solid rgba(180,140,255,0.4); color:#2a1f3d;
+  pointer-events:auto; cursor:pointer; display:none;
+}
 @media (pointer: coarse) {
-  #jump-btn, #dash-btn { display:flex; align-items:center; justify-content:center; }
+  #jump-btn, #dash-btn, #emote-btn { display:flex; align-items:center; justify-content:center; }
 }
 #day-counter {
   position:absolute; top: max(14px, env(safe-area-inset-top));

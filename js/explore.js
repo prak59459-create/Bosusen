@@ -347,6 +347,8 @@ export function initJoystick() {
   if (jumpBtn) jumpBtn.addEventListener('click', () => { if (exploreActive) doJump(); });
   const dashBtn = document.getElementById('dash-btn');
   if (dashBtn) dashBtn.addEventListener('click', () => { if (exploreActive) doDash(); });
+  const emoteBtn = document.getElementById('emote-btn');
+  if (emoteBtn) emoteBtn.addEventListener('click', () => { if (exploreActive) { playEmote(emoteIdx % EMOTES.length); emoteIdx++; } });
   if (!joyBase || !joyKnob) return;
 
   const onDown = (e) => {
