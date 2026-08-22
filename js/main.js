@@ -188,6 +188,18 @@ function drawMap() {
     mapCtx.stroke();
   }
 
+  mapCtx.beginPath();
+  mapCtx.arc(cx, cy, 8, 0, Math.PI * 2);
+  mapCtx.fillStyle = '#7a5fd0';
+  mapCtx.fill();
+  mapCtx.strokeStyle = '#2a1f3d';
+  mapCtx.lineWidth = 1.5;
+  mapCtx.stroke();
+  mapCtx.fillStyle = '#2a1f3d';
+  mapCtx.font = '11px sans-serif';
+  mapCtx.textAlign = 'center';
+  mapCtx.fillText('拠点', cx, cy - 13);
+
   zoneMarkers.forEach(z => {
     const x = cx + z.localPos.x * scale, y = cy + z.localPos.z * scale;
     mapCtx.beginPath();
@@ -278,6 +290,13 @@ mapCanvas.addEventListener('click', (e) => {
   const px = (e.clientX - rect.left) * (mapCanvas.width / rect.width);
   const py = (e.clientY - rect.top) * (mapCanvas.height / rect.height);
   const { scale, cx, cy } = mapScaleInfo;
+  if (Math.hypot(px - cx, py - cy) < 12) {
+    setExploreLocalPos(new THREE.Vector3(0, 0, 0));
+    sfx.uiClick();
+    showToast('拠点へファストトラベルした', 'quest');
+    closeMap();
+    return;
+  }
   let nearest = null, nearestDist = Infinity;
   zoneMarkers.forEach(z => {
     const x = cx + z.localPos.x * scale, y = cy + z.localPos.z * scale;
