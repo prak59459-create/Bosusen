@@ -79,6 +79,7 @@ export function applyUiTextScale(scale) {
   if (hudEl) hudEl.style.zoom = scale;
 }
 let achSortByProgress = false;
+let achUnlockedOnly = false;
 const TITLE_TIERS = [
   { min: 21, title: '神話の' },
   { min: 15, title: '至高の' },
@@ -370,6 +371,7 @@ export function renderStatusTab() {
     }
     achOrder.forEach(a => {
       const unlocked = state.achievements.includes(a.id);
+      if (achUnlockedOnly && !unlocked) return;
       const row = document.createElement('div');
       row.className = 'item-row' + (unlocked ? ' equipped' : '');
       row.style.opacity = unlocked ? '1' : '0.45';
@@ -789,6 +791,15 @@ export function initMenu(onSave, onTitle) {
     achSortBtn.addEventListener('click', () => {
       achSortByProgress = !achSortByProgress;
       achSortBtn.textContent = achSortByProgress ? 'デフォルト順で表示' : '未達成を進捗順で表示';
+      sfx.uiClick();
+      renderStatusTab();
+    });
+  }
+  const achUnlockedOnlyBtn = document.getElementById('ach-unlocked-only-btn');
+  if (achUnlockedOnlyBtn) {
+    achUnlockedOnlyBtn.addEventListener('click', () => {
+      achUnlockedOnly = !achUnlockedOnly;
+      achUnlockedOnlyBtn.textContent = achUnlockedOnly ? 'すべて表示' : '達成済みのみ表示';
       sfx.uiClick();
       renderStatusTab();
     });
