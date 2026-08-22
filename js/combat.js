@@ -246,7 +246,10 @@ function finishGame(won) {
     els.retryBtn.style.display = 'inline-block';
     if (onChapterLose) onChapterLose(state.chapterIndex);
   }
-  els.endStats.textContent = `経過ターン数: ${state.turns} / 被ダメージ合計: ${Math.round(state.damageTaken)} / 最大コンボ: ${state.maxCombo || 0} / 習得スキル: ${state.unlockedSkills.length}`;
+  const bonusTags = [];
+  if (won && state.turns > 0 && state.turns <= 5) bonusTags.push('⚡瞬速撃破');
+  if (won && state.damageTaken === 0) bonusTags.push('🛡️無傷');
+  els.endStats.textContent = `経過ターン数: ${state.turns} / 被ダメージ合計: ${Math.round(state.damageTaken)} / 最大コンボ: ${state.maxCombo || 0} / 習得スキル: ${state.unlockedSkills.length}${bonusTags.length ? ' ｜ ' + bonusTags.join(' ') : ''}`;
   els.endScreen.style.display = 'flex';
 }
 
