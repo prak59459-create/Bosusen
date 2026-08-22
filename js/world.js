@@ -1060,3 +1060,42 @@ export function updateLeaves(t, centerX, centerZ) {
   }
   leafMesh.instanceMatrix.needsUpdate = true;
 }
+
+/* ---------- 森林バイオームを跳ね回る小動物 ---------- */
+const forestSeeds = BIOME_SEEDS.filter((_, i) => BIOME_DEFS[i].category === 'forest');
+const CRITTER_COUNT = Math.min(140, forestSeeds.length * 4);
+const critterGeo = new THREE.CapsuleGeometry(0.28, 0.35, 2, 6);
+const critterMat = makeToonMaterial({ color: 0x8a6a44, emissive: 0x0c0804, emissiveIntensity: 0.15 });
+const critterMesh = new THREE.InstancedMesh(critterGeo, critterMat, CRITTER_COUNT);
+critterMesh.castShadow = true;
+const critterData = [];
+for (let i = 0; i < CRITTER_COUNT; i++) {
+  const seed = forestSeeds[i % forestSeeds.length] || { x: 0, z: 0 };
+  const ang0 = Math.random() * Math.PI * 2;
+  const dist0 = Math.random() * 150;
+  critterData.push({
+    homeX: seed.x + Math.cos(ang0) * dist0,
+    homeZ: seed.z + Math.sin(ang0) * dist0,
+    hopSpeed: 0.7 + Math.random() * 0.6,
+    roamRadius: 8 + Math.random() * 14,
+    phase: Math.random() * Math.PI * 2,
+  });
+}
+worldGroup.add(critterMesh);
+const critterDummy = new THREE.Object3D();
+export function updateCritters(t) {
+  for (let i = 0; i < CRITTER_COUNT; i++) {
+    const d = critterData[i];
+    const ang = t * 0.12 + d.phase;
+    const x = d.homeX + Math.cos(ang) * d.roamRadius;
+    const z = d.homeZ + Math.sin(ang * 1.4) * d.roamRadius;
+    const hop = Math.abs(Math.sin(t * d.hopSpeed * 4 + d.phase));
+    const y = 0.3 + hop * 0.4;
+    critterDummy.position.set(x, y, z);
+    critterDummy.rotation.y = -ang - Math.PI / 2;
+    critterDummy.scale.set(1, 0.7 + hop * 0.5, 1);
+    critterDummy.updateMatrix();
+    critterMesh.setMatrixAt(i, critterDummy.matrix);
+  }
+  critterMesh.instanceMatrix.needsUpdate = true;
+}
