@@ -161,6 +161,10 @@ function finishGame(won) {
     sfx.victory();
     showCenterMsg('VICTORY!', '#5fd35f', 2000);
     crossfadeTo('Idle', 0.4);
+    spawnShockwave(player.position.clone().add(new THREE.Vector3(0, 1.4, 0)), 0x5fd35f);
+    [0xffd700, 0x5fd35f, 0x9fe0ff].forEach((c, i) => {
+      setTimeout(() => spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6 + i * 0.2, 0)), c, 16), i * 150);
+    });
     const rank = calcRank();
     els.endRank.textContent = `評価ランク: ${rank}`;
 
