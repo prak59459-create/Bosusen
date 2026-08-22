@@ -16,6 +16,15 @@ import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEn
 import { initSkirmishUI, resetSkirmish } from './skirmish.js';
 
 mountRenderer();
+
+let saveIndicatorTimer = null;
+window.addEventListener('bosusen-saved', () => {
+  const el = document.getElementById('save-indicator');
+  if (!el) return;
+  el.classList.add('show');
+  clearTimeout(saveIndicatorTimer);
+  saveIndicatorTimer = setTimeout(() => el.classList.remove('show'), 1400);
+});
 initJoystick();
 initSkirmishUI();
 

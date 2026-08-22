@@ -316,6 +316,7 @@ export function saveGame() {
       savedAt: Date.now(),
     };
     localStorage.setItem(SAVE_KEY, JSON.stringify(snapshot));
+    if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('bosusen-saved'));
     return true;
   } catch (e) {
     console.warn('save failed', e);
