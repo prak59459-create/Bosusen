@@ -105,6 +105,7 @@ let gpMapHeld = false;
 let gpCamResetHeld = false;
 let gpFilterHeld = false;
 let gpHubReturnHeld = false;
+let gpEmoteHeld = false;
 let fireflyCheckTimer = 0;
 let chatterTimer = 0;
 let periodicAchCheckTimer = 30;
@@ -593,6 +594,8 @@ export function updateExplore(dt) {
     if (!(gp.buttons[9] && gp.buttons[9].pressed)) gpMapHeld = false;
     if (gp.buttons[3] && gp.buttons[3].pressed && !gpCamResetHeld) { gpCamResetHeld = true; camOrbitYaw = 0; camOrbitPitch = 0.42; }
     if (!(gp.buttons[3] && gp.buttons[3].pressed)) gpCamResetHeld = false;
+    if (gp.buttons[2] && gp.buttons[2].pressed && !gpEmoteHeld) { gpEmoteHeld = true; playEmote(emoteIdx % EMOTES.length); emoteIdx++; }
+    if (!(gp.buttons[2] && gp.buttons[2].pressed)) gpEmoteHeld = false;
     if (gp.buttons[12] && gp.buttons[12].pressed && !gpFilterHeld) {
       gpFilterHeld = true;
       photoFilterMode = (photoFilterMode + 1) % 4;
