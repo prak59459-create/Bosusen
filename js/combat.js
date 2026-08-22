@@ -7,8 +7,8 @@ import { sfx } from './audio.js';
 import { rand } from './utils.js';
 import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake } from './effects.js';
 import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
-import { CHAPTERS, levelStatsFor } from './data.js';
-import { state, computeStats, addShards } from './state.js';
+import { CHAPTERS, levelStatsFor, BOSS_TAUNTS, VICTORY_LINES, DEFEAT_LINES } from './data.js';
+import { state, computeStats, addShards, difficultyMult, checkAchievements } from './state.js';
 
 let dodgeActive = false;
 let dodgeAnimHandle = null;
@@ -43,6 +43,9 @@ function gainCombo() {
     showToast('コンボ最大火力に到達！', 'quest');
     sfx.skillUnlock();
   }
+  if (state.combo === (state.lifetimeBestCombo || 0) + 1 && state.combo >= 5) {
+    showToast(`自己ベストコンボ更新！ ${state.combo}コンボ`, 'quest');
+  }
 }
 
 function rollCrit(critPct) {
@@ -55,10 +58,17 @@ function rollCrit(critPct) {
 export function checkPhaseTransition() {
   const chapter = CHAPTERS[state.chapterIndex];
   const b = getBoss();
+  if (!state.bossLowHpWarned && state.bossHP > 0 && state.bossHP <= state.bossMaxHP * 0.15) {
+    state.bossLowHpWarned = true;
+    log(`${chapter.enemyName}の力が尽きかけている！ 一気に畳みかけろ！`);
+    showCenterMsg('FINISH HIM!', '#ff8844', 1000);
+    sfx.lowBossHp();
+  }
   if (chapter.hasPhases && !state.phase2 && state.bossHP <= state.bossMaxHP * 0.5) {
     state.phase2 = true;
     els.phaseTag.style.display = 'inline-block';
     log(`${chapter.enemyName}が覚醒した！攻撃が激化する！`);
+    if (chapter.awakenLine && state.showBossTaunts !== false) log(chapter.awakenLine);
     showCenterMsg('BOSS AWAKENS!!', '#ff4444', 1400);
     sfx.roar();
     b.userData.body.emissiveIntensity = 1.1;
@@ -88,7 +98,7 @@ function endCheck() {
     const stats = computeStats();
     if (stats.hasRevive && !state.usedRevive) {
       state.usedRevive = true;
-      state.playerHP = Math.round(state.playerMaxHP * 0.3);
+      state.playerHP = Math.round(state.playerMaxHP * (0.3 + (stats.reviveHpPct || 0)));
       updateBars();
       log('蘇生の残光が発動！ 力尽きる寸前で意識を取り戻した！');
       showCenterMsg('REVIVE!', '#ffd75e', 1200);
@@ -127,6 +137,7 @@ function renderEndingChoices(chapter) {
         els.endStory.textContent = ending.text;
         els.endChoices.innerHTML = '';
         els.retryBtn.style.display = 'inline-block';
+        els.ngPlusBtn.style.display = 'inline-block';
         sfx.victory();
       });
     }
@@ -140,6 +151,7 @@ function finishGame(won) {
   const isFinal = state.chapterIndex === CHAPTERS.length - 1;
   els.nextBtn.style.display = 'none';
   els.retryBtn.style.display = 'none';
+  els.ngPlusBtn.style.display = 'none';
   els.endStory.textContent = '';
   els.endRewards.textContent = '';
   els.endChoices.innerHTML = '';
@@ -148,11 +160,30 @@ function finishGame(won) {
     sfx.victory();
     showCenterMsg('VICTORY!', '#5fd35f', 2000);
     crossfadeTo('Idle', 0.4);
-    els.endRank.textContent = `評価ランク: ${calcRank()}`;
+    const rank = calcRank();
+    els.endRank.textContent = `評価ランク: ${rank}`;
 
+    const RANK_BONUS = { S: 1.5, A: 1.2, B: 1.0, C: 1.0 };
+    const shardPct = computeStats().shardPct || 0;
+    const ngPlusShardMult = 1 + (state.newGamePlus || 0) * 0.2;
+    const shardReward = Math.round(chapter.shardsBase * difficultyMult().shards * RANK_BONUS[rank] * (1 + shardPct) * ngPlusShardMult);
     state.xp += chapter.xp;
-    addShards(chapter.shardsBase);
-    els.endRewards.textContent = `獲得経験値 +${chapter.xp} / 結晶の欠片 +${chapter.shardsBase}（累計 ${state.totalShardsEarned}）`;
+    state.bossesDefeated++;
+    state.chapterClearCounts[chapter.key] = (state.chapterClearCounts[chapter.key] || 0) + 1;
+    state.winStreak++;
+    state.bestWinStreak = Math.max(state.bestWinStreak, state.winStreak);
+    state.lifetimeBestCombo = Math.max(state.lifetimeBestCombo, state.maxCombo || 0);
+    addShards(shardReward);
+    const comboBonus = Math.min(30, Math.floor((state.maxCombo || 0) / 2));
+    if (comboBonus > 0) addShards(comboBonus);
+    const rankBonusNote = RANK_BONUS[rank] > 1 ? `（ランク${rank}ボーナス+${Math.round((RANK_BONUS[rank]-1)*100)}%）` : '';
+    const comboBonusNote = comboBonus > 0 ? ` / コンボボーナス +${comboBonus}` : '';
+    els.endRewards.textContent = `獲得経験値 +${chapter.xp} / 結晶の欠片 +${shardReward}${rankBonusNote}${comboBonusNote}（累計 ${state.totalShardsEarned}）`;
+    checkAchievements(undefined, rank).forEach((a, i) => {
+      sfx.achievement();
+      showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest');
+      setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300);
+    });
 
     if (isFinal) {
       els.endTitle.textContent = '選択のとき';
@@ -163,6 +194,7 @@ function finishGame(won) {
     } else {
       els.endTitle.textContent = `🎉 勝利！${chapter.enemyName}を打ち破った 🎉`;
       els.endTitle.style.color = '#5fd35f';
+      if (state.showBossTaunts !== false) els.endStory.textContent = VICTORY_LINES[Math.floor(Math.random() * VICTORY_LINES.length)];
       els.nextBtn.style.display = 'inline-block';
     }
     if (onChapterWin) onChapterWin(state.chapterIndex, isFinal);
@@ -170,12 +202,14 @@ function finishGame(won) {
     els.endTitle.textContent = '💀 敗北... 💀';
     els.endTitle.style.color = '#e04a4a';
     els.endRank.textContent = '';
+    if (state.showBossTaunts !== false) els.endStory.textContent = DEFEAT_LINES[Math.floor(Math.random() * DEFEAT_LINES.length)];
+    state.winStreak = 0;
     sfx.defeat();
     els.retryBtn.textContent = 'この章に再挑戦';
     els.retryBtn.style.display = 'inline-block';
     if (onChapterLose) onChapterLose(state.chapterIndex);
   }
-  els.endStats.textContent = `経過ターン数: ${state.turns} / 被ダメージ合計: ${Math.round(state.damageTaken)} / 最大コンボ: ${state.maxCombo || 0}`;
+  els.endStats.textContent = `経過ターン数: ${state.turns} / 被ダメージ合計: ${Math.round(state.damageTaken)} / 最大コンボ: ${state.maxCombo || 0} / 習得スキル: ${state.unlockedSkills.length}`;
   els.endScreen.style.display = 'flex';
 }
 
@@ -187,7 +221,7 @@ export function bossTurn() {
 
   if (state.skillCooldown > 0) state.skillCooldown--;
   state.playerStam = Math.min(state.playerMaxStam, state.playerStam + 8);
-  state.playerMP = Math.min(state.playerMaxMP, state.playerMP + 6);
+  state.playerMP = Math.min(state.playerMaxMP, state.playerMP + 6 + (computeStats().mpRegenBonus || 0));
   updateBars();
 
   const chapter = CHAPTERS[state.chapterIndex];
@@ -265,6 +299,7 @@ function resolveDodge(clicked, move, isParry) {
       spawnDamageNumber(bossHitPoint(), `-${counterDmg}`, '#ffd75e', true);
       triggerShake(0.18, 0.3);
       state.playerStam = Math.min(state.playerMaxStam, state.playerStam + 25);
+      if (stats.parryMpRestore) state.playerMP = Math.min(state.playerMaxMP, state.playerMP + stats.parryMpRestore);
       crossfadeTo('Walk', 0.1);
       setTimeout(() => crossfadeTo('Idle', 0.25), 260);
       checkPhaseTransition();
@@ -277,7 +312,7 @@ function resolveDodge(clicked, move, isParry) {
       crossfadeTo('Walk', 0.1);
       setTimeout(() => crossfadeTo('Idle', 0.25), 260);
     } else {
-      let dmg = Math.round(rand(move.min, move.max));
+      let dmg = Math.round(rand(move.min, move.max) * difficultyMult().dmg);
       if (state.guarding) { dmg = Math.round(dmg / 2); }
       const stats = computeStats();
       dmg = Math.round(dmg * (100 / (100 + stats.def)));
@@ -286,6 +321,14 @@ function resolveDodge(clicked, move, isParry) {
       else log(`${move.name}が直撃！ ${dmg} ダメージ`);
       state.playerHP -= dmg;
       state.damageTaken += dmg;
+      if (state.guarding && stats.guardReflectPct) {
+        const reflectDmg = Math.round(dmg * stats.guardReflectPct);
+        if (reflectDmg > 0) {
+          state.bossHP -= reflectDmg;
+          log(`反射の盾！ ${reflectDmg} ダメージを跳ね返した`);
+          spawnDamageNumber(bossHitPoint(), `-${reflectDmg}`, '#88ccff', false);
+        }
+      }
       state.combo = 0;
       sfx.dodgeFail();
       if (playerModel) flashHit(playerModel);
@@ -309,7 +352,11 @@ export function playerAction(type) {
   if (!state.playing || state.turnBusy) return;
 
   if (type === 'attack' && state.playerStam < 10) { log('スタミナが足りない！'); return; }
-  if (type === 'heavy' && state.playerStam < 30) { log('スタミナが足りない！'); return; }
+  const stats0 = computeStats();
+  const stamMult = Math.max(0.4, 1 + (stats0.staminaCostPct || 0));
+  const attackStamCost = Math.round(10 * stamMult);
+  const heavyStamCost = Math.round(30 * stamMult);
+  if (type === 'heavy' && state.playerStam < heavyStamCost) { log('スタミナが足りない！'); return; }
   if (type === 'skill' && (state.playerMP < 25 || state.skillCooldown > 0)) { log('結晶技は使えない！'); return; }
   if (type === 'heal' && state.healUses <= 0) { log('回復はもう使えない！'); return; }
 
@@ -323,7 +370,7 @@ export function playerAction(type) {
   const b = getBoss();
 
   if (type === 'attack') {
-    state.playerStam -= 10;
+    state.playerStam -= attackStamCost;
     playerMotionBeat('attack');
     animateLunge(player, new THREE.Vector3(1, 0, -1), 0.7, 300);
     sfx.swing();
@@ -331,7 +378,7 @@ export function playerAction(type) {
       if (!state.playing) return;
       const crit = rollCrit(stats.crit);
       let dmg = Math.round((rand(8, 15) + stats.atk * 0.5) * comboMult);
-      if (crit) dmg = Math.round(dmg * 1.5);
+      if (crit) dmg = Math.round(dmg * (1.5 + (stats.critDmgPct || 0)));
       state.bossHP -= dmg;
       gainCombo();
       updateBars();
@@ -346,17 +393,17 @@ export function playerAction(type) {
     }, 250);
 
   } else if (type === 'heavy') {
-    state.playerStam -= 30;
+    state.playerStam -= heavyStamCost;
     playerMotionBeat('heavy');
     animateLunge(player, new THREE.Vector3(1, 0, -1), 1.0, 480);
     sfx.swing();
     setTimeout(() => {
       if (!state.playing) return;
-      const success = Math.random() > 0.12;
+      const success = Math.random() > 0.12 * (1 - (stats.heavyAccuracyPct || 0));
       if (success) {
         const crit = rollCrit(stats.crit);
         let dmg = Math.round((rand(20, 32) + stats.atk) * comboMult);
-        if (crit) dmg = Math.round(dmg * 1.5);
+        if (crit) dmg = Math.round(dmg * (1.5 + (stats.critDmgPct || 0)));
         state.bossHP -= dmg;
         gainCombo();
         updateBars();
@@ -403,7 +450,7 @@ export function playerAction(type) {
         orb.material.dispose();
         const crit = rollCrit(stats.crit);
         let dmg = Math.round((rand(30, 45) + stats.atk) * comboMult);
-        if (crit) dmg = Math.round(dmg * 1.5);
+        if (crit) dmg = Math.round(dmg * (1.5 + (stats.critDmgPct || 0)));
         state.bossHP -= dmg;
         gainCombo();
         updateBars();
@@ -422,6 +469,7 @@ export function playerAction(type) {
 
   } else if (type === 'guard') {
     state.guarding = true;
+    state.guardUsedThisBattle = true;
     state.playerStam = Math.min(state.playerMaxStam, state.playerStam + 20);
     updateBars();
     log('ガードの構え。次のダメージを軽減する。');
@@ -431,7 +479,7 @@ export function playerAction(type) {
 
   } else if (type === 'heal') {
     state.healUses--;
-    const heal = Math.round(rand(20, 32) + stats.maxHP * 0.05);
+    const heal = Math.round((rand(20, 32) + stats.maxHP * 0.05) * (1 + stats.healBonusPct));
     state.playerHP = Math.min(state.playerMaxHP, state.playerHP + heal);
     state.combo = 0;
     updateBars();
@@ -449,18 +497,22 @@ export function playerAction(type) {
 export function setupChapterBattle(chapterIndex) {
   const chapter = CHAPTERS[chapterIndex];
   const level = chapterIndex + 1;
-  const base = levelStatsFor(level);
   state.chapterIndex = chapterIndex;
   state.level = level;
   const stats = computeStats();
+  const dMult = difficultyMult();
+  const ngPlusMult = 1 + (state.newGamePlus || 0) * 0.25;
+  const scaledBossHP = Math.round(chapter.hp * dMult.hp * ngPlusMult);
   Object.assign(state, {
     playerHP: stats.maxHP, playerMaxHP: stats.maxHP,
     playerMP: stats.maxMP, playerMaxMP: stats.maxMP,
-    playerStam: base.maxStam, playerMaxStam: base.maxStam,
-    bossHP: chapter.hp, bossMaxHP: chapter.hp,
-    healUses: 3, guarding: false, playing: false, turnBusy: false,
+    playerStam: stats.maxStam, playerMaxStam: stats.maxStam,
+    bossHP: scaledBossHP, bossMaxHP: scaledBossHP,
+    healUses: 3 + (stats.healUsesBonus || 0), healUsesMax: 3 + (stats.healUsesBonus || 0), guarding: false, playing: false, turnBusy: false,
     combo: 0, maxCombo: 0, phase2: false, turns: 0, damageTaken: 0, skillCooldown: 0,
     usedRevive: false,
+    bossLowHpWarned: false,
+    guardUsedThisBattle: false,
   });
   els.phaseTag.style.display = 'none';
   spawnEnemy(chapter.enemyDef);
@@ -475,7 +527,11 @@ export function setupChapterBattle(chapterIndex) {
 export function startBattlePhase() {
   state.playing = true;
   updateBars();
-  log(`戦闘開始！ ${CHAPTERS[state.chapterIndex].enemyName}が姿を現した！`);
+  const chapter = CHAPTERS[state.chapterIndex];
+  log(`戦闘開始！ ${chapter.enemyName}が姿を現した！`);
+  const tauntPool = chapter.taunts || BOSS_TAUNTS;
+  const taunt = tauntPool[Math.floor(Math.random() * tauntPool.length)];
+  if (state.showBossTaunts !== false) log(taunt);
   sfx.roar();
 }
 

@@ -1,15 +1,16 @@
+import * as THREE from 'three';
 import { camera, composer, camFittedPos, camLookAt, mountRenderer, torchFires, bossGlow, setQualityPreset } from './scene.js';
 import { player, loadPlayerModel, playerMixer, playerReady } from './player.js';
 import * as EnemyModule from './enemy.js';
 import { spawnEnemy } from './enemy.js';
-import { updateParticles, updateShakeAndApplyCamera, triggerShake } from './effects.js';
+import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles } from './effects.js';
 import { resumeAudio, sfx, setMasterVolume } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
-import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, computeStats, isQuestDone, fieldQuestState } from './state.js';
+import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, computeStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
-  renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, syncSettingsUI } from './ui.js';
+  renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, syncSettingsUI, openMenu, closeMenu } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
-import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies } from './world.js';
+import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
   setOnOpenShop, setOnToggleMap, getPlayerLocalPos, exploreActive, setMapOpen } from './explore.js';
 import { initSkirmishUI, resetSkirmish } from './skirmish.js';
@@ -35,7 +36,9 @@ function showStory(chapterIndex, prependText) {
   els.storyTitle.textContent = chapter.title;
   els.storyText.textContent = prependText ? (prependText + '\n\n―――\n\n' + chapter.storyBefore) : chapter.storyBefore;
   const doneCount = chapterQuestsDone(chapter.key);
-  els.questPreview.textContent = `この聖域のクエスト: ${doneCount}/${chapter.quests.length} 達成済み`;
+  const clearCount = state.chapterClearCounts[chapter.key] || 0;
+  const bossHpPreview = Math.round(chapter.hp * difficultyMult().hp * (1 + (state.newGamePlus || 0) * 0.25));
+  els.questPreview.textContent = `この聖域のクエスト: ${doneCount}/${chapter.quests.length} 達成済み${clearCount > 0 ? `｜結晶獣 撃破回数: ${clearCount}` : ''}｜${chapter.enemyName}（HP ${bossHpPreview}）`;
   setupChapterBattle(chapterIndex);
   document.getElementById('start-screen').style.display = 'none';
   document.getElementById('quest-board-screen').style.display = 'none';
@@ -73,26 +76,37 @@ const shopShardsEl = document.getElementById('shop-shards');
 
 function renderShop() {
   shopItemList.innerHTML = '';
+  const ownedCount = SHOP_ITEMS.filter(e => ownsItem(e.itemId)).length;
+  const shopProgressFill = document.getElementById('shop-progress-fill');
+  if (shopProgressFill) shopProgressFill.style.width = `${Math.round((ownedCount / SHOP_ITEMS.length) * 100)}%`;
   SHOP_ITEMS.forEach(entry => {
     const item = ITEMS[entry.itemId];
     const owned = ownsItem(entry.itemId);
-    const canBuy = !owned && state.shards >= entry.cost;
+    const locked = entry.requiresAchievement && !state.achievements.includes(entry.requiresAchievement);
+    const canBuy = !owned && !locked && state.shards >= entry.cost;
+    const statParts = [];
+    if (item.atk) statParts.push(`攻撃+${item.atk}`);
+    if (item.def) statParts.push(`防御+${item.def}`);
+    if (item.hp) statParts.push(`HP+${item.hp}`);
+    if (item.mp) statParts.push(`エーテル+${item.mp}`);
+    if (item.crit) statParts.push(`クリ+${item.crit}%`);
     const card = document.createElement('div');
     card.className = 'shop-item-card';
     card.innerHTML = `
       <div>
-        <div class="shop-item-name">${item.name}</div>
-        <div class="shop-item-desc">${item.desc}</div>
+        <div class="shop-item-name">${locked ? '🔒 ' : ''}${item.name}<span class="item-slot-tag">${statParts.join(' / ')}</span></div>
+        <div class="shop-item-desc">${locked ? '実績「エーテリアの伝説」の解除が必要' : item.desc}</div>
       </div>
-      <button class="shop-buy-btn" ${owned || !canBuy ? 'disabled' : ''}>${owned ? '所持済み' : `${entry.cost} 欠片`}</button>
+      <button class="shop-buy-btn" ${owned || !canBuy ? 'disabled' : ''}>${owned ? '所持済み' : (locked ? 'ロック中' : `${entry.cost} 欠片`)}</button>
     `;
     const btn = card.querySelector('.shop-buy-btn');
     btn.addEventListener('click', () => {
-      if (owned || state.shards < entry.cost) return;
+      if (owned || locked || state.shards < entry.cost) return;
       if (!spendShards(entry.cost)) return;
       addItem(entry.itemId);
       sfx.shardGet();
       showToast(`${item.name} を購入した`, 'quest');
+      checkAchievements(undefined, undefined, SHOP_ITEMS.filter(e => !e.requiresAchievement).map(e => e.itemId)).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
       saveGame();
       renderShop();
     });
@@ -183,6 +197,15 @@ function drawMap() {
     mapCtx.fill();
   });
 
+  hiddenTreasures.forEach(t => {
+    if (!t.mesh.visible) return;
+    const x = cx + t.localPos.x * scale, y = cy + t.localPos.z * scale;
+    mapCtx.beginPath();
+    mapCtx.arc(x, y, 3.5, 0, Math.PI * 2);
+    mapCtx.fillStyle = '#ffd700';
+    mapCtx.fill();
+  });
+
   const sx = cx + shopLocalPos.x * scale, sy = cy + shopLocalPos.z * scale;
   mapCtx.beginPath();
   mapCtx.arc(sx, sy, 5, 0, Math.PI * 2);
@@ -238,12 +261,17 @@ els.startBtn.addEventListener('click', () => {
   if (!playerReady) return;
   resumeAudio();
   Object.assign(state, {
-    chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0,
+    chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0, newGamePlus: 0, chapterClearCounts: {},
     equipment: { weapon: null, armor: null, accessory: null },
-    inventory: [], unlockedSkills: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
+    inventory: [], unlockedSkills: [], foundTreasures: [], achievements: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
   });
   goExplore(null);
   showToast('光る結晶の目印に近づいて、崩壊の古城へ入ろう', 'info');
+  const login = checkDailyLogin();
+  if (login) {
+    showToast(`ログインボーナス（${login.streak}日連続） 結晶の欠片 +${login.reward}`, 'quest');
+    saveGame();
+  }
 });
 
 els.continueBtn.addEventListener('click', () => {
@@ -260,6 +288,12 @@ els.continueBtn.addEventListener('click', () => {
   goExplore(state.chapterIndex);
   renderQuestTracker();
   updateBars();
+  const login = checkDailyLogin();
+  if (login) {
+    showToast(`ログインボーナス（${login.streak}日連続） 結晶の欠片 +${login.reward}`, 'quest');
+    checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
+    saveGame();
+  }
 });
 
 els.nextBtn.addEventListener('click', () => {
@@ -277,15 +311,28 @@ els.retryBtn.addEventListener('click', () => {
   els.endScreen.style.display = 'none';
   if (isFinalWin) {
     Object.assign(state, {
-      chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0,
+      chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0, newGamePlus: 0, chapterClearCounts: {},
       equipment: { weapon: null, armor: null, accessory: null },
-      inventory: [], unlockedSkills: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
+      inventory: [], unlockedSkills: [], foundTreasures: [], achievements: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
     });
     document.getElementById('start-screen').style.display = 'flex';
   } else {
     setupChapterBattle(state.chapterIndex);
     startBattlePhase();
   }
+});
+
+els.ngPlusBtn.addEventListener('click', () => {
+  els.endScreen.style.display = 'none';
+  state.newGamePlus = (state.newGamePlus || 0) + 1;
+  Object.assign(state, {
+    chapterIndex: 0,
+    questProgress: {}, fieldQuests: {}, foundTreasures: [], usedRevive: false,
+  });
+  showToast(`周回+${state.newGamePlus} を開始！ 装備・スキル・実績は引き継がれる。結晶獣がより強くなる。`, 'info');
+  goExplore(null);
+  checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
+  saveGame();
 });
 
 setCombatCallbacks({
@@ -353,6 +400,11 @@ setLoadingProgress(0.05, '結晶データを読み込み中...');
 loadPlayerModel((frac) => {
   setLoadingProgress(0.1 + frac * 0.85, `アッシュの記憶を再構築中... ${Math.round(frac * 100)}%`);
 }).then(() => {
+  if (!playerReady) {
+    setLoadingProgress(1, '読み込みに失敗しました。ページを再読み込みしてください。');
+    els.startBtn.textContent = '読み込み失敗';
+    return;
+  }
   setLoadingProgress(1, '準備完了');
   els.startBtn.textContent = '物語を始める';
   els.startBtn.style.opacity = '1';
@@ -411,4 +463,21 @@ window.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   if (shopScreen.style.display === 'flex') closeShop();
   else if (mapScreen.style.display === 'flex') closeMap();
+  else if (!els.menuOverlay.classList.contains('open') && state.playing && document.getElementById('dodge-zone').style.display !== 'flex') openMenu();
+});
+
+window.addEventListener('keydown', (e) => {
+  if (e.repeat || !exploreActive || e.key !== 'Tab') return;
+  e.preventDefault();
+  if (els.menuOverlay.classList.contains('open')) closeMenu(); else openMenu();
+});
+
+window.addEventListener('keydown', (e) => {
+  if (e.repeat || e.key !== 'Enter') return;
+  const active = document.activeElement;
+  if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.tagName === 'BUTTON')) return;
+  if (document.getElementById('story-screen').style.display === 'flex') { e.preventDefault(); els.storyBtn.click(); }
+  else if (document.getElementById('quest-board-screen').style.display === 'flex') { e.preventDefault(); els.qbFightBtn.click(); }
+  else if (els.endScreen.style.display === 'flex' && els.nextBtn.style.display !== 'none') { e.preventDefault(); els.nextBtn.click(); }
+  else if (els.endScreen.style.display === 'flex' && els.retryBtn.style.display !== 'none') { e.preventDefault(); els.retryBtn.click(); }
 });

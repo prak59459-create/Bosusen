@@ -85,11 +85,6 @@ export const smaaPass = new SMAAPass(window.innerWidth * renderer.getPixelRatio(
 smaaPass.renderToScreen = true;
 composer.addPass(smaaPass);
 
-export let postFXEnabled = true;
-export function setPostFXEnabled(on) {
-  postFXEnabled = on;
-}
-
 /* ============================================================
    原神風トゥーンシェーディング（段階的ライティング＋輪郭線）
    ============================================================ */

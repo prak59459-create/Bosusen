@@ -52,6 +52,8 @@ export const sfx = {
   shardGet: () => { playTone(660, 0.1, 'sine', 0.15, 990); setTimeout(() => playTone(990, 0.12, 'sine', 0.15, 1320), 80); },
   questDone: () => { [440, 660, 880].forEach((f, i) => setTimeout(() => playTone(f, 0.18, 'triangle', 0.15), i * 90)); },
   skillUnlock: () => { playTone(300, 0.2, 'sine', 0.2, 700); playNoise(0.2, 0.1); },
+  achievement: () => { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => playTone(f, 0.22, 'triangle', 0.18), i * 100)); },
+  lowBossHp: () => { playTone(660, 0.15, 'sawtooth', 0.2, 880); playTone(220, 0.4, 'sawtooth', 0.15, 140); },
   uiClick: () => playTone(500, 0.05, 'square', 0.06, 600),
   menuOpen: () => playTone(400, 0.1, 'sine', 0.1, 550),
   menuClose: () => playTone(400, 0.1, 'sine', 0.1, 300),
