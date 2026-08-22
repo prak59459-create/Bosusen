@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { camera, scene, setCameraMode, renderer, setPhotoFilter, setFovKick, isNightTime } from './scene.js';
+import { camera, scene, setCameraMode, renderer, setPhotoFilter, setFovKick, isNightTime, getTimeOfDayLabel } from './scene.js';
 import { player, crossfadeTo } from './player.js';
 import { spawnParticles } from './effects.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
@@ -374,7 +374,13 @@ function takeScreenshot() {
         link.click();
         document.body.removeChild(link);
         sfx.uiClick();
-        showToast('スクリーンショットを保存しました', 'info');
+        const timeLabel = getTimeOfDayLabel(currentAbsTime);
+        if (timeLabel === '明け方' || timeLabel === '夕暮れ') {
+          addShards(10);
+          showToast(`ゴールデンアワーの一枚！ 結晶の欠片+10`, 'quest');
+        } else {
+          showToast('スクリーンショットを保存しました', 'info');
+        }
         state.screenshotsTaken = (state.screenshotsTaken || 0) + 1;
         checkAchievements().forEach(a => { sfx.achievement(); showCenterMsg(`実績解除: ${a.name}`, '#ffd700', 2000); });
         const flashEl = document.getElementById('lightning-flash');
@@ -640,7 +646,9 @@ function tryReadLore(monu) {
   saveGame();
 }
 
+let currentAbsTime = 0;
 export function updateExplore(dt, absTime = 0, isRaining = false) {
+  currentAbsTime = absTime;
   updateFootprints(dt);
   if (!exploreActive) return;
   if (isSkirmishActive()) return;
