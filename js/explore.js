@@ -101,6 +101,7 @@ let gpJumpHeld = false;
 let gpDashHeld = false;
 let gpMapHeld = false;
 let gpCamResetHeld = false;
+let gpFilterHeld = false;
 let fireflyCheckTimer = 0;
 let chatterTimer = 0;
 let periodicAchCheckTimer = 30;
@@ -518,6 +519,15 @@ export function updateExplore(dt) {
     if (!(gp.buttons[9] && gp.buttons[9].pressed)) gpMapHeld = false;
     if (gp.buttons[3] && gp.buttons[3].pressed && !gpCamResetHeld) { gpCamResetHeld = true; camOrbitYaw = 0; camOrbitPitch = 0.42; }
     if (!(gp.buttons[3] && gp.buttons[3].pressed)) gpCamResetHeld = false;
+    if (gp.buttons[12] && gp.buttons[12].pressed && !gpFilterHeld) {
+      gpFilterHeld = true;
+      photoFilterMode = (photoFilterMode + 1) % 4;
+      setPhotoFilter(photoFilterMode);
+      const names = ['標準', 'セピア', 'モノクロ', '鮮やか'];
+      showToast(`フィルター: ${names[photoFilterMode]}`, 'info');
+      sfx.uiClick();
+    }
+    if (!(gp.buttons[12] && gp.buttons[12].pressed)) gpFilterHeld = false;
   }
 
   dashCooldown = Math.max(0, dashCooldown - dt);
