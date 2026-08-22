@@ -136,6 +136,24 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyM' && onToggleMap) onToggleMap();
   if (e.code === 'KeyR' && !e.repeat) toggleSprintLock();
   if (e.code === 'KeyC' && !e.repeat) { camOrbitYaw = 0; camOrbitPitch = 0.42; }
+  if (e.code === 'KeyT' && !e.repeat) {
+    const unfound = hiddenTreasures.filter(tr => !state.foundTreasures.includes(tr.id));
+    if (unfound.length === 0) {
+      showToast('すべての秘宝を発見済みです', 'info');
+    } else {
+      let nearest = null, nearestDist = Infinity;
+      unfound.forEach(tr => {
+        const d = Math.hypot(tr.localPos.x - localPos.x, tr.localPos.z - localPos.z);
+        if (d < nearestDist) { nearestDist = d; nearest = tr; }
+      });
+      const dx = nearest.localPos.x - localPos.x, dz = nearest.localPos.z - localPos.z;
+      const angDeg = ((Math.atan2(dx, dz) * 180 / Math.PI) + 360) % 360;
+      const dirNames = ['北', '北東', '東', '南東', '南', '南西', '西', '北西'];
+      const dirIdx = Math.round(angDeg / 45) % 8;
+      showToast(`最も近い未発見の秘宝: ${dirNames[dirIdx]}方向へ約${Math.round(nearestDist)}m`, 'quest');
+    }
+    sfx.uiClick();
+  }
   if (e.code === 'KeyE' && !e.repeat && dashCooldown <= 0 && exploreStamina >= DASH_STAMINA_COST) {
     dashTimer = DASH_DURATION;
     dashCooldown = DASH_COOLDOWN;
