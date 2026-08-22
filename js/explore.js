@@ -101,6 +101,12 @@ let gpDashHeld = false;
 let gpMapHeld = false;
 let gpCamResetHeld = false;
 let fireflyCheckTimer = 0;
+let chatterTimer = 0;
+const AMBIENT_LINES = [
+  '「今日はいい天気だ」', '「気をつけて行くんだぞ」', '「何か困ったことがあれば言ってくれ」',
+  '「この辺りも随分変わったものだ」', '「結晶獣の噂は聞いているかい？」', '「無理はしないようにな」',
+];
+const npcChatterCooldown = new WeakMap();
 let camInit = false;
 let objectiveTimer = 0;
 let jumpVelY = 0;
@@ -582,6 +588,23 @@ export function updateExplore(dt) {
   if (moving && !wasMoving) crossfadeTo('Walk', 0.15);
   if (!moving && wasMoving) crossfadeTo('Idle', 0.25);
   wasMoving = moving;
+
+  chatterTimer -= dt;
+  if (chatterTimer <= 0) {
+    chatterTimer = 1.2;
+    for (const g of questGivers) {
+      const d = Math.hypot(localPos.x - g.localPos.x, localPos.z - g.localPos.z);
+      if (d < 8) {
+        const lastSaid = npcChatterCooldown.get(g) || 0;
+        if (performance.now() - lastSaid > 25000 && Math.random() < 0.35) {
+          npcChatterCooldown.set(g, performance.now());
+          const line = AMBIENT_LINES[Math.floor(Math.random() * AMBIENT_LINES.length)];
+          showToast(`${g.name}：${line}`, 'info');
+        }
+        break;
+      }
+    }
+  }
 
   fireflyCheckTimer -= dt;
   if (fireflyCheckTimer <= 0) {
