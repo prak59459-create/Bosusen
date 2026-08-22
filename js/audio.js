@@ -40,6 +40,39 @@ export function stopAmbientWind() {
   ambientNodes = null;
 }
 
+/* ---------- 雨のアンビエント音（強度を可変で制御） ---------- */
+let rainNodes = null;
+export function setRainIntensity(v) {
+  const target = Math.max(0, Math.min(1, v));
+  if (target <= 0.001) {
+    if (rainNodes) {
+      rainNodes.gain.gain.setTargetAtTime(0, actx.currentTime, 0.4);
+      const nodes = rainNodes;
+      setTimeout(() => { try { nodes.src.stop(); } catch (e) {} }, 700);
+      rainNodes = null;
+    }
+    return;
+  }
+  if (!rainNodes) {
+    const bufferSize = actx.sampleRate * 2;
+    const buffer = actx.createBuffer(1, bufferSize, actx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+    const src = actx.createBufferSource();
+    src.buffer = buffer;
+    src.loop = true;
+    const filter = actx.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.value = 1800;
+    const gain = actx.createGain();
+    gain.gain.value = 0;
+    src.connect(filter); filter.connect(gain); gain.connect(masterGain);
+    src.start();
+    rainNodes = { src, filter, gain };
+  }
+  rainNodes.gain.gain.setTargetAtTime(target * 0.09, actx.currentTime, 0.6);
+}
+
 function playTone(freq, dur, type = 'sine', vol = 0.2, glideTo = null) {
   const osc = actx.createOscillator();
   const gain = actx.createGain();

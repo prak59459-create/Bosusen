@@ -4,7 +4,7 @@ import { player, loadPlayerModel, playerMixer, playerReady, setCompanionVisible,
 import * as EnemyModule from './enemy.js';
 import { spawnEnemy } from './enemy.js';
 import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles } from './effects.js';
-import { resumeAudio, sfx, setMasterVolume } from './audio.js';
+import { resumeAudio, sfx, setMasterVolume, setRainIntensity } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
 import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, computeStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
@@ -554,13 +554,16 @@ function animate() {
     const lp = getPlayerLocalPos();
     updateLeaves(t, lp.x, lp.z);
     updateShootingStars(t, dt, lp.x, lp.z, isNightTime(t));
-    updateRain(t, dt, lp.x, lp.z);
+    const isRaining = updateRain(t, dt, lp.x, lp.z);
+    setRainIntensity(isRaining ? 1 : 0);
     updateSnow(t, dt, lp.x, lp.z);
     updateEmbers(t, dt, lp.x, lp.z);
     updateSandstorm(t, dt, lp.x, lp.z);
     updateCyberMotes(t, dt, lp.x, lp.z);
     updateCrystalSparkles(t, dt, lp.x, lp.z);
     updateAsh(t, dt, lp.x, lp.z);
+  } else {
+    setRainIntensity(0);
   }
   if (exploreActive) {
     updateExplore(dt);

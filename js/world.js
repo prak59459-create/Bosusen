@@ -1200,7 +1200,7 @@ export function updateRain(t, dt, centerX, centerZ) {
   const cat = BIOME_DEFS[biomeIdx] ? BIOME_DEFS[biomeIdx].category : null;
   const isRaining = cat === 'swamp';
   rainMesh.visible = isRaining;
-  if (!isRaining) return;
+  if (!isRaining) return false;
   for (let i = 0; i < RAIN_COUNT; i++) {
     const d = rainData[i];
     d.y -= d.speed * dt;
@@ -1210,6 +1210,7 @@ export function updateRain(t, dt, centerX, centerZ) {
     rainMesh.setMatrixAt(i, rainDummy.matrix);
   }
   rainMesh.instanceMatrix.needsUpdate = true;
+  return true;
 }
 
 /* ---------- 雪原バイオームに降る雪 ---------- */
