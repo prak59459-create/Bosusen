@@ -191,6 +191,19 @@ export function mountRenderer() {
 /* ---------- ライティング ---------- */
 const hemi = new THREE.HemisphereLight(0xffffff, 0xd8c9a0, 0.75);
 scene.add(hemi);
+
+const DAY_SKY = new THREE.Color(0xcfe8ff);
+const NIGHT_SKY = new THREE.Color(0x0a0f2a);
+const _cycleColor = new THREE.Color();
+export function updateDayNightCycle(t) {
+  const cycle = (Math.sin(t * 0.015) + 1) / 2; // 0=夜, 1=昼。約420秒で1周
+  _cycleColor.copy(NIGHT_SKY).lerp(DAY_SKY, cycle);
+  scene.background = _cycleColor;
+  if (scene.fog) scene.fog.color.copy(_cycleColor);
+  hemi.intensity = 0.22 + cycle * 0.58;
+  dirLight.intensity = 0.35 + cycle * 1.55;
+  dirLight.color.setHSL(0.12, 0.55, 0.42 + cycle * 0.28);
+}
 export const dirLight = new THREE.DirectionalLight(0xfff6e0, 1.8);
 dirLight.position.set(6, 13, 7);
 dirLight.castShadow = true;

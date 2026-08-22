@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { camera, composer, camFittedPos, camLookAt, mountRenderer, torchFires, bossGlow, setQualityPreset } from './scene.js';
+import { camera, composer, camFittedPos, camLookAt, mountRenderer, torchFires, bossGlow, setQualityPreset, updateDayNightCycle } from './scene.js';
 import { player, loadPlayerModel, playerMixer, playerReady } from './player.js';
 import * as EnemyModule from './enemy.js';
 import { spawnEnemy } from './enemy.js';
@@ -444,6 +444,7 @@ function animate() {
 
   updateParticles(dt);
   updateFireflies(t);
+  if (exploreActive) updateDayNightCycle(t);
   if (exploreActive) {
     updateExplore(dt);
   } else {
