@@ -387,6 +387,7 @@ export function playerAction(type) {
       flashHit(b);
       crit ? sfx.critHit() : sfx.hit();
       spawnParticles(bossHitPoint(), crit ? 0xffe066 : 0xffcc44, crit ? 20 : 12);
+      if (crit) spawnShockwave(bossHitPoint(), 0xffe066);
       spawnDamageNumber(bossHitPoint(), `-${dmg}${crit ? '!' : ''}`, crit ? '#ffe066' : '#ffcc44', crit);
       log(`あなたの攻撃！ ${dmg} ダメージ${crit ? '（クリティカル！）' : ''}${state.combo > 1 ? ` (${state.combo}コンボ)` : ''}`);
       showCenterMsg(crit ? 'CRITICAL!' : 'ATTACK!', crit ? '#ffe066' : '#ffffff', 450);
@@ -413,6 +414,7 @@ export function playerAction(type) {
         sfx.heavyHit();
         if (crit) sfx.critHit();
         spawnParticles(bossHitPoint(), 0xff8844, 20);
+        if (crit) spawnShockwave(bossHitPoint(), 0xffe066);
         spawnDamageNumber(bossHitPoint(), `-${dmg}`, '#ff8844', true);
         log(`強攻撃が炸裂！ ${dmg} ダメージ！${crit ? '（クリティカル！）' : ''}`);
         showCenterMsg(crit ? 'CRITICAL!' : 'HEAVY HIT!', crit ? '#ffe066' : '#ff8844', 700);
@@ -461,6 +463,7 @@ export function playerAction(type) {
         sfx.heavyHit();
         if (crit) sfx.critHit();
         spawnParticles(target, 0x5eb6ff, 26);
+        if (crit) spawnShockwave(target, 0xffe066);
         spawnDamageNumber(target, `-${dmg}`, '#5eb6ff', true);
         log(`結晶技「アビスブレイク」！ ${dmg} ダメージ！${crit ? '（クリティカル！）' : ''}`);
         showCenterMsg(crit ? 'CRITICAL!' : 'ABYSS BREAK!', crit ? '#ffe066' : '#5eb6ff', 700);
