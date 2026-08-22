@@ -102,6 +102,7 @@ let gpMapHeld = false;
 let gpCamResetHeld = false;
 let fireflyCheckTimer = 0;
 let chatterTimer = 0;
+let periodicAchCheckTimer = 30;
 const AMBIENT_LINES = [
   '「今日はいい天気だ」', '「気をつけて行くんだぞ」', '「何か困ったことがあれば言ってくれ」',
   '「この辺りも随分変わったものだ」', '「結晶獣の噂は聞いているかい？」', '「無理はしないようにな」',
@@ -608,6 +609,13 @@ export function updateExplore(dt) {
   if (moving && !wasMoving) crossfadeTo('Walk', 0.15);
   if (!moving && wasMoving) crossfadeTo('Idle', 0.25);
   wasMoving = moving;
+
+  periodicAchCheckTimer -= dt;
+  if (periodicAchCheckTimer <= 0) {
+    periodicAchCheckTimer = 30;
+    checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
+    saveGame();
+  }
 
   chatterTimer -= dt;
   if (chatterTimer <= 0) {
