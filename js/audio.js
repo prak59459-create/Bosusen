@@ -164,6 +164,10 @@ export const sfx = {
   critterChirp: () => { playTone(1800 + Math.random() * 600, 0.06, 'sine', 0.04, 2400); },
   frogCroak: () => { playTone(220, 0.12, 'square', 0.05, 160); },
   crowCaw: () => { playTone(500, 0.15, 'sawtooth', 0.05, 350); },
+  scorpionClick: () => { playTone(2600, 0.02, 'square', 0.03, 2200); setTimeout(() => playTone(2600, 0.02, 'square', 0.03, 2200), 60); },
+  foxYip: () => { playTone(900, 0.08, 'sine', 0.05, 1400); },
+  droneHum: () => { playTone(1200, 0.2, 'sine', 0.03, 1100); },
+  spiritChime: () => { playTone(1400, 0.3, 'sine', 0.04, 1900); },
   thunder: () => { playNoise(1.1, 0.35); playTone(60, 1.2, 'sawtooth', 0.3, 30); },
   lowHp: () => { playTone(220, 0.18, 'triangle', 0.18, 160); },
 };

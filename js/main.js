@@ -645,6 +645,10 @@ function animate() {
       if (currentCat === 'forest' && Math.random() < 0.5) sfx.critterChirp();
       else if (currentCat === 'swamp' && Math.random() < 0.5) sfx.frogCroak();
       else if (currentCat === 'wasteland' && Math.random() < 0.4) sfx.crowCaw();
+      else if (currentCat === 'desert' && Math.random() < 0.35) sfx.scorpionClick();
+      else if (currentCat === 'snow' && Math.random() < 0.35) sfx.foxYip();
+      else if (currentCat === 'cyber' && Math.random() < 0.4) sfx.droneHum();
+      else if (currentCat === 'crystal' && Math.random() < 0.4) sfx.spiritChime();
     }
   } else {
     setRainIntensity(0);
