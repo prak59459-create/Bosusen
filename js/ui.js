@@ -5,6 +5,7 @@ import { sfx, setMasterVolume } from './audio.js';
 import { setQualityPreset } from './scene.js';
 import { setMapOpen } from './explore.js';
 import { BIOME_NAMES, BIOME_ENTRIES } from './world.js';
+import { rumble } from './effects.js';
 
 const BIOME_CATEGORY_ICON = {
   forest: '🌳', desert: '🏜️', cyber: '🌆', snow: '❄️',
@@ -91,7 +92,7 @@ export function updateBars() {
   els.playerHPGhost.style.width = hpPct + '%';
   const isCritical = hpPct > 0 && hpPct <= 25;
   els.playerHPFill.classList.toggle('critical', isCritical);
-  if (isCritical && !wasHpCritical) { sfx.lowHp(); showCenterMsg('DANGER!', '#ff5555', 900); }
+  if (isCritical && !wasHpCritical) { sfx.lowHp(); showCenterMsg('DANGER!', '#ff5555', 900); rumble(0.6, 400); }
   wasHpCritical = isCritical;
   const vignetteEl = document.getElementById('low-hp-vignette');
   if (vignetteEl) vignetteEl.classList.toggle('active', isCritical);
