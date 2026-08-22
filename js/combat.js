@@ -209,7 +209,10 @@ function finishGame(won) {
     if (!state.firstDefeatedAt[chapter.key]) state.firstDefeatedAt[chapter.key] = Date.now();
     if (!state.bestTurnsPerChapter) state.bestTurnsPerChapter = {};
     const prevBest = state.bestTurnsPerChapter[chapter.key];
-    if (!prevBest || state.turns < prevBest) state.bestTurnsPerChapter[chapter.key] = state.turns;
+    if (!prevBest || state.turns < prevBest) {
+      state.bestTurnsPerChapter[chapter.key] = state.turns;
+      if (prevBest) showToast(`最速記録更新！ ${state.turns}ターン（前回: ${prevBest}ターン）`, 'quest');
+    }
     state.winStreak++;
     state.bestWinStreak = Math.max(state.bestWinStreak, state.winStreak);
     state.lifetimeBestCombo = Math.max(state.lifetimeBestCombo, state.maxCombo || 0);
