@@ -356,6 +356,7 @@ export function renderStatusTab() {
       veteran_hunter: [Math.max(0, ...Object.values(state.chapterClearCounts || {}), 0), 5],
       dedicated_player: [Math.round(state.totalPlaytimeSec || 0), 3600],
       true_resident: [Math.round(state.totalPlaytimeSec || 0), 18000],
+      veteran_resident: [Math.round(state.totalPlaytimeSec || 0), 36000],
       bestiary_complete: [CHAPTERS.filter(c => (state.chapterClearCounts[c.key] || 0) > 0).length, CHAPTERS.length],
       star_wisher: [state.starWishesMade || 0, 20],
       star_wisher_master: [state.starWishesMade || 0, 50],

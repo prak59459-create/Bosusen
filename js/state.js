@@ -246,6 +246,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (state.totalParries >= 30) tryUnlock('parry_master');
   if ((state.totalPlaytimeSec || 0) >= 3600) tryUnlock('dedicated_player');
   if ((state.totalPlaytimeSec || 0) >= 18000) tryUnlock('true_resident');
+  if ((state.totalPlaytimeSec || 0) >= 36000) tryUnlock('veteran_resident');
   if (state.butterfliesCaught >= 50) tryUnlock('butterfly_catcher');
   if (CHAPTERS.every(c => (state.chapterClearCounts[c.key] || 0) > 0)) tryUnlock('bestiary_complete');
   if ((state.starWishesMade || 0) >= 20) tryUnlock('star_wisher');

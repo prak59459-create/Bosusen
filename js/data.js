@@ -345,4 +345,5 @@ export const ACHIEVEMENTS = [
   { id:'star_wisher_master', name:'星々の寵愛', desc:'流れ星に累計50回願いごとをする。', reward:50 },
   { id:'firefly_master', name:'蛍火の達人', desc:'蛍を累計200匹捕まえる。', reward:40 },
   { id:'butterfly_master', name:'蝶舞の達人', desc:'蝶を累計200匹捕まえる。', reward:40 },
+  { id:'veteran_resident', name:'エーテリアの守護者', desc:'累計プレイ時間が10時間に達する。', reward:100 },
 ];
