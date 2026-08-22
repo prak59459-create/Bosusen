@@ -311,11 +311,12 @@ function drawRadar() {
 
 let mapScaleInfo = { scale: 1, cx: 0, cy: 0 };
 let mapZoomFactor = 1;
+let mapPanX = 0, mapPanY = 0;
 function drawMap() {
   const w = mapCanvas.width, h = mapCanvas.height;
   const contentRadius = Math.max(...fieldTargets.map(t => Math.hypot(t.localPos.x, t.localPos.z)), 500) * 1.15;
   const scale = ((Math.min(w, h) / 2 - 20) / contentRadius) * mapZoomFactor;
-  const cx = w / 2, cy = h / 2;
+  const cx = w / 2 + mapPanX, cy = h / 2 + mapPanY;
   const zoomLabelEl = document.getElementById('map-zoom-label');
   if (zoomLabelEl) zoomLabelEl.textContent = `${Math.round(mapZoomFactor * 100)}%`;
   mapScaleInfo = { scale, cx, cy };
@@ -437,6 +438,7 @@ function drawMap() {
 
 function openMap() {
   mapZoomFactor = 1;
+  mapPanX = 0; mapPanY = 0;
   drawMap();
   const summaryEl = document.getElementById('map-summary');
   if (summaryEl) {
@@ -462,10 +464,32 @@ if (mapZoomOutBtn) mapZoomOutBtn.addEventListener('click', () => { mapZoomFactor
 mapCanvas.addEventListener('dblclick', (e) => {
   e.preventDefault();
   mapZoomFactor = 1;
+  mapPanX = 0; mapPanY = 0;
   drawMap();
 });
+let mapDragging = false, mapDragStartX = 0, mapDragStartY = 0, mapDragMoved = false;
+mapCanvas.addEventListener('pointerdown', (e) => {
+  mapDragging = true;
+  mapDragMoved = false;
+  mapDragStartX = e.clientX; mapDragStartY = e.clientY;
+  mapCanvas.setPointerCapture(e.pointerId);
+});
+mapCanvas.addEventListener('pointermove', (e) => {
+  if (!mapDragging) return;
+  const dx = e.clientX - mapDragStartX, dy = e.clientY - mapDragStartY;
+  if (Math.abs(dx) > 3 || Math.abs(dy) > 3) mapDragMoved = true;
+  if (mapDragMoved) {
+    const rect = mapCanvas.getBoundingClientRect();
+    mapPanX += dx * (mapCanvas.width / rect.width);
+    mapPanY += dy * (mapCanvas.height / rect.height);
+    mapDragStartX = e.clientX; mapDragStartY = e.clientY;
+    drawMap();
+  }
+});
+mapCanvas.addEventListener('pointerup', () => { mapDragging = false; });
 mapCanvas.addEventListener('click', (e) => {
   if (!exploreActive) return;
+  if (mapDragMoved) return;
   const rect = mapCanvas.getBoundingClientRect();
   const px = (e.clientX - rect.left) * (mapCanvas.width / rect.width);
   const py = (e.clientY - rect.top) * (mapCanvas.height / rect.height);
