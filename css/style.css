@@ -340,6 +340,9 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   background:rgba(230,220,250,0.8); border:2px solid rgba(180,140,255,0.4); color:#2a1f3d;
   pointer-events:auto; cursor:pointer; display:none;
 }
+#jump-btn:active, #dash-btn:active, #emote-btn:active, #screenshot-btn:active, #hub-return-btn:active {
+  background:rgba(180,140,255,0.9); transform:scale(0.92);
+}
 #jump-btn { bottom: max(28px, env(safe-area-inset-bottom)); }
 #dash-btn { bottom: max(90px, env(safe-area-inset-bottom) + 62px); }
 #emote-btn { bottom: max(152px, env(safe-area-inset-bottom) + 124px); }
