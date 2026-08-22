@@ -354,6 +354,19 @@ export function enterExploreMode(spawnLocal) {
   document.getElementById('explore-hud').style.display = 'flex';
   document.getElementById('ui').classList.add('exploring');
   startAmbientWind();
+  if (!state.seenExploreTutorial) {
+    state.seenExploreTutorial = true;
+    const tips = [
+      'WASD / 矢印キーで移動しよう',
+      'Spaceでジャンプ、空中でもう一度押すと2段ジャンプ',
+      'Shiftでスプリント、Eでダッシュ（スタミナを消費）',
+      '困ったらHキーでいつでも操作方法を確認できるよ',
+    ];
+    tips.forEach((tip, i) => {
+      setTimeout(() => showToast(tip, 'info'), 1500 + i * 2600);
+    });
+    saveGame();
+  }
 }
 
 export function exitExploreMode() {
