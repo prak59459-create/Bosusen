@@ -345,7 +345,10 @@ for (let i = 0; i < 8; i++) {
 /* ============================================================
    グラフィック品質プリセット（設定画面から切り替え可能）
    ============================================================ */
+let currentQuality = 'high';
+export function isLowQuality() { return currentQuality === 'low'; }
 export function setQualityPreset(level) {
+  currentQuality = level;
   let pr;
   if (level === 'high') {
     pr = Math.min(window.devicePixelRatio || 1, isMobile ? 3 : 3);

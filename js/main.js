@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { camera, composer, camFittedPos, camLookAt, mountRenderer, torchFires, bossGlow, setQualityPreset, updateDayNightCycle, isNightTime } from './scene.js';
+import { camera, composer, camFittedPos, camLookAt, mountRenderer, torchFires, bossGlow, setQualityPreset, updateDayNightCycle, isNightTime, isLowQuality } from './scene.js';
 import { player, loadPlayerModel, playerMixer, playerReady, setCompanionVisible, updateCompanion } from './player.js';
 import * as EnemyModule from './enemy.js';
 import { spawnEnemy } from './enemy.js';
@@ -543,18 +543,20 @@ function animate() {
   });
 
   updateParticles(dt);
-  updateFireflies(t);
-  updateBirds(t);
-  updateCritters(t);
-  updateButterflies(t);
-  updateScorpions(t);
-  updateFoxes(t);
-  updateFrogs(t);
-  updateCrows(t);
-  updateSalamanders(t);
-  updateDrones(t);
-  updateSpirits(t);
-  updateGrassWind(t);
+  if (!isLowQuality()) {
+    updateFireflies(t);
+    updateBirds(t);
+    updateCritters(t);
+    updateButterflies(t);
+    updateScorpions(t);
+    updateFoxes(t);
+    updateFrogs(t);
+    updateCrows(t);
+    updateSalamanders(t);
+    updateDrones(t);
+    updateSpirits(t);
+    updateGrassWind(t);
+  }
   setCompanionVisible(exploreActive);
   if (exploreActive) {
     drawRadar();
