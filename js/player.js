@@ -71,3 +71,25 @@ export function playerMotionBeat(kind = 'attack') {
   else crossfadeTo('Walk', 0.15);
   setTimeout(() => crossfadeTo('Idle', 0.3), kind === 'heavy' ? 480 : 320);
 }
+
+/* ---------- 探索時にプレイヤーを追従する光の妖精 ---------- */
+const companionGeo = new THREE.SphereGeometry(0.22, 10, 10);
+const companionMat = new THREE.MeshBasicMaterial({ color: 0x9fe0ff, transparent: true, opacity: 0.9 });
+export const companionOrb = new THREE.Group();
+const companionCore = new THREE.Mesh(companionGeo, companionMat);
+companionOrb.add(companionCore);
+const companionLight = new THREE.PointLight(0x9fe0ff, 1.2, 6, 2);
+companionOrb.add(companionLight);
+companionOrb.visible = false;
+scene.add(companionOrb);
+const companionTrail = new THREE.Vector3();
+export function setCompanionVisible(v) { companionOrb.visible = v; }
+export function updateCompanion(t, dt) {
+  if (!companionOrb.visible) return;
+  const targetX = player.position.x - Math.sin(player.rotation.y) * 1.6;
+  const targetZ = player.position.z - Math.cos(player.rotation.y) * 1.6;
+  const targetY = player.position.y + 1.9 + Math.sin(t * 2) * 0.25;
+  companionTrail.set(targetX, targetY, targetZ);
+  companionOrb.position.lerp(companionTrail, Math.min(1, dt * 4));
+  companionCore.scale.setScalar(1 + Math.sin(t * 5) * 0.12);
+}

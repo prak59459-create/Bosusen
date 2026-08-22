@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { camera, composer, camFittedPos, camLookAt, mountRenderer, torchFires, bossGlow, setQualityPreset, updateDayNightCycle, isNightTime } from './scene.js';
-import { player, loadPlayerModel, playerMixer, playerReady } from './player.js';
+import { player, loadPlayerModel, playerMixer, playerReady, setCompanionVisible, updateCompanion } from './player.js';
 import * as EnemyModule from './enemy.js';
 import { spawnEnemy } from './enemy.js';
 import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles } from './effects.js';
@@ -447,7 +447,9 @@ function animate() {
   updateBirds(t);
   updateCritters(t);
   updateGrassWind(t);
+  setCompanionVisible(exploreActive);
   if (exploreActive) {
+    updateCompanion(t, dt);
     updateDayNightCycle(t);
     const lp = getPlayerLocalPos();
     updateLeaves(t, lp.x, lp.z);
