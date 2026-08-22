@@ -1,6 +1,6 @@
 import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS } from './data.js';
 import { state, computeStats, isQuestDone, ownsItem,
-  equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll } from './state.js';
+  equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData } from './state.js';
 import { sfx, setMasterVolume } from './audio.js';
 import { setQualityPreset } from './scene.js';
 import { setMapOpen } from './explore.js';
@@ -628,6 +628,40 @@ export function initMenu(onSave, onTitle) {
     sfx.menuClose();
     closeMenu();
     if (onTitle) onTitle();
+  });
+  document.getElementById('export-save-btn').addEventListener('click', () => {
+    const raw = exportSaveData();
+    if (!raw) { showToast('セーブデータはありません', 'info'); return; }
+    const blob = new Blob([raw], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `bosusen-save-${Date.now()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    sfx.uiClick();
+    showToast('セーブデータをエクスポートしました', 'info');
+  });
+  document.getElementById('import-save-btn').addEventListener('click', () => {
+    document.getElementById('import-save-input').click();
+  });
+  document.getElementById('import-save-input').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (importSaveData(reader.result)) {
+        showToast('セーブデータをインポートしました。ページを再読み込みします', 'quest');
+        sfx.achievement();
+        setTimeout(() => window.location.reload(), 1200);
+      } else {
+        showToast('インポートに失敗しました。ファイル形式を確認してください', 'info');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
   });
 
   window.addEventListener('keydown', (e) => {

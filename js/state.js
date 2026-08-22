@@ -380,3 +380,17 @@ export function loadGame() {
 export function clearSave() {
   try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
 }
+
+export function exportSaveData() {
+  return localStorage.getItem(SAVE_KEY);
+}
+
+export function importSaveData(raw) {
+  try {
+    JSON.parse(raw); // 妥当なJSONか検証
+    localStorage.setItem(SAVE_KEY, raw);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
