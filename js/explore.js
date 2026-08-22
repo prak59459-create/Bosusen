@@ -215,10 +215,12 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyC' && !e.repeat) { camOrbitYaw = 0; camOrbitPitch = 0.42; }
   if (e.code === 'KeyV' && !e.repeat) {
     photoFilterMode = (photoFilterMode + 1) % 4;
+    state.photoFilterMode = photoFilterMode;
     setPhotoFilter(photoFilterMode);
     const names = ['標準', 'セピア', 'モノクロ', '鮮やか'];
     showToast(`フィルター: ${names[photoFilterMode]}`, 'info');
     sfx.uiClick();
+    saveGame();
   }
   if (e.code === 'KeyT' && !e.repeat) {
     const unfound = hiddenTreasures.filter(tr => !state.foundTreasures.includes(tr.id));
@@ -364,6 +366,8 @@ export function enterExploreMode(spawnLocal) {
   document.getElementById('explore-hud').style.display = 'flex';
   document.getElementById('ui').classList.add('exploring');
   startAmbientWind();
+  photoFilterMode = state.photoFilterMode || 0;
+  setPhotoFilter(photoFilterMode);
   if (!state.seenExploreTutorial) {
     state.seenExploreTutorial = true;
     const tips = [
@@ -522,10 +526,12 @@ export function updateExplore(dt) {
     if (gp.buttons[12] && gp.buttons[12].pressed && !gpFilterHeld) {
       gpFilterHeld = true;
       photoFilterMode = (photoFilterMode + 1) % 4;
+      state.photoFilterMode = photoFilterMode;
       setPhotoFilter(photoFilterMode);
       const names = ['標準', 'セピア', 'モノクロ', '鮮やか'];
       showToast(`フィルター: ${names[photoFilterMode]}`, 'info');
       sfx.uiClick();
+      saveGame();
     }
     if (!(gp.buttons[12] && gp.buttons[12].pressed)) gpFilterHeld = false;
   }
