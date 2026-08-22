@@ -4,13 +4,13 @@ import { player, loadPlayerModel, playerMixer, playerReady, setCompanionVisible,
 import * as EnemyModule from './enemy.js';
 import { spawnEnemy } from './enemy.js';
 import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles } from './effects.js';
-import { resumeAudio, sfx, setMasterVolume, setRainIntensity } from './audio.js';
+import { resumeAudio, sfx, setMasterVolume, setRainIntensity, setBiomeDrone } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
 import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, computeStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, syncSettingsUI, openMenu, closeMenu } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
-import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh } from './world.js';
+import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
   setOnOpenShop, setOnToggleMap, getPlayerLocalPos, exploreActive, setMapOpen, setExploreLocalPos } from './explore.js';
 import { initSkirmishUI, resetSkirmish } from './skirmish.js';
@@ -562,6 +562,7 @@ function animate() {
     updateCyberMotes(t, dt, lp.x, lp.z);
     updateCrystalSparkles(t, dt, lp.x, lp.z);
     updateAsh(t, dt, lp.x, lp.z);
+    setBiomeDrone(biomeCategoryAt(lp.x, lp.z));
   } else {
     setRainIntensity(0);
   }

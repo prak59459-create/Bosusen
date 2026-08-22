@@ -73,6 +73,38 @@ export function setRainIntensity(v) {
   rainNodes.gain.gain.setTargetAtTime(target * 0.09, actx.currentTime, 0.6);
 }
 
+/* ---------- バイオームごとの環境ドローン音 ---------- */
+const DRONE_FREQ = { forest: 220, desert: 130, cyber: 90, snow: 260, swamp: 150, volcanic: 70, crystal: 330, wasteland: 100 };
+let droneNodes = null;
+let droneCategory = null;
+export function setBiomeDrone(category) {
+  if (category === droneCategory) return;
+  droneCategory = category;
+  const freq = DRONE_FREQ[category];
+  if (!freq) {
+    if (droneNodes) {
+      droneNodes.gain.gain.setTargetAtTime(0, actx.currentTime, 0.8);
+      const nodes = droneNodes;
+      setTimeout(() => { try { nodes.osc.stop(); } catch (e) {} }, 1500);
+      droneNodes = null;
+    }
+    return;
+  }
+  if (!droneNodes) {
+    const osc = actx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    const gain = actx.createGain();
+    gain.gain.value = 0;
+    osc.connect(gain); gain.connect(masterGain);
+    osc.start();
+    droneNodes = { osc, gain };
+    droneNodes.gain.gain.setTargetAtTime(0.025, actx.currentTime, 1.2);
+  } else {
+    droneNodes.osc.frequency.setTargetAtTime(freq, actx.currentTime, 1.5);
+  }
+}
+
 function playTone(freq, dur, type = 'sine', vol = 0.2, glideTo = null) {
   const osc = actx.createOscillator();
   const gain = actx.createGain();
