@@ -1437,3 +1437,35 @@ export function updateAsh(t, dt, centerX, centerZ) {
   }
   ashMesh.instanceMatrix.needsUpdate = true;
 }
+
+/* ---------- 雷（3D稲妻ジオメトリ） ---------- */
+const lightningMat = new THREE.LineBasicMaterial({ color: 0xe0e8ff, transparent: true, opacity: 0 });
+const lightningBolt = new THREE.LineSegments(new THREE.BufferGeometry(), lightningMat);
+worldGroup.add(lightningBolt);
+let lightningTimer = 0;
+export function triggerLightning(centerX, centerZ) {
+  const startX = centerX + (Math.random() - 0.5) * 120;
+  const startZ = centerZ + (Math.random() - 0.5) * 120;
+  const segs = 10;
+  const positions = new Float32Array(segs * 6);
+  let x = startX, y = 140, z = startZ;
+  for (let i = 0; i < segs; i++) {
+    const nx = x + (Math.random() - 0.5) * 14;
+    const ny = y - 140 / segs;
+    const nz = z + (Math.random() - 0.5) * 14;
+    positions.set([x, y, z, nx, ny, nz], i * 6);
+    x = nx; y = ny; z = nz;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  lightningBolt.geometry.dispose();
+  lightningBolt.geometry = geo;
+  lightningMat.opacity = 0.95;
+  lightningTimer = 0.15;
+}
+export function updateLightning(dt) {
+  if (lightningTimer > 0) {
+    lightningTimer -= dt;
+    lightningMat.opacity = Math.max(0, lightningTimer / 0.15) * 0.95;
+  }
+}
