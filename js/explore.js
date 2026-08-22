@@ -108,6 +108,7 @@ let gpHubReturnHeld = false;
 let gpEmoteHeld = false;
 let gpLoadoutHeld = false;
 let gpMuteHeld = false;
+let gpPhotoGridHeld = false;
 let fireflyCheckTimer = 0;
 let chatterTimer = 0;
 let periodicAchCheckTimer = 30;
@@ -667,6 +668,8 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
     if (!(gp.buttons[4] && gp.buttons[4].pressed)) gpLoadoutHeld = false;
     if (gp.buttons[5] && gp.buttons[5].pressed && !gpMuteHeld) { gpMuteHeld = true; if (onToggleMute) onToggleMute(); }
     if (!(gp.buttons[5] && gp.buttons[5].pressed)) gpMuteHeld = false;
+    if (gp.buttons[8] && gp.buttons[8].pressed && !gpPhotoGridHeld) { gpPhotoGridHeld = true; togglePhotoGrid(); }
+    if (!(gp.buttons[8] && gp.buttons[8].pressed)) gpPhotoGridHeld = false;
     keys.sprint = keys.sprint || (gp.buttons[10] && gp.buttons[10].pressed);
     const rx = gp.axes[2] || 0, ry = gp.axes[3] || 0;
     const gpSens = state.cameraSensitivity || 1;
