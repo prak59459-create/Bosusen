@@ -11,6 +11,35 @@ export function resumeAudio() {
   if (actx.state === 'suspended') actx.resume();
 }
 
+/* ---------- 探索モード用の環境風音（ループ） ---------- */
+let ambientNodes = null;
+export function startAmbientWind() {
+  if (ambientNodes) return;
+  const bufferSize = actx.sampleRate * 2;
+  const buffer = actx.createBuffer(1, bufferSize, actx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+  const src = actx.createBufferSource();
+  src.buffer = buffer;
+  src.loop = true;
+  const filter = actx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.frequency.value = 400;
+  filter.Q.value = 0.6;
+  const gain = actx.createGain();
+  gain.gain.value = 0.05;
+  src.connect(filter); filter.connect(gain); gain.connect(masterGain);
+  src.start();
+  ambientNodes = { src, filter, gain };
+}
+export function stopAmbientWind() {
+  if (!ambientNodes) return;
+  ambientNodes.gain.gain.setTargetAtTime(0, actx.currentTime, 0.3);
+  const nodes = ambientNodes;
+  setTimeout(() => { try { nodes.src.stop(); } catch (e) {} }, 500);
+  ambientNodes = null;
+}
+
 function playTone(freq, dur, type = 'sine', vol = 0.2, glideTo = null) {
   const osc = actx.createOscillator();
   const gain = actx.createGain();

@@ -8,7 +8,7 @@ import { CHAPTERS } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
   fieldQuestState, acceptFieldQuest, saveGame, checkAchievements } from './state.js';
 import { showToast, renderQuestTracker } from './ui.js';
-import { sfx } from './audio.js';
+import { sfx, startAmbientWind, stopAmbientWind } from './audio.js';
 import { startSkirmish, isSkirmishActive } from './skirmish.js';
 
 /* ============================================================
@@ -218,10 +218,12 @@ export function enterExploreMode(spawnLocal) {
   camInit = false;
   document.getElementById('explore-hud').style.display = 'flex';
   document.getElementById('ui').classList.add('exploring');
+  startAmbientWind();
 }
 
 export function exitExploreMode() {
   exploreActive = false;
+  stopAmbientWind();
   setCameraMode('battle');
   camera.far = 200;
   camera.updateProjectionMatrix();
