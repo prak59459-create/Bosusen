@@ -136,6 +136,18 @@ const AMBIENT_LINES_VOLCANIC = [
 const AMBIENT_LINES_DESERT = [
   '「水は十分に持ってきたか？」', '「この砂漠は昼と夜で顔つきが変わる」', '「砂嵐には気をつけろよ」',
 ];
+const AMBIENT_LINES_SWAMP = [
+  '「この沼地はぬかるみが深い、足元によく気をつけろ」', '「蛙の声が心地よい夜だ」', '「霧が出る日は迷いやすいから注意しろ」',
+];
+const AMBIENT_LINES_WASTELAND = [
+  '「この荒野で生き延びるのは容易じゃない」', '「灰色の空はもう見慣れたものさ」', '「カラスの鳴き声が聞こえるな」',
+];
+const AMBIENT_LINES_CYBER = [
+  '「このネオンの光、目がチカチカするだろう」', '「ドローンの巡回には気をつけろ」', '「電子音が絶えない街だな」',
+];
+const AMBIENT_LINES_CRYSTAL = [
+  '「結晶の共鳴音が聞こえるか？」', '「この場所は神秘的な力に満ちている」', '「精霊たちの気配を感じるよ」',
+];
 const npcChatterCooldown = new WeakMap();
 let camInit = false;
 let objectiveTimer = 0;
@@ -796,7 +808,7 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
           const done = isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId);
           const pending = !done && fieldQuestState(g.questId) === 'accepted';
           const gCat = biomeCategoryAt(g.localPos.x, g.localPos.z);
-          const CAT_LINES = { snow: AMBIENT_LINES_SNOW, volcanic: AMBIENT_LINES_VOLCANIC, desert: AMBIENT_LINES_DESERT };
+          const CAT_LINES = { snow: AMBIENT_LINES_SNOW, volcanic: AMBIENT_LINES_VOLCANIC, desert: AMBIENT_LINES_DESERT, swamp: AMBIENT_LINES_SWAMP, wasteland: AMBIENT_LINES_WASTELAND, cyber: AMBIENT_LINES_CYBER, crystal: AMBIENT_LINES_CRYSTAL };
           const pool = done ? AMBIENT_LINES_DONE : (pending ? AMBIENT_LINES_PENDING : (CAT_LINES[gCat] || (isRaining ? AMBIENT_LINES_RAIN : (isNightTime(absTime) ? AMBIENT_LINES_NIGHT : AMBIENT_LINES))));
           const line = pool[Math.floor(Math.random() * pool.length)];
           showToast(`${g.name}：${line}`, 'info');
