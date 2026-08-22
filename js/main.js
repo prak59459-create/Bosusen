@@ -718,6 +718,10 @@ function animate() {
 }
 animate();
 
+setInterval(() => {
+  if (exploreActive || state.playing) saveGame();
+}, 180000);
+
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') {
     if (exploreActive || state.playing) saveGame();
