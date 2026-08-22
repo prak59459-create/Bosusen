@@ -455,6 +455,10 @@ mapCanvas.addEventListener('wheel', (e) => {
   mapZoomFactor = Math.max(1, Math.min(4, mapZoomFactor - Math.sign(e.deltaY) * 0.2));
   drawMap();
 }, { passive: false });
+const mapZoomInBtn = document.getElementById('map-zoom-in-btn');
+if (mapZoomInBtn) mapZoomInBtn.addEventListener('click', () => { mapZoomFactor = Math.min(4, mapZoomFactor + 0.3); drawMap(); });
+const mapZoomOutBtn = document.getElementById('map-zoom-out-btn');
+if (mapZoomOutBtn) mapZoomOutBtn.addEventListener('click', () => { mapZoomFactor = Math.max(1, mapZoomFactor - 0.3); drawMap(); });
 mapCanvas.addEventListener('dblclick', (e) => {
   e.preventDefault();
   mapZoomFactor = 1;
