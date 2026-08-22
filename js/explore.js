@@ -343,6 +343,10 @@ export function initJoystick() {
   joyKnob = document.getElementById('joy-knob');
   const sprintBtn = document.getElementById('sprint-lock-btn');
   if (sprintBtn) sprintBtn.addEventListener('click', () => { if (exploreActive) toggleSprintLock(); });
+  const jumpBtn = document.getElementById('jump-btn');
+  if (jumpBtn) jumpBtn.addEventListener('click', () => { if (exploreActive) doJump(); });
+  const dashBtn = document.getElementById('dash-btn');
+  if (dashBtn) dashBtn.addEventListener('click', () => { if (exploreActive) doDash(); });
   if (!joyBase || !joyKnob) return;
 
   const onDown = (e) => {
