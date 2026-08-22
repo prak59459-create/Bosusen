@@ -263,6 +263,8 @@ window.addEventListener('keydown', (e) => {
           document.body.removeChild(link);
           sfx.uiClick();
           showToast('スクリーンショットを保存しました', 'info');
+          state.screenshotsTaken = (state.screenshotsTaken || 0) + 1;
+          checkAchievements().forEach(a => { sfx.achievement(); showCenterMsg(`実績解除: ${a.name}`, '#ffd700', 2000); });
           const flashEl = document.getElementById('lightning-flash');
           if (flashEl && !state.reduceFlashing) {
             flashEl.classList.add('flash');

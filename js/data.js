@@ -330,4 +330,5 @@ export const ACHIEVEMENTS = [
   { id:'true_resident', name:'エーテリアの生粋の民', desc:'累計プレイ時間が5時間に達する。', reward:70 },
   { id:'bestiary_complete', name:'図鑑の完成者', desc:'すべてのボスを一度以上撃破する。', reward:60 },
   { id:'star_wisher', name:'星に願いを', desc:'流れ星に累計20回願いごとをする。', reward:30 },
+  { id:'photographer', name:'旅の記録者', desc:'スクリーンショットを累計10枚撮影する。', reward:25 },
 ];
