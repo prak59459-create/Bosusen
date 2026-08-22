@@ -194,10 +194,20 @@
         <div class="item-list" id="lore-list"></div>
       </div>
       <div class="menu-page" id="page-system">
+        <div class="settings-section-title">🔊 音声</div>
         <div class="system-row">
           <label for="opt-volume">音量</label>
           <input type="range" id="opt-volume" min="0" max="100" value="70">
         </div>
+        <div class="system-row">
+          <label for="opt-reduce-chatter">NPCの独り言を減らす</label>
+          <input type="checkbox" id="opt-reduce-chatter">
+        </div>
+        <div class="system-row">
+          <label for="opt-proximity-sounds">目標接近時の感知音</label>
+          <input type="checkbox" id="opt-proximity-sounds" checked>
+        </div>
+        <div class="settings-section-title">🖥️ グラフィック</div>
         <div class="system-row">
           <label for="opt-quality">グラフィック品質</label>
           <select id="opt-quality">
@@ -211,21 +221,18 @@
           <input type="checkbox" id="opt-shake" checked>
         </div>
         <div class="system-row">
-          <label for="opt-objective-hint">最寄り目標の距離表示</label>
-          <input type="checkbox" id="opt-objective-hint" checked>
-        </div>
-        <div class="system-row">
           <label for="opt-guide-beams">目標の案内ビーム表示</label>
           <input type="checkbox" id="opt-guide-beams" checked>
         </div>
+        <div class="settings-section-title">🎮 操作</div>
         <div class="system-row">
           <label for="opt-gamepad-rumble">ゲームパッド振動</label>
           <input type="checkbox" id="opt-gamepad-rumble" checked>
           <button class="mini-btn" id="rumble-test-btn">テスト</button>
         </div>
         <div class="system-row">
-          <label for="opt-low-hp-heartbeat">HP危険時の心拍音</label>
-          <input type="checkbox" id="opt-low-hp-heartbeat" checked>
+          <label for="opt-objective-hint">最寄り目標の距離表示</label>
+          <input type="checkbox" id="opt-objective-hint" checked>
         </div>
         <div class="system-row">
           <label for="opt-invert-camera-y">カメラ上下反転</label>
@@ -236,6 +243,11 @@
           <input type="range" id="opt-camera-sensitivity" min="50" max="200" value="100">
           <span id="opt-camera-sensitivity-val" style="min-width:44px;text-align:right;font-size:12px;">100%</span>
         </div>
+        <div class="settings-section-title">♿ アクセシビリティ</div>
+        <div class="system-row">
+          <label for="opt-low-hp-heartbeat">HP危険時の心拍音</label>
+          <input type="checkbox" id="opt-low-hp-heartbeat" checked>
+        </div>
         <div class="system-row">
           <label for="opt-reduce-flashing">画面フラッシュ演出を減らす</label>
           <input type="checkbox" id="opt-reduce-flashing">
@@ -244,17 +256,10 @@
           <label for="opt-high-contrast">高コントラストモード</label>
           <input type="checkbox" id="opt-high-contrast">
         </div>
-        <div class="system-row">
-          <label for="opt-reduce-chatter">NPCの独り言を減らす</label>
-          <input type="checkbox" id="opt-reduce-chatter">
-        </div>
+        <div class="settings-section-title">🧚 パーソナライズ</div>
         <div class="system-row">
           <label for="opt-companion-name">相棒オーブの名前</label>
           <input type="text" id="opt-companion-name" maxlength="10" style="width:100px; text-align:right;">
-        </div>
-        <div class="system-row">
-          <label for="opt-proximity-sounds">目標接近時の感知音</label>
-          <input type="checkbox" id="opt-proximity-sounds" checked>
         </div>
         <div class="system-row">
           <label for="opt-text-scale">UI文字サイズ</label>

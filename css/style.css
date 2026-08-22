@@ -554,3 +554,9 @@ body.high-contrast .quest-tracker, body.high-contrast #biome-label {
   20% { box-shadow: 0 0 0 3px rgba(255,215,0,0.8); }
   60% { box-shadow: 0 0 0 3px rgba(255,215,0,0.4); }
 }
+
+.settings-section-title {
+  font-size: 12px; font-weight: bold; opacity: 0.6; margin: 16px 0 6px;
+  letter-spacing: 0.05em; border-bottom: 1px solid rgba(150,100,220,0.25); padding-bottom: 4px;
+}
+.settings-section-title:first-child { margin-top: 0; }
