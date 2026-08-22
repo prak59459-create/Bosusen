@@ -19,6 +19,38 @@ let mapOpen = false;
 export function setMapOpen(v) { mapOpen = v; }
 
 const localPos = new THREE.Vector3(HUB_SPAWN.x, 0, HUB_SPAWN.z);
+
+/* ---------- 足跡デカール ---------- */
+const footprintGeo = new THREE.PlaneGeometry(0.22, 0.4);
+const footprintMat = new THREE.MeshBasicMaterial({ color: 0x3a2a18, transparent: true, opacity: 0.35, depthWrite: false });
+const footprints = [];
+let footSide = 1;
+function spawnFootprint(pos, rotY) {
+  const mat = footprintMat.clone();
+  const mesh = new THREE.Mesh(footprintGeo, mat);
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.rotation.z = rotY;
+  footSide *= -1;
+  mesh.position.set(
+    pos.x + Math.cos(rotY) * 0.18 * footSide,
+    0.015,
+    pos.z - Math.sin(rotY) * 0.18 * footSide
+  );
+  scene.add(mesh);
+  footprints.push({ mesh, life: 0, maxLife: 6 });
+}
+function updateFootprints(dt) {
+  for (let i = footprints.length - 1; i >= 0; i--) {
+    const f = footprints[i];
+    f.life += dt;
+    f.mesh.material.opacity = 0.35 * Math.max(0, 1 - f.life / f.maxLife);
+    if (f.life >= f.maxLife) {
+      scene.remove(f.mesh);
+      f.mesh.material.dispose();
+      footprints.splice(i, 1);
+    }
+  }
+}
 let facing = Math.PI; // 進行方向(ラジアン)
 const WALK_SPEED = 14;
 const SPRINT_SPEED = 34;
@@ -277,6 +309,7 @@ function tryReadLore(monu) {
 }
 
 export function updateExplore(dt) {
+  updateFootprints(dt);
   if (!exploreActive) return;
   if (isSkirmishActive()) return;
   if (mapOpen) return;
@@ -322,6 +355,7 @@ export function updateExplore(dt) {
     if (stepTimer <= 0) {
       sfx.footstep();
       spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.05, 0)), 0xcabf9a, 4);
+      spawnFootprint(player.position, facing);
       stepTimer = sprinting ? 0.22 : 0.36;
     }
   } else {
