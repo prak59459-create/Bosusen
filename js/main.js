@@ -3,7 +3,7 @@ import { camera, composer, camFittedPos, camLookAt, mountRenderer, torchFires, b
 import { player, loadPlayerModel, playerMixer, playerReady, setCompanionVisible, updateCompanion } from './player.js';
 import * as EnemyModule from './enemy.js';
 import { spawnEnemy } from './enemy.js';
-import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles, rumble } from './effects.js';
+import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles, rumble, triggerCritFlash } from './effects.js';
 import { resumeAudio, sfx, setMasterVolume, setRainIntensity, setBiomeDrone } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
 import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, addShards, computeStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, totalQuestsDone, totalQuestsAll } from './state.js';
@@ -176,6 +176,15 @@ if (pinnedAchievementBadgeEl) {
         setTimeout(() => pinnedRow.classList.remove('highlight-pulse'), 1600);
       }
     }, 150);
+  });
+}
+
+const flashTestBtn = document.getElementById('flash-test-btn');
+if (flashTestBtn) {
+  flashTestBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (state.reduceFlashing) showToast('「画面フラッシュ演出を減らす」が有効なため表示されません', 'info');
+    else triggerCritFlash();
   });
 }
 
