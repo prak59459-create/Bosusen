@@ -295,39 +295,41 @@ window.addEventListener('keydown', (e) => {
   if (['Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(e.code) && !e.repeat) {
     playEmote(parseInt(e.code.slice(-1), 10) - 1);
   }
-  if (e.code === 'KeyP' && !e.repeat) {
-    const hud = document.getElementById('explore-hud');
-    const hadHidden = hud && hud.classList.contains('hidden');
-    if (hud && !hadHidden) hud.classList.add('photo-capture-hide');
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        try {
-          const dataUrl = renderer.domElement.toDataURL('image/png');
-          const link = document.createElement('a');
-          link.href = dataUrl;
-          link.download = `bosusen-${Date.now()}.png`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          sfx.uiClick();
-          showToast('スクリーンショットを保存しました', 'info');
-          state.screenshotsTaken = (state.screenshotsTaken || 0) + 1;
-          checkAchievements().forEach(a => { sfx.achievement(); showCenterMsg(`実績解除: ${a.name}`, '#ffd700', 2000); });
-          const flashEl = document.getElementById('lightning-flash');
-          if (flashEl && !state.reduceFlashing) {
-            flashEl.classList.add('flash');
-            setTimeout(() => flashEl.classList.remove('flash'), 90);
-          }
-        } catch (err) {
-          console.error('スクリーンショットの保存に失敗', err);
-        } finally {
-          if (hud && !hadHidden) hud.classList.remove('photo-capture-hide');
-        }
-      });
-    });
-  }
+  if (e.code === 'KeyP' && !e.repeat) takeScreenshot();
   if (e.code === 'Space' && !e.repeat) doJump();
 });
+
+function takeScreenshot() {
+  const hud = document.getElementById('explore-hud');
+  const hadHidden = hud && hud.classList.contains('hidden');
+  if (hud && !hadHidden) hud.classList.add('photo-capture-hide');
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      try {
+        const dataUrl = renderer.domElement.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = `bosusen-${Date.now()}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        sfx.uiClick();
+        showToast('スクリーンショットを保存しました', 'info');
+        state.screenshotsTaken = (state.screenshotsTaken || 0) + 1;
+        checkAchievements().forEach(a => { sfx.achievement(); showCenterMsg(`実績解除: ${a.name}`, '#ffd700', 2000); });
+        const flashEl = document.getElementById('lightning-flash');
+        if (flashEl && !state.reduceFlashing) {
+          flashEl.classList.add('flash');
+          setTimeout(() => flashEl.classList.remove('flash'), 90);
+        }
+      } catch (err) {
+        console.error('スクリーンショットの保存に失敗', err);
+      } finally {
+        if (hud && !hadHidden) hud.classList.remove('photo-capture-hide');
+      }
+    });
+  });
+}
 window.addEventListener('keyup', (e) => {
   if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.forward = false;
   if (e.code === 'KeyS' || e.code === 'ArrowDown') keys.back = false;
@@ -349,6 +351,8 @@ export function initJoystick() {
   if (dashBtn) dashBtn.addEventListener('click', () => { if (exploreActive) doDash(); });
   const emoteBtn = document.getElementById('emote-btn');
   if (emoteBtn) emoteBtn.addEventListener('click', () => { if (exploreActive) { playEmote(emoteIdx % EMOTES.length); emoteIdx++; } });
+  const screenshotBtn = document.getElementById('screenshot-btn');
+  if (screenshotBtn) screenshotBtn.addEventListener('click', () => { if (exploreActive) takeScreenshot(); });
   if (!joyBase || !joyKnob) return;
 
   const onDown = (e) => {
