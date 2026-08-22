@@ -236,6 +236,15 @@ window.addEventListener('keydown', (e) => {
     spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1, 0)), 0x9fe0ff, 16);
     sfx.uiClick();
     showToast('拠点へ帰還した', 'quest');
+    const teleportFlash = document.getElementById('lightning-flash');
+    if (teleportFlash && !state.reduceFlashing) {
+      teleportFlash.style.background = '#9fe0ff';
+      teleportFlash.classList.add('flash');
+      setTimeout(() => {
+        teleportFlash.classList.remove('flash');
+        teleportFlash.style.background = '';
+      }, 200);
+    }
   }
   if (e.code === 'KeyT' && !e.repeat) {
     const unfound = hiddenTreasures.filter(tr => !state.foundTreasures.includes(tr.id));
