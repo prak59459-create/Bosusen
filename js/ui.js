@@ -117,6 +117,8 @@ export function updateBars() {
   els.bossHPFill.style.width = bossHpPct + '%';
   els.bossHPFill.classList.toggle('critical', bossHpPct > 0 && bossHpPct <= 20);
   els.bossHPText.textContent = `${Math.max(0, Math.round(state.bossHP))}/${state.bossMaxHP}`;
+  const phaseMarkerEl = document.getElementById('boss-phase-marker');
+  if (phaseMarkerEl) phaseMarkerEl.classList.toggle('hide', !!state.phase2);
   els.healCount.textContent = state.healUses;
   els.skillSub.textContent = state.skillCooldown > 0 ? `クールダウン ${state.skillCooldown}` : 'エーテル25';
   els.playerLv.textContent = `Lv.${state.level}`;

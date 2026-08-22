@@ -466,3 +466,6 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   0%, 100% { text-shadow: 0 0 6px #ffd700, 0 0 12px #ff9d00; }
   50% { text-shadow: 0 0 12px #fff2a8, 0 0 22px #ffd700; }
 }
+
+.phase-marker { position:absolute; top:0; bottom:0; left:50%; width:2px; background:rgba(255,255,255,0.85); box-shadow:0 0 4px #fff; pointer-events:none; z-index:2; }
+.phase-marker.hide { display:none; }
