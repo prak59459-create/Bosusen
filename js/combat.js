@@ -410,6 +410,7 @@ export function playerAction(type) {
       spawnDamageNumber(bossHitPoint(), `-${dmg}${crit ? '!' : ''}`, crit ? '#ffe066' : '#ffcc44', crit);
       log(`あなたの攻撃！ ${dmg} ダメージ${crit ? '（クリティカル！）' : ''}${state.combo > 1 ? ` (${state.combo}コンボ)` : ''}`);
       showCenterMsg(crit ? 'CRITICAL!' : 'ATTACK!', crit ? '#ffe066' : '#ffffff', 450);
+      rumble(crit ? 0.6 : 0.25, 120);
       checkPhaseTransition();
       if (!endCheck()) setTimeout(bossTurn, 500);
     }, 250);
