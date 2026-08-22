@@ -163,6 +163,24 @@ function drawRadar() {
     radarCtx.fill();
   });
   radarCtx.restore();
+
+  const hdx = -pLocal.x, hdz = -pLocal.z;
+  const hdist = Math.hypot(hdx, hdz);
+  if (hdist > radarRange * 0.9) {
+    const ang = Math.atan2(hdx, hdz);
+    const edgeR = Math.min(w, h) / 2 - 8;
+    const hx = cx + Math.sin(ang) * edgeR, hy = cy + Math.cos(ang) * edgeR;
+    radarCtx.beginPath();
+    radarCtx.arc(hx, hy, 4, 0, Math.PI * 2);
+    radarCtx.fillStyle = '#7a5fd0';
+    radarCtx.fill();
+  }
+
+  radarCtx.fillStyle = '#3d2f5c';
+  radarCtx.font = 'bold 11px sans-serif';
+  radarCtx.textAlign = 'center';
+  radarCtx.fillText('N', cx, 12);
+
   radarCtx.beginPath();
   radarCtx.moveTo(cx, cy - 6);
   radarCtx.lineTo(cx - 5, cy + 5);
