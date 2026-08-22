@@ -161,6 +161,7 @@ function closeShop() {
   setMapOpen(false);
 }
 document.getElementById('shop-close-btn').addEventListener('click', closeShop);
+shopScreen.addEventListener('click', (e) => { if (e.target === shopScreen) closeShop(); });
 setOnOpenShop(openShop);
 
 /* ============================================================
@@ -419,6 +420,7 @@ mapCanvas.addEventListener('click', (e) => {
 });
 document.getElementById('map-btn').addEventListener('click', openMap);
 document.getElementById('map-close-btn').addEventListener('click', closeMap);
+mapScreen.addEventListener('click', (e) => { if (e.target === mapScreen) closeMap(); });
 setOnToggleMap(() => {
   if (mapScreen.style.display === 'flex') closeMap(); else openMap();
 });

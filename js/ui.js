@@ -796,6 +796,9 @@ export function initMenu(onSave, onTitle) {
 
   els.menuBtn.addEventListener('click', () => openMenu());
   els.menuCloseBtn.addEventListener('click', () => closeMenu());
+  document.getElementById('menu-overlay').addEventListener('click', (e) => {
+    if (e.target.id === 'menu-overlay') closeMenu();
+  });
 
   const volumeSlider = document.getElementById('opt-volume');
   volumeSlider.value = Math.round(state.masterVolume * 100);
