@@ -334,6 +334,9 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 #mute-btn.muted {
   background:rgba(200,200,200,0.8); border-color:rgba(140,140,140,0.5);
 }
+#map-btn:active, #sprint-lock-btn:active, #mute-btn:active {
+  transform:scale(0.92);
+}
 #jump-btn, #dash-btn, #emote-btn, #screenshot-btn, #hub-return-btn {
   position:absolute; right: max(80px, env(safe-area-inset-right) + 62px);
   width:52px; height:52px; border-radius:50%; font-size:22px;
