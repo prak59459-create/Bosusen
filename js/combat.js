@@ -317,6 +317,7 @@ function resolveDodge(clicked, move, isParry) {
       spawnDamageNumber(bossHitPoint(), `-${counterDmg}`, '#ffd75e', true);
       spawnShockwave(player.position.clone().add(new THREE.Vector3(0, 1.4, 0)), 0xffd75e);
       triggerShake(0.18, 0.3);
+      rumble(0.5, 150);
       state.playerStam = Math.min(state.playerMaxStam, state.playerStam + 25);
       if (stats.parryMpRestore) state.playerMP = Math.min(state.playerMaxMP, state.playerMP + stats.parryMpRestore);
       crossfadeTo('Walk', 0.1);
@@ -437,6 +438,7 @@ export function playerAction(type) {
         log(`強攻撃が炸裂！ ${dmg} ダメージ！${crit ? '（クリティカル！）' : ''}`);
         showCenterMsg(crit ? 'CRITICAL!' : 'HEAVY HIT!', crit ? '#ffe066' : '#ff8844', 700);
         triggerShake(0.15, 0.3);
+        rumble(crit ? 0.7 : 0.4, 180);
       } else {
         state.combo = 0;
         log('強攻撃は外れてしまった...！');
@@ -486,6 +488,7 @@ export function playerAction(type) {
         log(`結晶技「アビスブレイク」！ ${dmg} ダメージ！${crit ? '（クリティカル！）' : ''}`);
         showCenterMsg(crit ? 'CRITICAL!' : 'ABYSS BREAK!', crit ? '#ffe066' : '#5eb6ff', 700);
         triggerShake(0.2, 0.35);
+        rumble(crit ? 0.75 : 0.45, 200);
         checkPhaseTransition();
         if (!endCheck()) setTimeout(bossTurn, 500);
       }
