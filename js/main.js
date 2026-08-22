@@ -470,6 +470,7 @@ els.qbFightBtn.addEventListener('click', () => {
 
 els.startBtn.addEventListener('click', () => {
   if (!playerReady) return;
+  if (hasSaveGame() && !window.confirm('既存のセーブデータを上書きして新しく始めます。よろしいですか？（この操作は取り消せません）')) return;
   resumeAudio();
   Object.assign(state, {
     chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0, newGamePlus: 0, chapterClearCounts: {},
