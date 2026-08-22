@@ -328,6 +328,15 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   transition:width 0.15s linear, background 0.2s linear;
 }
 #explore-stamina-fill.low { background:linear-gradient(90deg,#ffb04a,#ff6a4a); }
+#dash-cooldown-icon {
+  position:absolute; left: max(24px, env(safe-area-inset-left));
+  bottom: max(154px, env(safe-area-inset-bottom) + 126px);
+  width:26px; height:26px; border-radius:50%; font-size:14px;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,0.7); border:1px solid rgba(150,100,220,0.35);
+  color:#4a3a10; opacity:0.4; transition:opacity 0.15s linear;
+}
+#dash-cooldown-icon.ready { opacity:1; background:rgba(159,224,255,0.9); }
 #nearest-objective {
   position:absolute; top: max(90px, env(safe-area-inset-top) + 76px); left:50%; transform:translateX(-50%);
   background:rgba(255,255,255,0.7); border:1px solid rgba(150,100,220,0.3); border-radius:14px;

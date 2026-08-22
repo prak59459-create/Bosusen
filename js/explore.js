@@ -361,6 +361,8 @@ export function updateExplore(dt) {
     staminaEl.style.width = pct + '%';
     staminaEl.classList.toggle('low', pct < 30);
   }
+  const dashIconEl = document.getElementById('dash-cooldown-icon');
+  if (dashIconEl) dashIconEl.classList.toggle('ready', dashCooldown <= 0 && exploreStamina >= DASH_STAMINA_COST);
   if (moving) {
     mx /= len; mz /= len;
     const moveAng = Math.atan2(mx, mz);
