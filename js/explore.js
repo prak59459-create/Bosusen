@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { camera, scene, setCameraMode, renderer, setPhotoFilter, setFovKick } from './scene.js';
+import { camera, scene, setCameraMode, renderer, setPhotoFilter, setFovKick, isNightTime } from './scene.js';
 import { player, crossfadeTo } from './player.js';
 import { spawnParticles } from './effects.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
@@ -120,6 +120,9 @@ const AMBIENT_LINES_DONE = [
 ];
 const AMBIENT_LINES_PENDING = [
   '「頼んだ討伐、まだかい？」', '「あの結晶獣、油断せず倒してくれよ」', '「待っているぞ」',
+];
+const AMBIENT_LINES_NIGHT = [
+  '「こんな夜更けに出歩くとは、感心しないな」', '「夜の聖域は昼間と違う顔を見せる」', '「星がきれいな夜だ」',
 ];
 const npcChatterCooldown = new WeakMap();
 let camInit = false;
@@ -594,7 +597,7 @@ function tryReadLore(monu) {
   saveGame();
 }
 
-export function updateExplore(dt) {
+export function updateExplore(dt, absTime = 0) {
   updateFootprints(dt);
   if (!exploreActive) return;
   if (isSkirmishActive()) return;
@@ -780,7 +783,7 @@ export function updateExplore(dt) {
           npcChatterCooldown.set(g, performance.now());
           const done = isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId);
           const pending = !done && fieldQuestState(g.questId) === 'accepted';
-          const pool = done ? AMBIENT_LINES_DONE : (pending ? AMBIENT_LINES_PENDING : AMBIENT_LINES);
+          const pool = done ? AMBIENT_LINES_DONE : (pending ? AMBIENT_LINES_PENDING : (isNightTime(absTime) ? AMBIENT_LINES_NIGHT : AMBIENT_LINES));
           const line = pool[Math.floor(Math.random() * pool.length)];
           showToast(`${g.name}：${line}`, 'info');
         }

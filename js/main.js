@@ -800,7 +800,7 @@ function animate() {
     setRainIntensity(0);
   }
   if (exploreActive) {
-    updateExplore(dt);
+    updateExplore(dt, t);
   } else {
     updateShakeAndApplyCamera(dt, camFittedPos);
     camera.lookAt(camLookAt);
