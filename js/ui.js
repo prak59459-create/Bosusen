@@ -96,7 +96,7 @@ export function updateBars() {
   wasHpCritical = isCritical;
   const vignetteEl = document.getElementById('low-hp-vignette');
   if (vignetteEl) vignetteEl.classList.toggle('active', isCritical);
-  setHeartbeatActive(isCritical && state.playing);
+  setHeartbeatActive(isCritical && state.playing && state.lowHpHeartbeat !== false);
   els.playerHPText.textContent = `${Math.max(0, Math.round(state.playerHP))}/${state.playerMaxHP}`;
   els.playerMPFill.style.width = Math.max(0, state.playerMP / state.playerMaxMP * 100) + '%';
   els.playerMPText.textContent = `${Math.max(0, Math.round(state.playerMP))}/${state.playerMaxMP}`;
@@ -540,6 +540,8 @@ export function syncSettingsUI() {
   if (guideBeamsCheckbox) guideBeamsCheckbox.checked = state.showGuideBeams !== false;
   const rumbleCheckbox = document.getElementById('opt-gamepad-rumble');
   if (rumbleCheckbox) rumbleCheckbox.checked = state.gamepadRumble !== false;
+  const heartbeatCheckbox = document.getElementById('opt-low-hp-heartbeat');
+  if (heartbeatCheckbox) heartbeatCheckbox.checked = state.lowHpHeartbeat !== false;
 }
 
 export function initMenu(onSave, onTitle) {
@@ -606,6 +608,15 @@ export function initMenu(onSave, onTitle) {
     saveGame();
   });
 
+  const heartbeatCheckbox = document.getElementById('opt-low-hp-heartbeat');
+  heartbeatCheckbox.checked = state.lowHpHeartbeat !== false;
+  heartbeatCheckbox.addEventListener('change', () => {
+    state.lowHpHeartbeat = heartbeatCheckbox.checked;
+    if (!state.lowHpHeartbeat) setHeartbeatActive(false);
+    sfx.uiClick();
+    saveGame();
+  });
+
   const difficultySelect = document.getElementById('opt-difficulty');
   difficultySelect.value = state.difficulty || 'normal';
   difficultySelect.addEventListener('change', () => {
@@ -632,7 +643,7 @@ export function initMenu(onSave, onTitle) {
   });
   document.getElementById('reset-settings-btn').addEventListener('click', () => {
     Object.assign(state, {
-      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true,
+      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true,
     });
     setMasterVolume(state.masterVolume);
     setQualityPreset(state.quality);
