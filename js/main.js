@@ -17,6 +17,17 @@ import { initSkirmishUI, resetSkirmish } from './skirmish.js';
 
 mountRenderer();
 
+function toggleHelpOverlay() {
+  const el = document.getElementById('help-overlay');
+  if (el) el.classList.toggle('show');
+  sfx.uiClick();
+}
+document.getElementById('help-btn').addEventListener('click', toggleHelpOverlay);
+document.getElementById('help-close-btn').addEventListener('click', toggleHelpOverlay);
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'KeyH' && !e.repeat) toggleHelpOverlay();
+});
+
 let saveIndicatorTimer = null;
 window.addEventListener('bosusen-saved', () => {
   const el = document.getElementById('save-indicator');
