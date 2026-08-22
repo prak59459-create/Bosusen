@@ -702,8 +702,16 @@ let wasSensingFieldTarget = false;
 let wasSensingQuestGiver = false;
 let lastInputAt = performance.now();
 let afkWarned = false;
+let afkVolumeReduced = false;
 ['keydown', 'pointerdown', 'pointermove', 'wheel'].forEach(evt => {
-  window.addEventListener(evt, () => { lastInputAt = performance.now(); afkWarned = false; }, { passive: true });
+  window.addEventListener(evt, () => {
+    lastInputAt = performance.now();
+    afkWarned = false;
+    if (afkVolumeReduced) {
+      afkVolumeReduced = false;
+      setMasterVolume(state.masterVolume);
+    }
+  }, { passive: true });
 });
 let wildlifeSoundTimer = 5;
 let lastTime = performance.now();
@@ -768,6 +776,10 @@ function animate() {
     if (!afkWarned && performance.now() - lastInputAt > 300000) {
       afkWarned = true;
       showToast('しばらく操作がないようです。よければ休憩してくださいね', 'info');
+    }
+    if (!afkVolumeReduced && performance.now() - lastInputAt > 600000) {
+      afkVolumeReduced = true;
+      setMasterVolume(state.masterVolume * 0.3);
     }
     drawRadar();
     updateDayNightCycle(t);
