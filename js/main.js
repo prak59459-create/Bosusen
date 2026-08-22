@@ -310,10 +310,11 @@ function drawRadar() {
 }
 
 let mapScaleInfo = { scale: 1, cx: 0, cy: 0 };
+let mapZoomFactor = 1;
 function drawMap() {
   const w = mapCanvas.width, h = mapCanvas.height;
   const contentRadius = Math.max(...fieldTargets.map(t => Math.hypot(t.localPos.x, t.localPos.z)), 500) * 1.15;
-  const scale = (Math.min(w, h) / 2 - 20) / contentRadius;
+  const scale = ((Math.min(w, h) / 2 - 20) / contentRadius) * mapZoomFactor;
   const cx = w / 2, cy = h / 2;
   mapScaleInfo = { scale, cx, cy };
   mapCtx.fillStyle = '#ece2fb';
@@ -433,6 +434,7 @@ function drawMap() {
 }
 
 function openMap() {
+  mapZoomFactor = 1;
   drawMap();
   const summaryEl = document.getElementById('map-summary');
   if (summaryEl) {
@@ -446,6 +448,11 @@ function closeMap() {
   mapScreen.style.display = 'none';
   setMapOpen(false);
 }
+mapCanvas.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  mapZoomFactor = Math.max(1, Math.min(4, mapZoomFactor - Math.sign(e.deltaY) * 0.2));
+  drawMap();
+}, { passive: false });
 mapCanvas.addEventListener('click', (e) => {
   if (!exploreActive) return;
   const rect = mapCanvas.getBoundingClientRect();
