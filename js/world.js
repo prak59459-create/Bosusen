@@ -1279,3 +1279,38 @@ export function updateEmbers(t, dt, centerX, centerZ) {
   }
   emberMesh.instanceMatrix.needsUpdate = true;
 }
+
+/* ---------- 砂漠バイオームに漂う砂塵 ---------- */
+const SAND_COUNT = 260;
+const sandGeo = new THREE.SphereGeometry(0.12, 5, 5);
+const sandMat = new THREE.MeshBasicMaterial({ color: 0xd8b168, transparent: true, opacity: 0.4 });
+const sandMesh = new THREE.InstancedMesh(sandGeo, sandMat, SAND_COUNT);
+sandMesh.visible = false;
+const sandData = [];
+for (let i = 0; i < SAND_COUNT; i++) {
+  sandData.push({
+    ox: (Math.random() - 0.5) * 60,
+    oz: (Math.random() - 0.5) * 60,
+    y: 0.2 + Math.random() * 4,
+    driftSpeed: 4 + Math.random() * 6,
+    phase: Math.random() * Math.PI * 2,
+  });
+}
+worldGroup.add(sandMesh);
+const sandDummy = new THREE.Object3D();
+export function updateSandstorm(t, dt, centerX, centerZ) {
+  const biomeIdx = nearestBiome(centerX, centerZ);
+  const cat = BIOME_DEFS[biomeIdx] ? BIOME_DEFS[biomeIdx].category : null;
+  const isDesert = cat === 'desert';
+  sandMesh.visible = isDesert;
+  if (!isDesert) return;
+  for (let i = 0; i < SAND_COUNT; i++) {
+    const d = sandData[i];
+    const dx = (t * d.driftSpeed + d.phase * 8) % 60 - 30;
+    const bob = Math.sin(t * 1.5 + d.phase) * 0.4;
+    sandDummy.position.set(centerX + dx, d.y + bob, centerZ + d.oz);
+    sandDummy.updateMatrix();
+    sandMesh.setMatrixAt(i, sandDummy.matrix);
+  }
+  sandMesh.instanceMatrix.needsUpdate = true;
+}
