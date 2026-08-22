@@ -5,7 +5,7 @@ import { player, crossfadeTo, playerMotionBeat, playerModel } from './player.js'
 import { bossGlow, torchFires } from './scene.js';
 import { sfx } from './audio.js';
 import { rand } from './utils.js';
-import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake, triggerCritFlash } from './effects.js';
+import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake, triggerCritFlash, spawnShockwave } from './effects.js';
 import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
 import { CHAPTERS, levelStatsFor, BOSS_TAUNTS, VICTORY_LINES, DEFEAT_LINES } from './data.js';
 import { state, computeStats, addShards, difficultyMult, checkAchievements } from './state.js';
@@ -298,6 +298,7 @@ function resolveDodge(clicked, move, isParry) {
       flashHit(b);
       spawnParticles(bossHitPoint(), 0xffd75e, 20);
       spawnDamageNumber(bossHitPoint(), `-${counterDmg}`, '#ffd75e', true);
+      spawnShockwave(player.position.clone().add(new THREE.Vector3(0, 1.4, 0)), 0xffd75e);
       triggerShake(0.18, 0.3);
       state.playerStam = Math.min(state.playerMaxStam, state.playerStam + 25);
       if (stats.parryMpRestore) state.playerMP = Math.min(state.playerMaxMP, state.playerMP + stats.parryMpRestore);
