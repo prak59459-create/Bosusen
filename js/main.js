@@ -534,7 +534,10 @@ els.retryBtn.addEventListener('click', () => {
 });
 
 els.ngPlusBtn.addEventListener('click', () => {
-  if (!window.confirm('周回プレイを開始します。クエスト進行状況と探索状況はリセットされますが、装備・スキル・実績・レベルは引き継がれます。よろしいですか？')) return;
+  const nextNg = (state.newGamePlus || 0) + 1;
+  const bossMult = Math.round((1 + nextNg * 0.25) * 100);
+  const shardMult = Math.round((1 + nextNg * 0.2) * 100);
+  if (!window.confirm(`周回+${nextNg} を開始します。クエスト進行状況と探索状況はリセットされますが、装備・スキル・実績・レベルは引き継がれます。\n結晶獣の強さ: ${bossMult}%｜獲得シャード: ${shardMult}%\nよろしいですか？`)) return;
   els.endScreen.style.display = 'none';
   state.newGamePlus = (state.newGamePlus || 0) + 1;
   Object.assign(state, {
