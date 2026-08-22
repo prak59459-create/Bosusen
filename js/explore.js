@@ -18,6 +18,11 @@ export let exploreActive = false;
 let mapOpen = false;
 export function setMapOpen(v) { mapOpen = v; }
 
+const DUST_COLOR_BY_CATEGORY = {
+  forest: 0x9ab26a, desert: 0xd8b168, cyber: 0x66ccff, snow: 0xffffff,
+  swamp: 0x6a8a4a, volcanic: 0xff8844, crystal: 0xd0a0ff, wasteland: 0x9a9284,
+};
+
 const localPos = new THREE.Vector3(HUB_SPAWN.x, 0, HUB_SPAWN.z);
 
 /* ---------- 足跡デカール ---------- */
@@ -527,7 +532,7 @@ export function updateExplore(dt) {
         else if (cat === 'snow') sfx.footstepSnow();
         else if (cat === 'cyber') sfx.footstepMetal();
         else sfx.footstep();
-        spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.05, 0)), 0xcabf9a, 4);
+        spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.05, 0)), DUST_COLOR_BY_CATEGORY[cat] || 0xcabf9a, 4);
         spawnFootprint(player.position, facing);
       }
       stepTimer = sprinting ? 0.22 : 0.36;
@@ -555,7 +560,8 @@ export function updateExplore(dt) {
       jumpsUsed = 0;
       spinning = false;
       player.rotation.x = 0;
-      spawnParticles(player.position.clone().set(player.position.x, 0.05, player.position.z), 0xcabf9a, 10);
+      const landCat = biomeCategoryAt(localPos.x, localPos.z);
+      spawnParticles(player.position.clone().set(player.position.x, 0.05, player.position.z), DUST_COLOR_BY_CATEGORY[landCat] || 0xcabf9a, 10);
     }
     player.position.y = ny;
   }
