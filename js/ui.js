@@ -103,6 +103,12 @@ function playerTitle() {
 }
 
 export function updateBars() {
+  const badgeEl = document.getElementById('pinned-achievement-badge');
+  if (badgeEl) {
+    const pinned = state.pinnedAchievement && ACHIEVEMENTS.find(a => a.id === state.pinnedAchievement);
+    badgeEl.textContent = pinned ? ' 🏅' : '';
+    badgeEl.title = pinned ? pinned.name : '';
+  }
   const titleEl = document.getElementById('player-title');
   if (titleEl) {
     titleEl.textContent = playerTitle();
@@ -362,13 +368,23 @@ export function renderStatusTab() {
       row.style.opacity = unlocked ? '1' : '0.45';
       const prog = !unlocked && ACH_PROGRESS[a.id];
       const progHtml = prog ? `<div class="qb-progress-bar" style="margin-top:4px;"><div class="qb-progress-fill" style="width:${Math.min(100, Math.round(prog[0] / prog[1] * 100))}%"></div></div><div class="item-row-desc">${Math.min(prog[0], prog[1])} / ${prog[1]}</div>` : '';
+      const isPinned = state.pinnedAchievement === a.id;
       row.innerHTML = `
         <div>
-          <div class="item-row-name">${unlocked ? '🏆 ' : '🔒 '}${a.name}</div>
+          <div class="item-row-name">${unlocked ? '🏆 ' : '🔒 '}${a.name}${isPinned ? ' 📌' : ''}</div>
           <div class="item-row-desc">${a.desc}（報酬: 欠片${a.reward || 0}）</div>
           ${progHtml}
         </div>
+        ${unlocked ? `<button class="item-row-btn pin-achievement-btn">${isPinned ? '固定中' : '称号バッジに設定'}</button>` : ''}
       `;
+      if (unlocked) {
+        row.querySelector('.pin-achievement-btn').addEventListener('click', () => {
+          state.pinnedAchievement = isPinned ? null : a.id;
+          sfx.uiClick();
+          renderStatusTab();
+          saveGame();
+        });
+      }
       achList.appendChild(row);
     });
   }
