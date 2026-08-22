@@ -87,13 +87,17 @@ const TITLE_TIERS = [
 ];
 function playerTitle() {
   const count = (state.achievements || []).length;
+  if ((state.achievements || []).includes('completionist')) return '★【完全制覇】★';
   const tier = TITLE_TIERS.find(t => count >= t.min);
   return tier ? `【${tier.title}】` : '';
 }
 
 export function updateBars() {
   const titleEl = document.getElementById('player-title');
-  if (titleEl) titleEl.textContent = playerTitle();
+  if (titleEl) {
+    titleEl.textContent = playerTitle();
+    titleEl.classList.toggle('title-completionist', (state.achievements || []).includes('completionist'));
+  }
   const hpPct = Math.max(0, state.playerHP / state.playerMaxHP * 100);
   els.playerHPFill.style.width = hpPct + '%';
   els.playerHPGhost.style.width = hpPct + '%';
