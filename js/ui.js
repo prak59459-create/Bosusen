@@ -1,7 +1,7 @@
 import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS } from './data.js';
 import { state, computeStats, isQuestDone, ownsItem,
   equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData } from './state.js';
-import { sfx, setMasterVolume } from './audio.js';
+import { sfx, setMasterVolume, setHeartbeatActive } from './audio.js';
 import { setQualityPreset } from './scene.js';
 import { setMapOpen } from './explore.js';
 import { BIOME_NAMES, BIOME_ENTRIES } from './world.js';
@@ -96,6 +96,7 @@ export function updateBars() {
   wasHpCritical = isCritical;
   const vignetteEl = document.getElementById('low-hp-vignette');
   if (vignetteEl) vignetteEl.classList.toggle('active', isCritical);
+  setHeartbeatActive(isCritical && state.playing);
   els.playerHPText.textContent = `${Math.max(0, Math.round(state.playerHP))}/${state.playerMaxHP}`;
   els.playerMPFill.style.width = Math.max(0, state.playerMP / state.playerMaxMP * 100) + '%';
   els.playerMPText.textContent = `${Math.max(0, Math.round(state.playerMP))}/${state.playerMaxMP}`;

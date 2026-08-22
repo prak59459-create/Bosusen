@@ -77,6 +77,25 @@ export function setRainIntensity(v) {
 const DRONE_FREQ = { forest: 220, desert: 130, cyber: 90, snow: 260, swamp: 150, volcanic: 70, crystal: 330, wasteland: 100 };
 let droneNodes = null;
 let droneCategory = null;
+/* ---------- HP危険域の心拍音（ループ） ---------- */
+let heartbeatActive = false;
+let heartbeatTimer = null;
+function playHeartbeatThump() {
+  playTone(55, 0.1, 'sine', 0.18, 40);
+  setTimeout(() => playTone(50, 0.08, 'sine', 0.12, 35), 160);
+}
+export function setHeartbeatActive(active) {
+  if (active === heartbeatActive) return;
+  heartbeatActive = active;
+  if (active) {
+    playHeartbeatThump();
+    heartbeatTimer = setInterval(playHeartbeatThump, 900);
+  } else {
+    clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+  }
+}
+
 export function setBiomeDrone(category) {
   if (category === droneCategory) return;
   droneCategory = category;

@@ -3,7 +3,7 @@ import { scene } from './scene.js';
 import { spawnEnemy } from './enemy.js';
 import { player, crossfadeTo, playerMotionBeat, playerModel } from './player.js';
 import { bossGlow, torchFires } from './scene.js';
-import { sfx } from './audio.js';
+import { sfx, setHeartbeatActive } from './audio.js';
 import { rand } from './utils.js';
 import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake, triggerCritFlash, spawnShockwave, rumble } from './effects.js';
 import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
@@ -149,6 +149,7 @@ function renderEndingChoices(chapter) {
 
 function finishGame(won) {
   state.playing = false;
+  setHeartbeatActive(false);
   const chapter = CHAPTERS[state.chapterIndex];
   const isFinal = state.chapterIndex === CHAPTERS.length - 1;
   els.nextBtn.style.display = 'none';
