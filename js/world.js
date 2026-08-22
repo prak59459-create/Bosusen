@@ -89,6 +89,10 @@ export function nearestBiome(x, z) {
   }
   return best;
 }
+export function biomeNameAt(x, z) {
+  const idx = nearestBiome(x, z);
+  return idx >= 0 ? BIOME_DEFS[idx].name : '';
+}
 
 /* ---------- 地面（広域タイル張りテクスチャ） ---------- */
 function buildTileTexture() {

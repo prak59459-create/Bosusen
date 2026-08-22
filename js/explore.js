@@ -3,7 +3,7 @@ import { camera, scene, setCameraMode } from './scene.js';
 import { player, crossfadeTo } from './player.js';
 import { spawnParticles } from './effects.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
-  explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals } from './world.js';
+  explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt } from './world.js';
 import { CHAPTERS } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
   fieldQuestState, acceptFieldQuest, saveGame, checkAchievements } from './state.js';
@@ -43,6 +43,7 @@ let jumpsUsed = 0;
 const MAX_JUMPS = 2;
 const GRAVITY = 32;
 const JUMP_SPEED = 11;
+let currentBiomeName = '';
 let exploreStamina = 100;
 const STAMINA_MAX = 100;
 const STAMINA_DRAIN = 22;
@@ -342,6 +343,14 @@ export function updateExplore(dt) {
   if (moving && !wasMoving) crossfadeTo('Walk', 0.15);
   if (!moving && wasMoving) crossfadeTo('Idle', 0.25);
   wasMoving = moving;
+
+  if (moving) {
+    const name = biomeNameAt(localPos.x, localPos.z);
+    if (name && name !== currentBiomeName) {
+      currentBiomeName = name;
+      showToast(`${name} に入った`, 'quest');
+    }
+  }
 
   // 三人称追従カメラ
   const behindAng = facing;
