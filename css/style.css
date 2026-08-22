@@ -337,6 +337,11 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   color:#4a3a10; opacity:0.4; transition:opacity 0.15s linear;
 }
 #dash-cooldown-icon.ready { opacity:1; background:rgba(159,224,255,0.9); }
+#lightning-flash {
+  position:fixed; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:500;
+  transition:opacity 0.08s ease-out;
+}
+#lightning-flash.flash { opacity:0.75; transition:none; }
 #minimap-radar {
   position:absolute; right: max(18px, env(safe-area-inset-right));
   top: max(60px, env(safe-area-inset-top) + 48px);

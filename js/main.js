@@ -518,6 +518,7 @@ loadPlayerModel((frac) => {
    アイドルアニメーション & レンダリングループ
    ============================================================ */
 let t = 0;
+let thunderTimer = 10;
 let lastTime = performance.now();
 function animate() {
   requestAnimationFrame(animate);
@@ -556,6 +557,18 @@ function animate() {
     updateShootingStars(t, dt, lp.x, lp.z, isNightTime(t));
     const isRaining = updateRain(t, dt, lp.x, lp.z);
     setRainIntensity(isRaining ? 1 : 0);
+    if (isRaining) {
+      thunderTimer -= dt;
+      if (thunderTimer <= 0) {
+        thunderTimer = 8 + Math.random() * 14;
+        const flashEl = document.getElementById('lightning-flash');
+        if (flashEl) {
+          flashEl.classList.add('flash');
+          setTimeout(() => flashEl.classList.remove('flash'), 90);
+        }
+        sfx.thunder();
+      }
+    }
     updateSnow(t, dt, lp.x, lp.z);
     updateEmbers(t, dt, lp.x, lp.z);
     updateSandstorm(t, dt, lp.x, lp.z);
