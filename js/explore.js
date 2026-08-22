@@ -513,7 +513,12 @@ export function updateExplore(dt) {
       const isNew = !state.discoveredBiomes.includes(name);
       if (isNew) {
         state.discoveredBiomes.push(name);
-        showToast(`新しいバイオーム発見: ${name}（${state.discoveredBiomes.length}/35）`, 'quest');
+        addShards(5);
+        sfx.questDone();
+        [0xffd700, 0x9fe0ff, 0xff9fd0, 0x9fff7a].forEach((c, i) => {
+          spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.4 + i * 0.15, 0)), c, 8);
+        });
+        showToast(`新しいバイオーム発見: ${name}（${state.discoveredBiomes.length}/35） 結晶の欠片+5`, 'quest');
         checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
         saveGame();
       } else {
