@@ -581,7 +581,8 @@ export function updateExplore(dt) {
     dashTrailTimer -= dt;
     if (dashTrailTimer <= 0) {
       dashTrailTimer = 0.04;
-      spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.9, 0)), 0x9fe0ff, 2);
+      const trailColor = (state.achievements || []).includes('completionist') ? 0xffd700 : 0x9fe0ff;
+      spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.9, 0)), trailColor, 2);
     }
   }
 
