@@ -333,4 +333,5 @@ export const ACHIEVEMENTS = [
   { id:'photographer', name:'旅の記録者', desc:'スクリーンショットを累計10枚撮影する。', reward:25 },
   { id:'emote_master', name:'表現豊かな旅人', desc:'すべての種類のエモートを使用する。', reward:20 },
   { id:'lore_master', name:'伝承の語り部', desc:'伝承の石碑を累計8個発見する。', reward:35 },
+  { id:'ng_plus_5', name:'永劫回帰の勇者', desc:'周回+5に到達する。', reward:80 },
 ];

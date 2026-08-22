@@ -235,6 +235,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if ((state.screenshotsTaken || 0) >= 10) tryUnlock('photographer');
   if ((state.emotesUsedSet || []).length >= 4) tryUnlock('emote_master');
   if ((state.collectedLore || []).length >= 8) tryUnlock('lore_master');
+  if ((state.newGamePlus || 0) >= 5) tryUnlock('ng_plus_5');
   const otherIds = ACHIEVEMENTS.filter(a => a.id !== 'completionist').map(a => a.id);
   if (otherIds.every(id => state.achievements.includes(id))) tryUnlock('completionist');
   return newly;

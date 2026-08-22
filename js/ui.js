@@ -320,6 +320,7 @@ export function renderStatusTab() {
       photographer: [state.screenshotsTaken || 0, 10],
       emote_master: [(state.emotesUsedSet || []).length, 4],
       lore_master: [(state.collectedLore || []).length, 8],
+      ng_plus_5: [state.newGamePlus || 0, 5],
     };
     let achOrder = ACHIEVEMENTS;
     if (achSortByProgress) {
