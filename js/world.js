@@ -843,6 +843,10 @@ CHAPTERS.forEach((chapter, i) => {
     npc.position.set(npcPos.x, 0, npcPos.z);
     worldGroup.add(npc);
     addAODecal(npcPos.x, npcPos.z, 0.7);
+    const npcBeamMat = new THREE.MeshBasicMaterial({ color: 0xffe27a, transparent: true, opacity: 0.2, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false });
+    const npcBeam = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.06, 30, 8, 1, true), npcBeamMat);
+    npcBeam.position.set(npcPos.x, 15, npcPos.z);
+    worldGroup.add(npcBeam);
 
     // ---- 討伐目標（聖域からさらに数百m先）----
     const targetAng = zoneAngle(i) + (Math.random() - 0.5) * 0.6;
@@ -874,6 +878,7 @@ CHAPTERS.forEach((chapter, i) => {
       name: `${chapter.title}の依頼人`,
       localPos: npcPos,
       radius: 3.5,
+      beam: npcBeam,
     });
     fieldTargets.push({
       chapterIndex: i,

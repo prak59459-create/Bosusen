@@ -302,6 +302,9 @@ export function enterExploreMode(spawnLocal) {
     }
     if (t.beam) t.beam.visible = !done;
   });
+  questGivers.forEach(g => {
+    if (g.beam) g.beam.visible = !isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId);
+  });
   camInit = false;
   document.getElementById('explore-hud').style.display = 'flex';
   document.getElementById('ui').classList.add('exploring');
@@ -351,6 +354,7 @@ function tryTurnInOrAccept(giver) {
     sfx.questDone();
     showToast(`クエスト達成: ${giver.quest.title}（結晶の欠片 +${giver.quest.reward.shards}）`, 'quest');
     checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
+    if (giver.beam) giver.beam.visible = false;
     renderQuestTracker();
     saveGame();
   } else if (fState === 'accepted') {
