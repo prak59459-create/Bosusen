@@ -77,6 +77,7 @@ export function checkPhaseTransition() {
     bossGlow.intensity = 5.5;
     bossGlow.color.setHex(0xff0000);
     triggerShake(0.3, 0.6);
+    spawnShockwave(b.position.clone().add(new THREE.Vector3(0, 2.5, 0)), 0xff2222);
     const startScale = b.scale.x;
     const t0 = performance.now();
     function grow(t) {
