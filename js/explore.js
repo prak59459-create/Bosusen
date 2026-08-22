@@ -3,7 +3,7 @@ import { camera, scene, setCameraMode, renderer } from './scene.js';
 import { player, crossfadeTo } from './player.js';
 import { spawnParticles } from './effects.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
-  explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions, collectNearbyFireflies } from './world.js';
+  explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions, collectNearbyFireflies, collectNearbyButterflies } from './world.js';
 import { CHAPTERS } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
   fieldQuestState, acceptFieldQuest, saveGame, checkAchievements } from './state.js';
@@ -492,6 +492,14 @@ export function updateExplore(dt) {
       spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.2, 0)), 0xbdffa0, 6 * caught);
       showToast(`蛍を捕まえた！ 結晶の欠片 +${caught * 2}`, 'quest');
       checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
+      saveGame();
+    }
+    const caughtB = collectNearbyButterflies(localPos.x, localPos.z, 2.2);
+    if (caughtB > 0) {
+      addShards(caughtB);
+      sfx.shardGet();
+      spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.2, 0)), 0xff9fd0, 5 * caughtB);
+      showToast(`蝶を捕まえた！ 結晶の欠片 +${caughtB}`, 'quest');
       saveGame();
     }
   }

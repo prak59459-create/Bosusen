@@ -1026,6 +1026,68 @@ export function collectNearbyFireflies(x, z, radius) {
   return caught;
 }
 
+/* ---------- 森林バイオームに舞う蝶 ---------- */
+const BUTTERFLY_COUNT = 160;
+const butterflyGeo = new THREE.PlaneGeometry(0.3, 0.22);
+const butterflyMat = new THREE.MeshBasicMaterial({ color: 0xff9fd0, side: THREE.DoubleSide, transparent: true, opacity: 0.95 });
+const butterflyMesh = new THREE.InstancedMesh(butterflyGeo, butterflyMat, BUTTERFLY_COUNT);
+const butterflyData = [];
+{
+  const forestSeeds2 = BIOME_SEEDS.filter((_, i) => BIOME_DEFS[i].category === 'forest');
+  for (let i = 0; i < BUTTERFLY_COUNT; i++) {
+    const seed = forestSeeds2[i % Math.max(1, forestSeeds2.length)] || { x: 0, z: 0 };
+    const ang0 = Math.random() * Math.PI * 2;
+    const dist0 = Math.random() * 130;
+    butterflyData.push({
+      baseX: seed.x + Math.cos(ang0) * dist0,
+      baseZ: seed.z + Math.sin(ang0) * dist0,
+      baseY: 1.0 + Math.random() * 1.8,
+      speed: 0.5 + Math.random() * 0.7,
+      radius: 2 + Math.random() * 4,
+      phase: Math.random() * Math.PI * 2,
+      caught: false, caughtAt: 0,
+      curX: null, curZ: null,
+    });
+  }
+}
+worldGroup.add(butterflyMesh);
+const butterflyDummy = new THREE.Object3D();
+export function updateButterflies(t) {
+  for (let i = 0; i < BUTTERFLY_COUNT; i++) {
+    const d = butterflyData[i];
+    if (d.caught && Date.now() - d.caughtAt < 25000) {
+      butterflyDummy.position.set(d.baseX, -1000, d.baseZ);
+      butterflyDummy.updateMatrix();
+      butterflyMesh.setMatrixAt(i, butterflyDummy.matrix);
+      continue;
+    }
+    if (d.caught) d.caught = false;
+    const x = d.baseX + Math.cos(t * d.speed + d.phase) * d.radius;
+    const z = d.baseZ + Math.sin(t * d.speed * 1.6 + d.phase) * d.radius;
+    const y = d.baseY + Math.sin(t * d.speed * 3 + d.phase) * 0.5;
+    d.curX = x; d.curY = y; d.curZ = z;
+    butterflyDummy.position.set(x, y, z);
+    butterflyDummy.rotation.y = t * d.speed + d.phase;
+    butterflyDummy.rotation.z = Math.sin(t * 8 + d.phase) * 0.5;
+    butterflyDummy.updateMatrix();
+    butterflyMesh.setMatrixAt(i, butterflyDummy.matrix);
+  }
+  butterflyMesh.instanceMatrix.needsUpdate = true;
+}
+export function collectNearbyButterflies(x, z, radius) {
+  let caught = 0;
+  for (let i = 0; i < BUTTERFLY_COUNT; i++) {
+    const d = butterflyData[i];
+    if (d.caught || d.curX == null) continue;
+    if (Math.hypot(d.curX - x, d.curZ - z) < radius) {
+      d.caught = true;
+      d.caughtAt = Date.now();
+      caught++;
+    }
+  }
+  return caught;
+}
+
 /* ---------- 空を旋回する鳥の群れ ---------- */
 const BIRD_COUNT = 60;
 const birdWing = new THREE.ConeGeometry(0.6, 2.2, 3);
