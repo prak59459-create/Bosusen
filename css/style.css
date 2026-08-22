@@ -532,3 +532,11 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 .mini-btn:active { background:rgba(255,255,255,0.2); }
 
 #app-credits { margin-top:16px; text-align:center; font-size:11px; opacity:0.5; }
+
+body.high-contrast #ui, body.high-contrast #explore-hud {
+  filter: contrast(1.35) saturate(1.25);
+}
+body.high-contrast .stat-bar-bg { border-width:3px; border-color:#000; }
+body.high-contrast .quest-tracker, body.high-contrast #biome-label {
+  text-shadow: 0 0 3px #000, 0 0 3px #000;
+}

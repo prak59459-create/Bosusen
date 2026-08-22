@@ -721,6 +721,9 @@ export function syncSettingsUI() {
   if (flashingCheckbox) flashingCheckbox.checked = state.reduceFlashing === true;
   const invertYCheckbox = document.getElementById('opt-invert-camera-y');
   if (invertYCheckbox) invertYCheckbox.checked = state.invertCameraY === true;
+  const highContrastCheckbox = document.getElementById('opt-high-contrast');
+  if (highContrastCheckbox) highContrastCheckbox.checked = state.highContrast === true;
+  document.body.classList.toggle('high-contrast', state.highContrast === true);
   const sensSlider = document.getElementById('opt-camera-sensitivity');
   if (sensSlider) sensSlider.value = Math.round((state.cameraSensitivity || 1) * 100);
   const sensValLabel = document.getElementById('opt-camera-sensitivity-val');
@@ -829,6 +832,16 @@ export function initMenu(onSave, onTitle) {
     saveGame();
   });
 
+  const highContrastCheckbox = document.getElementById('opt-high-contrast');
+  highContrastCheckbox.checked = state.highContrast === true;
+  document.body.classList.toggle('high-contrast', state.highContrast === true);
+  highContrastCheckbox.addEventListener('change', () => {
+    state.highContrast = highContrastCheckbox.checked;
+    document.body.classList.toggle('high-contrast', state.highContrast);
+    sfx.uiClick();
+    saveGame();
+  });
+
   const sensSlider = document.getElementById('opt-camera-sensitivity');
   sensSlider.value = Math.round((state.cameraSensitivity || 1) * 100);
   sensSlider.addEventListener('input', () => {
@@ -875,7 +888,7 @@ export function initMenu(onSave, onTitle) {
   });
   document.getElementById('reset-settings-btn').addEventListener('click', () => {
     Object.assign(state, {
-      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1, invertCameraY: false, cameraSensitivity: 1,
+      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1, invertCameraY: false, cameraSensitivity: 1, highContrast: false,
     });
     setMasterVolume(state.masterVolume);
     setQualityPreset(state.quality);
