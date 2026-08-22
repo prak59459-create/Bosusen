@@ -113,6 +113,11 @@ function endCheck() {
       log('蘇生の残光が発動！ 力尽きる寸前で意識を取り戻した！');
       showCenterMsg('REVIVE!', '#ffd75e', 1200);
       sfx.skillUnlock();
+      spawnShockwave(player.position.clone().add(new THREE.Vector3(0, 1.2, 0)), 0xffd75e);
+      [0xffd75e, 0xfff2a8].forEach((c, i) => {
+        setTimeout(() => spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.2 + i * 0.2, 0)), c, 16), i * 150);
+      });
+      rumble(0.7, 400);
       return false;
     }
     state.playerHP = 0; updateBars(); finishGame(false); return true;
