@@ -161,6 +161,9 @@ export const sfx = {
   footstepCrystal: () => { playTone(1600, 0.05, 'sine', 0.04, 2000); playTone(2400, 0.03, 'triangle', 0.03, 2600); },
   footstepVolcanic: () => { playNoise(0.1, 0.15); playTone(150, 0.1, 'sawtooth', 0.06, 90); },
   footstepAsh: () => playNoise(0.12, 0.06),
+  critterChirp: () => { playTone(1800 + Math.random() * 600, 0.06, 'sine', 0.04, 2400); },
+  frogCroak: () => { playTone(220, 0.12, 'square', 0.05, 160); },
+  crowCaw: () => { playTone(500, 0.15, 'sawtooth', 0.05, 350); },
   thunder: () => { playNoise(1.1, 0.35); playTone(60, 1.2, 'sawtooth', 0.3, 30); },
   lowHp: () => { playTone(220, 0.18, 'triangle', 0.18, 160); },
 };

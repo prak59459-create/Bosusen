@@ -561,6 +561,7 @@ loadPlayerModel((frac) => {
 let t = 0;
 let thunderTimer = 10;
 let wasRaining = false;
+let wildlifeSoundTimer = 5;
 let lastTime = performance.now();
 function animate() {
   requestAnimationFrame(animate);
@@ -636,7 +637,15 @@ function animate() {
     updateCyberMotes(t, dt, lp.x, lp.z);
     updateCrystalSparkles(t, dt, lp.x, lp.z);
     updateAsh(t, dt, lp.x, lp.z);
-    setBiomeDrone(biomeCategoryAt(lp.x, lp.z));
+    const currentCat = biomeCategoryAt(lp.x, lp.z);
+    setBiomeDrone(currentCat);
+    wildlifeSoundTimer -= dt;
+    if (wildlifeSoundTimer <= 0) {
+      wildlifeSoundTimer = 6 + Math.random() * 8;
+      if (currentCat === 'forest' && Math.random() < 0.5) sfx.critterChirp();
+      else if (currentCat === 'swamp' && Math.random() < 0.5) sfx.frogCroak();
+      else if (currentCat === 'wasteland' && Math.random() < 0.4) sfx.crowCaw();
+    }
   } else {
     setRainIntensity(0);
   }
