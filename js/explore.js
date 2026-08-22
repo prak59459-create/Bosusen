@@ -142,6 +142,7 @@ let joyVec = { x: 0, y: 0 }; // タッチ用ベクトル(-1..1)
 let sprintLock = false;
 let dashCooldown = 0;
 let dashTimer = 0;
+let dashTrailTimer = 0;
 const DASH_DURATION = 0.18;
 const DASH_SPEED = 70;
 const DASH_COOLDOWN = 2.2;
@@ -538,7 +539,14 @@ export function updateExplore(dt) {
 
   dashCooldown = Math.max(0, dashCooldown - dt);
   const dashing = dashTimer > 0;
-  if (dashing) dashTimer -= dt;
+  if (dashing) {
+    dashTimer -= dt;
+    dashTrailTimer -= dt;
+    if (dashTrailTimer <= 0) {
+      dashTrailTimer = 0.04;
+      spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.9, 0)), 0x9fe0ff, 2);
+    }
+  }
 
   let len = Math.hypot(mx, mz);
   let moving = len > 0.08;
