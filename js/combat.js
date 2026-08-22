@@ -221,6 +221,7 @@ function finishGame(won) {
       if (prevBest) showToast(`最速記録更新！ ${state.turns}ターン（前回: ${prevBest}ターン）`, 'quest');
     }
     state.winStreak++;
+    if (state.lossStreak >= 3) state.hadComeback = true;
     state.lossStreak = 0;
     state.bestWinStreak = Math.max(state.bestWinStreak, state.winStreak);
     state.lifetimeBestCombo = Math.max(state.lifetimeBestCombo, state.maxCombo || 0);
