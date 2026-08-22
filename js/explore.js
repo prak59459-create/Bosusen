@@ -353,6 +353,8 @@ export function initJoystick() {
   if (emoteBtn) emoteBtn.addEventListener('click', () => { if (exploreActive) { playEmote(emoteIdx % EMOTES.length); emoteIdx++; } });
   const screenshotBtn = document.getElementById('screenshot-btn');
   if (screenshotBtn) screenshotBtn.addEventListener('click', () => { if (exploreActive) takeScreenshot(); });
+  const hubReturnBtn = document.getElementById('hub-return-btn');
+  if (hubReturnBtn) hubReturnBtn.addEventListener('click', () => { if (exploreActive) returnToHub(); });
   if (!joyBase || !joyKnob) return;
 
   const onDown = (e) => {
