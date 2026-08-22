@@ -402,6 +402,13 @@ function takeScreenshot() {
           previewEl.classList.add('show');
           clearTimeout(previewEl._hideTimer);
           previewEl._hideTimer = setTimeout(() => previewEl.classList.remove('show'), 2500);
+          if (!previewEl._clickBound) {
+            previewEl._clickBound = true;
+            previewEl.addEventListener('click', () => {
+              const w = window.open();
+              if (w) w.document.write(`<img src="${previewEl.src}" style="max-width:100%;">`);
+            });
+          }
         }
         const timeLabel = getTimeOfDayLabel(currentAbsTime);
         if (timeLabel === '明け方' || timeLabel === '夕暮れ') {
