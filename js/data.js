@@ -327,4 +327,5 @@ export const ACHIEVEMENTS = [
   { id:'crit_master', name:'会心の刃',         desc:'クリティカルヒットを累計100回発生させる。', reward:45 },
   { id:'parry_master', name:'見切りの達人',    desc:'ジャストガード（パリィ）を累計30回成功させる。', reward:40 },
   { id:'dedicated_player', name:'エーテリアの住人', desc:'累計プレイ時間が1時間に達する。', reward:35 },
+  { id:'true_resident', name:'エーテリアの生粋の民', desc:'累計プレイ時間が5時間に達する。', reward:70 },
 ];

@@ -278,6 +278,7 @@ export function renderStatusTab() {
       quest_complete: [totalQuestsDone(), totalQuestsAll()],
       veteran_hunter: [Math.max(0, ...Object.values(state.chapterClearCounts || {}), 0), 5],
       dedicated_player: [Math.round(state.totalPlaytimeSec || 0), 3600],
+      true_resident: [Math.round(state.totalPlaytimeSec || 0), 18000],
     };
     let achOrder = ACHIEVEMENTS;
     if (achSortByProgress) {

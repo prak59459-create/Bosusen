@@ -217,6 +217,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (state.totalCrits >= 100) tryUnlock('crit_master');
   if (state.totalParries >= 30) tryUnlock('parry_master');
   if ((state.totalPlaytimeSec || 0) >= 3600) tryUnlock('dedicated_player');
+  if ((state.totalPlaytimeSec || 0) >= 18000) tryUnlock('true_resident');
   if (state.butterfliesCaught >= 50) tryUnlock('butterfly_catcher');
   const otherIds = ACHIEVEMENTS.filter(a => a.id !== 'completionist').map(a => a.id);
   if (otherIds.every(id => state.achievements.includes(id))) tryUnlock('completionist');
