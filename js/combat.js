@@ -585,6 +585,13 @@ export function startBattlePhase() {
   updateBars();
   const chapter = CHAPTERS[state.chapterIndex];
   log(`戦闘開始！ ${chapter.enemyName}が姿を現した！`);
+  const introBanner = document.getElementById('boss-intro-banner');
+  if (introBanner) {
+    introBanner.querySelector('.boss-intro-name').textContent = chapter.enemyName;
+    introBanner.classList.remove('show');
+    void introBanner.offsetWidth;
+    introBanner.classList.add('show');
+  }
   const tauntPool = chapter.taunts || BOSS_TAUNTS;
   const taunt = tauntPool[Math.floor(Math.random() * tauntPool.length)];
   if (state.showBossTaunts !== false) log(taunt);
