@@ -4,6 +4,7 @@ import { state, computeStats, isQuestDone, ownsItem,
 import { sfx, setMasterVolume } from './audio.js';
 import { setQualityPreset } from './scene.js';
 import { setMapOpen } from './explore.js';
+import { BIOME_NAMES } from './world.js';
 
 export const els = {
   playerHPFill: document.getElementById('player-hp-fill'),
@@ -464,6 +465,26 @@ export function renderItemsTab() {
   });
 }
 
+export function renderCompendiumTab() {
+  const listEl = document.getElementById('biome-compendium-list');
+  const progressEl = document.getElementById('compendium-progress');
+  if (!listEl) return;
+  const discovered = state.discoveredBiomes || [];
+  if (progressEl) progressEl.textContent = `${discovered.length} / ${BIOME_NAMES.length}`;
+  listEl.innerHTML = '';
+  BIOME_NAMES.forEach(name => {
+    const found = discovered.includes(name);
+    const row = document.createElement('div');
+    row.className = 'item-row' + (found ? ' equipped' : '');
+    row.innerHTML = `
+      <div class="item-row-main">
+        <div class="item-row-name">${found ? name : '？？？'}</div>
+      </div>
+    `;
+    listEl.appendChild(row);
+  });
+}
+
 /* ============================================================
    メニュー全体（タブ切り替え・開閉）
    ============================================================ */
@@ -472,6 +493,7 @@ export function refreshAllMenuTabs() {
   renderEquipmentTab();
   renderSkillsTab();
   renderItemsTab();
+  renderCompendiumTab();
 }
 
 export function syncSettingsUI() {

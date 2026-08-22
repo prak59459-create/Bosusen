@@ -75,6 +75,7 @@ const BIOME_DEFS = [
   { name: '珊瑚色の岩場', color: 0xd06a7a, category: 'crystal' },
   { name: '常春の楽園', color: 0x5ac06a, category: 'forest' },
 ];
+export const BIOME_NAMES = BIOME_DEFS.map(b => b.name);
 const BIOME_SEEDS = BIOME_DEFS.map(() => {
   const r = 0.2 + Math.random() * 0.72;
   const ang = Math.random() * Math.PI * 2;
