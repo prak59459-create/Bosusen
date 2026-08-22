@@ -207,6 +207,9 @@ function finishGame(won) {
     state.chapterClearCounts[chapter.key] = (state.chapterClearCounts[chapter.key] || 0) + 1;
     if (!state.firstDefeatedAt) state.firstDefeatedAt = {};
     if (!state.firstDefeatedAt[chapter.key]) state.firstDefeatedAt[chapter.key] = Date.now();
+    if (!state.bestTurnsPerChapter) state.bestTurnsPerChapter = {};
+    const prevBest = state.bestTurnsPerChapter[chapter.key];
+    if (!prevBest || state.turns < prevBest) state.bestTurnsPerChapter[chapter.key] = state.turns;
     state.winStreak++;
     state.bestWinStreak = Math.max(state.bestWinStreak, state.winStreak);
     state.lifetimeBestCombo = Math.max(state.lifetimeBestCombo, state.maxCombo || 0);
