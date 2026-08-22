@@ -87,6 +87,12 @@ const BATTLE_FOG = { near: 34, far: 80 };
 const keys = { forward: false, back: false, left: false, right: false, sprint: false };
 let joyVec = { x: 0, y: 0 }; // タッチ用ベクトル(-1..1)
 let sprintLock = false;
+let dashCooldown = 0;
+let dashTimer = 0;
+const DASH_DURATION = 0.18;
+const DASH_SPEED = 70;
+const DASH_COOLDOWN = 2.2;
+const DASH_STAMINA_COST = 30;
 
 function toggleSprintLock() {
   sprintLock = !sprintLock;
@@ -106,6 +112,13 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.sprint = true;
   if (e.code === 'KeyM' && onToggleMap) onToggleMap();
   if (e.code === 'KeyR' && !e.repeat) toggleSprintLock();
+  if (e.code === 'KeyE' && !e.repeat && dashCooldown <= 0 && exploreStamina >= DASH_STAMINA_COST) {
+    dashTimer = DASH_DURATION;
+    dashCooldown = DASH_COOLDOWN;
+    exploreStamina -= DASH_STAMINA_COST;
+    sfx.dodgeSuccess();
+    spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1, 0)), 0x9fe0ff, 12);
+  }
   if (e.code === 'Space' && !e.repeat && jumpsUsed < MAX_JUMPS) {
     isJumping = true;
     jumpVelY = JUMP_SPEED * (jumpsUsed === 0 ? 1 : 0.85);
@@ -183,6 +196,8 @@ export function enterExploreMode(spawnLocal) {
   jumpVelY = 0;
   isJumping = false;
   jumpsUsed = 0;
+  dashCooldown = 0;
+  dashTimer = 0;
   exploreStamina = STAMINA_MAX;
   player.position.set(HUB_OFFSET.x + localPos.x, 0, HUB_OFFSET.z + localPos.z);
   player.rotation.y = facing + Math.PI;
@@ -322,10 +337,19 @@ export function updateExplore(dt) {
   mx += joyVec.x;
   mz += joyVec.y;
 
-  const len = Math.hypot(mx, mz);
-  const moving = len > 0.08;
-  const sprinting = keys.sprint && exploreStamina > 0.5 && moving;
-  const speed = sprinting ? SPRINT_SPEED : WALK_SPEED;
+  dashCooldown = Math.max(0, dashCooldown - dt);
+  const dashing = dashTimer > 0;
+  if (dashing) dashTimer -= dt;
+
+  let len = Math.hypot(mx, mz);
+  let moving = len > 0.08;
+  if (dashing && !moving) {
+    mx = Math.sin(facing); mz = Math.cos(facing);
+    len = 1;
+    moving = true;
+  }
+  const sprinting = keys.sprint && exploreStamina > 0.5 && moving && !dashing;
+  const speed = dashing ? DASH_SPEED : (sprinting ? SPRINT_SPEED : WALK_SPEED);
   if (sprinting) {
     exploreStamina = Math.max(0, exploreStamina - STAMINA_DRAIN * dt);
   } else {
