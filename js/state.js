@@ -220,6 +220,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (SKILLS.every(s => state.unlockedSkills.includes(s.id))) tryUnlock('skill_master');
   if (state.difficulty === 'hard') tryUnlock('hard_clear');
   if (lastRank != null && state.damageTaken === 0) tryUnlock('flawless');
+  if (lastRank != null && state.turns > 0 && state.turns <= 5) tryUnlock('speed_clear');
   if (state.loginStreak >= 7) tryUnlock('week_streak');
   if (lastRank != null && state.healUses === state.healUsesMax) tryUnlock('no_heal');
   if (lastRank != null && !state.guardUsedThisBattle) tryUnlock('no_guard');
