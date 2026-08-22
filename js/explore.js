@@ -290,7 +290,9 @@ export function enterExploreMode(spawnLocal) {
     if (isQuestDone(CHAPTERS[p.chapterIndex].key, p.questId)) p.mesh.visible = false;
   });
   hiddenTreasures.forEach(t => {
-    t.mesh.visible = !state.foundTreasures.includes(t.id);
+    const found = state.foundTreasures.includes(t.id);
+    t.mesh.visible = !found;
+    if (t.beam) t.beam.visible = !found;
   });
   fieldTargets.forEach(t => {
     if (isQuestDone(CHAPTERS[t.chapterIndex].key, t.questId) || fieldQuestState(t.questId) === 'ready_turnin') {
@@ -392,6 +394,7 @@ function tryCollectTreasure(t) {
   sfx.shardGet();
   showToast(`結晶の秘宝を発見！ 結晶の欠片 +${t.shardReward}`, 'quest');
   t.mesh.visible = false;
+  if (t.beam) t.beam.visible = false;
   checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
   saveGame();
 }

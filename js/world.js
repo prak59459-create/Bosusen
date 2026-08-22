@@ -938,7 +938,11 @@ CHAPTERS.forEach((chapter, i) => {
     const tLight = new THREE.PointLight(0xffaa00, 2.2, 11, 2);
     tLight.position.set(tLocal.x, 1.8, tLocal.z);
     worldGroup.add(tLight);
-    hiddenTreasures.push({ id: treasureId, chapterIndex: i, localPos: tLocal, mesh: tMesh, light: tLight, radius: 3, shardReward: 15 + i * 5 });
+    const beamMat = new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0.28, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false });
+    const beamMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.06, 60, 8, 1, true), beamMat);
+    beamMesh.position.set(tLocal.x, 30, tLocal.z);
+    worldGroup.add(beamMesh);
+    hiddenTreasures.push({ id: treasureId, chapterIndex: i, localPos: tLocal, mesh: tMesh, light: tLight, beam: beamMesh, radius: 3, shardReward: 15 + i * 5 });
   }
 });
 
