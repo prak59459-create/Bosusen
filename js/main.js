@@ -586,7 +586,7 @@ function animate() {
 
   updateParticles(dt);
   updateHubSparks(t, dt);
-  updateGuideBeams(t);
+  updateGuideBeams(t, state.showGuideBeams !== false);
   if (!isLowQuality()) {
     updateFireflies(t);
     updateBirds(t);

@@ -19,10 +19,10 @@ const guideBeams = [];
 function registerBeam(mat, baseOpacity) {
   guideBeams.push({ mat, baseOpacity, phase: Math.random() * Math.PI * 2 });
 }
-export function updateGuideBeams(t) {
+export function updateGuideBeams(t, enabled = true) {
   for (let i = 0; i < guideBeams.length; i++) {
     const b = guideBeams[i];
-    b.mat.opacity = b.baseOpacity * (0.7 + 0.3 * Math.sin(t * 1.5 + b.phase));
+    b.mat.opacity = enabled ? b.baseOpacity * (0.7 + 0.3 * Math.sin(t * 1.5 + b.phase)) : 0;
   }
 }
 worldGroup.position.copy(HUB_OFFSET);
