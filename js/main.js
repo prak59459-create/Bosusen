@@ -316,6 +316,8 @@ function drawMap() {
   const contentRadius = Math.max(...fieldTargets.map(t => Math.hypot(t.localPos.x, t.localPos.z)), 500) * 1.15;
   const scale = ((Math.min(w, h) / 2 - 20) / contentRadius) * mapZoomFactor;
   const cx = w / 2, cy = h / 2;
+  const zoomLabelEl = document.getElementById('map-zoom-label');
+  if (zoomLabelEl) zoomLabelEl.textContent = `${Math.round(mapZoomFactor * 100)}%`;
   mapScaleInfo = { scale, cx, cy };
   mapCtx.fillStyle = '#ece2fb';
   mapCtx.fillRect(0, 0, w, h);
