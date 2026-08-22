@@ -655,6 +655,8 @@ export function syncSettingsUI() {
   if (heartbeatCheckbox) heartbeatCheckbox.checked = state.lowHpHeartbeat !== false;
   const flashingCheckbox = document.getElementById('opt-reduce-flashing');
   if (flashingCheckbox) flashingCheckbox.checked = state.reduceFlashing === true;
+  const invertYCheckbox = document.getElementById('opt-invert-camera-y');
+  if (invertYCheckbox) invertYCheckbox.checked = state.invertCameraY === true;
   const textScaleSelect = document.getElementById('opt-text-scale');
   if (textScaleSelect) textScaleSelect.value = state.uiTextScale || 1;
   applyUiTextScale(state.uiTextScale || 1);
@@ -751,6 +753,14 @@ export function initMenu(onSave, onTitle) {
     saveGame();
   });
 
+  const invertYCheckbox = document.getElementById('opt-invert-camera-y');
+  invertYCheckbox.checked = state.invertCameraY === true;
+  invertYCheckbox.addEventListener('change', () => {
+    state.invertCameraY = invertYCheckbox.checked;
+    sfx.uiClick();
+    saveGame();
+  });
+
   const textScaleSelect = document.getElementById('opt-text-scale');
   textScaleSelect.value = state.uiTextScale || 1;
   applyUiTextScale(state.uiTextScale || 1);
@@ -787,7 +797,7 @@ export function initMenu(onSave, onTitle) {
   });
   document.getElementById('reset-settings-btn').addEventListener('click', () => {
     Object.assign(state, {
-      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1,
+      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1, invertCameraY: false,
     });
     setMasterVolume(state.masterVolume);
     setQualityPreset(state.quality);

@@ -87,7 +87,8 @@ window.addEventListener('mouseup', () => { orbitDragging = false; });
 window.addEventListener('mousemove', (e) => {
   if (!orbitDragging) return;
   camOrbitYaw -= (e.clientX - orbitLastX) * 0.005;
-  camOrbitPitch = Math.max(0.05, Math.min(1.2, camOrbitPitch - (e.clientY - orbitLastY) * 0.004));
+  const pitchDelta = (e.clientY - orbitLastY) * 0.004 * (state.invertCameraY ? -1 : 1);
+  camOrbitPitch = Math.max(0.05, Math.min(1.2, camOrbitPitch - pitchDelta));
   orbitLastX = e.clientX; orbitLastY = e.clientY;
 });
 window.addEventListener('contextmenu', (e) => {
@@ -578,7 +579,7 @@ export function updateExplore(dt) {
     keys.sprint = keys.sprint || (gp.buttons[10] && gp.buttons[10].pressed);
     const rx = gp.axes[2] || 0, ry = gp.axes[3] || 0;
     if (Math.abs(rx) > 0.2) camOrbitYaw -= rx * dt * 2.5;
-    if (Math.abs(ry) > 0.2) camOrbitPitch = Math.max(0.05, Math.min(1.2, camOrbitPitch + ry * dt * 2));
+    if (Math.abs(ry) > 0.2) camOrbitPitch = Math.max(0.05, Math.min(1.2, camOrbitPitch + ry * dt * 2 * (state.invertCameraY ? -1 : 1)));
     if (gp.buttons[9] && gp.buttons[9].pressed && !gpMapHeld) { gpMapHeld = true; if (onToggleMap) onToggleMap(); }
     if (!(gp.buttons[9] && gp.buttons[9].pressed)) gpMapHeld = false;
     if (gp.buttons[3] && gp.buttons[3].pressed && !gpCamResetHeld) { gpCamResetHeld = true; camOrbitYaw = 0; camOrbitPitch = 0.42; }
