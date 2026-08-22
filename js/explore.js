@@ -166,6 +166,10 @@ window.addEventListener('keydown', (e) => {
     const undone = questGivers.filter(g => !isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId));
     pingDirection(undone, 'クエスト依頼人', 'すべての依頼人のクエストを達成済みです');
   }
+  if (e.code === 'KeyZ' && !e.repeat) {
+    const unfinished = zoneMarkers.filter(z => z.chapterIndex >= state.chapterIndex);
+    pingDirection(unfinished, '聖域', 'すべての聖域を制覇済みです');
+  }
   if (e.code === 'KeyE' && !e.repeat && dashCooldown <= 0 && exploreStamina >= DASH_STAMINA_COST) {
     dashTimer = DASH_DURATION;
     dashCooldown = DASH_COOLDOWN;
