@@ -1205,3 +1205,39 @@ export function updateRain(t, dt, centerX, centerZ) {
   }
   rainMesh.instanceMatrix.needsUpdate = true;
 }
+
+/* ---------- 雪原バイオームに降る雪 ---------- */
+const SNOW_COUNT = 320;
+const snowGeo = new THREE.SphereGeometry(0.08, 5, 5);
+const snowMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.85 });
+const snowMesh = new THREE.InstancedMesh(snowGeo, snowMat, SNOW_COUNT);
+snowMesh.visible = false;
+const snowData = [];
+for (let i = 0; i < SNOW_COUNT; i++) {
+  snowData.push({
+    ox: (Math.random() - 0.5) * 55,
+    oz: (Math.random() - 0.5) * 55,
+    y: Math.random() * 20,
+    speed: 2 + Math.random() * 2.5,
+    swayPhase: Math.random() * Math.PI * 2,
+  });
+}
+worldGroup.add(snowMesh);
+const snowDummy = new THREE.Object3D();
+export function updateSnow(t, dt, centerX, centerZ) {
+  const biomeIdx = nearestBiome(centerX, centerZ);
+  const cat = BIOME_DEFS[biomeIdx] ? BIOME_DEFS[biomeIdx].category : null;
+  const isSnowing = cat === 'snow';
+  snowMesh.visible = isSnowing;
+  if (!isSnowing) return;
+  for (let i = 0; i < SNOW_COUNT; i++) {
+    const d = snowData[i];
+    d.y -= d.speed * dt;
+    if (d.y < 0) d.y += 20;
+    const sway = Math.sin(t * 0.8 + d.swayPhase) * 1.2;
+    snowDummy.position.set(centerX + d.ox + sway, d.y, centerZ + d.oz);
+    snowDummy.updateMatrix();
+    snowMesh.setMatrixAt(i, snowDummy.matrix);
+  }
+  snowMesh.instanceMatrix.needsUpdate = true;
+}
