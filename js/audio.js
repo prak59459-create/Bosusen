@@ -134,6 +134,7 @@ export const sfx = {
   swing: () => playTone(280, 0.12, 'square', 0.08, 150),
   hit: () => { playNoise(0.15, 0.3); playTone(120, 0.15, 'sawtooth', 0.15, 60); },
   heavyHit: () => { playNoise(0.25, 0.4); playTone(80, 0.3, 'sawtooth', 0.25, 40); },
+  critHit: () => { playNoise(0.2, 0.35); playTone(200, 0.1, 'square', 0.2, 900); playTone(900, 0.15, 'sine', 0.15, 1400); },
   heal: () => { playTone(440, 0.12, 'sine', 0.15, 660); setTimeout(() => playTone(660, 0.15, 'sine', 0.15, 880), 100); },
   skill: () => { playTone(200, 0.3, 'sawtooth', 0.2, 900); playNoise(0.3, 0.2); },
   guard: () => playTone(150, 0.15, 'triangle', 0.15),

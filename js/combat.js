@@ -383,7 +383,7 @@ export function playerAction(type) {
       gainCombo();
       updateBars();
       flashHit(b);
-      sfx.hit();
+      crit ? sfx.critHit() : sfx.hit();
       spawnParticles(bossHitPoint(), crit ? 0xffe066 : 0xffcc44, crit ? 20 : 12);
       spawnDamageNumber(bossHitPoint(), `-${dmg}${crit ? '!' : ''}`, crit ? '#ffe066' : '#ffcc44', crit);
       log(`あなたの攻撃！ ${dmg} ダメージ${crit ? '（クリティカル！）' : ''}${state.combo > 1 ? ` (${state.combo}コンボ)` : ''}`);
@@ -409,6 +409,7 @@ export function playerAction(type) {
         updateBars();
         flashHit(b);
         sfx.heavyHit();
+        if (crit) sfx.critHit();
         spawnParticles(bossHitPoint(), 0xff8844, 20);
         spawnDamageNumber(bossHitPoint(), `-${dmg}`, '#ff8844', true);
         log(`強攻撃が炸裂！ ${dmg} ダメージ！${crit ? '（クリティカル！）' : ''}`);
@@ -456,6 +457,7 @@ export function playerAction(type) {
         updateBars();
         flashHit(getBoss());
         sfx.heavyHit();
+        if (crit) sfx.critHit();
         spawnParticles(target, 0x5eb6ff, 26);
         spawnDamageNumber(target, `-${dmg}`, '#5eb6ff', true);
         log(`結晶技「アビスブレイク」！ ${dmg} ダメージ！${crit ? '（クリティカル！）' : ''}`);
