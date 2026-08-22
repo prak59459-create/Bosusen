@@ -67,6 +67,7 @@ window.addEventListener('wheel', (e) => {
 const camCurrentPos = new THREE.Vector3();
 const camLookTarget = new THREE.Vector3();
 let stepTimer = 0;
+let speedTrailTimer = 0;
 let camInit = false;
 let objectiveTimer = 0;
 let jumpVelY = 0;
@@ -385,6 +386,15 @@ export function updateExplore(dt) {
       spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.05, 0)), 0xcabf9a, 4);
       spawnFootprint(player.position, facing);
       stepTimer = sprinting ? 0.22 : 0.36;
+    }
+    if (sprinting || dashing) {
+      speedTrailTimer -= dt;
+      if (speedTrailTimer <= 0) {
+        const behindX = player.position.x + Math.sin(facing) * 0.5;
+        const behindZ = player.position.z + Math.cos(facing) * 0.5;
+        spawnParticles(new THREE.Vector3(behindX, player.position.y + 0.5, behindZ), dashing ? 0x9fe0ff : 0xffffff, 3);
+        speedTrailTimer = 0.05;
+      }
     }
   } else {
     stepTimer = 0;
