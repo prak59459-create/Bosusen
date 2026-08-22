@@ -25,6 +25,7 @@ export const CHAPTERS = [
       'プライム・コアの共鳴が眠っています』\n' +
       'イリスの声に導かれ、アッシュは崩れた城壁の先へと踏み出す。',
     hp: 130,
+    battleTip: '「守護の怒り」は突進の隙が大きい。避けた直後に強攻撃を叩き込もう。',
     hasPhases: false,
     xp: 60,
     shardsBase: 30,
@@ -71,6 +72,7 @@ export const CHAPTERS = [
       '『お前の右腕……それは、最初のヴォイドの、欠片そのものだ……』\n' +
       'アッシュは無意識に右腕を押さえる。イリスの表情が、初めて曇った。',
     hp: 190,
+    battleTip: '「棘蔦の鞭」はガードで大きく被害を抑えられる。回復を惜しまず長期戦に備えよう。',
     hasPhases: false,
     xp: 90,
     shardsBase: 40,
@@ -117,6 +119,7 @@ export const CHAPTERS = [
       '『そして今のあなたは……その“観測者”が遺した、ただの残響（エコー）……』\n' +
       'イリスが何かを言おうとして、言葉を飲み込んだ。最後の聖域が、目の前に迫る。',
     hp: 230,
+    battleTip: '結晶技のクールダウンを常に把握し、使えるタイミングを逃さず火力を上げよう。',
     hasPhases: false,
     xp: 130,
     shardsBase: 55,
@@ -158,6 +161,7 @@ export const CHAPTERS = [
       '「……それでも。今のこの手で、決着をつける」',
     storyAfter: null,
     hp: 320,
+    battleTip: 'HP50%で覚醒し攻撃が激化する。覚醒前にできる限り削り、覚醒後はガードを重視しよう。',
     hasPhases: true,
     xp: 220,
     shardsBase: 90,

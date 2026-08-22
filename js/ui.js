@@ -698,6 +698,7 @@ export function renderCompendiumTab() {
         <div class="item-row-main">
           <div class="item-row-name">${found ? c.enemyName : '？？？'}</div>
           <div class="item-row-desc">${found ? `撃破回数: ${count}｜初撃破: ${dateStr}${bestTurns ? `｜最速: ${bestTurns}ターン` : ''}` : '未撃破'}</div>
+          ${found && c.battleTip ? `<div class="item-row-desc">💡 ${c.battleTip}</div>` : ''}
         </div>
       `;
       bestiaryList.appendChild(row);
