@@ -12,7 +12,7 @@ import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQues
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
 import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt, biomeNameAt, triggerLightning, updateLightning, updateButterflies, updateScorpions, updateFoxes, updateFrogs, updateCrows, updateSalamanders, updateDrones, updateSpirits, triggerRainbow, updateRainbow, updateHubSparks, updateGuideBeams } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
-  setOnOpenShop, setOnToggleMap, getPlayerLocalPos, exploreActive, setMapOpen, setExploreLocalPos, getPlayerFacing } from './explore.js';
+  setOnOpenShop, setOnToggleMap, setOnToggleMute, getPlayerLocalPos, exploreActive, setMapOpen, setExploreLocalPos, getPlayerFacing } from './explore.js';
 import { initSkirmishUI, resetSkirmish } from './skirmish.js';
 
 mountRenderer();
@@ -489,6 +489,7 @@ document.getElementById('mute-btn').addEventListener('click', toggleMute);
 window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyK' && !e.repeat) toggleMute();
 });
+setOnToggleMute(toggleMute);
 
 const qbUndoneFilterEl = document.getElementById('qb-undone-filter');
 if (qbUndoneFilterEl) qbUndoneFilterEl.addEventListener('change', () => showQuestBoard(state.chapterIndex));
