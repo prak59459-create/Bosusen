@@ -30,7 +30,14 @@ document.getElementById('help-overlay').addEventListener('click', (e) => {
 window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyH' && !e.repeat) toggleHelpOverlay();
   if (e.code === 'KeyB' && !e.repeat && exploreActive) cycleRadarZoom();
+  if (e.code === 'F3' && !e.repeat) {
+    e.preventDefault();
+    debugOverlayVisible = !debugOverlayVisible;
+    const debugEl = document.getElementById('debug-overlay');
+    if (debugEl) debugEl.style.display = debugOverlayVisible ? 'block' : 'none';
+  }
 });
+let debugOverlayVisible = false;
 
 let saveIndicatorTimer = null;
 window.addEventListener('bosusen-saved', () => {
@@ -647,6 +654,7 @@ let wasRaining = false;
 let wasSensingTreasure = false;
 let wildlifeSoundTimer = 5;
 let lastTime = performance.now();
+let fpsAccum = 0, fpsFrames = 0, fpsLastUpdate = 0;
 function animate() {
   requestAnimationFrame(animate);
   const now = performance.now();
@@ -654,6 +662,20 @@ function animate() {
   lastTime = now;
   t += dt;
   state.totalPlaytimeSec = (state.totalPlaytimeSec || 0) + dt;
+
+  if (debugOverlayVisible) {
+    fpsAccum += dt; fpsFrames++;
+    if (now - fpsLastUpdate > 500) {
+      fpsLastUpdate = now;
+      const fps = Math.round(fpsFrames / fpsAccum);
+      fpsAccum = 0; fpsFrames = 0;
+      const debugEl = document.getElementById('debug-overlay');
+      if (debugEl) {
+        const p = exploreActive ? getPlayerLocalPos() : { x: 0, z: 0 };
+        debugEl.textContent = `FPS: ${fps}\n位置: x=${p.x.toFixed(1)} z=${p.z.toFixed(1)}\n経過時間: ${Math.round(t)}s`;
+      }
+    }
+  }
 
   if (playerMixer) playerMixer.update(dt);
 
