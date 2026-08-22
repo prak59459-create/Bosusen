@@ -142,7 +142,8 @@ export function updateBars() {
 
   if (state.combo > 1) {
     els.comboDisplay.style.display = 'block';
-    els.comboDisplay.textContent = `${state.combo} COMBO!`;
+    const mult = Math.round((1 + Math.min(state.combo, 8) * 0.08) * 100);
+    els.comboDisplay.textContent = `${state.combo} COMBO! (${mult}%)`;
   } else {
     els.comboDisplay.style.display = 'none';
   }
