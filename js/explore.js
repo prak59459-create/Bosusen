@@ -102,6 +102,7 @@ let gpDashHeld = false;
 let gpMapHeld = false;
 let gpCamResetHeld = false;
 let gpFilterHeld = false;
+let gpHubReturnHeld = false;
 let fireflyCheckTimer = 0;
 let chatterTimer = 0;
 let periodicAchCheckTimer = 30;
@@ -175,6 +176,25 @@ function doDash() {
   spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1, 0)), 0x9fe0ff, 12);
 }
 
+function returnToHub() {
+  const now = performance.now();
+  if (now - lastHubReturnAt < 5000) { showToast('拠点帰還はクールダウン中', 'info'); return; }
+  lastHubReturnAt = now;
+  localPos.set(HUB_SPAWN.x, 0, HUB_SPAWN.z);
+  spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1, 0)), 0x9fe0ff, 16);
+  sfx.uiClick();
+  showToast('拠点へ帰還した', 'quest');
+  const teleportFlash = document.getElementById('lightning-flash');
+  if (teleportFlash && !state.reduceFlashing) {
+    teleportFlash.style.background = '#9fe0ff';
+    teleportFlash.classList.add('flash');
+    setTimeout(() => {
+      teleportFlash.classList.remove('flash');
+      teleportFlash.style.background = '';
+    }, 200);
+  }
+}
+
 function doJump() {
   if (jumpsUsed >= MAX_JUMPS) return;
   isJumping = true;
@@ -232,24 +252,7 @@ window.addEventListener('keydown', (e) => {
     sfx.uiClick();
     saveGame();
   }
-  if (e.code === 'KeyN' && !e.repeat) {
-    const now = performance.now();
-    if (now - lastHubReturnAt < 5000) { showToast('拠点帰還はクールダウン中', 'info'); return; }
-    lastHubReturnAt = now;
-    localPos.set(HUB_SPAWN.x, 0, HUB_SPAWN.z);
-    spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1, 0)), 0x9fe0ff, 16);
-    sfx.uiClick();
-    showToast('拠点へ帰還した', 'quest');
-    const teleportFlash = document.getElementById('lightning-flash');
-    if (teleportFlash && !state.reduceFlashing) {
-      teleportFlash.style.background = '#9fe0ff';
-      teleportFlash.classList.add('flash');
-      setTimeout(() => {
-        teleportFlash.classList.remove('flash');
-        teleportFlash.style.background = '';
-      }, 200);
-    }
-  }
+  if (e.code === 'KeyN' && !e.repeat) returnToHub();
   if (e.code === 'KeyT' && !e.repeat) {
     const unfound = hiddenTreasures.filter(tr => !state.foundTreasures.includes(tr.id));
     pingDirection(unfound, '未発見の秘宝', 'すべての秘宝を発見済みです');
@@ -591,6 +594,8 @@ export function updateExplore(dt) {
       saveGame();
     }
     if (!(gp.buttons[12] && gp.buttons[12].pressed)) gpFilterHeld = false;
+    if (gp.buttons[13] && gp.buttons[13].pressed && !gpHubReturnHeld) { gpHubReturnHeld = true; returnToHub(); }
+    if (!(gp.buttons[13] && gp.buttons[13].pressed)) gpHubReturnHeld = false;
   }
 
   dashCooldown = Math.max(0, dashCooldown - dt);
