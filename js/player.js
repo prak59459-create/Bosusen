@@ -85,13 +85,21 @@ companionOrb.visible = false;
 scene.add(companionOrb);
 const companionTrail = new THREE.Vector3();
 export function setCompanionVisible(v) { companionOrb.visible = v; }
-let companionGolden = false;
+let companionTier = -1;
+function companionTierFor() {
+  if ((state.achievements || []).includes('completionist')) return 3;
+  const count = (state.achievements || []).length;
+  if (count >= 20) return 2;
+  if (count >= 10) return 1;
+  return 0;
+}
+const COMPANION_TIER_COLOR = [0x9fe0ff, 0xcd7f32, 0xc0c0c0, 0xffd700];
 export function updateCompanion(t, dt, sensingTreasure = false) {
   if (!companionOrb.visible) return;
-  const isCompletionist = (state.achievements || []).includes('completionist');
-  if (isCompletionist !== companionGolden) {
-    companionGolden = isCompletionist;
-    const color = companionGolden ? 0xffd700 : 0x9fe0ff;
+  const tier = companionTierFor();
+  if (tier !== companionTier) {
+    companionTier = tier;
+    const color = COMPANION_TIER_COLOR[tier];
     companionMat.color.setHex(color);
     companionLight.color.setHex(color);
   }
