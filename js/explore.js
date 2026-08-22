@@ -28,6 +28,10 @@ const camLookTarget = new THREE.Vector3();
 let stepTimer = 0;
 let camInit = false;
 let objectiveTimer = 0;
+let jumpVelY = 0;
+let isJumping = false;
+const GRAVITY = 32;
+const JUMP_SPEED = 11;
 
 const EXPLORE_FOG = { near: 260, far: 3200 };
 const BATTLE_FOG = { near: 34, far: 80 };
@@ -54,6 +58,7 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.sprint = true;
   if (e.code === 'KeyM' && onToggleMap) onToggleMap();
   if (e.code === 'KeyR' && !e.repeat) toggleSprintLock();
+  if (e.code === 'Space' && !isJumping) { isJumping = true; jumpVelY = JUMP_SPEED; sfx.footstep(); }
 });
 window.addEventListener('keyup', (e) => {
   if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.forward = false;
@@ -121,6 +126,8 @@ export function enterExploreMode(spawnLocal) {
   scene.fog.near = EXPLORE_FOG.near;
   scene.fog.far = EXPLORE_FOG.far;
   if (spawnLocal) localPos.copy(spawnLocal);
+  jumpVelY = 0;
+  isJumping = false;
   player.position.set(HUB_OFFSET.x + localPos.x, 0, HUB_OFFSET.z + localPos.z);
   player.rotation.y = facing + Math.PI;
   crossfadeTo('Idle', 0.2);
@@ -273,7 +280,7 @@ export function updateExplore(dt) {
       const s = (WORLD_RADIUS - 4) / r;
       localPos.x *= s; localPos.z *= s;
     }
-    player.position.set(HUB_OFFSET.x + localPos.x, 0, HUB_OFFSET.z + localPos.z);
+    player.position.set(HUB_OFFSET.x + localPos.x, player.position.y, HUB_OFFSET.z + localPos.z);
     player.rotation.y = facing + Math.PI;
     stepTimer -= dt;
     if (stepTimer <= 0) {
@@ -283,6 +290,13 @@ export function updateExplore(dt) {
     }
   } else {
     stepTimer = 0;
+    player.position.set(HUB_OFFSET.x + localPos.x, player.position.y, HUB_OFFSET.z + localPos.z);
+  }
+  if (isJumping) {
+    jumpVelY -= GRAVITY * dt;
+    let ny = player.position.y + jumpVelY * dt;
+    if (ny <= 0) { ny = 0; isJumping = false; jumpVelY = 0; }
+    player.position.y = ny;
   }
   if (moving && !wasMoving) crossfadeTo('Walk', 0.15);
   if (!moving && wasMoving) crossfadeTo('Idle', 0.25);
