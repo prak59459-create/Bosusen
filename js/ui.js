@@ -565,6 +565,27 @@ export function renderCompendiumTab() {
       listEl.appendChild(row);
     });
   });
+  const bestiaryList = document.getElementById('bestiary-list');
+  const bestiaryProgress = document.getElementById('bestiary-progress');
+  if (bestiaryList) {
+    bestiaryList.innerHTML = '';
+    const clearCounts = state.chapterClearCounts || {};
+    const clearedCount = CHAPTERS.filter(c => (clearCounts[c.key] || 0) > 0).length;
+    if (bestiaryProgress) bestiaryProgress.textContent = `${clearedCount} / ${CHAPTERS.length}`;
+    CHAPTERS.forEach(c => {
+      const count = clearCounts[c.key] || 0;
+      const found = count > 0;
+      const row = document.createElement('div');
+      row.className = 'item-row' + (found ? ' equipped' : '');
+      row.innerHTML = `
+        <div class="item-row-main">
+          <div class="item-row-name">${found ? c.enemyName : '？？？'}</div>
+          <div class="item-row-desc">${found ? `撃破回数: ${count}` : '未撃破'}</div>
+        </div>
+      `;
+      bestiaryList.appendChild(row);
+    });
+  }
 }
 
 /* ============================================================
