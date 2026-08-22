@@ -1388,3 +1388,41 @@ export function updateCrystalSparkles(t, dt, centerX, centerZ) {
   }
   sparkleMesh.instanceMatrix.needsUpdate = true;
 }
+
+/* ---------- 荒野バイオームに舞う灰 ---------- */
+const ASH_COUNT = 220;
+const ashGeo = new THREE.PlaneGeometry(0.15, 0.15);
+const ashMat = new THREE.MeshBasicMaterial({ color: 0x9a9284, transparent: true, opacity: 0.55, side: THREE.DoubleSide });
+const ashMesh = new THREE.InstancedMesh(ashGeo, ashMat, ASH_COUNT);
+ashMesh.visible = false;
+const ashData = [];
+for (let i = 0; i < ASH_COUNT; i++) {
+  ashData.push({
+    ox: (Math.random() - 0.5) * 55,
+    oz: (Math.random() - 0.5) * 55,
+    y: Math.random() * 10,
+    fallSpeed: 0.3 + Math.random() * 0.5,
+    swaySpeed: 0.4 + Math.random() * 0.8,
+    phase: Math.random() * Math.PI * 2,
+  });
+}
+worldGroup.add(ashMesh);
+const ashDummy = new THREE.Object3D();
+export function updateAsh(t, dt, centerX, centerZ) {
+  const biomeIdx = nearestBiome(centerX, centerZ);
+  const cat = BIOME_DEFS[biomeIdx] ? BIOME_DEFS[biomeIdx].category : null;
+  const isWasteland = cat === 'wasteland';
+  ashMesh.visible = isWasteland;
+  if (!isWasteland) return;
+  for (let i = 0; i < ASH_COUNT; i++) {
+    const d = ashData[i];
+    d.y -= d.fallSpeed * dt;
+    if (d.y < 0) d.y += 10;
+    const sway = Math.sin(t * d.swaySpeed + d.phase) * 1.4;
+    ashDummy.position.set(centerX + d.ox + sway, d.y, centerZ + d.oz);
+    ashDummy.rotation.set(t * d.swaySpeed, t * d.swaySpeed * 1.2, 0);
+    ashDummy.updateMatrix();
+    ashMesh.setMatrixAt(i, ashDummy.matrix);
+  }
+  ashMesh.instanceMatrix.needsUpdate = true;
+}
