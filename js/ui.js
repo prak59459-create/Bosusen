@@ -781,6 +781,8 @@ export function syncSettingsUI() {
   if (companionNameInput) companionNameInput.value = state.companionName || 'イリス';
   const proximitySoundsCheckbox = document.getElementById('opt-proximity-sounds');
   if (proximitySoundsCheckbox) proximitySoundsCheckbox.checked = state.proximitySounds !== false;
+  const watermarkCheckbox = document.getElementById('opt-screenshot-watermark');
+  if (watermarkCheckbox) watermarkCheckbox.checked = state.screenshotWatermark !== false;
   const sensSlider = document.getElementById('opt-camera-sensitivity');
   if (sensSlider) sensSlider.value = Math.round((state.cameraSensitivity || 1) * 100);
   const sensValLabel = document.getElementById('opt-camera-sensitivity-val');
@@ -946,6 +948,14 @@ export function initMenu(onSave, onTitle) {
     saveGame();
   });
 
+  const watermarkCheckbox = document.getElementById('opt-screenshot-watermark');
+  watermarkCheckbox.checked = state.screenshotWatermark !== false;
+  watermarkCheckbox.addEventListener('change', () => {
+    state.screenshotWatermark = watermarkCheckbox.checked;
+    sfx.uiClick();
+    saveGame();
+  });
+
   const sensSlider = document.getElementById('opt-camera-sensitivity');
   sensSlider.value = Math.round((state.cameraSensitivity || 1) * 100);
   sensSlider.addEventListener('input', () => {
@@ -992,7 +1002,7 @@ export function initMenu(onSave, onTitle) {
   });
   document.getElementById('reset-settings-btn').addEventListener('click', () => {
     Object.assign(state, {
-      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1, invertCameraY: false, cameraSensitivity: 1, highContrast: false, reduceNpcChatter: false, proximitySounds: true,
+      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1, invertCameraY: false, cameraSensitivity: 1, highContrast: false, reduceNpcChatter: false, proximitySounds: true, screenshotWatermark: true,
     });
     setMasterVolume(state.masterVolume);
     setQualityPreset(state.quality);

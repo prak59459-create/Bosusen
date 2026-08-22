@@ -366,7 +366,29 @@ function takeScreenshot() {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       try {
-        const dataUrl = renderer.domElement.toDataURL('image/png');
+        let dataUrl;
+        if (state.screenshotWatermark !== false) {
+          const src = renderer.domElement;
+          const tmp = document.createElement('canvas');
+          tmp.width = src.width; tmp.height = src.height;
+          const tctx = tmp.getContext('2d');
+          tctx.drawImage(src, 0, 0);
+          const bName = biomeNameAt(localPos.x, localPos.z) || '';
+          const dayNum = Math.floor(currentAbsTime / ((Math.PI * 2) / 0.015)) + 1;
+          const label = `${new Date().toLocaleDateString('ja-JP')}｜Day ${dayNum}｜${bName}`;
+          tctx.font = `${Math.round(tmp.height * 0.018)}px sans-serif`;
+          tctx.textAlign = 'right';
+          tctx.textBaseline = 'bottom';
+          const pad = tmp.height * 0.02;
+          tctx.fillStyle = 'rgba(0,0,0,0.5)';
+          const textW = tctx.measureText(label).width;
+          tctx.fillRect(tmp.width - textW - pad * 2, tmp.height - pad * 2.4, textW + pad * 1.5, pad * 1.8);
+          tctx.fillStyle = '#fff';
+          tctx.fillText(label, tmp.width - pad, tmp.height - pad * 1.4);
+          dataUrl = tmp.toDataURL('image/png');
+        } else {
+          dataUrl = renderer.domElement.toDataURL('image/png');
+        }
         const link = document.createElement('a');
         link.href = dataUrl;
         link.download = `bosusen-${Date.now()}.png`;
