@@ -1241,3 +1241,41 @@ export function updateSnow(t, dt, centerX, centerZ) {
   }
   snowMesh.instanceMatrix.needsUpdate = true;
 }
+
+/* ---------- 溶岩地帯に舞う火の粉 ---------- */
+const EMBER_COUNT = 220;
+const emberGeo = new THREE.SphereGeometry(0.09, 5, 5);
+const emberMat = new THREE.MeshBasicMaterial({ color: 0xff8a2a, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending });
+const emberMesh = new THREE.InstancedMesh(emberGeo, emberMat, EMBER_COUNT);
+emberMesh.visible = false;
+const emberData = [];
+for (let i = 0; i < EMBER_COUNT; i++) {
+  emberData.push({
+    ox: (Math.random() - 0.5) * 50,
+    oz: (Math.random() - 0.5) * 50,
+    y: Math.random() * 16,
+    speed: 1.5 + Math.random() * 2.5,
+    swayPhase: Math.random() * Math.PI * 2,
+  });
+}
+worldGroup.add(emberMesh);
+const emberDummy = new THREE.Object3D();
+export function updateEmbers(t, dt, centerX, centerZ) {
+  const biomeIdx = nearestBiome(centerX, centerZ);
+  const cat = BIOME_DEFS[biomeIdx] ? BIOME_DEFS[biomeIdx].category : null;
+  const isVolcanic = cat === 'volcanic';
+  emberMesh.visible = isVolcanic;
+  if (!isVolcanic) return;
+  for (let i = 0; i < EMBER_COUNT; i++) {
+    const d = emberData[i];
+    d.y += d.speed * dt;
+    if (d.y > 16) d.y -= 16;
+    const sway = Math.sin(t * 1.2 + d.swayPhase) * 1.6;
+    const s = 0.5 + 0.5 * (1 - d.y / 16);
+    emberDummy.position.set(centerX + d.ox + sway, d.y, centerZ + d.oz);
+    emberDummy.scale.setScalar(s);
+    emberDummy.updateMatrix();
+    emberMesh.setMatrixAt(i, emberDummy.matrix);
+  }
+  emberMesh.instanceMatrix.needsUpdate = true;
+}
