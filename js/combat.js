@@ -291,6 +291,7 @@ function resolveDodge(clicked, move, isParry) {
       const comboMult = (1 + Math.min(state.combo, 8) * 0.08) * levelStatsFor(state.level).dmgMult;
       const counterDmg = Math.round(rand(14, 22) * comboMult * (1 + stats.parryBonusPct) + stats.atk * 0.6);
       state.bossHP -= counterDmg;
+      state.totalParries = (state.totalParries || 0) + 1;
       sfx.parry();
       log(`${move.name}をジャストガード！ 鮮やかな反撃で ${counterDmg} ダメージ！`);
       showCenterMsg('PERFECT PARRY!', '#ffd75e', 900);

@@ -230,6 +230,7 @@ export function renderStatusTab() {
   document.getElementById('st-fireflies').textContent = state.firefliesCaught || 0;
   document.getElementById('st-butterflies').textContent = state.butterfliesCaught || 0;
   document.getElementById('st-crits').textContent = state.totalCrits || 0;
+  document.getElementById('st-parries').textContent = state.totalParries || 0;
 
   const achList = document.getElementById('achievement-list');
   if (achList) {

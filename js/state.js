@@ -38,6 +38,7 @@ export const state = {
   discoveredBiomes: [], // array of discovered biome names
   firefliesCaught: 0,
   totalCrits: 0,
+  totalParries: 0,
   butterfliesCaught: 0,
   achievements: [], // array of unlocked achievement ids
   questProgress: {}, // { chapterKey: { questId: true } }
@@ -209,6 +210,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (state.discoveredBiomes.length >= 35) tryUnlock('biome_master');
   if (state.firefliesCaught >= 50) tryUnlock('firefly_catcher');
   if (state.totalCrits >= 100) tryUnlock('crit_master');
+  if (state.totalParries >= 30) tryUnlock('parry_master');
   if (state.butterfliesCaught >= 50) tryUnlock('butterfly_catcher');
   const otherIds = ACHIEVEMENTS.filter(a => a.id !== 'completionist').map(a => a.id);
   if (otherIds.every(id => state.achievements.includes(id))) tryUnlock('completionist');
@@ -303,6 +305,7 @@ export function saveGame() {
       discoveredBiomes: state.discoveredBiomes,
       firefliesCaught: state.firefliesCaught,
       totalCrits: state.totalCrits,
+      totalParries: state.totalParries,
       butterfliesCaught: state.butterfliesCaught,
       achievements: state.achievements,
       questProgress: state.questProgress,
@@ -361,6 +364,7 @@ export function loadGame() {
       discoveredBiomes: snap.discoveredBiomes || [],
       firefliesCaught: snap.firefliesCaught || 0,
       totalCrits: snap.totalCrits || 0,
+      totalParries: snap.totalParries || 0,
       butterfliesCaught: snap.butterfliesCaught || 0,
       achievements: snap.achievements || [],
       questProgress: snap.questProgress || {},
