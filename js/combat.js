@@ -171,7 +171,7 @@ function finishGame(won) {
     sfx.victory();
     showCenterMsg('VICTORY!', '#5fd35f', 2000);
     const defeatBanner = document.getElementById('boss-intro-banner');
-    if (defeatBanner) {
+    if (defeatBanner && !state.reduceFlashing) {
       defeatBanner.querySelector('.boss-intro-name').textContent = chapter.enemyName;
       defeatBanner.querySelector('.boss-intro-sub').textContent = '撃破';
       defeatBanner.classList.remove('show');
@@ -595,7 +595,7 @@ export function startBattlePhase() {
   const chapter = CHAPTERS[state.chapterIndex];
   log(`戦闘開始！ ${chapter.enemyName}が姿を現した！`);
   const introBanner = document.getElementById('boss-intro-banner');
-  if (introBanner) {
+  if (introBanner && !state.reduceFlashing) {
     introBanner.querySelector('.boss-intro-name').textContent = chapter.enemyName;
     introBanner.classList.remove('show');
     void introBanner.offsetWidth;
