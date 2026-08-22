@@ -7,6 +7,7 @@ import { setMapOpen } from './explore.js';
 import { BIOME_NAMES, BIOME_ENTRIES } from './world.js';
 import { rumble } from './effects.js';
 
+export const SLOT_ICON = { weapon: '⚔️', armor: '🛡️', accessory: '💍' };
 export const BIOME_CATEGORY_ICON = {
   forest: '🌳', desert: '🏜️', cyber: '🌆', snow: '❄️',
   swamp: '🐸', volcanic: '🌋', crystal: '💎', wasteland: '☠️',
@@ -469,7 +470,7 @@ export function renderEquipmentTab() {
     }
     row.innerHTML = `
       <div class="item-row-main">
-        <div class="item-row-name">${item.name}${upgradeTag}</div>
+        <div class="item-row-name">${SLOT_ICON[item.slot] || ''} ${item.name}${upgradeTag}</div>
         <div class="item-row-stats">${statParts.join(' / ')}</div>
         <div class="item-row-desc">${item.desc}</div>
       </div>
@@ -583,7 +584,7 @@ export function renderItemsTab() {
     row.className = 'item-row' + (equipped ? ' equipped' : '');
     row.innerHTML = `
       <div class="item-row-main">
-        <div class="item-row-name">${item.name}<span class="item-slot-tag">${slotLabel[item.slot]}${equipped ? ' ・装備中' : ''}</span></div>
+        <div class="item-row-name">${SLOT_ICON[item.slot] || ''} ${item.name}<span class="item-slot-tag">${slotLabel[item.slot]}${equipped ? ' ・装備中' : ''}</span></div>
         <div class="item-row-desc">${item.desc}</div>
       </div>
       <button class="item-row-btn" ${equipped ? 'disabled' : ''}>${equipped ? '装備中' : '装備する'}</button>
