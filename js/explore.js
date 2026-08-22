@@ -7,7 +7,7 @@ import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTar
 import { CHAPTERS } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
   fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot } from './state.js';
-import { showToast, renderQuestTracker, showCenterMsg } from './ui.js';
+import { showToast, renderQuestTracker, showCenterMsg, addScreenshotToGallery } from './ui.js';
 import { sfx, startAmbientWind, stopAmbientWind } from './audio.js';
 import { startSkirmish, isSkirmishActive } from './skirmish.js';
 
@@ -396,6 +396,7 @@ function takeScreenshot() {
         link.click();
         document.body.removeChild(link);
         sfx.uiClick();
+        addScreenshotToGallery(dataUrl);
         const previewEl = document.getElementById('screenshot-preview');
         if (previewEl) {
           previewEl.src = dataUrl;

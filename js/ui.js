@@ -158,6 +158,27 @@ export function log(msg) {
   while (els.logWrap.children.length > 4) els.logWrap.removeChild(els.logWrap.lastChild);
 }
 
+const screenshotGallery = [];
+export function addScreenshotToGallery(dataUrl) {
+  screenshotGallery.unshift(dataUrl);
+  if (screenshotGallery.length > 5) screenshotGallery.pop();
+  renderScreenshotGallery();
+}
+function renderScreenshotGallery() {
+  const el = document.getElementById('screenshot-gallery');
+  if (!el) return;
+  el.innerHTML = '';
+  screenshotGallery.forEach(url => {
+    const img = document.createElement('img');
+    img.src = url;
+    img.addEventListener('click', () => {
+      const w = window.open();
+      if (w) w.document.write(`<img src="${url}" style="max-width:100%;">`);
+    });
+    el.appendChild(img);
+  });
+}
+
 export function showCenterMsg(text, color, ms = 800) {
   els.centerMsg.textContent = text;
   els.centerMsg.style.color = color || '#c99a00';
@@ -749,6 +770,7 @@ export function refreshAllMenuTabs() {
 }
 
 export function syncSettingsUI() {
+  renderScreenshotGallery();
   const volumeSlider = document.getElementById('opt-volume');
   if (volumeSlider) volumeSlider.value = Math.round(state.masterVolume * 100);
   const qualitySelect = document.getElementById('opt-quality');
