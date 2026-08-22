@@ -1316,6 +1316,43 @@ export function updateFrogs(t) {
   frogMesh.instanceMatrix.needsUpdate = true;
 }
 
+/* ---------- 荒野バイオームを低く旋回する鴉 ---------- */
+const wastelandSeeds = BIOME_SEEDS.filter((_, i) => BIOME_DEFS[i].category === 'wasteland');
+const CROW_COUNT = Math.min(60, wastelandSeeds.length * 6);
+const crowWing = new THREE.ConeGeometry(0.5, 1.8, 3);
+crowWing.rotateX(Math.PI / 2);
+const crowMat = new THREE.MeshBasicMaterial({ color: 0x18151a });
+const crowMesh = new THREE.InstancedMesh(crowWing, crowMat, CROW_COUNT);
+const crowData = [];
+for (let i = 0; i < CROW_COUNT; i++) {
+  const seed = wastelandSeeds[i % Math.max(1, wastelandSeeds.length)] || { x: 0, z: 0 };
+  crowData.push({
+    centerX: seed.x + (Math.random() - 0.5) * 100,
+    centerZ: seed.z + (Math.random() - 0.5) * 100,
+    radius: 20 + Math.random() * 60,
+    height: 10 + Math.random() * 12,
+    speed: 0.3 + Math.random() * 0.4,
+    phase: Math.random() * Math.PI * 2,
+  });
+}
+worldGroup.add(crowMesh);
+const crowDummy = new THREE.Object3D();
+export function updateCrows(t) {
+  for (let i = 0; i < CROW_COUNT; i++) {
+    const d = crowData[i];
+    const ang = t * d.speed + d.phase;
+    const x = d.centerX + Math.cos(ang) * d.radius;
+    const z = d.centerZ + Math.sin(ang) * d.radius;
+    const y = d.height + Math.sin(t * 3 + d.phase) * 2;
+    crowDummy.position.set(x, y, z);
+    crowDummy.rotation.y = -ang + Math.PI / 2;
+    crowDummy.rotation.x = Math.sin(t * 6 + d.phase) * 0.35;
+    crowDummy.updateMatrix();
+    crowMesh.setMatrixAt(i, crowDummy.matrix);
+  }
+  crowMesh.instanceMatrix.needsUpdate = true;
+}
+
 /* ---------- 流れ星（時折プレイヤー頭上を横切る） ---------- */
 const STAR_COUNT = 5;
 const starGeo = new THREE.SphereGeometry(0.5, 6, 6);
