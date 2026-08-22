@@ -659,6 +659,8 @@ export function syncSettingsUI() {
   if (invertYCheckbox) invertYCheckbox.checked = state.invertCameraY === true;
   const sensSlider = document.getElementById('opt-camera-sensitivity');
   if (sensSlider) sensSlider.value = Math.round((state.cameraSensitivity || 1) * 100);
+  const sensValLabel = document.getElementById('opt-camera-sensitivity-val');
+  if (sensValLabel) sensValLabel.textContent = `${Math.round((state.cameraSensitivity || 1) * 100)}%`;
   const textScaleSelect = document.getElementById('opt-text-scale');
   if (textScaleSelect) textScaleSelect.value = state.uiTextScale || 1;
   applyUiTextScale(state.uiTextScale || 1);
@@ -767,6 +769,8 @@ export function initMenu(onSave, onTitle) {
   sensSlider.value = Math.round((state.cameraSensitivity || 1) * 100);
   sensSlider.addEventListener('input', () => {
     state.cameraSensitivity = sensSlider.value / 100;
+    const label = document.getElementById('opt-camera-sensitivity-val');
+    if (label) label.textContent = `${sensSlider.value}%`;
   });
   sensSlider.addEventListener('change', () => saveGame());
 
