@@ -262,6 +262,7 @@ window.addEventListener('keydown', (e) => {
           link.click();
           document.body.removeChild(link);
           sfx.uiClick();
+          showToast('スクリーンショットを保存しました', 'info');
           const flashEl = document.getElementById('lightning-flash');
           if (flashEl && !state.reduceFlashing) {
             flashEl.classList.add('flash');
