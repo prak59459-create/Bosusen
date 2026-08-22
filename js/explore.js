@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { camera, scene, setCameraMode } from './scene.js';
+import { camera, scene, setCameraMode, renderer } from './scene.js';
 import { player, crossfadeTo } from './player.js';
 import { spawnParticles } from './effects.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
@@ -130,6 +130,20 @@ window.addEventListener('keydown', (e) => {
     colors.forEach((c, i) => {
       spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6 + i * 0.15, 0)), c, 10);
     });
+  }
+  if (e.code === 'KeyP' && !e.repeat) {
+    try {
+      const dataUrl = renderer.domElement.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `bosusen-${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      sfx.uiClick();
+    } catch (err) {
+      console.error('スクリーンショットの保存に失敗', err);
+    }
   }
   if (e.code === 'Space' && !e.repeat && jumpsUsed < MAX_JUMPS) {
     isJumping = true;

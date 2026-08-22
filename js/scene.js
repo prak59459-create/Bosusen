@@ -29,7 +29,7 @@ export function setCameraMode(m) { cameraMode = m; }
 camera.position.copy(camBase);
 camera.lookAt(camLookAt);
 
-export const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', stencil: false });
+export const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', stencil: false, preserveDrawingBuffer: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 3 : 3));
 renderer.shadowMap.enabled = true;
