@@ -26,6 +26,7 @@ document.getElementById('help-btn').addEventListener('click', toggleHelpOverlay)
 document.getElementById('help-close-btn').addEventListener('click', toggleHelpOverlay);
 window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyH' && !e.repeat) toggleHelpOverlay();
+  if (e.code === 'KeyB' && !e.repeat && exploreActive) cycleRadarZoom();
 });
 
 let saveIndicatorTimer = null;
@@ -156,12 +157,19 @@ const mapCtx = mapCanvas.getContext('2d');
 
 const radarCanvas = document.getElementById('minimap-radar');
 const radarCtx = radarCanvas ? radarCanvas.getContext('2d') : null;
+const RADAR_ZOOM_LEVELS = [250, 500, 1000];
+let radarZoomIdx = 1;
+function cycleRadarZoom() {
+  radarZoomIdx = (radarZoomIdx + 1) % RADAR_ZOOM_LEVELS.length;
+  showToast(`ミニマップ範囲: ${RADAR_ZOOM_LEVELS[radarZoomIdx]}m`, 'info');
+}
+
 function drawRadar() {
   if (!radarCtx || !exploreActive) return;
   const w = radarCanvas.width, h = radarCanvas.height;
   radarCtx.clearRect(0, 0, w, h);
   const cx = w / 2, cy = h / 2;
-  const radarRange = 500;
+  const radarRange = RADAR_ZOOM_LEVELS[radarZoomIdx];
   const scale = (Math.min(w, h) / 2 - 6) / radarRange;
   const pLocal = getPlayerLocalPos();
   const dots = [];
