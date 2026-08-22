@@ -93,6 +93,8 @@ export function updateBars() {
   els.playerHPFill.classList.toggle('critical', isCritical);
   if (isCritical && !wasHpCritical) { sfx.lowHp(); showCenterMsg('DANGER!', '#ff5555', 900); }
   wasHpCritical = isCritical;
+  const vignetteEl = document.getElementById('low-hp-vignette');
+  if (vignetteEl) vignetteEl.classList.toggle('active', isCritical);
   els.playerHPText.textContent = `${Math.max(0, Math.round(state.playerHP))}/${state.playerMaxHP}`;
   els.playerMPFill.style.width = Math.max(0, state.playerMP / state.playerMaxMP * 100) + '%';
   els.playerMPText.textContent = `${Math.max(0, Math.round(state.playerMP))}/${state.playerMaxMP}`;
