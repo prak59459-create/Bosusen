@@ -10,7 +10,7 @@ import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, ad
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, syncSettingsUI, openMenu, closeMenu } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
-import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt, triggerLightning, updateLightning, updateButterflies, updateScorpions, updateFoxes, updateFrogs, updateCrows, updateSalamanders, updateDrones, updateSpirits } from './world.js';
+import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt, triggerLightning, updateLightning, updateButterflies, updateScorpions, updateFoxes, updateFrogs, updateCrows, updateSalamanders, updateDrones, updateSpirits, triggerRainbow, updateRainbow } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
   setOnOpenShop, setOnToggleMap, getPlayerLocalPos, exploreActive, setMapOpen, setExploreLocalPos } from './explore.js';
 import { initSkirmishUI, resetSkirmish } from './skirmish.js';
@@ -519,6 +519,7 @@ loadPlayerModel((frac) => {
    ============================================================ */
 let t = 0;
 let thunderTimer = 10;
+let wasRaining = false;
 let lastTime = performance.now();
 function animate() {
   requestAnimationFrame(animate);
@@ -567,6 +568,9 @@ function animate() {
     updateShootingStars(t, dt, lp.x, lp.z, isNightTime(t));
     const isRaining = updateRain(t, dt, lp.x, lp.z);
     setRainIntensity(isRaining ? 1 : 0);
+    if (wasRaining && !isRaining) triggerRainbow(lp.x, lp.z);
+    wasRaining = isRaining;
+    updateRainbow(dt);
     if (isRaining) {
       thunderTimer -= dt;
       if (thunderTimer <= 0) {

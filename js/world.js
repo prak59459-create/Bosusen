@@ -1788,6 +1788,38 @@ export function updateAsh(t, dt, centerX, centerZ) {
   ashMesh.instanceMatrix.needsUpdate = true;
 }
 
+/* ---------- 雨上がりの虹 ---------- */
+function buildRainbowTexture() {
+  const size = 256;
+  const canvas = makeCanvas(size);
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createLinearGradient(0, 0, size, 0);
+  const colors = ['#ff5a5a', '#ffb24a', '#ffe24a', '#7aff7a', '#4ac0ff', '#7a7aff', '#c07aff'];
+  colors.forEach((c, i) => grad.addColorStop(i / (colors.length - 1), c));
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, size, size);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+const rainbowMat = new THREE.MeshBasicMaterial({ map: buildRainbowTexture(), transparent: true, opacity: 0, side: THREE.DoubleSide });
+const rainbowMesh = new THREE.Mesh(new THREE.TorusGeometry(90, 4, 8, 40, Math.PI), rainbowMat);
+rainbowMesh.rotation.z = Math.PI;
+worldGroup.add(rainbowMesh);
+let rainbowTimer = 0;
+export function triggerRainbow(centerX, centerZ) {
+  rainbowMesh.position.set(centerX, 0, centerZ - 130);
+  rainbowTimer = 18;
+}
+export function updateRainbow(dt) {
+  if (rainbowTimer > 0) {
+    rainbowTimer -= dt;
+    rainbowMat.opacity = Math.min(1, rainbowTimer / 3, (18 - rainbowTimer) / 3) * 0.7;
+  } else {
+    rainbowMat.opacity = 0;
+  }
+}
+
 /* ---------- 雷（3D稲妻ジオメトリ） ---------- */
 const lightningMat = new THREE.LineBasicMaterial({ color: 0xe0e8ff, transparent: true, opacity: 0 });
 const lightningBolt = new THREE.LineSegments(new THREE.BufferGeometry(), lightningMat);
