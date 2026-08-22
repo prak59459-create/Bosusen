@@ -592,7 +592,7 @@ export function updateExplore(dt) {
   }
   const sprinting = keys.sprint && exploreStamina > 0.5 && moving && !dashing;
   const speed = dashing ? DASH_SPEED : (sprinting ? SPRINT_SPEED : WALK_SPEED);
-  const targetFovKick = dashing ? 10 : (sprinting ? 5 : 0);
+  const targetFovKick = state.reduceFlashing ? 0 : (dashing ? 10 : (sprinting ? 5 : 0));
   fovKickCur += (targetFovKick - fovKickCur) * Math.min(1, dt * 6);
   setFovKick(fovKickCur);
   if (sprinting) {
