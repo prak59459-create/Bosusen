@@ -68,6 +68,7 @@ export function triggerShake(mag, dur) {
   shakeState.mag = mag; shakeState.time = dur;
 }
 export function rumble(strength = 0.5, duration = 200) {
+  if (state.gamepadRumble === false) return;
   try {
     const gp = navigator.getGamepads ? navigator.getGamepads()[0] : null;
     if (gp && gp.vibrationActuator) {

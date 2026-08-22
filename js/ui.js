@@ -534,6 +534,8 @@ export function syncSettingsUI() {
   if (bossTauntsCheckbox) bossTauntsCheckbox.checked = state.showBossTaunts !== false;
   const guideBeamsCheckbox = document.getElementById('opt-guide-beams');
   if (guideBeamsCheckbox) guideBeamsCheckbox.checked = state.showGuideBeams !== false;
+  const rumbleCheckbox = document.getElementById('opt-gamepad-rumble');
+  if (rumbleCheckbox) rumbleCheckbox.checked = state.gamepadRumble !== false;
 }
 
 export function initMenu(onSave, onTitle) {
@@ -592,6 +594,14 @@ export function initMenu(onSave, onTitle) {
     saveGame();
   });
 
+  const rumbleCheckbox = document.getElementById('opt-gamepad-rumble');
+  rumbleCheckbox.checked = state.gamepadRumble !== false;
+  rumbleCheckbox.addEventListener('change', () => {
+    state.gamepadRumble = rumbleCheckbox.checked;
+    sfx.uiClick();
+    saveGame();
+  });
+
   const difficultySelect = document.getElementById('opt-difficulty');
   difficultySelect.value = state.difficulty || 'normal';
   difficultySelect.addEventListener('change', () => {
@@ -618,7 +628,7 @@ export function initMenu(onSave, onTitle) {
   });
   document.getElementById('reset-settings-btn').addEventListener('click', () => {
     Object.assign(state, {
-      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true,
+      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true,
     });
     setMasterVolume(state.masterVolume);
     setQualityPreset(state.quality);
