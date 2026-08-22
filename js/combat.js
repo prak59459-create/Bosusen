@@ -221,6 +221,7 @@ function finishGame(won) {
       if (prevBest) showToast(`最速記録更新！ ${state.turns}ターン（前回: ${prevBest}ターン）`, 'quest');
     }
     state.winStreak++;
+    state.lossStreak = 0;
     state.bestWinStreak = Math.max(state.bestWinStreak, state.winStreak);
     state.lifetimeBestCombo = Math.max(state.lifetimeBestCombo, state.maxCombo || 0);
     addShards(shardReward);
@@ -254,6 +255,10 @@ function finishGame(won) {
     els.endRank.textContent = '';
     if (state.showBossTaunts !== false) els.endStory.textContent = DEFEAT_LINES[Math.floor(Math.random() * DEFEAT_LINES.length)];
     state.winStreak = 0;
+    state.lossStreak = (state.lossStreak || 0) + 1;
+    if (state.lossStreak === 3 && state.difficulty !== 'easy') {
+      setTimeout(() => showToast('連敗が続いている……装備の見直しや難易度「簡単」への変更も検討してみよう', 'info'), 1200);
+    }
     sfx.defeat();
     els.retryBtn.textContent = 'この章に再挑戦';
     els.retryBtn.style.display = 'inline-block';
