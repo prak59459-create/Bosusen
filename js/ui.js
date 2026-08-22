@@ -388,31 +388,35 @@ export function renderEquipmentTab() {
       saveGame();
     };
   }
-  const saveLoadoutBtn = document.getElementById('save-loadout-btn');
-  if (saveLoadoutBtn) {
-    saveLoadoutBtn.onclick = () => {
-      state.savedLoadout = { ...state.equipment };
-      sfx.uiClick();
-      showToast('現在の装備を記憶しました', 'info');
-      saveGame();
-    };
-  }
-  const loadLoadoutBtn = document.getElementById('load-loadout-btn');
-  if (loadLoadoutBtn) {
-    loadLoadoutBtn.onclick = () => {
-      if (!state.savedLoadout) { showToast('記憶した装備がありません', 'info'); return; }
-      Object.keys(slotNames).forEach(slot => {
-        const id = state.savedLoadout[slot];
-        if (id && state.inventory.includes(id)) equipItem(id);
-        else if (!id) unequipSlot(slot);
-      });
-      sfx.uiClick();
-      showToast('記憶した装備を呼び出しました', 'info');
-      renderEquipmentTab();
-      renderStatusTab();
-      saveGame();
-    };
-  }
+  if (!state.savedLoadouts) state.savedLoadouts = { a: null, b: null };
+  ['a', 'b'].forEach(key => {
+    const saveBtn = document.getElementById(`save-loadout-btn-${key}`);
+    if (saveBtn) {
+      saveBtn.onclick = () => {
+        state.savedLoadouts[key] = { ...state.equipment };
+        sfx.uiClick();
+        showToast(`装備セット${key.toUpperCase()}を記憶しました`, 'info');
+        saveGame();
+      };
+    }
+    const loadBtn = document.getElementById(`load-loadout-btn-${key}`);
+    if (loadBtn) {
+      loadBtn.onclick = () => {
+        const loadout = state.savedLoadouts[key];
+        if (!loadout) { showToast(`セット${key.toUpperCase()}はまだ記憶されていません`, 'info'); return; }
+        Object.keys(slotNames).forEach(slot => {
+          const id = loadout[slot];
+          if (id && state.inventory.includes(id)) equipItem(id);
+          else if (!id) unequipSlot(slot);
+        });
+        sfx.uiClick();
+        showToast(`セット${key.toUpperCase()}を呼び出しました`, 'info');
+        renderEquipmentTab();
+        renderStatusTab();
+        saveGame();
+      };
+    }
+  });
   slotsEl.innerHTML = '';
   Object.keys(slotNames).forEach(slot => {
     const itemId = state.equipment[slot];

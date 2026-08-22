@@ -46,7 +46,7 @@ export const state = {
   invertCameraY: false,
   cameraSensitivity: 1,
   questTrackerCollapsed: false,
-  savedLoadout: null,
+  savedLoadouts: { a: null, b: null },
   butterfliesCaught: 0,
   achievements: [], // array of unlocked achievement ids
   questProgress: {}, // { chapterKey: { questId: true } }
@@ -337,7 +337,7 @@ export function saveGame() {
       invertCameraY: state.invertCameraY,
       cameraSensitivity: state.cameraSensitivity,
       questTrackerCollapsed: state.questTrackerCollapsed,
-      savedLoadout: state.savedLoadout,
+      savedLoadouts: state.savedLoadouts,
       totalParries: state.totalParries,
       butterfliesCaught: state.butterfliesCaught,
       achievements: state.achievements,
@@ -413,7 +413,7 @@ export function loadGame() {
       invertCameraY: snap.invertCameraY || false,
       cameraSensitivity: snap.cameraSensitivity || 1,
       questTrackerCollapsed: snap.questTrackerCollapsed || false,
-      savedLoadout: snap.savedLoadout || null,
+      savedLoadouts: snap.savedLoadouts || { a: null, b: null },
       totalParries: snap.totalParries || 0,
       butterfliesCaught: snap.butterfliesCaught || 0,
       achievements: snap.achievements || [],
