@@ -649,6 +649,7 @@ function animate() {
       else if (currentCat === 'snow' && Math.random() < 0.35) sfx.foxYip();
       else if (currentCat === 'cyber' && Math.random() < 0.4) sfx.droneHum();
       else if (currentCat === 'crystal' && Math.random() < 0.4) sfx.spiritChime();
+      else if (currentCat === 'volcanic' && Math.random() < 0.45) sfx.lavaRumble();
     }
   } else {
     setRainIntensity(0);

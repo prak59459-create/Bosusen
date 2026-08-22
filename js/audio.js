@@ -168,6 +168,7 @@ export const sfx = {
   foxYip: () => { playTone(900, 0.08, 'sine', 0.05, 1400); },
   droneHum: () => { playTone(1200, 0.2, 'sine', 0.03, 1100); },
   spiritChime: () => { playTone(1400, 0.3, 'sine', 0.04, 1900); },
+  lavaRumble: () => { playNoise(0.4, 0.12); playTone(60, 0.4, 'sawtooth', 0.08, 40); },
   thunder: () => { playNoise(1.1, 0.35); playTone(60, 1.2, 'sawtooth', 0.3, 30); },
   lowHp: () => { playTone(220, 0.18, 'triangle', 0.18, 160); },
 };
