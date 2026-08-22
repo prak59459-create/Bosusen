@@ -372,7 +372,7 @@ export function renderEquipmentTab() {
   });
 
   listEl.innerHTML = '';
-  const owned = state.inventory.filter(id => ITEMS[id]);
+  const owned = state.inventory.filter(id => ITEMS[id]).sort((a, b) => itemScore(ITEMS[b]) - itemScore(ITEMS[a]));
   if (owned.length === 0) {
     listEl.innerHTML = '<div class="empty-hint">所持している装備はまだありません。クエストで入手しましょう。</div>';
     return;
