@@ -295,7 +295,12 @@ export function updateExplore(dt) {
   if (isJumping) {
     jumpVelY -= GRAVITY * dt;
     let ny = player.position.y + jumpVelY * dt;
-    if (ny <= 0) { ny = 0; isJumping = false; jumpVelY = 0; }
+    if (ny <= 0) {
+      ny = 0;
+      isJumping = false;
+      jumpVelY = 0;
+      spawnParticles(player.position.clone().set(player.position.x, 0.05, player.position.z), 0xcabf9a, 10);
+    }
     player.position.y = ny;
   }
   if (moving && !wasMoving) crossfadeTo('Walk', 0.15);
