@@ -170,7 +170,7 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 }
 .shop-buy-btn:disabled { opacity:0.4; cursor:default; }
 #shop-shards { margin-top:14px; color:#7a3fc4; font-weight:bold; }
-#map-canvas { border-radius:12px; border:1px solid rgba(180,140,255,0.35); max-width:90vw; max-height:60vh; background:#efe9fb; }
+#map-canvas { border-radius:12px; border:1px solid rgba(180,140,255,0.35); max-width:90vw; max-height:60vh; background:#efe9fb; cursor:pointer; }
 #map-legend { display:flex; flex-wrap:wrap; justify-content:center; gap:10px 16px; margin-top:12px; max-width:520px; font-size:12px; opacity:0.85; }
 #map-legend span { display:flex; align-items:center; gap:5px; }
 #map-legend i { width:9px; height:9px; border-radius:50%; display:inline-block; }

@@ -12,7 +12,7 @@ import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQues
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
 import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
-  setOnOpenShop, setOnToggleMap, getPlayerLocalPos, exploreActive, setMapOpen } from './explore.js';
+  setOnOpenShop, setOnToggleMap, getPlayerLocalPos, exploreActive, setMapOpen, setExploreLocalPos } from './explore.js';
 import { initSkirmishUI, resetSkirmish } from './skirmish.js';
 
 mountRenderer();
@@ -172,11 +172,13 @@ function drawRadar() {
   radarCtx.fill();
 }
 
+let mapScaleInfo = { scale: 1, cx: 0, cy: 0 };
 function drawMap() {
   const w = mapCanvas.width, h = mapCanvas.height;
   const contentRadius = Math.max(...fieldTargets.map(t => Math.hypot(t.localPos.x, t.localPos.z)), 500) * 1.15;
   const scale = (Math.min(w, h) / 2 - 20) / contentRadius;
   const cx = w / 2, cy = h / 2;
+  mapScaleInfo = { scale, cx, cy };
   mapCtx.fillStyle = '#ece2fb';
   mapCtx.fillRect(0, 0, w, h);
   mapCtx.strokeStyle = 'rgba(120,80,200,0.25)';
@@ -270,6 +272,28 @@ function closeMap() {
   mapScreen.style.display = 'none';
   setMapOpen(false);
 }
+mapCanvas.addEventListener('click', (e) => {
+  if (!exploreActive) return;
+  const rect = mapCanvas.getBoundingClientRect();
+  const px = (e.clientX - rect.left) * (mapCanvas.width / rect.width);
+  const py = (e.clientY - rect.top) * (mapCanvas.height / rect.height);
+  const { scale, cx, cy } = mapScaleInfo;
+  let nearest = null, nearestDist = Infinity;
+  zoneMarkers.forEach(z => {
+    const x = cx + z.localPos.x * scale, y = cy + z.localPos.z * scale;
+    const d = Math.hypot(px - x, py - y);
+    if (d < 14 && d < nearestDist) { nearest = z; nearestDist = d; }
+  });
+  if (!nearest) return;
+  if (nearest.chapterIndex > state.chapterIndex) {
+    showToast('まだ到達していない聖域です', 'quest');
+    return;
+  }
+  setExploreLocalPos(new THREE.Vector3(nearest.localPos.x * 0.7, 0, nearest.localPos.z * 0.7));
+  sfx.uiClick();
+  showToast(`${nearest.name} へファストトラベルした`, 'quest');
+  closeMap();
+});
 document.getElementById('map-btn').addEventListener('click', openMap);
 document.getElementById('map-close-btn').addEventListener('click', closeMap);
 setOnToggleMap(() => {
