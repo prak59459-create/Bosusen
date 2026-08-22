@@ -786,9 +786,12 @@ document.addEventListener('visibilitychange', () => {
 
 window.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
-  if (shopScreen.style.display === 'flex') closeShop();
+  const helpOverlayEl = document.getElementById('help-overlay');
+  if (helpOverlayEl && helpOverlayEl.classList.contains('show')) toggleHelpOverlay();
+  else if (shopScreen.style.display === 'flex') closeShop();
   else if (mapScreen.style.display === 'flex') closeMap();
-  else if (!els.menuOverlay.classList.contains('open') && state.playing && document.getElementById('dodge-zone').style.display !== 'flex') openMenu();
+  else if (els.menuOverlay.classList.contains('open')) closeMenu();
+  else if (state.playing && document.getElementById('dodge-zone').style.display !== 'flex') openMenu();
 });
 
 window.addEventListener('keydown', (e) => {
