@@ -119,6 +119,7 @@ function endCheck() {
         setTimeout(() => spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.2 + i * 0.2, 0)), c, 16), i * 150);
       });
       rumble(0.7, 400);
+      checkAchievements().forEach(a => { sfx.achievement(); showCenterMsg(`実績解除: ${a.name}`, '#ffd700', 2000); });
       return false;
     }
     state.playerHP = 0; updateBars(); finishGame(false); return true;
