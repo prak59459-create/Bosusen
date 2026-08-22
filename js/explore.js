@@ -64,6 +64,24 @@ window.addEventListener('wheel', (e) => {
   camOffset.y = 20 * zoomRatio;
   camOffset.z = camZoomDist;
 }, { passive: true });
+
+let camOrbitYaw = 0, camOrbitPitch = 0.42;
+let orbitDragging = false, orbitLastX = 0, orbitLastY = 0;
+window.addEventListener('mousedown', (e) => {
+  if (!exploreActive || e.button !== 2) return;
+  orbitDragging = true;
+  orbitLastX = e.clientX; orbitLastY = e.clientY;
+});
+window.addEventListener('mouseup', () => { orbitDragging = false; });
+window.addEventListener('mousemove', (e) => {
+  if (!orbitDragging) return;
+  camOrbitYaw -= (e.clientX - orbitLastX) * 0.005;
+  camOrbitPitch = Math.max(0.05, Math.min(1.2, camOrbitPitch - (e.clientY - orbitLastY) * 0.004));
+  orbitLastX = e.clientX; orbitLastY = e.clientY;
+});
+window.addEventListener('contextmenu', (e) => {
+  if (exploreActive) e.preventDefault();
+});
 const camCurrentPos = new THREE.Vector3();
 const camLookTarget = new THREE.Vector3();
 let stepTimer = 0;
@@ -493,12 +511,14 @@ export function updateExplore(dt) {
     }
   }
 
-  // 三人称追従カメラ
-  const behindAng = facing;
+  // 三人称追従カメラ（右クリックドラッグで自由に見回せる）
+  const behindAng = facing + camOrbitYaw;
+  const pitchHeight = Math.sin(camOrbitPitch) * camOffset.z;
+  const pitchDist = Math.cos(camOrbitPitch) * camOffset.z;
   const desiredCamPos = new THREE.Vector3(
-    player.position.x - Math.sin(behindAng) * camOffset.z,
-    player.position.y + camOffset.y,
-    player.position.z - Math.cos(behindAng) * camOffset.z
+    player.position.x - Math.sin(behindAng) * pitchDist,
+    player.position.y + pitchHeight,
+    player.position.z - Math.cos(behindAng) * pitchDist
   );
   if (!camInit) { camCurrentPos.copy(desiredCamPos); camInit = true; }
   camCurrentPos.lerp(desiredCamPos, Math.min(1, dt * 5));
