@@ -106,6 +106,13 @@ const AMBIENT_LINES = [
   '「今日はいい天気だ」', '「気をつけて行くんだぞ」', '「何か困ったことがあれば言ってくれ」',
   '「この辺りも随分変わったものだ」', '「結晶獣の噂は聞いているかい？」', '「無理はしないようにな」',
 ];
+const AMBIENT_LINES_DONE = [
+  '「お前のおかげでこの聖域も救われたよ、ありがとう」', '「あの時の働き、忘れないさ」',
+  '「また何かあれば頼らせてもらうよ」', '「英雄殿、今日も息災で何より」',
+];
+const AMBIENT_LINES_PENDING = [
+  '「頼んだ討伐、まだかい？」', '「あの結晶獣、油断せず倒してくれよ」', '「待っているぞ」',
+];
 const npcChatterCooldown = new WeakMap();
 let camInit = false;
 let objectiveTimer = 0;
@@ -598,7 +605,10 @@ export function updateExplore(dt) {
         const lastSaid = npcChatterCooldown.get(g) || 0;
         if (performance.now() - lastSaid > 25000 && Math.random() < 0.35) {
           npcChatterCooldown.set(g, performance.now());
-          const line = AMBIENT_LINES[Math.floor(Math.random() * AMBIENT_LINES.length)];
+          const done = isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId);
+          const pending = !done && fieldQuestState(g.questId) === 'accepted';
+          const pool = done ? AMBIENT_LINES_DONE : (pending ? AMBIENT_LINES_PENDING : AMBIENT_LINES);
+          const line = pool[Math.floor(Math.random() * pool.length)];
           showToast(`${g.name}：${line}`, 'info');
         }
         break;
