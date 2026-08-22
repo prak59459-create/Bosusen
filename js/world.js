@@ -1545,6 +1545,7 @@ for (let i = 0; i < STAR_COUNT; i++) {
 }
 const starDummy = new THREE.Object3D();
 export function updateShootingStars(t, dt, centerX, centerZ, isNight) {
+  let justTriggered = false;
   for (let i = 0; i < STAR_COUNT; i++) {
     const d = starData[i];
     if (!d.active) {
@@ -1556,6 +1557,7 @@ export function updateShootingStars(t, dt, centerX, centerZ, isNight) {
         d.height = 90 + Math.random() * 60;
         d.startX = centerX + Math.cos(d.dir + Math.PI) * 200;
         d.startZ = centerZ + Math.sin(d.dir + Math.PI) * 200;
+        justTriggered = true;
       }
       starDummy.position.set(centerX, -1000, centerZ);
       starDummy.updateMatrix();
@@ -1583,6 +1585,7 @@ export function updateShootingStars(t, dt, centerX, centerZ, isNight) {
     starMesh.setMatrixAt(i, starDummy.matrix);
   }
   starMesh.instanceMatrix.needsUpdate = true;
+  return justTriggered;
 }
 
 /* ---------- 草むらの風揺れ ---------- */

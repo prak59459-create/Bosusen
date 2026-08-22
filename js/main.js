@@ -668,7 +668,12 @@ function animate() {
     }
     const lp = getPlayerLocalPos();
     updateLeaves(t, lp.x, lp.z);
-    updateShootingStars(t, dt, lp.x, lp.z, isNightTime(t));
+    const starWish = updateShootingStars(t, dt, lp.x, lp.z, isNightTime(t));
+    if (starWish) {
+      addShards(15);
+      showToast('流れ星に願いを込めた… +15シャード', 'quest');
+      sfx.shardGet();
+    }
     const isRaining = updateRain(t, dt, lp.x, lp.z);
     setRainIntensity(isRaining ? 1 : 0);
     if (wasRaining && !isRaining) triggerRainbow(lp.x, lp.z);
