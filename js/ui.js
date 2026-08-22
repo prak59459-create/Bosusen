@@ -254,6 +254,7 @@ export function renderStatusTab() {
   document.getElementById('st-crits').textContent = state.totalCrits || 0;
   document.getElementById('st-parries').textContent = state.totalParries || 0;
   document.getElementById('st-star-wishes').textContent = state.starWishesMade || 0;
+  document.getElementById('st-screenshots').textContent = state.screenshotsTaken || 0;
 
   const achList = document.getElementById('achievement-list');
   if (achList) {
