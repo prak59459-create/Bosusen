@@ -606,6 +606,38 @@ function scatterPuddles(center, spread, count) {
   scatterPuddles(new THREE.Vector3(0, 0, 0), 55, 3);
 }
 
+/* ---------- ハブの光の柱を昇る精霊の粒子 ---------- */
+const HUB_SPARK_COUNT = 40;
+const hubSparkGeo = new THREE.SphereGeometry(0.09, 6, 6);
+const hubSparkMat = new THREE.MeshBasicMaterial({ color: 0xccbbff, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending });
+const hubSparkMesh = new THREE.InstancedMesh(hubSparkGeo, hubSparkMat, HUB_SPARK_COUNT);
+const hubSparkData = [];
+for (let i = 0; i < HUB_SPARK_COUNT; i++) {
+  hubSparkData.push({
+    ang: Math.random() * Math.PI * 2,
+    radius: 0.8 + Math.random() * 1.2,
+    y: Math.random() * 6,
+    speed: 0.8 + Math.random() * 1.2,
+    riseSpeed: 0.6 + Math.random() * 0.8,
+  });
+}
+worldGroup.add(hubSparkMesh);
+const hubSparkDummy = new THREE.Object3D();
+export function updateHubSparks(t, dt) {
+  for (let i = 0; i < HUB_SPARK_COUNT; i++) {
+    const d = hubSparkData[i];
+    d.y += d.riseSpeed * dt;
+    if (d.y > 6) d.y -= 6;
+    const ang = d.ang + t * d.speed;
+    const x = Math.cos(ang) * d.radius, z = Math.sin(ang) * d.radius;
+    hubSparkDummy.position.set(x, d.y, z);
+    hubSparkDummy.scale.setScalar(0.6 + (1 - d.y / 6) * 0.6);
+    hubSparkDummy.updateMatrix();
+    hubSparkMesh.setMatrixAt(i, hubSparkDummy.matrix);
+  }
+  hubSparkMesh.instanceMatrix.needsUpdate = true;
+}
+
 /* ---------- 道（ハブ～各聖域） ---------- */
 function buildRoadTexture() {
   const size = 512;
