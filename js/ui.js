@@ -4,7 +4,12 @@ import { state, computeStats, isQuestDone, ownsItem,
 import { sfx, setMasterVolume } from './audio.js';
 import { setQualityPreset } from './scene.js';
 import { setMapOpen } from './explore.js';
-import { BIOME_NAMES } from './world.js';
+import { BIOME_NAMES, BIOME_ENTRIES } from './world.js';
+
+const BIOME_CATEGORY_ICON = {
+  forest: '🌳', desert: '🏜️', cyber: '🌆', snow: '❄️',
+  swamp: '🐸', volcanic: '🌋', crystal: '💎', wasteland: '☠️',
+};
 
 export const els = {
   playerHPFill: document.getElementById('player-hp-fill'),
@@ -472,13 +477,14 @@ export function renderCompendiumTab() {
   const discovered = state.discoveredBiomes || [];
   if (progressEl) progressEl.textContent = `${discovered.length} / ${BIOME_NAMES.length}`;
   listEl.innerHTML = '';
-  BIOME_NAMES.forEach(name => {
+  BIOME_ENTRIES.forEach(({ name, category }) => {
     const found = discovered.includes(name);
+    const icon = BIOME_CATEGORY_ICON[category] || '❓';
     const row = document.createElement('div');
     row.className = 'item-row' + (found ? ' equipped' : '');
     row.innerHTML = `
       <div class="item-row-main">
-        <div class="item-row-name">${found ? name : '？？？'}</div>
+        <div class="item-row-name">${found ? `${icon} ${name}` : '？？？'}</div>
       </div>
     `;
     listEl.appendChild(row);
