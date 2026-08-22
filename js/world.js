@@ -1197,6 +1197,44 @@ export function updateCritters(t) {
   critterMesh.instanceMatrix.needsUpdate = true;
 }
 
+/* ---------- 砂漠バイオームを這うサソリ ---------- */
+const desertSeeds = BIOME_SEEDS.filter((_, i) => BIOME_DEFS[i].category === 'desert');
+const SCORPION_COUNT = Math.min(90, desertSeeds.length * 4);
+const scorpionGeo = new THREE.CapsuleGeometry(0.22, 0.5, 2, 6);
+const scorpionMat = makeToonMaterial({ color: 0x9a5a2a, emissive: 0x140a04, emissiveIntensity: 0.2 });
+const scorpionMesh = new THREE.InstancedMesh(scorpionGeo, scorpionMat, SCORPION_COUNT);
+scorpionMesh.castShadow = true;
+const scorpionData = [];
+for (let i = 0; i < SCORPION_COUNT; i++) {
+  const seed = desertSeeds[i % Math.max(1, desertSeeds.length)] || { x: 0, z: 0 };
+  const ang0 = Math.random() * Math.PI * 2;
+  const dist0 = Math.random() * 150;
+  scorpionData.push({
+    homeX: seed.x + Math.cos(ang0) * dist0,
+    homeZ: seed.z + Math.sin(ang0) * dist0,
+    scuttleSpeed: 0.9 + Math.random() * 0.8,
+    roamRadius: 6 + Math.random() * 10,
+    phase: Math.random() * Math.PI * 2,
+  });
+}
+worldGroup.add(scorpionMesh);
+const scorpionDummy = new THREE.Object3D();
+export function updateScorpions(t) {
+  for (let i = 0; i < SCORPION_COUNT; i++) {
+    const d = scorpionData[i];
+    const ang = t * 0.1 + d.phase;
+    const x = d.homeX + Math.cos(ang) * d.roamRadius;
+    const z = d.homeZ + Math.sin(ang * 1.7) * d.roamRadius;
+    const scuttle = Math.abs(Math.sin(t * d.scuttleSpeed * 6 + d.phase)) * 0.06;
+    scorpionDummy.position.set(x, 0.15 + scuttle, z);
+    scorpionDummy.rotation.x = Math.PI / 2;
+    scorpionDummy.rotation.z = -ang - Math.PI / 2;
+    scorpionDummy.updateMatrix();
+    scorpionMesh.setMatrixAt(i, scorpionDummy.matrix);
+  }
+  scorpionMesh.instanceMatrix.needsUpdate = true;
+}
+
 /* ---------- 流れ星（時折プレイヤー頭上を横切る） ---------- */
 const STAR_COUNT = 5;
 const starGeo = new THREE.SphereGeometry(0.5, 6, 6);
