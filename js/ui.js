@@ -361,6 +361,7 @@ export function renderStatusTab() {
       lore_master: [(state.collectedLore || []).length, 8],
       ng_plus_5: [state.newGamePlus || 0, 5],
       revived: [state.totalRevives || 0, 1],
+      comeback: [state.hadComeback ? 1 : 0, 1],
     };
     let achOrder = ACHIEVEMENTS;
     if (achSortByProgress) {
