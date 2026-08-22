@@ -220,6 +220,9 @@ export function renderStatusTab() {
   document.getElementById('st-winstreak').textContent = state.bestWinStreak || 0;
   document.getElementById('st-distance').textContent = `${Math.round(state.totalDistanceTraveled || 0)}m`;
   document.getElementById('st-quests').textContent = `${totalQuestsDone()} / ${totalQuestsAll()}`;
+  document.getElementById('st-biomes').textContent = `${(state.discoveredBiomes || []).length} / 35`;
+  document.getElementById('st-fireflies').textContent = state.firefliesCaught || 0;
+  document.getElementById('st-butterflies').textContent = state.butterfliesCaught || 0;
 
   const achList = document.getElementById('achievement-list');
   if (achList) {
