@@ -7,7 +7,7 @@ import { setMapOpen } from './explore.js';
 import { BIOME_NAMES, BIOME_ENTRIES } from './world.js';
 import { rumble } from './effects.js';
 
-const BIOME_CATEGORY_ICON = {
+export const BIOME_CATEGORY_ICON = {
   forest: '🌳', desert: '🏜️', cyber: '🌆', snow: '❄️',
   swamp: '🐸', volcanic: '🌋', crystal: '💎', wasteland: '☠️',
 };

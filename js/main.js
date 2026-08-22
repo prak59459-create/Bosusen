@@ -8,7 +8,7 @@ import { resumeAudio, sfx, setMasterVolume, setRainIntensity, setBiomeDrone } fr
 import { CHAPTERS, ITEMS } from './data.js';
 import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, addShards, computeStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, totalQuestsDone, totalQuestsAll } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
-  renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, showCenterMsg, syncSettingsUI, openMenu, closeMenu } from './ui.js';
+  renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, showCenterMsg, syncSettingsUI, openMenu, closeMenu, BIOME_CATEGORY_ICON } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
 import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt, biomeNameAt, triggerLightning, updateLightning, updateButterflies, updateScorpions, updateFoxes, updateFrogs, updateCrows, updateSalamanders, updateDrones, updateSpirits, triggerRainbow, updateRainbow, updateHubSparks, updateGuideBeams } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
@@ -188,7 +188,11 @@ function drawRadar() {
   const scale = (Math.min(w, h) / 2 - 6) / radarRange;
   const pLocal = getPlayerLocalPos();
   const biomeLabelEl = document.getElementById('biome-label');
-  if (biomeLabelEl) biomeLabelEl.textContent = biomeNameAt(pLocal.x, pLocal.z) || '';
+  if (biomeLabelEl) {
+    const bName = biomeNameAt(pLocal.x, pLocal.z);
+    const bCat = biomeCategoryAt(pLocal.x, pLocal.z);
+    biomeLabelEl.textContent = bName ? `${BIOME_CATEGORY_ICON[bCat] || ''} ${bName}` : '';
+  }
   const dots = [];
   zoneMarkers.forEach(z => dots.push({ x: z.localPos.x, z: z.localPos.z, color: z.chapterIndex === state.chapterIndex ? '#ffe27a' : '#5fd35f' }));
   fieldTargets.forEach(f => dots.push({ x: f.localPos.x, z: f.localPos.z, color: '#ff5a5a' }));
