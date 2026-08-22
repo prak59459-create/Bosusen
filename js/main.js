@@ -259,7 +259,7 @@ function drawMap() {
     mapCtx.lineTo(-7, 8);
     mapCtx.lineTo(7, 8);
     mapCtx.closePath();
-    mapCtx.fillStyle = '#ff4d6a';
+    mapCtx.fillStyle = '#1a6fd4';
     mapCtx.fill();
     mapCtx.strokeStyle = '#2a1f3d';
     mapCtx.lineWidth = 1.5;
