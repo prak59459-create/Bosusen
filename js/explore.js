@@ -278,6 +278,7 @@ export function updateExplore(dt) {
     stepTimer -= dt;
     if (stepTimer <= 0) {
       sfx.footstep();
+      spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.05, 0)), 0xcabf9a, 4);
       stepTimer = keys.sprint ? 0.22 : 0.36;
     }
   } else {
