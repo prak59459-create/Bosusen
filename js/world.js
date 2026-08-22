@@ -911,7 +911,11 @@ CHAPTERS.forEach((chapter, i) => {
     const pickupLight = new THREE.PointLight(0xffcc44, 1.8, 10, 2);
     pickupLight.position.set(pickupLocal.x, 1.6, pickupLocal.z);
     worldGroup.add(pickupLight);
-    explorePickups.push({ chapterIndex: i, questId: exploreQuest.id, quest: exploreQuest, localPos: pickupLocal, mesh: pickupMesh, radius: 3 });
+    const pickupBeamMat = new THREE.MeshBasicMaterial({ color: 0xffcc44, transparent: true, opacity: 0.2, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false });
+    const pickupBeam = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.05, 25, 8, 1, true), pickupBeamMat);
+    pickupBeam.position.set(pickupLocal.x, 12.5, pickupLocal.z);
+    worldGroup.add(pickupBeam);
+    explorePickups.push({ chapterIndex: i, questId: exploreQuest.id, quest: exploreQuest, localPos: pickupLocal, mesh: pickupMesh, radius: 3, beam: pickupBeam });
   }
 
   // ---- ロアクエスト（記録の石碑）----

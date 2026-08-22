@@ -287,7 +287,9 @@ export function enterExploreMode(spawnLocal) {
   crossfadeTo('Idle', 0.2);
   refreshZoneVisuals(state.chapterIndex);
   explorePickups.forEach(p => {
-    if (isQuestDone(CHAPTERS[p.chapterIndex].key, p.questId)) p.mesh.visible = false;
+    const pDone = isQuestDone(CHAPTERS[p.chapterIndex].key, p.questId);
+    if (pDone) p.mesh.visible = false;
+    if (p.beam) p.beam.visible = !pDone;
   });
   hiddenTreasures.forEach(t => {
     const found = state.foundTreasures.includes(t.id);
@@ -392,6 +394,7 @@ function tryCollectPickup(pickup) {
   showToast(`クエスト達成: ${pickup.quest.title}｜${pickup.quest.result}`, 'quest');
   checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
   pickup.mesh.visible = false;
+  if (pickup.beam) pickup.beam.visible = false;
   renderQuestTracker();
   saveGame();
 }
