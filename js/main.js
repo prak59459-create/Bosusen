@@ -6,7 +6,7 @@ import { spawnEnemy } from './enemy.js';
 import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles } from './effects.js';
 import { resumeAudio, sfx, setMasterVolume, setRainIntensity, setBiomeDrone } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
-import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, computeStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult } from './state.js';
+import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, computeStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, totalQuestsDone, totalQuestsAll } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, syncSettingsUI, openMenu, closeMenu } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
@@ -344,6 +344,11 @@ function drawMap() {
 
 function openMap() {
   drawMap();
+  const summaryEl = document.getElementById('map-summary');
+  if (summaryEl) {
+    const clearedZones = zoneMarkers.filter(z => z.chapterIndex < state.chapterIndex).length;
+    summaryEl.textContent = `聖域制覇: ${clearedZones}/${zoneMarkers.length}｜クエスト: ${totalQuestsDone()}/${totalQuestsAll()}｜秘宝: ${state.foundTreasures.length}/${hiddenTreasures.length}`;
+  }
   mapScreen.style.display = 'flex';
   setMapOpen(true);
 }
