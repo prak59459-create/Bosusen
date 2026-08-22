@@ -179,6 +179,14 @@ if (pinnedAchievementBadgeEl) {
   });
 }
 
+const shakeTestBtn = document.getElementById('shake-test-btn');
+if (shakeTestBtn) {
+  shakeTestBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    triggerShake(0.4, 300);
+  });
+}
+
 const rumbleTestBtn = document.getElementById('rumble-test-btn');
 if (rumbleTestBtn) {
   rumbleTestBtn.addEventListener('click', (e) => {
