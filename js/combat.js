@@ -562,6 +562,17 @@ export function startBattlePhase() {
   const taunt = tauntPool[Math.floor(Math.random() * tauntPool.length)];
   if (state.showBossTaunts !== false) log(taunt);
   sfx.roar();
+  if (!state.seenBattleTutorial) {
+    state.seenBattleTutorial = true;
+    const tips = [
+      '攻撃・強攻撃・結晶技でダメージを与えよう',
+      'ボスの攻撃が来たらガードで被ダメージ半減、タイミングよくジャストガードすればパリィで反撃できる',
+      '回復でHPを回復できるが回数制限があるので注意',
+    ];
+    tips.forEach((tip, i) => {
+      setTimeout(() => showToast(tip, 'info'), 1500 + i * 2800);
+    });
+  }
 }
 
 export function getTorchFires() { return torchFires; }

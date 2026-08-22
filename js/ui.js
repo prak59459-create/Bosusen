@@ -653,8 +653,9 @@ export function initMenu(onSave, onTitle) {
   });
   document.getElementById('replay-tutorial-btn').addEventListener('click', () => {
     state.seenExploreTutorial = false;
+    state.seenBattleTutorial = false;
     sfx.uiClick();
-    showToast('次に探索を始めるとチュートリアルが表示されます', 'info');
+    showToast('次に探索・戦闘を始めるとチュートリアルが表示されます', 'info');
     saveGame();
   });
   document.getElementById('export-save-btn').addEventListener('click', () => {
