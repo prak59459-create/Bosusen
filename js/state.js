@@ -223,6 +223,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if ((state.totalPlaytimeSec || 0) >= 3600) tryUnlock('dedicated_player');
   if ((state.totalPlaytimeSec || 0) >= 18000) tryUnlock('true_resident');
   if (state.butterfliesCaught >= 50) tryUnlock('butterfly_catcher');
+  if (CHAPTERS.every(c => (state.chapterClearCounts[c.key] || 0) > 0)) tryUnlock('bestiary_complete');
   const otherIds = ACHIEVEMENTS.filter(a => a.id !== 'completionist').map(a => a.id);
   if (otherIds.every(id => state.achievements.includes(id))) tryUnlock('completionist');
   return newly;
