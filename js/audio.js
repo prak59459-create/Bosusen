@@ -157,6 +157,8 @@ export const sfx = {
   footstepSnow: () => { playNoise(0.05, 0.06); playTone(1200, 0.03, 'square', 0.02, 900); },
   footstepWater: () => { playNoise(0.08, 0.08); playTone(500, 0.06, 'sine', 0.05, 300); },
   footstepMetal: () => playTone(700, 0.05, 'square', 0.04, 500),
+  footstepSwamp: () => { playNoise(0.14, 0.1); playTone(220, 0.08, 'sine', 0.06, 140); },
+  footstepCrystal: () => { playTone(1600, 0.05, 'sine', 0.04, 2000); playTone(2400, 0.03, 'triangle', 0.03, 2600); },
   thunder: () => { playNoise(1.1, 0.35); playTone(60, 1.2, 'sawtooth', 0.3, 30); },
   lowHp: () => { playTone(220, 0.18, 'triangle', 0.18, 160); },
 };
