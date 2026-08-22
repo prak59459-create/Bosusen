@@ -167,6 +167,17 @@ function finishGame(won) {
     });
     const rank = calcRank();
     els.endRank.textContent = `評価ランク: ${rank}`;
+    if (rank === 'S') {
+      showCenterMsg('S RANK!!', '#ffd700', 1800);
+      sfx.achievement();
+      for (let i = 0; i < 6; i++) {
+        setTimeout(() => {
+          const ang = Math.random() * Math.PI * 2;
+          const pos = player.position.clone().add(new THREE.Vector3(Math.cos(ang) * 1.5, 1.2 + Math.random() * 1.5, Math.sin(ang) * 1.5));
+          spawnParticles(pos, 0xffd700, 12);
+        }, i * 120);
+      }
+    }
 
     const RANK_BONUS = { S: 1.5, A: 1.2, B: 1.0, C: 1.0 };
     const shardPct = computeStats().shardPct || 0;
