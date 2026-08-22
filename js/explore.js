@@ -821,6 +821,8 @@ export function updateExplore(dt) {
       const isNew = !state.discoveredBiomes.includes(name);
       if (isNew) {
         state.discoveredBiomes.push(name);
+        if (!state.biomeDiscoveredAt) state.biomeDiscoveredAt = {};
+        state.biomeDiscoveredAt[name] = Date.now();
         addShards(5);
         sfx.questDone();
         [0xffd700, 0x9fe0ff, 0xff9fd0, 0x9fff7a].forEach((c, i) => {

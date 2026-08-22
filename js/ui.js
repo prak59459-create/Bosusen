@@ -626,9 +626,12 @@ export function renderCompendiumTab() {
       const icon = BIOME_CATEGORY_ICON[category] || '❓';
       const row = document.createElement('div');
       row.className = 'item-row' + (found ? ' equipped' : '');
+      const foundAt = found && (state.biomeDiscoveredAt || {})[name];
+      const dateStr = foundAt ? new Date(foundAt).toLocaleDateString('ja-JP') : '';
       row.innerHTML = `
         <div class="item-row-main">
           <div class="item-row-name">${found ? `${icon} ${name}` : '？？？'}</div>
+          ${found ? `<div class="item-row-desc">発見日: ${dateStr}</div>` : ''}
         </div>
       `;
       listEl.appendChild(row);

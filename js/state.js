@@ -48,6 +48,7 @@ export const state = {
   questTrackerCollapsed: false,
   savedLoadouts: { a: null, b: null },
   firstDefeatedAt: {},
+  biomeDiscoveredAt: {},
   butterfliesCaught: 0,
   achievements: [], // array of unlocked achievement ids
   questProgress: {}, // { chapterKey: { questId: true } }
@@ -340,6 +341,7 @@ export function saveGame() {
       questTrackerCollapsed: state.questTrackerCollapsed,
       savedLoadouts: state.savedLoadouts,
       firstDefeatedAt: state.firstDefeatedAt,
+      biomeDiscoveredAt: state.biomeDiscoveredAt,
       totalParries: state.totalParries,
       butterfliesCaught: state.butterfliesCaught,
       achievements: state.achievements,
@@ -417,6 +419,7 @@ export function loadGame() {
       questTrackerCollapsed: snap.questTrackerCollapsed || false,
       savedLoadouts: snap.savedLoadouts || { a: null, b: null },
       firstDefeatedAt: snap.firstDefeatedAt || {},
+      biomeDiscoveredAt: snap.biomeDiscoveredAt || {},
       totalParries: snap.totalParries || 0,
       butterfliesCaught: snap.butterfliesCaught || 0,
       achievements: snap.achievements || [],
