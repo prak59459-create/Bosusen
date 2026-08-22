@@ -1351,3 +1351,40 @@ export function updateCyberMotes(t, dt, centerX, centerZ) {
   }
   cyberMesh.instanceMatrix.needsUpdate = true;
 }
+
+/* ---------- 結晶バイオームにきらめく光の粒子 ---------- */
+const SPARKLE_COUNT = 200;
+const sparkleGeo = new THREE.OctahedronGeometry(0.1, 0);
+const sparkleMat = new THREE.MeshBasicMaterial({ color: 0xd0b0ff, transparent: true, opacity: 0.95, blending: THREE.AdditiveBlending });
+const sparkleMesh = new THREE.InstancedMesh(sparkleGeo, sparkleMat, SPARKLE_COUNT);
+sparkleMesh.visible = false;
+const sparkleData = [];
+for (let i = 0; i < SPARKLE_COUNT; i++) {
+  sparkleData.push({
+    ox: (Math.random() - 0.5) * 50,
+    oz: (Math.random() - 0.5) * 50,
+    baseY: 0.3 + Math.random() * 6,
+    bobSpeed: 0.6 + Math.random() * 1.2,
+    phase: Math.random() * Math.PI * 2,
+  });
+}
+worldGroup.add(sparkleMesh);
+const sparkleDummy = new THREE.Object3D();
+export function updateCrystalSparkles(t, dt, centerX, centerZ) {
+  const biomeIdx = nearestBiome(centerX, centerZ);
+  const cat = BIOME_DEFS[biomeIdx] ? BIOME_DEFS[biomeIdx].category : null;
+  const isCrystal = cat === 'crystal';
+  sparkleMesh.visible = isCrystal;
+  if (!isCrystal) return;
+  for (let i = 0; i < SPARKLE_COUNT; i++) {
+    const d = sparkleData[i];
+    const y = d.baseY + Math.sin(t * d.bobSpeed + d.phase) * 0.8;
+    const twinkle = 0.6 + Math.abs(Math.sin(t * 4 + d.phase)) * 0.6;
+    sparkleDummy.position.set(centerX + d.ox, y, centerZ + d.oz);
+    sparkleDummy.rotation.set(t * d.bobSpeed, t * d.bobSpeed * 1.4, 0);
+    sparkleDummy.scale.setScalar(twinkle);
+    sparkleDummy.updateMatrix();
+    sparkleMesh.setMatrixAt(i, sparkleDummy.matrix);
+  }
+  sparkleMesh.instanceMatrix.needsUpdate = true;
+}
