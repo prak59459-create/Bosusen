@@ -247,6 +247,26 @@ function drawMap() {
   mapCtx.textAlign = 'center';
   mapCtx.fillText('拠点', cx, cy - 13);
 
+  {
+    const pLocal = getPlayerLocalPos();
+    const px = cx + pLocal.x * scale, py = cy + pLocal.z * scale;
+    const pFacing = getPlayerFacing();
+    mapCtx.save();
+    mapCtx.translate(px, py);
+    mapCtx.rotate(pFacing);
+    mapCtx.beginPath();
+    mapCtx.moveTo(0, -9);
+    mapCtx.lineTo(-7, 8);
+    mapCtx.lineTo(7, 8);
+    mapCtx.closePath();
+    mapCtx.fillStyle = '#ff4d6a';
+    mapCtx.fill();
+    mapCtx.strokeStyle = '#2a1f3d';
+    mapCtx.lineWidth = 1.5;
+    mapCtx.stroke();
+    mapCtx.restore();
+  }
+
   zoneMarkers.forEach(z => {
     const x = cx + z.localPos.x * scale, y = cy + z.localPos.z * scale;
     mapCtx.beginPath();
