@@ -378,9 +378,24 @@ export function playerAction(type) {
   const stamMult = Math.max(0.4, 1 + (stats0.staminaCostPct || 0));
   const attackStamCost = Math.round(10 * stamMult);
   const heavyStamCost = Math.round(30 * stamMult);
-  if (type === 'heavy' && state.playerStam < heavyStamCost) { log('スタミナが足りない！'); return; }
-  if (type === 'skill' && (state.playerMP < 25 || state.skillCooldown > 0)) { log('結晶技は使えない！'); return; }
-  if (type === 'heal' && state.healUses <= 0) { log('回復はもう使えない！'); return; }
+  if (type === 'heavy' && state.playerStam < heavyStamCost) {
+    log('スタミナが足りない！');
+    showToast('スタミナが足りません', 'info');
+    sfx.dodgeFail();
+    return;
+  }
+  if (type === 'skill' && (state.playerMP < 25 || state.skillCooldown > 0)) {
+    log('結晶技は使えない！');
+    showToast(state.skillCooldown > 0 ? '結晶技はクールダウン中です' : 'エーテルが足りません', 'info');
+    sfx.dodgeFail();
+    return;
+  }
+  if (type === 'heal' && state.healUses <= 0) {
+    log('回復はもう使えない！');
+    showToast('回復の使用回数がありません', 'info');
+    sfx.dodgeFail();
+    return;
+  }
 
   state.turnBusy = true;
   setButtonsEnabled(false);
