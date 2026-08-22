@@ -85,6 +85,15 @@ const TITLE_TIERS = [
   { min: 6,  title: '熟練の' },
   { min: 3,  title: '見習い' },
 ];
+const DIFFICULTY_DETAIL = {
+  easy: '敵HP70%・被ダメ70%・獲得シャード80%',
+  normal: '敵HP100%・被ダメ100%・獲得シャード100%',
+  hard: '敵HP135%・被ダメ130%・獲得シャード130%',
+};
+function updateDifficultyDetail() {
+  const el = document.getElementById('difficulty-detail');
+  if (el) el.textContent = DIFFICULTY_DETAIL[state.difficulty || 'normal'] || '';
+}
 function playerTitle() {
   const count = (state.achievements || []).length;
   if ((state.achievements || []).includes('completionist')) return '★【完全制覇】★';
@@ -661,6 +670,7 @@ export function syncSettingsUI() {
   if (shakeCheckbox) shakeCheckbox.checked = state.screenShake !== false;
   const difficultySelect = document.getElementById('opt-difficulty');
   if (difficultySelect) difficultySelect.value = state.difficulty || 'normal';
+  updateDifficultyDetail();
   const objectiveHintCheckbox = document.getElementById('opt-objective-hint');
   if (objectiveHintCheckbox) objectiveHintCheckbox.checked = state.showObjectiveHint !== false;
   const bossTauntsCheckbox = document.getElementById('opt-boss-taunts');
@@ -808,6 +818,7 @@ export function initMenu(onSave, onTitle) {
     state.difficulty = difficultySelect.value;
     sfx.uiClick();
     showToast(`難易度を「${{easy:'簡単',normal:'普通',hard:'難しい'}[state.difficulty]}」に変更しました`, 'info');
+    updateDifficultyDetail();
     saveGame();
   });
 
