@@ -990,3 +990,38 @@ export function updateFireflies(t) {
   }
   fireflyMesh.instanceMatrix.needsUpdate = true;
 }
+
+/* ---------- 空を旋回する鳥の群れ ---------- */
+const BIRD_COUNT = 60;
+const birdWing = new THREE.ConeGeometry(0.6, 2.2, 3);
+birdWing.rotateX(Math.PI / 2);
+const birdMat = new THREE.MeshBasicMaterial({ color: 0x2a2a33 });
+const birdMesh = new THREE.InstancedMesh(birdWing, birdMat, BIRD_COUNT);
+const birdData = [];
+for (let i = 0; i < BIRD_COUNT; i++) {
+  birdData.push({
+    centerX: (Math.random() - 0.5) * WORLD_RADIUS * 1.4,
+    centerZ: (Math.random() - 0.5) * WORLD_RADIUS * 1.4,
+    radius: 60 + Math.random() * 220,
+    height: 45 + Math.random() * 70,
+    speed: 0.15 + Math.random() * 0.25,
+    phase: Math.random() * Math.PI * 2,
+  });
+}
+worldGroup.add(birdMesh);
+const birdDummy = new THREE.Object3D();
+export function updateBirds(t) {
+  for (let i = 0; i < BIRD_COUNT; i++) {
+    const d = birdData[i];
+    const ang = t * d.speed + d.phase;
+    const x = d.centerX + Math.cos(ang) * d.radius;
+    const z = d.centerZ + Math.sin(ang) * d.radius;
+    const y = d.height + Math.sin(t * 2 + d.phase) * 3;
+    birdDummy.position.set(x, y, z);
+    birdDummy.rotation.y = -ang + Math.PI / 2;
+    birdDummy.rotation.x = Math.sin(t * 8 + d.phase) * 0.3;
+    birdDummy.updateMatrix();
+    birdMesh.setMatrixAt(i, birdDummy.matrix);
+  }
+  birdMesh.instanceMatrix.needsUpdate = true;
+}
