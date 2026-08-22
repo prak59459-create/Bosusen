@@ -497,9 +497,11 @@ export function updateExplore(dt) {
     const caughtB = collectNearbyButterflies(localPos.x, localPos.z, 2.2);
     if (caughtB > 0) {
       addShards(caughtB);
+      state.butterfliesCaught = (state.butterfliesCaught || 0) + caughtB;
       sfx.shardGet();
       spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.2, 0)), 0xff9fd0, 5 * caughtB);
       showToast(`蝶を捕まえた！ 結晶の欠片 +${caughtB}`, 'quest');
+      checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
       saveGame();
     }
   }
