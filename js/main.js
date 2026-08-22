@@ -497,6 +497,7 @@ const qbSortRewardEl = document.getElementById('qb-sort-reward');
 if (qbSortRewardEl) qbSortRewardEl.addEventListener('change', () => showQuestBoard(state.chapterIndex));
 
 function showQuestBoard(chapterIndex) {
+  warnedIncompleteQuests = false;
   els.storyScreen.style.display = 'none';
   renderQuestBoard(chapterIndex, () => {
     renderQuestTracker();
@@ -510,7 +511,16 @@ els.storyBtn.addEventListener('click', () => {
   showQuestBoard(state.chapterIndex);
 });
 
+let warnedIncompleteQuests = false;
 els.qbFightBtn.addEventListener('click', () => {
+  const chapter = CHAPTERS[state.chapterIndex];
+  const doneCount = chapter.quests.filter(q => isQuestDone(chapter.key, q.id)).length;
+  if (doneCount < chapter.quests.length && !warnedIncompleteQuests) {
+    warnedIncompleteQuests = true;
+    showToast(`未達成のクエストが${chapter.quests.length - doneCount}件残っています（もう一度押すと戦闘開始）`, 'info');
+    return;
+  }
+  warnedIncompleteQuests = false;
   document.getElementById('quest-board-screen').style.display = 'none';
   startBattlePhase();
 });
