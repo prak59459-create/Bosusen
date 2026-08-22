@@ -215,9 +215,10 @@ export function renderQuestBoard(chapterIndex, onResolve) {
     const card = document.createElement('div');
     card.className = 'quest-card' + (done ? ' done' : '');
     const typeLabel = q.type === 'battle' ? '討伐' : (q.type === 'lore' ? '石碑' : '採取');
+    const typeIcon = q.type === 'battle' ? '⚔️' : (q.type === 'lore' ? '📜' : '🔍');
     card.innerHTML = `
       <div class="quest-card-head">
-        <span class="quest-type-tag">${typeLabel}</span>
+        <span class="quest-type-tag">${typeIcon} ${typeLabel}</span>
         <span class="quest-card-title">${q.title}</span>
       </div>
       <div class="quest-card-desc">${q.desc}</div>
