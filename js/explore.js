@@ -124,6 +124,9 @@ const AMBIENT_LINES_PENDING = [
 const AMBIENT_LINES_NIGHT = [
   '「こんな夜更けに出歩くとは、感心しないな」', '「夜の聖域は昼間と違う顔を見せる」', '「星がきれいな夜だ」',
 ];
+const AMBIENT_LINES_RAIN = [
+  '「今日は雨か、足元に気をつけて」', '「雨宿りしていくかい？」', '「雨の音も悪くないものだ」',
+];
 const npcChatterCooldown = new WeakMap();
 let camInit = false;
 let objectiveTimer = 0;
@@ -597,7 +600,7 @@ function tryReadLore(monu) {
   saveGame();
 }
 
-export function updateExplore(dt, absTime = 0) {
+export function updateExplore(dt, absTime = 0, isRaining = false) {
   updateFootprints(dt);
   if (!exploreActive) return;
   if (isSkirmishActive()) return;
@@ -783,7 +786,7 @@ export function updateExplore(dt, absTime = 0) {
           npcChatterCooldown.set(g, performance.now());
           const done = isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId);
           const pending = !done && fieldQuestState(g.questId) === 'accepted';
-          const pool = done ? AMBIENT_LINES_DONE : (pending ? AMBIENT_LINES_PENDING : (isNightTime(absTime) ? AMBIENT_LINES_NIGHT : AMBIENT_LINES));
+          const pool = done ? AMBIENT_LINES_DONE : (pending ? AMBIENT_LINES_PENDING : (isRaining ? AMBIENT_LINES_RAIN : (isNightTime(absTime) ? AMBIENT_LINES_NIGHT : AMBIENT_LINES)));
           const line = pool[Math.floor(Math.random() * pool.length)];
           showToast(`${g.name}：${line}`, 'info');
         }

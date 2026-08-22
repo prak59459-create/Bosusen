@@ -662,6 +662,7 @@ loadPlayerModel((frac) => {
 let t = 0;
 let thunderTimer = 10;
 let wasRaining = false;
+let currentIsRaining = false;
 let wasSensingTreasure = false;
 let wildlifeSoundTimer = 5;
 let lastTime = performance.now();
@@ -755,12 +756,12 @@ function animate() {
       sfx.shardGet();
       checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
     }
-    const isRaining = updateRain(t, dt, lp.x, lp.z);
-    setRainIntensity(isRaining ? 1 : 0);
-    if (wasRaining && !isRaining) triggerRainbow(lp.x, lp.z);
-    wasRaining = isRaining;
+    currentIsRaining = updateRain(t, dt, lp.x, lp.z);
+    setRainIntensity(currentIsRaining ? 1 : 0);
+    if (wasRaining && !currentIsRaining) triggerRainbow(lp.x, lp.z);
+    wasRaining = currentIsRaining;
     updateRainbow(dt);
-    if (isRaining) {
+    if (currentIsRaining) {
       thunderTimer -= dt;
       if (thunderTimer <= 0) {
         thunderTimer = 8 + Math.random() * 14;
@@ -800,7 +801,7 @@ function animate() {
     setRainIntensity(0);
   }
   if (exploreActive) {
-    updateExplore(dt, t);
+    updateExplore(dt, t, currentIsRaining);
   } else {
     updateShakeAndApplyCamera(dt, camFittedPos);
     camera.lookAt(camLookAt);
