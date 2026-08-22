@@ -204,6 +204,9 @@ export function updateDayNightCycle(t) {
   dirLight.intensity = 0.35 + cycle * 1.55;
   dirLight.color.setHSL(0.12, 0.55, 0.42 + cycle * 0.28);
 }
+export function isNightTime(t) {
+  return (Math.sin(t * 0.015) + 1) / 2 < 0.3;
+}
 export const dirLight = new THREE.DirectionalLight(0xfff6e0, 1.8);
 dirLight.position.set(6, 13, 7);
 dirLight.castShadow = true;

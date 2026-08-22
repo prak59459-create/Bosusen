@@ -1099,3 +1099,55 @@ export function updateCritters(t) {
   }
   critterMesh.instanceMatrix.needsUpdate = true;
 }
+
+/* ---------- 流れ星（時折プレイヤー頭上を横切る） ---------- */
+const STAR_COUNT = 5;
+const starGeo = new THREE.SphereGeometry(0.5, 6, 6);
+const starMat = new THREE.MeshBasicMaterial({ color: 0xfff6d0 });
+const starMesh = new THREE.InstancedMesh(starGeo, starMat, STAR_COUNT);
+worldGroup.add(starMesh);
+const starData = [];
+for (let i = 0; i < STAR_COUNT; i++) {
+  starData.push({ nextTrigger: 8 + Math.random() * 25, active: false, t0: 0, dir: 0, startX: 0, startZ: 0, height: 0 });
+}
+const starDummy = new THREE.Object3D();
+export function updateShootingStars(t, dt, centerX, centerZ, isNight) {
+  for (let i = 0; i < STAR_COUNT; i++) {
+    const d = starData[i];
+    if (!d.active) {
+      d.nextTrigger -= dt;
+      if (isNight && d.nextTrigger <= 0) {
+        d.active = true;
+        d.t0 = t;
+        d.dir = Math.random() * Math.PI * 2;
+        d.height = 90 + Math.random() * 60;
+        d.startX = centerX + Math.cos(d.dir + Math.PI) * 200;
+        d.startZ = centerZ + Math.sin(d.dir + Math.PI) * 200;
+      }
+      starDummy.position.set(centerX, -1000, centerZ);
+      starDummy.updateMatrix();
+      starMesh.setMatrixAt(i, starDummy.matrix);
+      continue;
+    }
+    const elapsed = t - d.t0;
+    const dur = 1.4;
+    const progress = elapsed / dur;
+    if (progress >= 1) {
+      d.active = false;
+      d.nextTrigger = 10 + Math.random() * 30;
+      starDummy.position.set(centerX, -1000, centerZ);
+      starDummy.updateMatrix();
+      starMesh.setMatrixAt(i, starDummy.matrix);
+      continue;
+    }
+    const x = d.startX + Math.cos(d.dir) * progress * 400;
+    const z = d.startZ + Math.sin(d.dir) * progress * 400;
+    const y = d.height - progress * 40;
+    starDummy.position.set(x, y, z);
+    const s = 1 - progress * 0.5;
+    starDummy.scale.setScalar(Math.max(0.1, s));
+    starDummy.updateMatrix();
+    starMesh.setMatrixAt(i, starDummy.matrix);
+  }
+  starMesh.instanceMatrix.needsUpdate = true;
+}
