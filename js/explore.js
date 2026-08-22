@@ -86,6 +86,7 @@ const camCurrentPos = new THREE.Vector3();
 const camLookTarget = new THREE.Vector3();
 let stepTimer = 0;
 let speedTrailTimer = 0;
+let gpJumpHeld = false;
 let fireflyCheckTimer = 0;
 let camInit = false;
 let objectiveTimer = 0;
@@ -124,6 +125,19 @@ function toggleSprintLock() {
   if (ind) ind.style.display = sprintLock ? 'block' : 'none';
   const btn = document.getElementById('sprint-lock-btn');
   if (btn) btn.classList.toggle('active', sprintLock);
+}
+
+function doJump() {
+  if (jumpsUsed >= MAX_JUMPS) return;
+  isJumping = true;
+  jumpVelY = JUMP_SPEED * (jumpsUsed === 0 ? 1 : 0.85);
+  jumpsUsed++;
+  sfx.footstep();
+  if (jumpsUsed > 1) {
+    spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.6, 0)), 0xbfe0ff, 8);
+    spinProgress = 0;
+    spinning = true;
+  }
 }
 
 function pingDirection(candidates, label, emptyMsg) {
@@ -198,17 +212,7 @@ window.addEventListener('keydown', (e) => {
       console.error('スクリーンショットの保存に失敗', err);
     }
   }
-  if (e.code === 'Space' && !e.repeat && jumpsUsed < MAX_JUMPS) {
-    isJumping = true;
-    jumpVelY = JUMP_SPEED * (jumpsUsed === 0 ? 1 : 0.85);
-    jumpsUsed++;
-    sfx.footstep();
-    if (jumpsUsed > 1) {
-      spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.6, 0)), 0xbfe0ff, 8);
-      spinProgress = 0;
-      spinning = true;
-    }
-  }
+  if (e.code === 'Space' && !e.repeat) doJump();
 });
 window.addEventListener('keyup', (e) => {
   if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.forward = false;
@@ -437,6 +441,17 @@ export function updateExplore(dt) {
   if (keys.right) mx += 1;
   mx += joyVec.x;
   mz += joyVec.y;
+
+  const gp = navigator.getGamepads ? navigator.getGamepads()[0] : null;
+  if (gp) {
+    const gx = gp.axes[0] || 0, gy = gp.axes[1] || 0;
+    const deadzone = 0.15;
+    if (Math.abs(gx) > deadzone) mx += gx;
+    if (Math.abs(gy) > deadzone) mz += gy;
+    if (gp.buttons[0] && gp.buttons[0].pressed && !gpJumpHeld) { gpJumpHeld = true; doJump(); }
+    if (!(gp.buttons[0] && gp.buttons[0].pressed)) gpJumpHeld = false;
+    keys.sprint = keys.sprint || (gp.buttons[10] && gp.buttons[10].pressed);
+  }
 
   dashCooldown = Math.max(0, dashCooldown - dt);
   const dashing = dashTimer > 0;
