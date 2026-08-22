@@ -1025,3 +1025,38 @@ export function updateBirds(t) {
   }
   birdMesh.instanceMatrix.needsUpdate = true;
 }
+
+/* ---------- プレイヤー周辺に舞う落ち葉・花びら ---------- */
+const LEAF_COUNT = 90;
+const leafGeo = new THREE.PlaneGeometry(0.35, 0.35);
+const leafMat = new THREE.MeshBasicMaterial({ color: 0xd7a13a, side: THREE.DoubleSide, transparent: true, opacity: 0.85 });
+const leafMesh = new THREE.InstancedMesh(leafGeo, leafMat, LEAF_COUNT);
+leafMesh.frustumCulled = false;
+const leafData = [];
+for (let i = 0; i < LEAF_COUNT; i++) {
+  leafData.push({
+    ox: (Math.random() - 0.5) * 30,
+    oz: (Math.random() - 0.5) * 30,
+    y: Math.random() * 8,
+    fallSpeed: 0.4 + Math.random() * 0.6,
+    swaySpeed: 0.5 + Math.random() * 1.2,
+    swayRadius: 0.6 + Math.random() * 1.4,
+    phase: Math.random() * Math.PI * 2,
+  });
+}
+worldGroup.add(leafMesh);
+const leafDummy = new THREE.Object3D();
+export function updateLeaves(t, centerX, centerZ) {
+  for (let i = 0; i < LEAF_COUNT; i++) {
+    const d = leafData[i];
+    let y = d.y - (t * d.fallSpeed) % 8;
+    if (y < 0) y += 8;
+    const x = centerX + d.ox + Math.cos(t * d.swaySpeed + d.phase) * d.swayRadius;
+    const z = centerZ + d.oz + Math.sin(t * d.swaySpeed * 0.8 + d.phase) * d.swayRadius;
+    leafDummy.position.set(x, y, z);
+    leafDummy.rotation.set(t * d.swaySpeed, t * d.swaySpeed * 1.3, 0);
+    leafDummy.updateMatrix();
+    leafMesh.setMatrixAt(i, leafDummy.matrix);
+  }
+  leafMesh.instanceMatrix.needsUpdate = true;
+}
