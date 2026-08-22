@@ -71,6 +71,7 @@ export const els = {
 };
 
 let wasHpCritical = false;
+let achSortByProgress = false;
 const TITLE_TIERS = [
   { min: 21, title: '神話の' },
   { min: 15, title: '至高の' },
@@ -272,7 +273,16 @@ export function renderStatusTab() {
       quest_complete: [totalQuestsDone(), totalQuestsAll()],
       veteran_hunter: [Math.max(0, ...Object.values(state.chapterClearCounts || {}), 0), 5],
     };
-    ACHIEVEMENTS.forEach(a => {
+    let achOrder = ACHIEVEMENTS;
+    if (achSortByProgress) {
+      const ratio = a => {
+        if (state.achievements.includes(a.id)) return -1;
+        const p = ACH_PROGRESS[a.id];
+        return p ? p[0] / p[1] : 0;
+      };
+      achOrder = [...ACHIEVEMENTS].sort((a, b) => ratio(b) - ratio(a));
+    }
+    achOrder.forEach(a => {
       const unlocked = state.achievements.includes(a.id);
       const row = document.createElement('div');
       row.className = 'item-row' + (unlocked ? ' equipped' : '');
@@ -582,6 +592,16 @@ export function initMenu(onSave, onTitle) {
       sfx.uiClick();
     });
   });
+
+  const achSortBtn = document.getElementById('ach-sort-btn');
+  if (achSortBtn) {
+    achSortBtn.addEventListener('click', () => {
+      achSortByProgress = !achSortByProgress;
+      achSortBtn.textContent = achSortByProgress ? 'デフォルト順で表示' : '未達成を進捗順で表示';
+      sfx.uiClick();
+      renderStatusTab();
+    });
+  }
 
   els.menuBtn.addEventListener('click', () => openMenu());
   els.menuCloseBtn.addEventListener('click', () => closeMenu());
