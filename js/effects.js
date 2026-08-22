@@ -67,6 +67,12 @@ export function triggerShake(mag, dur) {
   if (state.screenShake === false) return;
   shakeState.mag = mag; shakeState.time = dur;
 }
+export function triggerCritFlash() {
+  const el = document.getElementById('crit-flash');
+  if (!el) return;
+  el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 80);
+}
 export function updateShakeAndApplyCamera(dt, camFittedPos) {
   if (shakeState.time > 0) {
     shakeState.time -= dt;

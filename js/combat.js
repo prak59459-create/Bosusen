@@ -5,7 +5,7 @@ import { player, crossfadeTo, playerMotionBeat, playerModel } from './player.js'
 import { bossGlow, torchFires } from './scene.js';
 import { sfx } from './audio.js';
 import { rand } from './utils.js';
-import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake } from './effects.js';
+import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake, triggerCritFlash } from './effects.js';
 import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
 import { CHAPTERS, levelStatsFor, BOSS_TAUNTS, VICTORY_LINES, DEFEAT_LINES } from './data.js';
 import { state, computeStats, addShards, difficultyMult, checkAchievements } from './state.js';
@@ -378,7 +378,7 @@ export function playerAction(type) {
       if (!state.playing) return;
       const crit = rollCrit(stats.crit);
       let dmg = Math.round((rand(8, 15) + stats.atk * 0.5) * comboMult);
-      if (crit) dmg = Math.round(dmg * (1.5 + (stats.critDmgPct || 0)));
+      if (crit) { dmg = Math.round(dmg * (1.5 + (stats.critDmgPct || 0))); triggerCritFlash(); }
       state.bossHP -= dmg;
       gainCombo();
       updateBars();
@@ -403,7 +403,7 @@ export function playerAction(type) {
       if (success) {
         const crit = rollCrit(stats.crit);
         let dmg = Math.round((rand(20, 32) + stats.atk) * comboMult);
-        if (crit) dmg = Math.round(dmg * (1.5 + (stats.critDmgPct || 0)));
+        if (crit) { dmg = Math.round(dmg * (1.5 + (stats.critDmgPct || 0))); triggerCritFlash(); }
         state.bossHP -= dmg;
         gainCombo();
         updateBars();
@@ -450,7 +450,7 @@ export function playerAction(type) {
         orb.material.dispose();
         const crit = rollCrit(stats.crit);
         let dmg = Math.round((rand(30, 45) + stats.atk) * comboMult);
-        if (crit) dmg = Math.round(dmg * (1.5 + (stats.critDmgPct || 0)));
+        if (crit) { dmg = Math.round(dmg * (1.5 + (stats.critDmgPct || 0))); triggerCritFlash(); }
         state.bossHP -= dmg;
         gainCombo();
         updateBars();
