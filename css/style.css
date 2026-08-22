@@ -337,6 +337,13 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   color:#4a3a10; opacity:0.4; transition:opacity 0.15s linear;
 }
 #dash-cooldown-icon.ready { opacity:1; background:rgba(159,224,255,0.9); }
+#minimap-radar {
+  position:absolute; right: max(18px, env(safe-area-inset-right));
+  top: max(60px, env(safe-area-inset-top) + 48px);
+  width:130px; height:130px; border-radius:50%;
+  background:rgba(255,255,255,0.55); border:2px solid rgba(180,140,255,0.45);
+  pointer-events:none;
+}
 #nearest-objective {
   position:absolute; top: max(90px, env(safe-area-inset-top) + 76px); left:50%; transform:translateX(-50%);
   background:rgba(255,255,255,0.7); border:1px solid rgba(150,100,220,0.3); border-radius:14px;

@@ -134,6 +134,44 @@ const mapScreen = document.getElementById('map-screen');
 const mapCanvas = document.getElementById('map-canvas');
 const mapCtx = mapCanvas.getContext('2d');
 
+const radarCanvas = document.getElementById('minimap-radar');
+const radarCtx = radarCanvas ? radarCanvas.getContext('2d') : null;
+function drawRadar() {
+  if (!radarCtx || !exploreActive) return;
+  const w = radarCanvas.width, h = radarCanvas.height;
+  radarCtx.clearRect(0, 0, w, h);
+  const cx = w / 2, cy = h / 2;
+  const radarRange = 500;
+  const scale = (Math.min(w, h) / 2 - 6) / radarRange;
+  const pLocal = getPlayerLocalPos();
+  const dots = [];
+  zoneMarkers.forEach(z => dots.push({ x: z.localPos.x, z: z.localPos.z, color: z.chapterIndex === state.chapterIndex ? '#ffe27a' : '#5fd35f' }));
+  fieldTargets.forEach(f => dots.push({ x: f.localPos.x, z: f.localPos.z, color: '#ff5a5a' }));
+  hiddenTreasures.forEach(tr => { if (!state.foundTreasures.includes(tr.id)) dots.push({ x: tr.localPos.x, z: tr.localPos.z, color: '#ffd700' }); });
+  radarCtx.save();
+  radarCtx.beginPath();
+  radarCtx.arc(cx, cy, Math.min(w, h) / 2 - 2, 0, Math.PI * 2);
+  radarCtx.clip();
+  dots.forEach(d => {
+    const dx = d.x - pLocal.x, dz = d.z - pLocal.z;
+    const dist = Math.hypot(dx, dz);
+    if (dist > radarRange) return;
+    const x = cx + dx * scale, y = cy + dz * scale;
+    radarCtx.beginPath();
+    radarCtx.arc(x, y, 4, 0, Math.PI * 2);
+    radarCtx.fillStyle = d.color;
+    radarCtx.fill();
+  });
+  radarCtx.restore();
+  radarCtx.beginPath();
+  radarCtx.moveTo(cx, cy - 6);
+  radarCtx.lineTo(cx - 5, cy + 5);
+  radarCtx.lineTo(cx + 5, cy + 5);
+  radarCtx.closePath();
+  radarCtx.fillStyle = '#3d2f5c';
+  radarCtx.fill();
+}
+
 function drawMap() {
   const w = mapCanvas.width, h = mapCanvas.height;
   const contentRadius = Math.max(...fieldTargets.map(t => Math.hypot(t.localPos.x, t.localPos.z)), 500) * 1.15;
@@ -449,6 +487,7 @@ function animate() {
   updateGrassWind(t);
   setCompanionVisible(exploreActive);
   if (exploreActive) {
+    drawRadar();
     updateCompanion(t, dt);
     updateDayNightCycle(t);
     const lp = getPlayerLocalPos();
