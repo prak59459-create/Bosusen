@@ -672,10 +672,12 @@ export function renderCompendiumTab() {
       lore.forEach(entry => {
         const row = document.createElement('div');
         row.className = 'item-row equipped';
+        const dateStr = entry.foundAt ? new Date(entry.foundAt).toLocaleDateString('ja-JP') : '';
         row.innerHTML = `
           <div class="item-row-main">
             <div class="item-row-name">${entry.title}</div>
             <div class="item-row-desc">${entry.text}</div>
+            ${dateStr ? `<div class="item-row-desc">発見日: ${dateStr}</div>` : ''}
           </div>
         `;
         loreList.appendChild(row);
