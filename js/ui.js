@@ -644,12 +644,14 @@ export function renderCompendiumTab() {
     CHAPTERS.forEach(c => {
       const count = clearCounts[c.key] || 0;
       const found = count > 0;
+      const firstAt = (state.firstDefeatedAt || {})[c.key];
+      const dateStr = firstAt ? new Date(firstAt).toLocaleDateString('ja-JP') : '';
       const row = document.createElement('div');
       row.className = 'item-row' + (found ? ' equipped' : '');
       row.innerHTML = `
         <div class="item-row-main">
           <div class="item-row-name">${found ? c.enemyName : '？？？'}</div>
-          <div class="item-row-desc">${found ? `撃破回数: ${count}` : '未撃破'}</div>
+          <div class="item-row-desc">${found ? `撃破回数: ${count}｜初撃破: ${dateStr}` : '未撃破'}</div>
         </div>
       `;
       bestiaryList.appendChild(row);

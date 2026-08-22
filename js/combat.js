@@ -205,6 +205,8 @@ function finishGame(won) {
     state.xp += chapter.xp;
     state.bossesDefeated++;
     state.chapterClearCounts[chapter.key] = (state.chapterClearCounts[chapter.key] || 0) + 1;
+    if (!state.firstDefeatedAt) state.firstDefeatedAt = {};
+    if (!state.firstDefeatedAt[chapter.key]) state.firstDefeatedAt[chapter.key] = Date.now();
     state.winStreak++;
     state.bestWinStreak = Math.max(state.bestWinStreak, state.winStreak);
     state.lifetimeBestCombo = Math.max(state.lifetimeBestCombo, state.maxCombo || 0);
