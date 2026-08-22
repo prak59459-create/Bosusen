@@ -191,4 +191,5 @@ export const sfx = {
   thunder: () => { playNoise(1.1, 0.35); playTone(60, 1.2, 'sawtooth', 0.3, 30); },
   lowHp: () => { playTone(220, 0.18, 'triangle', 0.18, 160); },
   targetSense: () => { playTone(700, 0.1, 'square', 0.07, 500); playTone(500, 0.1, 'square', 0.05, 350); },
+  giverSense: () => { playTone(880, 0.12, 'sine', 0.05, 1100); },
 };

@@ -684,6 +684,7 @@ let wasRaining = false;
 let currentIsRaining = false;
 let wasSensingTreasure = false;
 let wasSensingFieldTarget = false;
+let wasSensingQuestGiver = false;
 let wildlifeSoundTimer = 5;
 let lastTime = performance.now();
 let fpsAccum = 0, fpsFrames = 0, fpsLastUpdate = 0;
@@ -777,6 +778,15 @@ function animate() {
     const isSensingFieldTarget = nearestFieldTargetDist < 25;
     if (isSensingFieldTarget && !wasSensingFieldTarget) sfx.targetSense();
     wasSensingFieldTarget = isSensingFieldTarget;
+    let nearestQuestGiverDist = Infinity;
+    questGivers.forEach(g => {
+      if (isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId)) return;
+      const d = Math.hypot(g.localPos.x - lp.x, g.localPos.z - lp.z);
+      if (d < nearestQuestGiverDist) nearestQuestGiverDist = d;
+    });
+    const isSensingQuestGiver = nearestQuestGiverDist < 20;
+    if (isSensingQuestGiver && !wasSensingQuestGiver) sfx.giverSense();
+    wasSensingQuestGiver = isSensingQuestGiver;
     updateLeaves(t, lp.x, lp.z);
     const starWish = updateShootingStars(t, dt, lp.x, lp.z, isNightTime(t));
     if (starWish) {
