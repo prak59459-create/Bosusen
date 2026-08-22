@@ -700,6 +700,11 @@ let currentIsRaining = false;
 let wasSensingTreasure = false;
 let wasSensingFieldTarget = false;
 let wasSensingQuestGiver = false;
+let lastInputAt = performance.now();
+let afkWarned = false;
+['keydown', 'pointerdown', 'pointermove', 'wheel'].forEach(evt => {
+  window.addEventListener(evt, () => { lastInputAt = performance.now(); afkWarned = false; }, { passive: true });
+});
 let wildlifeSoundTimer = 5;
 let lastTime = performance.now();
 let fpsAccum = 0, fpsFrames = 0, fpsLastUpdate = 0;
@@ -760,6 +765,10 @@ function animate() {
   }
   setCompanionVisible(exploreActive);
   if (exploreActive) {
+    if (!afkWarned && performance.now() - lastInputAt > 300000) {
+      afkWarned = true;
+      showToast('しばらく操作がないようです。よければ休憩してくださいね', 'info');
+    }
     drawRadar();
     updateDayNightCycle(t);
     const dayCounterEl = document.getElementById('day-counter');
