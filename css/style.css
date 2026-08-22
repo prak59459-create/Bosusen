@@ -337,13 +337,13 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 #map-btn:active, #sprint-lock-btn:active, #mute-btn:active {
   transform:scale(0.92);
 }
-#jump-btn, #dash-btn, #emote-btn, #screenshot-btn, #hub-return-btn {
+#jump-btn, #dash-btn, #emote-btn, #screenshot-btn, #hub-return-btn, #loadout-swap-btn {
   position:absolute; right: max(80px, env(safe-area-inset-right) + 62px);
   width:52px; height:52px; border-radius:50%; font-size:22px;
   background:rgba(230,220,250,0.8); border:2px solid rgba(180,140,255,0.4); color:#2a1f3d;
   pointer-events:auto; cursor:pointer; display:none;
 }
-#jump-btn:active, #dash-btn:active, #emote-btn:active, #screenshot-btn:active, #hub-return-btn:active {
+#jump-btn:active, #dash-btn:active, #emote-btn:active, #screenshot-btn:active, #hub-return-btn:active, #loadout-swap-btn:active {
   background:rgba(180,140,255,0.9); transform:scale(0.92);
 }
 #jump-btn { bottom: max(28px, env(safe-area-inset-bottom)); }
@@ -351,8 +351,9 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 #emote-btn { bottom: max(152px, env(safe-area-inset-bottom) + 124px); }
 #screenshot-btn { bottom: max(214px, env(safe-area-inset-bottom) + 186px); }
 #hub-return-btn { bottom: max(276px, env(safe-area-inset-bottom) + 248px); }
+#loadout-swap-btn { bottom: max(338px, env(safe-area-inset-bottom) + 310px); }
 @media (pointer: coarse) {
-  #jump-btn, #dash-btn, #emote-btn, #screenshot-btn, #hub-return-btn { display:flex; align-items:center; justify-content:center; }
+  #jump-btn, #dash-btn, #emote-btn, #screenshot-btn, #hub-return-btn, #loadout-swap-btn { display:flex; align-items:center; justify-content:center; }
 }
 #day-counter {
   position:absolute; top: max(14px, env(safe-area-inset-top));

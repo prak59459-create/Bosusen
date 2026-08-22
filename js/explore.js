@@ -374,6 +374,8 @@ export function initJoystick() {
   if (screenshotBtn) screenshotBtn.addEventListener('click', () => { if (exploreActive) takeScreenshot(); });
   const hubReturnBtn = document.getElementById('hub-return-btn');
   if (hubReturnBtn) hubReturnBtn.addEventListener('click', () => { if (exploreActive) returnToHub(); });
+  const loadoutSwapBtn = document.getElementById('loadout-swap-btn');
+  if (loadoutSwapBtn) loadoutSwapBtn.addEventListener('click', () => { if (exploreActive) quickSwapLoadout(); });
   if (!joyBase || !joyKnob) return;
 
   const onDown = (e) => {
