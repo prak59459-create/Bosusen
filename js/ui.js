@@ -425,7 +425,7 @@ export function renderEquipmentTab() {
     const box = document.createElement('div');
     box.className = 'equip-slot-box';
     box.innerHTML = `
-      <div class="equip-slot-label">${slotNames[slot]}</div>
+      <div class="equip-slot-label">${SLOT_ICON[slot] || ''} ${slotNames[slot]}</div>
       <div class="equip-slot-item">${item ? item.name : '（なし）'}</div>
       ${item ? '<button class="equip-unequip-btn">外す</button>' : ''}
     `;
