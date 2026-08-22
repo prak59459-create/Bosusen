@@ -74,6 +74,9 @@ let jumpVelY = 0;
 let isJumping = false;
 let jumpsUsed = 0;
 const MAX_JUMPS = 2;
+let spinning = false;
+let spinProgress = 0;
+const SPIN_DURATION = 0.4;
 const GRAVITY = 32;
 const JUMP_SPEED = 11;
 let currentBiomeName = '';
@@ -132,7 +135,11 @@ window.addEventListener('keydown', (e) => {
     jumpVelY = JUMP_SPEED * (jumpsUsed === 0 ? 1 : 0.85);
     jumpsUsed++;
     sfx.footstep();
-    if (jumpsUsed > 1) spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.6, 0)), 0xbfe0ff, 8);
+    if (jumpsUsed > 1) {
+      spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.6, 0)), 0xbfe0ff, 8);
+      spinProgress = 0;
+      spinning = true;
+    }
   }
 });
 window.addEventListener('keyup', (e) => {
@@ -420,9 +427,16 @@ export function updateExplore(dt) {
       isJumping = false;
       jumpVelY = 0;
       jumpsUsed = 0;
+      spinning = false;
+      player.rotation.x = 0;
       spawnParticles(player.position.clone().set(player.position.x, 0.05, player.position.z), 0xcabf9a, 10);
     }
     player.position.y = ny;
+  }
+  if (spinning) {
+    spinProgress += dt;
+    player.rotation.x = Math.min(1, spinProgress / SPIN_DURATION) * Math.PI * 2;
+    if (spinProgress >= SPIN_DURATION) { spinning = false; player.rotation.x = 0; }
   }
   if (moving && !wasMoving) crossfadeTo('Walk', 0.15);
   if (!moving && wasMoving) crossfadeTo('Idle', 0.25);
