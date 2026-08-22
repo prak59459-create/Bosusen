@@ -372,12 +372,13 @@ export function renderStatusTab() {
     achOrder.forEach(a => {
       const unlocked = state.achievements.includes(a.id);
       if (achUnlockedOnly && !unlocked) return;
+      const isPinned = state.pinnedAchievement === a.id;
       const row = document.createElement('div');
       row.className = 'item-row' + (unlocked ? ' equipped' : '');
       row.style.opacity = unlocked ? '1' : '0.45';
+      if (isPinned) row.dataset.pinned = '1';
       const prog = !unlocked && ACH_PROGRESS[a.id];
       const progHtml = prog ? `<div class="qb-progress-bar" style="margin-top:4px;"><div class="qb-progress-fill" style="width:${Math.min(100, Math.round(prog[0] / prog[1] * 100))}%"></div></div><div class="item-row-desc">${Math.min(prog[0], prog[1])} / ${prog[1]}</div>` : '';
-      const isPinned = state.pinnedAchievement === a.id;
       row.innerHTML = `
         <div>
           <div class="item-row-name">${unlocked ? '🏆 ' : '🔒 '}${a.name}${isPinned ? ' 📌' : ''}</div>

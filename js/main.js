@@ -167,6 +167,11 @@ if (pinnedAchievementBadgeEl) {
     if (!state.playing) return;
     openMenu();
     document.querySelector('.menu-tab[data-tab="status"]')?.click();
+    setTimeout(() => {
+      const achList = document.getElementById('achievement-list');
+      const pinnedRow = achList && achList.querySelector('[data-pinned="1"]');
+      if (pinnedRow) pinnedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 150);
   });
 }
 
