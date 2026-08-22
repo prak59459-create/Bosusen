@@ -341,4 +341,5 @@ export const ACHIEVEMENTS = [
   { id:'speed_clear', name:'閃光の一撃', desc:'5ターン以内に結晶獣を撃破する。', reward:45 },
   { id:'revived', name:'不屈の残光', desc:'蘇生の残光で力尽きる寸前から復活する。', reward:35 },
   { id:'comeback', name:'不屈の再挑戦者', desc:'3連敗した後、あきらめずに撃破する。', reward:30 },
+  { id:'master_photographer', name:'熟練の記録者', desc:'スクリーンショットを累計50枚撮影する。', reward:45 },
 ];

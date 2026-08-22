@@ -248,6 +248,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (CHAPTERS.every(c => (state.chapterClearCounts[c.key] || 0) > 0)) tryUnlock('bestiary_complete');
   if ((state.starWishesMade || 0) >= 20) tryUnlock('star_wisher');
   if ((state.screenshotsTaken || 0) >= 10) tryUnlock('photographer');
+  if ((state.screenshotsTaken || 0) >= 50) tryUnlock('master_photographer');
   if ((state.emotesUsedSet || []).length >= 4) tryUnlock('emote_master');
   if ((state.collectedLore || []).length >= 8) tryUnlock('lore_master');
   if ((state.newGamePlus || 0) >= 5) tryUnlock('ng_plus_5');
