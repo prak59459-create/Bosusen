@@ -342,17 +342,18 @@ window.addEventListener('keydown', (e) => {
   if (['Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(e.code) && !e.repeat) {
     playEmote(parseInt(e.code.slice(-1), 10) - 1);
   }
-  if (e.code === 'KeyO' && !e.repeat) {
-    const gridEl = document.getElementById('photo-grid-overlay');
-    if (gridEl) {
-      const showing = gridEl.style.display === 'block';
-      gridEl.style.display = showing ? 'none' : 'block';
-      showToast(showing ? '構図グリッドを非表示' : '構図グリッドを表示（三分割法）', 'info');
-    }
-  }
+  if (e.code === 'KeyO' && !e.repeat) togglePhotoGrid();
   if (e.code === 'KeyP' && !e.repeat) takeScreenshot();
   if (e.code === 'Space' && !e.repeat) doJump();
 });
+
+function togglePhotoGrid() {
+  const gridEl = document.getElementById('photo-grid-overlay');
+  if (!gridEl) return;
+  const showing = gridEl.style.display === 'block';
+  gridEl.style.display = showing ? 'none' : 'block';
+  showToast(showing ? '構図グリッドを非表示' : '構図グリッドを表示（三分割法）', 'info');
+}
 
 function takeScreenshot() {
   const hud = document.getElementById('explore-hud');
@@ -416,6 +417,8 @@ export function initJoystick() {
   if (hubReturnBtn) hubReturnBtn.addEventListener('click', () => { if (exploreActive) returnToHub(); });
   const loadoutSwapBtn = document.getElementById('loadout-swap-btn');
   if (loadoutSwapBtn) loadoutSwapBtn.addEventListener('click', () => { if (exploreActive) quickSwapLoadout(); });
+  const photoGridBtn = document.getElementById('photo-grid-btn');
+  if (photoGridBtn) photoGridBtn.addEventListener('click', () => { if (exploreActive) togglePhotoGrid(); });
   if (!joyBase || !joyKnob) return;
 
   const onDown = (e) => {
