@@ -618,6 +618,7 @@ loadPlayerModel((frac) => {
 let t = 0;
 let thunderTimer = 10;
 let wasRaining = false;
+let wasSensingTreasure = false;
 let wildlifeSoundTimer = 5;
 let lastTime = performance.now();
 function animate() {
@@ -681,7 +682,10 @@ function animate() {
       const d = Math.hypot(tr.localPos.x - lp.x, tr.localPos.z - lp.z);
       if (d < nearestTreasureDist) nearestTreasureDist = d;
     });
-    updateCompanion(t, dt, nearestTreasureDist < 30);
+    const isSensingTreasure = nearestTreasureDist < 30;
+    if (isSensingTreasure && !wasSensingTreasure) sfx.spiritChime();
+    wasSensingTreasure = isSensingTreasure;
+    updateCompanion(t, dt, isSensingTreasure);
     updateLeaves(t, lp.x, lp.z);
     const starWish = updateShootingStars(t, dt, lp.x, lp.z, isNightTime(t));
     if (starWish) {
