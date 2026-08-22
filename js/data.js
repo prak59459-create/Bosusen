@@ -346,4 +346,5 @@ export const ACHIEVEMENTS = [
   { id:'firefly_master', name:'蛍火の達人', desc:'蛍を累計200匹捕まえる。', reward:40 },
   { id:'butterfly_master', name:'蝶舞の達人', desc:'蝶を累計200匹捕まえる。', reward:40 },
   { id:'veteran_resident', name:'エーテリアの守護者', desc:'累計プレイ時間が10時間に達する。', reward:100 },
+  { id:'golden_hour', name:'黄金の一瞬', desc:'ゴールデンアワーにスクリーンショットを撮影する。', reward:20 },
 ];

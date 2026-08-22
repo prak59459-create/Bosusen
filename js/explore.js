@@ -378,6 +378,7 @@ function takeScreenshot() {
         if (timeLabel === '明け方' || timeLabel === '夕暮れ') {
           addShards(10);
           showToast(`ゴールデンアワーの一枚！ 結晶の欠片+10`, 'quest');
+          state.gotGoldenHourPhoto = true;
         } else {
           showToast('スクリーンショットを保存しました', 'info');
         }

@@ -52,6 +52,7 @@ export const state = {
   proximitySounds: true,
   lossStreak: 0,
   hadComeback: false,
+  gotGoldenHourPhoto: false,
   pinnedAchievement: null,
   questTrackerCollapsed: false,
   savedLoadouts: { a: null, b: null },
@@ -253,6 +254,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if ((state.starWishesMade || 0) >= 50) tryUnlock('star_wisher_master');
   if ((state.screenshotsTaken || 0) >= 10) tryUnlock('photographer');
   if ((state.screenshotsTaken || 0) >= 50) tryUnlock('master_photographer');
+  if (state.gotGoldenHourPhoto) tryUnlock('golden_hour');
   if ((state.emotesUsedSet || []).length >= 4) tryUnlock('emote_master');
   if ((state.collectedLore || []).length >= 8) tryUnlock('lore_master');
   if ((state.newGamePlus || 0) >= 5) tryUnlock('ng_plus_5');
@@ -362,6 +364,7 @@ export function saveGame() {
       proximitySounds: state.proximitySounds,
       lossStreak: state.lossStreak,
       hadComeback: state.hadComeback,
+      gotGoldenHourPhoto: state.gotGoldenHourPhoto,
       pinnedAchievement: state.pinnedAchievement,
       questTrackerCollapsed: state.questTrackerCollapsed,
       savedLoadouts: state.savedLoadouts,
@@ -449,6 +452,7 @@ export function loadGame() {
       proximitySounds: snap.proximitySounds !== false,
       lossStreak: snap.lossStreak || 0,
       hadComeback: snap.hadComeback || false,
+      gotGoldenHourPhoto: snap.gotGoldenHourPhoto || false,
       pinnedAchievement: snap.pinnedAchievement || null,
       questTrackerCollapsed: snap.questTrackerCollapsed || false,
       savedLoadouts: snap.savedLoadouts || { a: null, b: null },
