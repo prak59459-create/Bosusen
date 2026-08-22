@@ -184,7 +184,21 @@ export function renderQuestTracker() {
     return;
   }
   els.questTracker.style.display = 'block';
+  const titleEl = document.getElementById('quest-tracker-title');
+  if (titleEl) {
+    titleEl.textContent = `目標 ${state.questTrackerCollapsed ? '▸' : '▾'}`;
+    if (!titleEl.dataset.bound) {
+      titleEl.dataset.bound = '1';
+      titleEl.addEventListener('click', () => {
+        state.questTrackerCollapsed = !state.questTrackerCollapsed;
+        saveGame();
+        renderQuestTracker();
+      });
+    }
+  }
+  els.questTrackerList.style.display = state.questTrackerCollapsed ? 'none' : 'block';
   els.questTrackerList.innerHTML = '';
+  if (state.questTrackerCollapsed) return;
   remaining.forEach(q => {
     const row = document.createElement('div');
     row.className = 'quest-tracker-row';
