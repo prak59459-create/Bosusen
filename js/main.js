@@ -170,7 +170,11 @@ if (pinnedAchievementBadgeEl) {
     setTimeout(() => {
       const achList = document.getElementById('achievement-list');
       const pinnedRow = achList && achList.querySelector('[data-pinned="1"]');
-      if (pinnedRow) pinnedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (pinnedRow) {
+        pinnedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        pinnedRow.classList.add('highlight-pulse');
+        setTimeout(() => pinnedRow.classList.remove('highlight-pulse'), 1600);
+      }
     }, 150);
   });
 }

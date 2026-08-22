@@ -547,3 +547,10 @@ body.high-contrast .quest-tracker, body.high-contrast #biome-label {
   font-size: 12px; padding: 6px 10px; border-radius: 6px; white-space: pre-line;
   pointer-events: none;
 }
+
+.highlight-pulse { animation: highlightPulse 1.6s ease-out; }
+@keyframes highlightPulse {
+  0%, 100% { box-shadow: none; }
+  20% { box-shadow: 0 0 0 3px rgba(255,215,0,0.8); }
+  60% { box-shadow: 0 0 0 3px rgba(255,215,0,0.4); }
+}
