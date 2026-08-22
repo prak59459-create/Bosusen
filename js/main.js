@@ -100,11 +100,14 @@ function renderShop() {
   const ownedCount = SHOP_ITEMS.filter(e => ownsItem(e.itemId)).length;
   const shopProgressFill = document.getElementById('shop-progress-fill');
   if (shopProgressFill) shopProgressFill.style.width = `${Math.round((ownedCount / SHOP_ITEMS.length) * 100)}%`;
+  const affordableFilterEl = document.getElementById('shop-affordable-filter');
+  const affordableOnly = affordableFilterEl && affordableFilterEl.checked;
   SHOP_ITEMS.forEach(entry => {
     const item = ITEMS[entry.itemId];
     const owned = ownsItem(entry.itemId);
     const locked = entry.requiresAchievement && !state.achievements.includes(entry.requiresAchievement);
     const canBuy = !owned && !locked && state.shards >= entry.cost;
+    if (affordableOnly && !canBuy) return;
     const statParts = [];
     if (item.atk) statParts.push(`攻撃+${item.atk}`);
     if (item.def) statParts.push(`防御+${item.def}`);
@@ -135,6 +138,9 @@ function renderShop() {
   });
   shopShardsEl.textContent = `所持している結晶の欠片: ${state.shards}`;
 }
+
+const shopAffordableFilterEl = document.getElementById('shop-affordable-filter');
+if (shopAffordableFilterEl) shopAffordableFilterEl.addEventListener('change', renderShop);
 
 function openShop() {
   renderShop();
