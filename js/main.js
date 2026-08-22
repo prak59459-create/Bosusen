@@ -437,6 +437,8 @@ document.getElementById('mute-btn').addEventListener('click', () => {
 
 const qbUndoneFilterEl = document.getElementById('qb-undone-filter');
 if (qbUndoneFilterEl) qbUndoneFilterEl.addEventListener('change', () => showQuestBoard(state.chapterIndex));
+const qbSortRewardEl = document.getElementById('qb-sort-reward');
+if (qbSortRewardEl) qbSortRewardEl.addEventListener('change', () => showQuestBoard(state.chapterIndex));
 
 function showQuestBoard(chapterIndex) {
   els.storyScreen.style.display = 'none';

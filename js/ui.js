@@ -205,7 +205,10 @@ export function renderQuestBoard(chapterIndex, onResolve) {
   if (progressFill) progressFill.style.width = `${Math.round((doneCount / chapter.quests.length) * 100)}%`;
   const undoneFilterEl = document.getElementById('qb-undone-filter');
   const undoneOnly = undoneFilterEl && undoneFilterEl.checked;
-  chapter.quests.forEach(q => {
+  const sortRewardEl = document.getElementById('qb-sort-reward');
+  const sortByReward = sortRewardEl && sortRewardEl.checked;
+  const questList = sortByReward ? [...chapter.quests].sort((a, b) => b.reward.shards - a.reward.shards) : chapter.quests;
+  questList.forEach(q => {
     const done = isQuestDone(chapter.key, q.id);
     if (undoneOnly && done) return;
     const card = document.createElement('div');
