@@ -120,6 +120,13 @@ window.addEventListener('keydown', (e) => {
     sfx.dodgeSuccess();
     spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1, 0)), 0x9fe0ff, 12);
   }
+  if (e.code === 'KeyF' && !e.repeat) {
+    sfx.achievement();
+    const colors = [0xffd700, 0xff6a9f, 0x66eaff, 0x9fff7a];
+    colors.forEach((c, i) => {
+      spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6 + i * 0.15, 0)), c, 10);
+    });
+  }
   if (e.code === 'Space' && !e.repeat && jumpsUsed < MAX_JUMPS) {
     isJumping = true;
     jumpVelY = JUMP_SPEED * (jumpsUsed === 0 ? 1 : 0.85);
