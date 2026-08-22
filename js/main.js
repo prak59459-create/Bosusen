@@ -482,6 +482,9 @@ mapCanvas.addEventListener('pointermove', (e) => {
     const rect = mapCanvas.getBoundingClientRect();
     mapPanX += dx * (mapCanvas.width / rect.width);
     mapPanY += dy * (mapCanvas.height / rect.height);
+    const maxPan = (mapCanvas.width / 2) * (mapZoomFactor - 1) + 150;
+    mapPanX = Math.max(-maxPan, Math.min(maxPan, mapPanX));
+    mapPanY = Math.max(-maxPan, Math.min(maxPan, mapPanY));
     mapDragStartX = e.clientX; mapDragStartY = e.clientY;
     drawMap();
   }
