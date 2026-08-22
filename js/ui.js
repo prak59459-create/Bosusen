@@ -842,9 +842,24 @@ export function closeMenu() {
 /* ============================================================
    ローディング画面
    ============================================================ */
+const LOADING_TIPS = [
+  'Tキーで最も近い未発見の秘宝の方角がわかる。',
+  'Eキーでダッシュ、Spaceで2段ジャンプできる。',
+  'ジャストガードのタイミングでパリィすれば反撃のチャンス。',
+  'Bキーでミニマップの表示範囲を切り替えられる。',
+  'Mキーで大陸図を開き、クリックでファストトラベルできる。',
+  '拠点にはショップや鍛冶屋があり装備を強化できる。',
+  '夜になると出現する野生生物や現象もある。',
+  'ゲームパッドも対応しているので接続すればそのまま遊べる。',
+  '図鑑タブで発見したバイオームや撃破したボスを確認できる。',
+];
 export function setLoadingProgress(pct, text) {
   els.loadingBarFill.style.width = `${Math.round(pct * 100)}%`;
   if (text) els.loadingText.textContent = text;
+  const tipEl = document.getElementById('loading-tip');
+  if (tipEl && !tipEl.textContent) {
+    tipEl.textContent = `ヒント: ${LOADING_TIPS[Math.floor(Math.random() * LOADING_TIPS.length)]}`;
+  }
 }
 export function hideLoadingScreen() {
   els.loadingScreen.classList.add('hidden');
