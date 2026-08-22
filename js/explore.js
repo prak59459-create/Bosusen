@@ -32,6 +32,10 @@ let jumpVelY = 0;
 let isJumping = false;
 const GRAVITY = 32;
 const JUMP_SPEED = 11;
+let exploreStamina = 100;
+const STAMINA_MAX = 100;
+const STAMINA_DRAIN = 22;
+const STAMINA_REGEN = 14;
 
 const EXPLORE_FOG = { near: 260, far: 3200 };
 const BATTLE_FOG = { near: 34, far: 80 };
@@ -128,6 +132,7 @@ export function enterExploreMode(spawnLocal) {
   if (spawnLocal) localPos.copy(spawnLocal);
   jumpVelY = 0;
   isJumping = false;
+  exploreStamina = STAMINA_MAX;
   player.position.set(HUB_OFFSET.x + localPos.x, 0, HUB_OFFSET.z + localPos.z);
   player.rotation.y = facing + Math.PI;
   crossfadeTo('Idle', 0.2);
@@ -267,7 +272,19 @@ export function updateExplore(dt) {
 
   const len = Math.hypot(mx, mz);
   const moving = len > 0.08;
-  const speed = keys.sprint ? SPRINT_SPEED : WALK_SPEED;
+  const sprinting = keys.sprint && exploreStamina > 0.5 && moving;
+  const speed = sprinting ? SPRINT_SPEED : WALK_SPEED;
+  if (sprinting) {
+    exploreStamina = Math.max(0, exploreStamina - STAMINA_DRAIN * dt);
+  } else {
+    exploreStamina = Math.min(STAMINA_MAX, exploreStamina + STAMINA_REGEN * dt);
+  }
+  const staminaEl = document.getElementById('explore-stamina-fill');
+  if (staminaEl) {
+    const pct = (exploreStamina / STAMINA_MAX) * 100;
+    staminaEl.style.width = pct + '%';
+    staminaEl.classList.toggle('low', pct < 30);
+  }
   if (moving) {
     mx /= len; mz /= len;
     const moveAng = Math.atan2(mx, mz);
@@ -286,7 +303,7 @@ export function updateExplore(dt) {
     if (stepTimer <= 0) {
       sfx.footstep();
       spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.05, 0)), 0xcabf9a, 4);
-      stepTimer = keys.sprint ? 0.22 : 0.36;
+      stepTimer = sprinting ? 0.22 : 0.36;
     }
   } else {
     stepTimer = 0;
