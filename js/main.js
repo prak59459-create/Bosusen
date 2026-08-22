@@ -199,7 +199,11 @@ function drawRadar() {
   radarCtx.fillStyle = '#3d2f5c';
   radarCtx.font = 'bold 11px sans-serif';
   radarCtx.textAlign = 'center';
+  radarCtx.textBaseline = 'middle';
   radarCtx.fillText('N', cx, 12);
+  radarCtx.fillText('S', cx, h - 12);
+  radarCtx.fillText('E', w - 12, cy);
+  radarCtx.fillText('W', 12, cy);
 
   radarCtx.beginPath();
   radarCtx.moveTo(cx, cy - 6);
