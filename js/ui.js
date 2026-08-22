@@ -230,6 +230,11 @@ export function renderStatusTab() {
   document.getElementById('st-loginstreak').textContent = state.loginStreak || 0;
   document.getElementById('st-winstreak').textContent = state.bestWinStreak || 0;
   document.getElementById('st-distance').textContent = `${Math.round(state.totalDistanceTraveled || 0)}m`;
+  {
+    const totalSec = Math.round(state.totalPlaytimeSec || 0);
+    const h = Math.floor(totalSec / 3600), m = Math.floor((totalSec % 3600) / 60);
+    document.getElementById('st-playtime').textContent = h > 0 ? `${h}時間${m}分` : `${m}分`;
+  }
   document.getElementById('st-quests').textContent = `${totalQuestsDone()} / ${totalQuestsAll()}`;
   document.getElementById('st-biomes').textContent = `${(state.discoveredBiomes || []).length} / 35`;
   document.getElementById('st-fireflies').textContent = state.firefliesCaught || 0;

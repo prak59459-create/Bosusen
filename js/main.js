@@ -569,6 +569,7 @@ function animate() {
   const dt = Math.min(0.05, (now - lastTime) / 1000);
   lastTime = now;
   t += dt;
+  state.totalPlaytimeSec = (state.totalPlaytimeSec || 0) + dt;
 
   if (playerMixer) playerMixer.update(dt);
 
