@@ -193,6 +193,7 @@ function drawRadar() {
   hiddenTreasures.forEach(tr => { if (!state.foundTreasures.includes(tr.id)) dots.push({ x: tr.localPos.x, z: tr.localPos.z, color: '#ffd700' }); });
   questGivers.forEach(g => { if (!isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId)) dots.push({ x: g.localPos.x, z: g.localPos.z, color: '#ffd75e' }); });
   loreMarkers.forEach(m => { if (!isQuestDone(CHAPTERS[m.chapterIndex].key, m.questId)) dots.push({ x: m.localPos.x, z: m.localPos.z, color: '#b39ddb' }); });
+  explorePickups.forEach(p => { if (p.mesh.visible) dots.push({ x: p.localPos.x, z: p.localPos.z, color: '#8fd35f' }); });
   radarCtx.save();
   radarCtx.beginPath();
   radarCtx.arc(cx, cy, Math.min(w, h) / 2 - 2, 0, Math.PI * 2);
