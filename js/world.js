@@ -993,9 +993,17 @@ const fireflyDummy = new THREE.Object3D();
 export function updateFireflies(t) {
   for (let i = 0; i < FIREFLY_COUNT; i++) {
     const d = fireflyData[i];
+    if (d.caught && Date.now() - d.caughtAt < 20000) {
+      fireflyDummy.position.set(d.baseX, -1000, d.baseZ);
+      fireflyDummy.updateMatrix();
+      fireflyMesh.setMatrixAt(i, fireflyDummy.matrix);
+      continue;
+    }
+    if (d.caught) d.caught = false;
     const x = d.baseX + Math.cos(t * d.speed + d.phase) * d.radius;
     const z = d.baseZ + Math.sin(t * d.speed * 1.3 + d.phase) * d.radius;
     const y = d.baseY + Math.sin(t * d.speed * 2 + d.phase) * 0.6;
+    d.curX = x; d.curY = y; d.curZ = z;
     fireflyDummy.position.set(x, y, z);
     const s = 0.7 + Math.sin(t * 3 + d.phase) * 0.4;
     fireflyDummy.scale.setScalar(Math.max(0.2, s));
@@ -1003,6 +1011,19 @@ export function updateFireflies(t) {
     fireflyMesh.setMatrixAt(i, fireflyDummy.matrix);
   }
   fireflyMesh.instanceMatrix.needsUpdate = true;
+}
+export function collectNearbyFireflies(x, z, radius) {
+  let caught = 0;
+  for (let i = 0; i < FIREFLY_COUNT; i++) {
+    const d = fireflyData[i];
+    if (d.caught || d.curX == null) continue;
+    if (Math.hypot(d.curX - x, d.curZ - z) < radius) {
+      d.caught = true;
+      d.caughtAt = Date.now();
+      caught++;
+    }
+  }
+  return caught;
 }
 
 /* ---------- 空を旋回する鳥の群れ ---------- */

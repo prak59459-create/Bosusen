@@ -3,7 +3,7 @@ import { camera, scene, setCameraMode } from './scene.js';
 import { player, crossfadeTo } from './player.js';
 import { spawnParticles } from './effects.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
-  explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions } from './world.js';
+  explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions, collectNearbyFireflies } from './world.js';
 import { CHAPTERS } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
   fieldQuestState, acceptFieldQuest, saveGame, checkAchievements } from './state.js';
@@ -68,6 +68,7 @@ const camCurrentPos = new THREE.Vector3();
 const camLookTarget = new THREE.Vector3();
 let stepTimer = 0;
 let speedTrailTimer = 0;
+let fireflyCheckTimer = 0;
 let camInit = false;
 let objectiveTimer = 0;
 let jumpVelY = 0;
@@ -446,6 +447,18 @@ export function updateExplore(dt) {
   if (moving && !wasMoving) crossfadeTo('Walk', 0.15);
   if (!moving && wasMoving) crossfadeTo('Idle', 0.25);
   wasMoving = moving;
+
+  fireflyCheckTimer -= dt;
+  if (fireflyCheckTimer <= 0) {
+    fireflyCheckTimer = 0.3;
+    const caught = collectNearbyFireflies(localPos.x, localPos.z, 2.5);
+    if (caught > 0) {
+      addShards(caught * 2);
+      sfx.shardGet();
+      spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.2, 0)), 0xbdffa0, 6 * caught);
+      showToast(`蛍を捕まえた！ 結晶の欠片 +${caught * 2}`, 'quest');
+    }
+  }
 
   if (moving) {
     const name = biomeNameAt(localPos.x, localPos.z);
