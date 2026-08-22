@@ -534,6 +534,7 @@ els.retryBtn.addEventListener('click', () => {
 });
 
 els.ngPlusBtn.addEventListener('click', () => {
+  if (!window.confirm('周回プレイを開始します。クエスト進行状況と探索状況はリセットされますが、装備・スキル・実績・レベルは引き継がれます。よろしいですか？')) return;
   els.endScreen.style.display = 'none';
   state.newGamePlus = (state.newGamePlus || 0) + 1;
   Object.assign(state, {
