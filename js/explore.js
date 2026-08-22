@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { camera, scene, setCameraMode, renderer, setPhotoFilter } from './scene.js';
+import { camera, scene, setCameraMode, renderer, setPhotoFilter, setFovKick } from './scene.js';
 import { player, crossfadeTo } from './player.js';
 import { spawnParticles } from './effects.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
@@ -143,6 +143,7 @@ let sprintLock = false;
 let dashCooldown = 0;
 let dashTimer = 0;
 let dashTrailTimer = 0;
+let fovKickCur = 0;
 const EMOTES = [
   { label: '🎉 お祝い！', colors: [0xffd700, 0xff6a9f, 0x66eaff, 0x9fff7a] },
   { label: '👋 やあ！', colors: [0x66eaff, 0x9fe0ff] },
@@ -420,6 +421,8 @@ export function exitExploreMode() {
   exploreActive = false;
   stopAmbientWind();
   setCameraMode('battle');
+  fovKickCur = 0;
+  setFovKick(0);
   camera.far = 200;
   camera.updateProjectionMatrix();
   scene.fog.near = BATTLE_FOG.near;
@@ -589,6 +592,9 @@ export function updateExplore(dt) {
   }
   const sprinting = keys.sprint && exploreStamina > 0.5 && moving && !dashing;
   const speed = dashing ? DASH_SPEED : (sprinting ? SPRINT_SPEED : WALK_SPEED);
+  const targetFovKick = dashing ? 10 : (sprinting ? 5 : 0);
+  fovKickCur += (targetFovKick - fovKickCur) * Math.min(1, dt * 6);
+  setFovKick(fovKickCur);
   if (sprinting) {
     exploreStamina = Math.max(0, exploreStamina - STAMINA_DRAIN * dt);
   } else {

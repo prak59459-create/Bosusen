@@ -185,13 +185,21 @@ export function addOutline(root, colorHex = 0x0c0a16, thickness = 0.02) {
 const BASE_FOV = 48;
 const BASE_ASPECT = 16 / 9;
 const BASE_HALF_HFOV = Math.atan(Math.tan(THREE.MathUtils.degToRad(BASE_FOV) / 2) * BASE_ASPECT);
+let baseFov = BASE_FOV;
+let fovKick = 0;
+export function setFovKick(amount) {
+  fovKick = amount;
+  camera.fov = baseFov + fovKick;
+  camera.updateProjectionMatrix();
+}
 export function fitCameraToViewport() {
   const w = window.innerWidth, h = window.innerHeight;
   const aspect = w / h;
   camera.aspect = aspect;
   let vFov = THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(BASE_HALF_HFOV) / aspect));
   vFov = THREE.MathUtils.clamp(vFov, BASE_FOV, 100);
-  camera.fov = vFov;
+  baseFov = vFov;
+  camera.fov = vFov + fovKick;
   const portraitFactor = aspect < 1 ? THREE.MathUtils.clamp(1 / aspect, 1, 2.1) : 1;
   const dist = camBase.length() * (1 + (portraitFactor - 1) * 0.22);
   const dir = camBase.clone().normalize();
