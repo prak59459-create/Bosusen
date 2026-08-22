@@ -347,3 +347,46 @@ export function worldToLocal(pos) {
 export function localToWorld(pos) {
   return pos.clone().add(HUB_OFFSET);
 }
+
+/* ---------- 蛍・妖精火：探索エリアを漂う環境パーティクル ---------- */
+const FIREFLY_COUNT = 220;
+const fireflyGeo = new THREE.SphereGeometry(0.12, 6, 6);
+const fireflyMat = new THREE.MeshBasicMaterial({ color: 0xbdffa0, transparent: true, opacity: 0.9 });
+const fireflyMesh = new THREE.InstancedMesh(fireflyGeo, fireflyMat, FIREFLY_COUNT);
+const fireflyData = [];
+{
+  const dummy = new THREE.Object3D();
+  for (let i = 0; i < FIREFLY_COUNT; i++) {
+    const r = Math.random() * WORLD_RADIUS * 0.9;
+    const ang = Math.random() * Math.PI * 2;
+    const baseX = Math.cos(ang) * r, baseZ = Math.sin(ang) * r;
+    fireflyData.push({
+      baseX, baseZ,
+      baseY: 1.2 + Math.random() * 2.2,
+      speed: 0.4 + Math.random() * 0.8,
+      radius: 1 + Math.random() * 2.5,
+      phase: Math.random() * Math.PI * 2,
+    });
+    dummy.position.set(baseX, fireflyData[i].baseY, baseZ);
+    dummy.updateMatrix();
+    fireflyMesh.setMatrixAt(i, dummy.matrix);
+  }
+}
+fireflyMesh.instanceMatrix.needsUpdate = true;
+worldGroup.add(fireflyMesh);
+
+const fireflyDummy = new THREE.Object3D();
+export function updateFireflies(t) {
+  for (let i = 0; i < FIREFLY_COUNT; i++) {
+    const d = fireflyData[i];
+    const x = d.baseX + Math.cos(t * d.speed + d.phase) * d.radius;
+    const z = d.baseZ + Math.sin(t * d.speed * 1.3 + d.phase) * d.radius;
+    const y = d.baseY + Math.sin(t * d.speed * 2 + d.phase) * 0.6;
+    fireflyDummy.position.set(x, y, z);
+    const s = 0.7 + Math.sin(t * 3 + d.phase) * 0.4;
+    fireflyDummy.scale.setScalar(Math.max(0.2, s));
+    fireflyDummy.updateMatrix();
+    fireflyMesh.setMatrixAt(i, fireflyDummy.matrix);
+  }
+  fireflyMesh.instanceMatrix.needsUpdate = true;
+}
