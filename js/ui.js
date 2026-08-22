@@ -277,6 +277,7 @@ export function renderStatusTab() {
       parry_master: [state.totalParries || 0, 30],
       quest_complete: [totalQuestsDone(), totalQuestsAll()],
       veteran_hunter: [Math.max(0, ...Object.values(state.chapterClearCounts || {}), 0), 5],
+      dedicated_player: [Math.round(state.totalPlaytimeSec || 0), 3600],
     };
     let achOrder = ACHIEVEMENTS;
     if (achSortByProgress) {
