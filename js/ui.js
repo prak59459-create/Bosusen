@@ -132,7 +132,7 @@ export function updateBars() {
   const bossHpPct = Math.max(0, state.bossHP / state.bossMaxHP * 100);
   els.bossHPFill.style.width = bossHpPct + '%';
   els.bossHPFill.classList.toggle('critical', bossHpPct > 0 && bossHpPct <= 20);
-  els.bossHPText.textContent = `${Math.max(0, Math.round(state.bossHP))}/${state.bossMaxHP}`;
+  els.bossHPText.textContent = `${Math.max(0, Math.round(state.bossHP))}/${state.bossMaxHP}（${Math.max(0, Math.round(bossHpPct))}%）`;
   const phaseMarkerEl = document.getElementById('boss-phase-marker');
   if (phaseMarkerEl) phaseMarkerEl.classList.toggle('hide', !!state.phase2);
   els.healCount.textContent = state.healUses;
