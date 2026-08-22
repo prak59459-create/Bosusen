@@ -347,7 +347,7 @@ function openMap() {
   const summaryEl = document.getElementById('map-summary');
   if (summaryEl) {
     const clearedZones = zoneMarkers.filter(z => z.chapterIndex < state.chapterIndex).length;
-    summaryEl.textContent = `聖域制覇: ${clearedZones}/${zoneMarkers.length}｜クエスト: ${totalQuestsDone()}/${totalQuestsAll()}｜秘宝: ${state.foundTreasures.length}/${hiddenTreasures.length}`;
+    summaryEl.textContent = `聖域制覇: ${clearedZones}/${zoneMarkers.length}｜クエスト: ${totalQuestsDone()}/${totalQuestsAll()}｜秘宝: ${state.foundTreasures.length}/${hiddenTreasures.length}｜バイオーム: ${(state.discoveredBiomes || []).length}/35`;
   }
   mapScreen.style.display = 'flex';
   setMapOpen(true);
