@@ -160,6 +160,16 @@ function renderShop() {
   shopShardsEl.textContent = `所持している結晶の欠片: ${state.shards}`;
 }
 
+const pinnedAchievementBadgeEl = document.getElementById('pinned-achievement-badge');
+if (pinnedAchievementBadgeEl) {
+  pinnedAchievementBadgeEl.style.cursor = 'pointer';
+  pinnedAchievementBadgeEl.addEventListener('click', () => {
+    if (!state.playing) return;
+    openMenu();
+    document.querySelector('.menu-tab[data-tab="status"]')?.click();
+  });
+}
+
 const rumbleTestBtn = document.getElementById('rumble-test-btn');
 if (rumbleTestBtn) {
   rumbleTestBtn.addEventListener('click', (e) => {
