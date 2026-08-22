@@ -188,7 +188,8 @@ export function renderQuestTracker() {
   remaining.forEach(q => {
     const row = document.createElement('div');
     row.className = 'quest-tracker-row';
-    row.textContent = `・${q.title}`;
+    const typeIcon = q.type === 'battle' ? '⚔️' : (q.type === 'lore' ? '📜' : '🔍');
+    row.textContent = `${typeIcon} ${q.title}`;
     els.questTrackerList.appendChild(row);
   });
 }
