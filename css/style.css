@@ -334,41 +334,17 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 #mute-btn.muted {
   background:rgba(200,200,200,0.8); border-color:rgba(140,140,140,0.5);
 }
-#jump-btn {
-  position:absolute; right: max(18px, env(safe-area-inset-right));
-  bottom: max(214px, env(safe-area-inset-bottom) + 186px);
+#jump-btn, #dash-btn, #emote-btn, #screenshot-btn, #hub-return-btn {
+  position:absolute; right: max(80px, env(safe-area-inset-right) + 62px);
   width:52px; height:52px; border-radius:50%; font-size:22px;
   background:rgba(230,220,250,0.8); border:2px solid rgba(180,140,255,0.4); color:#2a1f3d;
   pointer-events:auto; cursor:pointer; display:none;
 }
-#dash-btn {
-  position:absolute; right: max(18px, env(safe-area-inset-right));
-  bottom: max(276px, env(safe-area-inset-bottom) + 248px);
-  width:52px; height:52px; border-radius:50%; font-size:22px;
-  background:rgba(230,220,250,0.8); border:2px solid rgba(180,140,255,0.4); color:#2a1f3d;
-  pointer-events:auto; cursor:pointer; display:none;
-}
-#emote-btn {
-  position:absolute; right: max(18px, env(safe-area-inset-right));
-  bottom: max(338px, env(safe-area-inset-bottom) + 310px);
-  width:52px; height:52px; border-radius:50%; font-size:22px;
-  background:rgba(230,220,250,0.8); border:2px solid rgba(180,140,255,0.4); color:#2a1f3d;
-  pointer-events:auto; cursor:pointer; display:none;
-}
-#screenshot-btn {
-  position:absolute; right: max(18px, env(safe-area-inset-right));
-  bottom: max(400px, env(safe-area-inset-bottom) + 372px);
-  width:52px; height:52px; border-radius:50%; font-size:22px;
-  background:rgba(230,220,250,0.8); border:2px solid rgba(180,140,255,0.4); color:#2a1f3d;
-  pointer-events:auto; cursor:pointer; display:none;
-}
-#hub-return-btn {
-  position:absolute; right: max(18px, env(safe-area-inset-right));
-  bottom: max(462px, env(safe-area-inset-bottom) + 434px);
-  width:52px; height:52px; border-radius:50%; font-size:22px;
-  background:rgba(230,220,250,0.8); border:2px solid rgba(180,140,255,0.4); color:#2a1f3d;
-  pointer-events:auto; cursor:pointer; display:none;
-}
+#jump-btn { bottom: max(28px, env(safe-area-inset-bottom)); }
+#dash-btn { bottom: max(90px, env(safe-area-inset-bottom) + 62px); }
+#emote-btn { bottom: max(152px, env(safe-area-inset-bottom) + 124px); }
+#screenshot-btn { bottom: max(214px, env(safe-area-inset-bottom) + 186px); }
+#hub-return-btn { bottom: max(276px, env(safe-area-inset-bottom) + 248px); }
 @media (pointer: coarse) {
   #jump-btn, #dash-btn, #emote-btn, #screenshot-btn, #hub-return-btn { display:flex; align-items:center; justify-content:center; }
 }
