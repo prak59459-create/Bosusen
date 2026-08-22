@@ -672,7 +672,8 @@ function animate() {
       const debugEl = document.getElementById('debug-overlay');
       if (debugEl) {
         const p = exploreActive ? getPlayerLocalPos() : { x: 0, z: 0 };
-        debugEl.textContent = `FPS: ${fps}\n位置: x=${p.x.toFixed(1)} z=${p.z.toFixed(1)}\n経過時間: ${Math.round(t)}s`;
+        const bName = exploreActive ? (biomeNameAt(p.x, p.z) || '-') : '-';
+        debugEl.textContent = `FPS: ${fps}\n位置: x=${p.x.toFixed(1)} z=${p.z.toFixed(1)}\nバイオーム: ${bName}\n章: ${state.chapterIndex + 1}｜NG+${state.newGamePlus || 0}\n経過時間: ${Math.round(t)}s`;
       }
     }
   }
