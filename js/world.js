@@ -15,6 +15,16 @@ const ZONE_DIST = WORLD_RADIUS * 0.15; // ハブから各聖域まで約1,800m
 const FIELD_TARGET_DIST = 450; // 聖域からさらに数百m先に討伐目標を配置
 
 export const worldGroup = new THREE.Group();
+const guideBeams = [];
+function registerBeam(mat, baseOpacity) {
+  guideBeams.push({ mat, baseOpacity, phase: Math.random() * Math.PI * 2 });
+}
+export function updateGuideBeams(t) {
+  for (let i = 0; i < guideBeams.length; i++) {
+    const b = guideBeams[i];
+    b.mat.opacity = b.baseOpacity * (0.7 + 0.3 * Math.sin(t * 1.5 + b.phase));
+  }
+}
 worldGroup.position.copy(HUB_OFFSET);
 scene.add(worldGroup);
 
@@ -847,6 +857,7 @@ CHAPTERS.forEach((chapter, i) => {
     const npcBeam = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.06, 30, 8, 1, true), npcBeamMat);
     npcBeam.position.set(npcPos.x, 15, npcPos.z);
     worldGroup.add(npcBeam);
+    registerBeam(npcBeamMat, 0.2);
 
     // ---- 討伐目標（聖域からさらに数百m先）----
     const targetAng = zoneAngle(i) + (Math.random() - 0.5) * 0.6;
@@ -870,6 +881,7 @@ CHAPTERS.forEach((chapter, i) => {
     const targetBeam = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.08, 70, 8, 1, true), targetBeamMat);
     targetBeam.position.set(targetLocal.x, 35, targetLocal.z);
     worldGroup.add(targetBeam);
+    registerBeam(targetBeamMat, 0.22);
 
     questGivers.push({
       chapterIndex: i,
@@ -915,6 +927,7 @@ CHAPTERS.forEach((chapter, i) => {
     const pickupBeam = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.05, 25, 8, 1, true), pickupBeamMat);
     pickupBeam.position.set(pickupLocal.x, 12.5, pickupLocal.z);
     worldGroup.add(pickupBeam);
+    registerBeam(pickupBeamMat, 0.2);
     explorePickups.push({ chapterIndex: i, questId: exploreQuest.id, quest: exploreQuest, localPos: pickupLocal, mesh: pickupMesh, radius: 3, beam: pickupBeam });
   }
 
@@ -938,6 +951,7 @@ CHAPTERS.forEach((chapter, i) => {
     const monuBeam = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.05, 25, 8, 1, true), monuBeamMat);
     monuBeam.position.set(loreLocal.x, 12.5, loreLocal.z);
     worldGroup.add(monuBeam);
+    registerBeam(monuBeamMat, 0.2);
     loreMarkers.push({ chapterIndex: i, questId: loreQuest.id, quest: loreQuest, localPos: loreLocal, mesh: monuMesh, radius: 3, beam: monuBeam });
   }
 
@@ -960,6 +974,7 @@ CHAPTERS.forEach((chapter, i) => {
     const beamMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.06, 60, 8, 1, true), beamMat);
     beamMesh.position.set(tLocal.x, 30, tLocal.z);
     worldGroup.add(beamMesh);
+    registerBeam(beamMat, 0.28);
     hiddenTreasures.push({ id: treasureId, chapterIndex: i, localPos: tLocal, mesh: tMesh, light: tLight, beam: beamMesh, radius: 3, shardReward: 15 + i * 5 });
   }
 });
