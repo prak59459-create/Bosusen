@@ -369,7 +369,9 @@ function startDodgeQTE(move) {
   els.dodgeRingWrap.classList.remove('just-zone');
   document.getElementById('dodge-label').textContent = '今だ！クリックでガード！';
   const stats = computeStats();
-  const window_ = move.dodgeWindow * (1 + stats.dodgeWindowPct);
+  // アクセシビリティ設定でガード受付時間を延長できる（難易度とは独立）
+  const assist = state.guardWindowAssist ? 1.5 : 1;
+  const window_ = move.dodgeWindow * (1 + stats.dodgeWindowPct) * assist;
   const circumference = 389.6;
   els.dodgeCircle.setAttribute('stroke-dashoffset', '0');
   const t0 = performance.now();

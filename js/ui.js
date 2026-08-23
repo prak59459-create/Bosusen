@@ -1177,6 +1177,8 @@ export function syncSettingsUI() {
   if (autoQualityCheckbox) autoQualityCheckbox.checked = state.autoQualityAdjust !== false;
   const damageNumbersCheckbox = document.getElementById('opt-damage-numbers');
   if (damageNumbersCheckbox) damageNumbersCheckbox.checked = state.showDamageNumbers !== false;
+  const guardAssistCheckbox = document.getElementById('opt-guard-assist');
+  if (guardAssistCheckbox) guardAssistCheckbox.checked = state.guardWindowAssist === true;
   const photoFilterSelect = document.getElementById('opt-photo-filter');
   if (photoFilterSelect) {
     if (photoFilterSelect.options.length !== PHOTO_FILTERS.length) {
@@ -1410,6 +1412,14 @@ export function initMenu(onSave, onTitle) {
     saveGame();
   });
 
+  const guardAssistCheckbox = document.getElementById('opt-guard-assist');
+  guardAssistCheckbox.checked = state.guardWindowAssist === true;
+  guardAssistCheckbox.addEventListener('change', () => {
+    state.guardWindowAssist = guardAssistCheckbox.checked;
+    sfx.uiClick();
+    saveGame();
+  });
+
   const autoQualityCheckbox = document.getElementById('opt-auto-quality');
   autoQualityCheckbox.checked = state.autoQualityAdjust !== false;
   autoQualityCheckbox.addEventListener('change', () => {
@@ -1609,7 +1619,7 @@ export function initMenu(onSave, onTitle) {
   });
   document.getElementById('reset-settings-btn').addEventListener('click', () => {
     Object.assign(state, {
-      masterVolume: 0.7, ambientVolume: 1, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1, invertCameraY: false, cameraSensitivity: 1, highContrast: false, reduceNpcChatter: false, proximitySounds: true, screenshotWatermark: true, cinematicAutoHide: false, footstepSounds: true, rumbleStrength: 1, autoQualityAdjust: true, radarZoomIdx: 1, showDamageNumbers: true,
+      masterVolume: 0.7, ambientVolume: 1, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1, invertCameraY: false, cameraSensitivity: 1, highContrast: false, reduceNpcChatter: false, proximitySounds: true, screenshotWatermark: true, cinematicAutoHide: false, footstepSounds: true, rumbleStrength: 1, autoQualityAdjust: true, radarZoomIdx: 1, showDamageNumbers: true, guardWindowAssist: false,
     });
     setMasterVolume(state.masterVolume);
     setQualityPreset(state.quality);
