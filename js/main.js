@@ -1077,6 +1077,20 @@ function animate() {
   t += dt;
   state.totalPlaytimeSec = (state.totalPlaytimeSec || 0) + dt;
 
+  {
+    // 連戦モードの進行と経過時間（戦闘中は常に見えるようにする）
+    const gEl = document.getElementById('gauntlet-hud');
+    if (gEl) {
+      if (state.gauntlet) {
+        const sec = (Date.now() - state.gauntlet.startedAt) / 1000;
+        gEl.textContent = `⚔ 連戦 ${state.gauntlet.index + 1}/${CHAPTERS.length} ・ ${sec.toFixed(1)}秒`;
+        gEl.style.display = '';
+      } else if (gEl.style.display !== 'none') {
+        gEl.style.display = 'none';
+      }
+    }
+  }
+
   if (debugOverlayVisible) {
     fpsAccum += dt; fpsFrames++;
     if (now - fpsLastUpdate > 500) {

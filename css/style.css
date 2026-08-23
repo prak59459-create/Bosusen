@@ -384,6 +384,14 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   background:rgba(255,255,255,0.75); border:1px solid rgba(212,168,74,0.45);
   border-radius:14px; padding:5px 12px; font-size:12px; font-weight:bold; color:#7a5a12;
 }
+/* 連戦モードの進行表示 */
+#gauntlet-hud {
+  position:absolute; top: max(12px, env(safe-area-inset-top)); left:50%;
+  transform:translateX(-50%);
+  background:rgba(60,45,90,0.82); color:#ffe27a; border:1px solid rgba(255,215,94,0.5);
+  border-radius:14px; padding:5px 16px; font-size:13px; font-weight:bold;
+  pointer-events:none; z-index:60;
+}
 /* 戦闘中の状態異常表示 */
 #player-statuses { display:flex; gap:6px; margin-top:2px; }
 #player-statuses span {
