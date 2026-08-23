@@ -525,6 +525,7 @@ mapCanvas.addEventListener('pointermove', (e) => {
   }
 });
 mapCanvas.addEventListener('pointerup', () => { mapDragging = false; });
+window.addEventListener('blur', () => { mapDragging = false; });
 mapCanvas.addEventListener('click', (e) => {
   if (!exploreActive) return;
   if (mapDragMoved) return;
