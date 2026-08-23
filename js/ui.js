@@ -297,7 +297,8 @@ export function renderQuestTracker() {
   els.questTracker.style.display = 'block';
   const titleEl = document.getElementById('quest-tracker-title');
   if (titleEl) {
-    titleEl.textContent = `目標 ${state.questTrackerCollapsed ? '▸' : '▾'}`;
+    const doneCount = chapter.quests.length - remaining.length;
+    titleEl.textContent = `目標 ${doneCount}/${chapter.quests.length} ${state.questTrackerCollapsed ? '▸' : '▾'}`;
     if (!titleEl.dataset.bound) {
       titleEl.dataset.bound = '1';
       titleEl.addEventListener('click', () => {
