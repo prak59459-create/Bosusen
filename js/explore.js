@@ -209,6 +209,7 @@ function playEmote(idx) {
   if (!state.emotesUsedSet.includes(idx)) {
     state.emotesUsedSet.push(idx);
     checkAchievements().forEach(a => { sfx.achievement(); showCenterMsg(`実績解除: ${a.name}`, '#ffd700', 2000); });
+    saveGame();
   }
 }
 let staminaWasEmpty = false;
@@ -445,6 +446,7 @@ function takeScreenshot() {
         }
         state.screenshotsTaken = (state.screenshotsTaken || 0) + 1;
         checkAchievements().forEach(a => { sfx.achievement(); showCenterMsg(`実績解除: ${a.name}`, '#ffd700', 2000); });
+        saveGame();
         const flashEl = document.getElementById('lightning-flash');
         if (flashEl && !state.reduceFlashing) {
           flashEl.classList.add('flash');
