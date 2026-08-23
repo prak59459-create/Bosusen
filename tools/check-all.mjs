@@ -8,6 +8,7 @@
  * 2. 相対 import が実在する export を指しているか
  * 3. state の既定値・保存・復元の対応漏れ
  * 4. 実績の定義・解除判定・進捗バーの対応
+ * 5. 章・装備・スキル・ショップなどデータ間の参照整合性
  *
  * バンドラもテストランナーも使わない構成なので、変更後にこれを通すことで
  * 「実行して該当画面に行くまで気づけない」種類の壊れ方を早期に検出する。
@@ -60,6 +61,9 @@ run('セーブ項目の対応', process.execPath, ['tools/check-save-fields.mjs'
 
 // 4. 実績の配線
 run('実績の配線', process.execPath, ['tools/check-achievements.mjs']);
+
+// 5. ゲームデータの整合性
+run('ゲームデータの整合性', process.execPath, ['tools/check-data.mjs']);
 
 console.log('');
 if (failures.length > 0) {
