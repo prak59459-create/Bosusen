@@ -78,6 +78,7 @@ function attack() {
   const retaliation = Math.round(4 + Math.random() * 6);
   const reduced = Math.max(1, Math.round(retaliation * (100 / (100 + stats.def))));
   state.playerHP = Math.max(1, state.playerHP - reduced);
+  rumble(0.3, 150);
   updateBars();
   els.log.textContent = `${dmg}のダメージを与えた！${crit ? '（クリティカル！）' : ''} 反撃で${reduced}のダメージを受けた`;
 }
