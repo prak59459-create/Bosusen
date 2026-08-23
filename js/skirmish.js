@@ -48,8 +48,9 @@ export function startSkirmish(target) {
 }
 
 function updateEnemyBar() {
-  els.hpFill.style.width = `${Math.max(0, enemyHP / enemyMaxHP * 100)}%`;
-  els.hpText.textContent = `${Math.max(0, Math.round(enemyHP))}/${enemyMaxHP}`;
+  const pct = Math.max(0, enemyHP / enemyMaxHP * 100);
+  els.hpFill.style.width = `${pct}%`;
+  els.hpText.textContent = `${Math.max(0, Math.round(enemyHP))}/${enemyMaxHP}（${Math.round(pct)}%）`;
 }
 
 function attack() {
