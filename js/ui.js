@@ -398,6 +398,8 @@ export function initMenu(onSave, onTitle) {
 
 let menuPausedPlaying = false;
 export function openMenu() {
+  const hudEl = document.getElementById('explore-hud');
+  if (hudEl) hudEl.classList.remove('cinematic-fade');
   refreshAllMenuTabs();
   els.menuOverlay.classList.add('open');
   sfx.menuOpen();
