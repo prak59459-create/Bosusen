@@ -913,17 +913,32 @@ export function renderCompendiumTab() {
   if (loreList) {
     loreList.innerHTML = '';
     const lore = state.collectedLore || [];
-    if (loreProgress) loreProgress.textContent = `${lore.length}`;
-    if (lore.length === 0) {
+    // 周回で同じ石碑を読み直すと配列に重複が積まれるため、表示は種類ごとにまとめる。
+    // （実績「伝承の語り部」は累計読了数で判定するので配列自体はそのまま残す）
+    const uniqueLore = [];
+    const seenTitles = new Map();
+    lore.forEach(entry => {
+      const known = seenTitles.get(entry.title);
+      if (known) { known.count++; return; }
+      const row = { ...entry, count: 1 };
+      seenTitles.set(entry.title, row);
+      uniqueLore.push(row);
+    });
+    if (loreProgress) {
+      loreProgress.textContent = lore.length > uniqueLore.length
+        ? `${uniqueLore.length}種類（累計 ${lore.length}）`
+        : `${uniqueLore.length}`;
+    }
+    if (uniqueLore.length === 0) {
       loreList.innerHTML = '<div class="empty-hint">まだ伝承の石碑を発見していません。</div>';
     } else {
-      lore.forEach(entry => {
+      uniqueLore.forEach(entry => {
         const row = document.createElement('div');
         row.className = 'item-row equipped';
         const dateStr = entry.foundAt ? new Date(entry.foundAt).toLocaleDateString('ja-JP') : '';
         row.innerHTML = `
           <div class="item-row-main">
-            <div class="item-row-name">${entry.title}</div>
+            <div class="item-row-name">${entry.title}${entry.count > 1 ? `<span class="item-slot-tag">読了 ${entry.count}回</span>` : ''}</div>
             <div class="item-row-desc">${entry.text}</div>
             ${dateStr ? `<div class="item-row-desc">発見日: ${dateStr}</div>` : ''}
           </div>
