@@ -324,7 +324,14 @@ function finishGame(won) {
   if (won && state.turns > 0 && state.turns <= 5) bonusTags.push('⚡瞬速撃破');
   if (won && state.damageTaken === 0) bonusTags.push('🛡️無傷');
   if (!won && state.lossStreak >= 2) bonusTags.push(`😓 ${state.lossStreak}連敗中`);
-  els.endStats.textContent = `経過ターン数: ${state.turns} / 被ダメージ合計: ${Math.round(state.damageTaken)} / 最大コンボ: ${state.maxCombo || 0} / 習得スキル: ${state.unlockedSkills.length}${bonusTags.length ? ' ｜ ' + bonusTags.join(' ') : ''}`;
+  // 自己ベストを併記して、再挑戦で何を超えればよいか分かるようにする
+  const bestTurnsForChapter = (state.bestTurnsPerChapter || {})[chapter.key];
+  const bestRankForChapter = (state.bestRankPerChapter || {})[chapter.key];
+  const bestParts = [];
+  if (bestTurnsForChapter) bestParts.push(`最速 ${bestTurnsForChapter}ターン`);
+  if (bestRankForChapter) bestParts.push(`最高評価 ${bestRankForChapter}`);
+  const bestNote = bestParts.length ? ` ｜ 自己ベスト: ${bestParts.join(' / ')}` : '';
+  els.endStats.textContent = `経過ターン数: ${state.turns} / 被ダメージ合計: ${Math.round(state.damageTaken)} / 最大コンボ: ${state.maxCombo || 0} / 習得スキル: ${state.unlockedSkills.length}${bonusTags.length ? ' ｜ ' + bonusTags.join(' ') : ''}${bestNote}`;
   els.endScreen.style.display = 'flex';
 }
 
