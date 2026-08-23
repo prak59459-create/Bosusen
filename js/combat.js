@@ -70,8 +70,14 @@ export // 技の抽選。技数と重み定義の数がずれても破綻しな�
 //   undefined になり、常に先頭の技しか出ないという静かな不具合になっていた）
 const PHASE1_WEIGHTS = [0.4, 0.4, 0.2];
 const PHASE2_WEIGHTS = [0.35, 0.35, 0.3];
-function pickWeightedMove(pool, weights) {
-  const w = pool.map((_, i) => (typeof weights[i] === 'number' ? weights[i] : 1 / pool.length));
+// 見切られた技は出しにくくする係数。読み合いが一方通行にならないよう、
+// プレイヤーが特定の技を凌ぎ続けると、ボスは別の技を選ぶようになる。
+const MASTERED_WEIGHT_MULT = 0.45;
+function pickWeightedMove(pool, weights, chapterKey = null) {
+  const w = pool.map((_, i) => {
+    const base = typeof weights[i] === 'number' ? weights[i] : 1 / pool.length;
+    return chapterKey && isMoveMastered(chapterKey, pool[i].name) ? base * MASTERED_WEIGHT_MULT : base;
+  });
   const total = w.reduce((a, b) => a + b, 0);
   if (!(total > 0)) return pool[Math.floor(Math.random() * pool.length)];
   let r = Math.random() * total;
@@ -366,7 +372,12 @@ export function bossTurn() {
   const chapter = CHAPTERS[state.chapterIndex];
   const pool = (state.phase2 ? chapter.movesPhase2 : chapter.movesPhase1) || [];
   if (pool.length === 0) return;
-  const move = pickWeightedMove(pool, state.phase2 ? PHASE2_WEIGHTS : PHASE1_WEIGHTS);
+  const move = pickWeightedMove(pool, state.phase2 ? PHASE2_WEIGHTS : PHASE1_WEIGHTS, chapter.key);
+  // 手の内を読まれたことに気づく演出は、戦闘ごとに一度だけ
+  if (!state.bossAdaptedNoted && pool.some(m => isMoveMastered(chapter.key, m.name))) {
+    state.bossAdaptedNoted = true;
+    log(`${chapter.enemyName}はあなたの動きを警戒し、手を変えてきた。`);
+  }
 
   els.telegraphName.textContent = move.hits > 1 ? `⚠ ${move.name}（${move.hits}連撃）⚠` : `⚠ ${move.name} ⚠`;
   // 何度も凌いだ技は「見切り済み」として提示する（観察が積み上がる手応え）
@@ -750,6 +761,7 @@ export function setupChapterBattle(chapterIndex) {
     focused: false,
     statuses: {},
     bossLowHpWarned: false,
+    bossAdaptedNoted: false,
     guardUsedThisBattle: false,
     skillUsedThisBattle: false,
   });

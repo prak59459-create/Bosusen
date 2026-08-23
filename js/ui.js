@@ -1897,6 +1897,7 @@ const LOADING_TIPS = [
   '設定でFPS低下時のグラフィック品質自動調整をON/OFFできる。',
   '同じ技を3回凌ぐと「見切り済み」になり、以後その技のガード受付が少し延びる。',
   '連撃の技は一撃ごとにガード判定がある。すべて凌げば無傷で切り抜けられる。',
+  '同じ技を見切り続けると、ボスはその技を出しにくくなり別の手で攻めてくる。',
 ];
 let loadingTipTimer = null;
 export function setLoadingProgress(pct, text) {

@@ -32,6 +32,8 @@ export const state = {
   damageTaken: 0,
   skillCooldown: 0,
   usedRevive: false,
+  // 手の内を読まれた演出を戦闘ごとに一度だけ出すための印
+  bossAdaptedNoted: false,
   // 「集中」で次の攻撃が強化されている状態（戦闘中のみ）
   focused: false,
   // 状態異常 { poison: 残りターン数, ... }（戦闘中のみ）
