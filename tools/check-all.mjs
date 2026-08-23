@@ -10,6 +10,7 @@
  * 4. 実績の定義・解除判定・進捗バーの対応
  * 5. 章・装備・スキル・ショップなどデータ間の参照整合性
  * 6. 設定項目が「設定を初期値に戻す」の対象に入っているか
+ * 7. state の主要ロジックを実際に動かしての振る舞い検査
  *
  * バンドラもテストランナーも使わない構成なので、変更後にこれを通すことで
  * 「実行して該当画面に行くまで気づけない」種類の壊れ方を早期に検出する。
@@ -68,6 +69,9 @@ run('ゲームデータの整合性', process.execPath, ['tools/check-data.mjs']
 
 // 6. 設定リセットの網羅
 run('設定リセットの網羅', process.execPath, ['tools/check-settings-reset.mjs']);
+
+// 7. state の振る舞い
+run('state の振る舞い', process.execPath, ['tools/check-runtime.mjs']);
 
 console.log('');
 if (failures.length > 0) {

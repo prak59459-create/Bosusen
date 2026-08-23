@@ -1,0 +1,172 @@
+#!/usr/bin/env node
+/**
+ * state.js の主要なロジックを実際に動かして検査する。
+ *
+ *   node tools/check-runtime.mjs
+ *
+ * これまでの検査はすべて静的な突き合わせで、
+ * 「セーブして読み直すと値が変わる」「強化の計算が合わない」といった
+ * 振る舞いの誤りは拾えなかった。state.js は three に依存しないため、
+ * localStorage だけ用意すれば Node 上でそのまま動かせる。
+ */
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+
+// localStorage の最小実装（state.js が使うのは get/set/remove のみ）
+const store = new Map();
+globalThis.localStorage = {
+  getItem: k => (store.has(k) ? store.get(k) : null),
+  setItem: (k, v) => store.set(k, String(v)),
+  removeItem: k => store.delete(k),
+};
+
+const S = await import(join(root, 'js', 'state.js'));
+const { CHAPTERS, ITEMS, WEATHERS } = await import(join(root, 'js', 'data.js'));
+const { state } = S;
+
+const problems = [];
+let checks = 0;
+function check(label, cond) {
+  checks++;
+  if (!cond) problems.push(label);
+}
+
+// --- セーブ/ロードの往復 ---
+{
+  state.shards = 1234;
+  state.spiritsCaught = 7;
+  state.itemLevels = { sword_rusty: 3 };
+  state.moveStats = { 'castle|錆びた斬撃': { seen: 5, avoided: 2 } };
+  state.seenWeathers = ['clear', 'rain'];
+  state.gatherDone = 4;
+  S.saveGame();
+
+  state.shards = 0;
+  state.spiritsCaught = 0;
+  state.itemLevels = {};
+  state.moveStats = {};
+  state.seenWeathers = [];
+  state.gatherDone = 0;
+  S.loadGame();
+
+  check('セーブ/ロード: shards が復元されない', state.shards === 1234);
+  check('セーブ/ロード: spiritsCaught が復元されない', state.spiritsCaught === 7);
+  check('セーブ/ロード: itemLevels が復元されない', state.itemLevels.sword_rusty === 3);
+  check('セーブ/ロード: moveStats が復元されない', S.moveStat('castle', '錆びた斬撃').avoided === 2);
+  check('セーブ/ロード: seenWeathers が復元されない', state.seenWeathers.length === 2);
+  check('セーブ/ロード: gatherDone が復元されない', state.gatherDone === 4);
+}
+
+// --- 進行度の巻き戻り防止（再挑戦・連戦中は復帰先を進行度として書き出す） ---
+{
+  state.chapterIndex = 4;
+  state.replayReturnChapter = 4;
+  state.chapterIndex = 0; // 再挑戦で書き換わった状態
+  S.saveGame();
+  state.replayReturnChapter = null;
+  S.loadGame();
+  check('再挑戦中のセーブで進行度が巻き戻る', state.chapterIndex === 4);
+}
+
+// --- 装備の強化 ---
+{
+  state.shards = 10000;
+  state.inventory = ['sword_rusty'];
+  state.itemLevels = {};
+  const base = ITEMS.sword_rusty.atk;
+  check('強化前は元の性能のまま', S.effectiveItem('sword_rusty').atk === base);
+  let spent = 0;
+  for (let i = 0; i < S.MAX_ITEM_LEVEL; i++) {
+    const cost = S.itemUpgradeCost('sword_rusty');
+    check(`強化 ${i + 1} 段階目の費用が取得できない`, typeof cost === 'number');
+    spent += cost;
+    check(`強化 ${i + 1} 段階目が実行できない`, S.upgradeItem('sword_rusty') === true);
+  }
+  check('上限を超えて強化できてしまう', S.itemUpgradeCost('sword_rusty') === null);
+  check('上限後も強化が通ってしまう', S.upgradeItem('sword_rusty') === false);
+  check('強化の合計費用が想定と異なる', spent === 900);
+  check('強化しても性能が上がっていない', S.effectiveItem('sword_rusty').atk > base);
+  check('未所持の装備を強化できてしまう', S.upgradeItem('sword_thornblade') === false);
+}
+
+// --- 採取コンボ ---
+{
+  state.collectCombo = 0;
+  state.collectComboAt = 0;
+  state.bestCollectCombo = 0;
+  let last;
+  for (let i = 0; i < 5; i++) last = S.registerCollect(1);
+  check('コンボ数が加算されていない', last.combo === 5);
+  check('コンボ5で倍率が上がっていない', last.mult === 1.5);
+  check('最高コンボが記録されていない', state.bestCollectCombo === 5);
+  // 猶予切れの再現（最後の採取時刻を過去にずらす）
+  state.collectComboAt = Date.now() - S.COLLECT_COMBO_WINDOW_MS - 1;
+  const after = S.registerCollect(1);
+  check('猶予を過ぎてもコンボが途切れない', after.combo === 1);
+  check('途切れた後も倍率が残っている', after.mult === 1);
+  check('最高コンボが下がってしまう', state.bestCollectCombo === 5);
+}
+
+// --- 日替わり要素は同じ日なら常に同じ結果 ---
+{
+  const a = S.dailyTrial(), b = S.dailyTrial();
+  check('同じ日の試練が一致しない', a.chapterIndex === b.chapterIndex && a.mod.id === b.mod.id);
+  check('試練の章が範囲外', a.chapterIndex >= 0 && a.chapterIndex < CHAPTERS.length);
+
+  const kinds = new Set();
+  const weathers = new Set();
+  for (let d = 0; d < 60; d++) {
+    kinds.add(S.gatherRequestFor(d).id);
+    weathers.add(S.weatherForDay(d).id);
+  }
+  check('採取依頼の種類が偏っている', kinds.size >= 3);
+  check('天候が全種類出てこない', weathers.size === WEATHERS.length);
+}
+
+// --- 採取依頼の進行 ---
+{
+  state.gatherDay = -1;
+  const req = S.currentGatherRequest(5);
+  check('採取依頼が作られない', !!req && req.need > 0);
+  check('依頼と違う種類で進んでしまう', S.advanceGather('__other__', 99) === 0);
+  const before = state.shards;
+  check('達成前に報酬が出てしまう', S.advanceGather(req.counter, req.need - 1) === 0);
+  const reward = S.advanceGather(req.counter, 1);
+  check('達成しても報酬が出ない', reward === req.reward);
+  check('報酬の欠片が加算されていない', state.shards === before + req.reward);
+  check('同じ日に二重で達成できてしまう', S.advanceGather(req.counter, req.need) === 0);
+}
+
+// --- 状態異常 ---
+{
+  S.clearStatuses();
+  S.applyStatus('poison');
+  S.applyStatus('curse');
+  check('呪縛で与ダメージが下がらない', S.statusAtkMult() < 1);
+  const dmg = S.tickStatuses();
+  check('毒の継続ダメージが出ない', dmg > 0);
+  let guard = 0;
+  while (Object.keys(state.statuses).length > 0 && guard++ < 20) S.tickStatuses();
+  check('状態異常がいつまでも切れない', Object.keys(state.statuses).length === 0);
+  check('解除後も与ダメージが下がったまま', S.statusAtkMult() === 1);
+}
+
+// --- 実績は同じものを二重に解除しない ---
+{
+  state.achievements = [];
+  state.bossesDefeated = 99;
+  const first = S.checkAchievements();
+  const second = S.checkAchievements();
+  check('実績が1件も解除されない', first.length > 0);
+  check('同じ実績が二重に解除される', second.every(a => !first.some(f => f.id === a.id)));
+}
+
+console.log(`${checks} 件の振る舞いを検査しました`);
+if (problems.length > 0) {
+  console.error(`\n${problems.length} 件の問題:`);
+  for (const p of problems) console.error(`  - ${p}`);
+  process.exit(1);
+}
+console.log('state の振る舞いに問題はありません。');
