@@ -1104,10 +1104,26 @@ const fireflyMesh = new THREE.InstancedMesh(fireflyGeo, fireflyMat, FIREFLY_COUN
 const fireflyData = [];
 {
   const dummy = new THREE.Object3D();
+  // 半径12kmの全域に一様配置すると 1km² あたり 1匹未満になり、
+  // 実際にはほとんど遭遇できなかった。蝶や精霊球と同じように、
+  // 森・沼のバイオームと拠点の周辺へ寄せて密度を確保する。
+  // さらに、まばらに散らすと1匹捕まえて終わりになるため、
+  // 12匹前後の群れ（半径8m）にまとめて「群れに飛び込む」形にする。
+  const fireflySeeds = BIOME_SEEDS.filter((_, i) => ['forest', 'swamp'].includes(BIOME_DEFS[i].category));
+  const fireflyAnchors = [{ x: 0, z: 0 }, ...fireflySeeds];
+  const FIREFLY_SWARM_SIZE = 12;
+  const swarmCenters = [];
+  for (let s = 0; s * FIREFLY_SWARM_SIZE < FIREFLY_COUNT; s++) {
+    const anchor = fireflyAnchors[s % fireflyAnchors.length];
+    const a = Math.random() * Math.PI * 2;
+    const d = 20 + Math.random() * 110;
+    swarmCenters.push({ x: anchor.x + Math.cos(a) * d, z: anchor.z + Math.sin(a) * d });
+  }
   for (let i = 0; i < FIREFLY_COUNT; i++) {
-    const r = Math.random() * WORLD_RADIUS * 0.9;
+    const center = swarmCenters[Math.floor(i / FIREFLY_SWARM_SIZE)];
     const ang = Math.random() * Math.PI * 2;
-    const baseX = Math.cos(ang) * r, baseZ = Math.sin(ang) * r;
+    const dist = Math.random() * 8;
+    const baseX = center.x + Math.cos(ang) * dist, baseZ = center.z + Math.sin(ang) * dist;
     fireflyData.push({
       baseX, baseZ,
       baseY: 1.2 + Math.random() * 2.2,
