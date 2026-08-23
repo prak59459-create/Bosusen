@@ -86,6 +86,7 @@ const ACH_SORT_LABEL = {
 };
 let achSortMode = 'default';
 let achUnlockedOnly = false;
+let achQuery = '';
 const TITLE_TIERS = [
   { min: 21, title: '神話の' },
   { min: 15, title: '至高の' },
@@ -705,9 +706,12 @@ export function renderStatusTab() {
       const at = a => (state.achievementUnlockedAt || {})[a.id] || -1;
       achOrder = [...ACHIEVEMENTS].sort((a, b) => at(b) - at(a));
     }
+    let shownCount = 0;
     achOrder.forEach(a => {
       const unlocked = state.achievements.includes(a.id);
       if (achUnlockedOnly && !unlocked) return;
+      if (achQuery && !`${a.name}${a.desc}`.toLowerCase().includes(achQuery)) return;
+      shownCount++;
       const isPinned = state.pinnedAchievement === a.id;
       const row = document.createElement('div');
       row.className = 'item-row' + (unlocked ? ' equipped' : '');
@@ -736,11 +740,13 @@ export function renderStatusTab() {
       }
       achList.appendChild(row);
     });
-    if (achUnlockedOnly && state.achievements.length === 0) {
+    if (shownCount === 0) {
       const hint = document.createElement('div');
       hint.className = 'empty-hint';
       hint.style.padding = '12px 4px';
-      hint.textContent = 'まだ達成した実績はありません';
+      hint.textContent = achQuery
+        ? `「${achQuery}」に一致する実績はありません`
+        : 'まだ達成した実績はありません';
       achList.appendChild(hint);
     }
   }
@@ -1454,6 +1460,13 @@ export function initMenu(onSave, onTitle) {
       achSortMode = ACH_SORT_MODES[(ACH_SORT_MODES.indexOf(achSortMode) + 1) % ACH_SORT_MODES.length];
       achSortBtn.textContent = ACH_SORT_LABEL[achSortMode];
       sfx.uiClick();
+      renderStatusTab();
+    });
+  }
+  const achSearchEl = document.getElementById('ach-search');
+  if (achSearchEl) {
+    achSearchEl.addEventListener('input', () => {
+      achQuery = achSearchEl.value.trim().toLowerCase();
       renderStatusTab();
     });
   }
