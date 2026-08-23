@@ -185,6 +185,15 @@ function renderShop() {
     });
     shopItemList.appendChild(card);
   });
+  if (shopItemList.children.length === 0) {
+    const hint = document.createElement('div');
+    hint.className = 'empty-hint';
+    hint.style.padding = '12px 4px';
+    hint.textContent = ownedCount >= SHOP_ITEMS.length
+      ? 'すべての商品を購入済みです'
+      : '今の所持シャードで購入できる商品はありません';
+    shopItemList.appendChild(hint);
+  }
   shopShardsEl.textContent = `所持している結晶の欠片: ${state.shards}`;
 }
 

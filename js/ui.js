@@ -507,6 +507,13 @@ export function renderStatusTab() {
       }
       achList.appendChild(row);
     });
+    if (achUnlockedOnly && state.achievements.length === 0) {
+      const hint = document.createElement('div');
+      hint.className = 'empty-hint';
+      hint.style.padding = '12px 4px';
+      hint.textContent = 'まだ達成した実績はありません';
+      achList.appendChild(hint);
+    }
   }
 }
 
