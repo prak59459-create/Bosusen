@@ -145,8 +145,54 @@ export const CHAPTERS = [
     ],
   },
   {
-    key: 'voidtower',
+    key: 'lighthouse',
     sanctuaryLabel: '聖域 IV',
+    title: '凍てつく灯台',
+    enemyName: '氷霧の灯台守',
+    taunts: [
+      '「灯は……絶やさぬ。たとえ照らす船が、もう来なくとも」',
+      '「霧の向こうへ帰れ。ここは、もう誰の岸でもない」',
+    ],
+    storyBefore:
+      '海だった場所は白く凍りつき、そこに一本の灯台だけが立っていた。\n' +
+      '「まだ灯が回っています。……あれは、誰かがずっと守り続けている証です」\n\n' +
+      '氷の階段を登るほどに霧は濃く、光は遠のいていく。\n' +
+      '灯台守だったものは、凍った灯を抱いたまま、来ない船を待ち続けていた。\n\n' +
+      '「……その灯を、休ませてやろう」',
+    storyAfter:
+      '灯台守の腕から、凍っていた灯がゆっくりと落ちて砕けた。\n' +
+      '『……ありがとう。ようやく、目を閉じられる』\n' +
+      '霧が晴れ、凍った海の果てに、崩落する尖塔の影が見えた。\n' +
+      'イリスが小さく息を呑む。「……次で、最後です」',
+    hp: 270,
+    battleTip: '「凍てつく霧」は受付が短い。見切って受付が延びるまでは、無理に攻めずガードを選ぼう。',
+    hasPhases: false,
+    xp: 160,
+    shardsBase: 65,
+    enemyDef: { skinColor:0x8fb8d8, sheenColor:0xd8ecff, emissive:0x2a4a6a, hornColor:0xcfe8ff, eyeColor:0xaee4ff, legColor:0x4a6a8a, scale:1.0 },
+    movesPhase1: [
+      { name:'氷柱の落下', sub:'頭上から降る氷', min:11, max:17, dodgeWindow:900 },
+      { name:'凍てつく霧', sub:'視界を奪う冷気', min:16, max:24, dodgeWindow:700, status:'curse', statusChance:0.4 },
+      { name:'灯火の一閃', sub:'渾身の薙ぎ払い！', min:24, max:34, dodgeWindow:680 },
+    ],
+    quests: [
+      { id:'lh_shard', title:'凍った灯の破片', type:'explore',
+        desc:'灯台の周囲に飛び散った、凍りついた灯の破片を集める。',
+        result:'触れると指先が痛むほど冷たい破片。芯にはまだ、かすかな光が残っていた。',
+        reward:{ shards:45 } },
+      { id:'lh_skirmish', title:'霧の眷属の掃討', type:'battle',
+        desc:'灯台に取り憑いた氷霧の眷属を追い払う。',
+        result:'眷属は白い息のような音を残して、霧へと溶けていった。',
+        reward:{ shards:40, itemId:'armor_frostmantle' } },
+      { id:'lh_lore', title:'灯台守の航海日誌', type:'lore',
+        desc:'灯室に残された航海日誌の最後の頁を読む。',
+        result:'『今日も船は来ない。だが灯を消せば、来たときに気づいてやれない』\n日付だけが、何百頁も続いていた。',
+        reward:{ shards:35 } },
+    ],
+  },
+  {
+    key: 'voidtower',
+    sanctuaryLabel: '聖域 V',
     title: '虚無の塔・プライム・コア',
     enemyName: 'ヴォイド・エコー',
     awakenLine: '「……ようやく、本気を出せる。虚無の深淵を見せてやろう」',
@@ -244,6 +290,7 @@ export const ITEMS = {
   armor_archive:       { id:'armor_archive', slot:'armor', name:'記録者のローブ', def:10, hp:15, desc:'知識を守るように編まれた、不思議と頑丈なローブ。' },
   armor_voidguard:     { id:'armor_voidguard', slot:'armor', name:'虚無守りの鎧', def:16, hp:25, desc:'ヴォイドの侵蝕そのものを僅かに退ける、最後の聖域で得られる鎧。' },
   accessory_lens:      { id:'accessory_lens', slot:'accessory', name:'観測者のレンズ', crit:6, desc:'かけると、かすかに敵の弱点が見える気がする片眼鏡。' },
+  armor_frostmantle:   { id:'armor_frostmantle', slot:'armor', name:'霜纏いの外套', def:13, hp:18, desc:'凍てつく風を絹のように受け流す、灯台守の外套。' },
   accessory_core_shard: { id:'accessory_core_shard', slot:'accessory', name:'コアの欠片', mp:15, crit:4, desc:'プライム・コアからこぼれ落ちた、温かい光を放つ欠片。' },
   sword_traveler:      { id:'sword_traveler', slot:'weapon', name:'旅商人の片刃', atk:6, crit:3, desc:'行商人が護身用に扱っていた軽量な片刃剣。振りが速い。' },
   armor_wanderer:      { id:'armor_wanderer', slot:'armor', name:'旅人のマント', def:4, hp:10, desc:'各地を巡った行商人が譲ってくれた、丈夫な旅装束。' },

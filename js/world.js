@@ -32,6 +32,7 @@ const ZONE_THEME = [
   { color: 0x2d5a3d, glow: 0x66ff88, name: '崩壊の古城' },
   { color: 0x1f6b3a, glow: 0xaaff33, name: '結晶の森' },
   { color: 0x4a1f7a, glow: 0x9955ff, name: '浸食された地下都市' },
+  { color: 0x2f5a78, glow: 0xaee4ff, name: '凍てつく灯台' },
   { color: 0x5c2436, glow: 0xff4444, name: '虚無の塔' },
 ];
 
@@ -821,7 +822,7 @@ export const loreMarkers = [];
 export const hiddenTreasures = [];
 
 CHAPTERS.forEach((chapter, i) => {
-  const theme = ZONE_THEME[i];
+  const theme = ZONE_THEME[i] || ZONE_THEME[ZONE_THEME.length - 1];
   const local = zoneLocalPos(i);
 
   addBiomePatch(local, theme, 55);

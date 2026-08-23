@@ -85,6 +85,21 @@ if (!shopMatch) {
   }
 }
 
+// --- 章ごとに用意すべきテーブル ---
+// ZONE_THEME のように「章と同じ数だけ並べる」配列は、章を追加したときに
+// 更新を忘れると undefined を参照して探索の生成が壊れる。
+{
+  const themeMatch = worldSrc.match(/const ZONE_THEME = \[([\s\S]*?)\n\];/);
+  if (!themeMatch) {
+    problems.push('world.js から ZONE_THEME を抽出できませんでした（検査の更新が必要です）');
+  } else {
+    const count = (themeMatch[1].match(/\{\s*color:/g) || []).length;
+    if (count < CHAPTERS.length) {
+      problems.push(`ZONE_THEME が ${count} 件しかありません（章は ${CHAPTERS.length} 件）`);
+    }
+  }
+}
+
 // --- コード内から直接参照しているアイテムID ---
 // addItem('...') のようにデータ経由でなく文字列で指定している箇所は、
 // アイテム名を変えたときに黙って壊れるため実在を確認する。
