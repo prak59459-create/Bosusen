@@ -503,6 +503,11 @@ export function peekSaveSummary() {
   }
 }
 
+// 手で編集された/壊れたセーブでも型を保証する。
+// `snap.x || []` だけでは文字列や数値がそのまま入り、後段の filter/forEach で落ちる。
+function asArray(v) { return Array.isArray(v) ? v : []; }
+function asObject(v) { return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; }
+
 export function loadGame() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
@@ -516,21 +521,21 @@ export function loadGame() {
       totalShardsEarned: snap.totalShardsEarned || 0,
       bossesDefeated: snap.bossesDefeated || 0,
       lifetimeBestCombo: snap.lifetimeBestCombo || 0,
-      chapterClearCounts: snap.chapterClearCounts || {},
+      chapterClearCounts: asObject(snap.chapterClearCounts),
       winStreak: snap.winStreak || 0,
       bestWinStreak: snap.bestWinStreak || 0,
       totalDistanceTraveled: snap.totalDistanceTraveled || 0,
-      equipment: snap.equipment || { weapon:null, armor:null, accessory:null },
-      inventory: snap.inventory || [],
-      unlockedSkills: snap.unlockedSkills || [],
-      foundTreasures: snap.foundTreasures || [],
-      discoveredBiomes: snap.discoveredBiomes || [],
+      equipment: { weapon:null, armor:null, accessory:null, ...asObject(snap.equipment) },
+      inventory: asArray(snap.inventory),
+      unlockedSkills: asArray(snap.unlockedSkills),
+      foundTreasures: asArray(snap.foundTreasures),
+      discoveredBiomes: asArray(snap.discoveredBiomes),
       firefliesCaught: snap.firefliesCaught || 0,
       totalCrits: snap.totalCrits || 0,
       starWishesMade: snap.starWishesMade || 0,
       screenshotsTaken: snap.screenshotsTaken || 0,
-      emotesUsedSet: snap.emotesUsedSet || [],
-      collectedLore: snap.collectedLore || [],
+      emotesUsedSet: asArray(snap.emotesUsedSet),
+      collectedLore: asArray(snap.collectedLore),
       invertCameraY: snap.invertCameraY || false,
       cameraSensitivity: snap.cameraSensitivity || 1,
       highContrast: snap.highContrast || false,
@@ -549,19 +554,19 @@ export function loadGame() {
       cinematicAutoHide: snap.cinematicAutoHide || false,
       pinnedAchievement: snap.pinnedAchievement || null,
       questTrackerCollapsed: snap.questTrackerCollapsed || false,
-      savedLoadouts: snap.savedLoadouts || { a: null, b: null },
-      firstDefeatedAt: snap.firstDefeatedAt || {},
-      bestTurnsPerChapter: snap.bestTurnsPerChapter || {},
-      bestRankPerChapter: snap.bestRankPerChapter || {},
-      biomeDiscoveredAt: snap.biomeDiscoveredAt || {},
-      achievementUnlockedAt: snap.achievementUnlockedAt || {},
-      seenEndings: snap.seenEndings || [],
+      savedLoadouts: { a: null, b: null, ...asObject(snap.savedLoadouts) },
+      firstDefeatedAt: asObject(snap.firstDefeatedAt),
+      bestTurnsPerChapter: asObject(snap.bestTurnsPerChapter),
+      bestRankPerChapter: asObject(snap.bestRankPerChapter),
+      biomeDiscoveredAt: asObject(snap.biomeDiscoveredAt),
+      achievementUnlockedAt: asObject(snap.achievementUnlockedAt),
+      seenEndings: asArray(snap.seenEndings),
       totalParries: snap.totalParries || 0,
       totalDodges: snap.totalDodges || 0,
       butterfliesCaught: snap.butterfliesCaught || 0,
-      achievements: snap.achievements || [],
-      questProgress: snap.questProgress || {},
-      fieldQuests: snap.fieldQuests || {},
+      achievements: asArray(snap.achievements),
+      questProgress: asObject(snap.questProgress),
+      fieldQuests: asObject(snap.fieldQuests),
       masterVolume: (snap.masterVolume != null) ? snap.masterVolume : 0.7,
       quality: snap.quality || 'high',
       screenShake: (snap.screenShake != null) ? snap.screenShake : true,
