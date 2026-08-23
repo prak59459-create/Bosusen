@@ -373,7 +373,9 @@ function startDodgeQTE(move) {
   const stats = computeStats();
   // アクセシビリティ設定でガード受付時間を延長できる（難易度とは独立）
   const assist = state.guardWindowAssist ? 1.5 : 1;
-  const window_ = move.dodgeWindow * (1 + stats.dodgeWindowPct) * assist;
+  // 見切った技は動きが読めている扱いで、ガード受付をわずかに延ばす
+  const mastered = isMoveMastered(CHAPTERS[state.chapterIndex].key, move.name) ? 1.15 : 1;
+  const window_ = move.dodgeWindow * (1 + stats.dodgeWindowPct) * assist * mastered;
   const circumference = 389.6;
   els.dodgeCircle.setAttribute('stroke-dashoffset', '0');
   const t0 = performance.now();

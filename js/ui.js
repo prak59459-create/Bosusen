@@ -981,7 +981,7 @@ function bestiaryMoveList(chapter) {
     (moves || []).forEach(m => {
       const st = moveStat(chapter.key, m.name);
       const seen = st.seen > 0 ? `／遭遇 ${st.seen}回・凌いだ ${st.avoided}回` : '';
-      const mark = isMoveMastered(chapter.key, m.name) ? ' 👁' : '';
+      const mark = isMoveMastered(chapter.key, m.name) ? ' 👁見切り済み(受付+15%)' : '';
       rows.push(`<div class="item-row-desc">・${m.name}${label}${mark}（威力 ${m.min}〜${m.max}／受付 ${m.dodgeWindow}ms${seen}）</div>`);
     });
   };
@@ -1786,6 +1786,7 @@ const LOADING_TIPS = [
   '図鑑の「未発見のみ表示」で、あと何を探せばいいか絞り込める。',
   '連続ログインが7日ごとに追加ボーナスがもらえる。',
   '設定でFPS低下時のグラフィック品質自動調整をON/OFFできる。',
+  '同じ技を3回凌ぐと「見切り済み」になり、以後その技のガード受付が少し延びる。',
 ];
 let loadingTipTimer = null;
 export function setLoadingProgress(pct, text) {
