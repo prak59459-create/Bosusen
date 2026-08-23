@@ -74,6 +74,8 @@ window.addEventListener('keydown', (e) => {
   }
 });
 let debugOverlayVisible = false;
+const shardHudEl = document.getElementById('explore-shards');
+let shardHudShown = null;
 
 let saveIndicatorTimer = null;
 window.addEventListener('bosusen-saved', () => {
@@ -1048,6 +1050,11 @@ function animate() {
     }
     drawRadar();
     updateDayNightCycle(t);
+    // 探索中は所持シャードが見えず、獲得しても総量が分からなかったため常時表示する
+    if (shardHudEl && shardHudShown !== state.shards) {
+      shardHudShown = state.shards;
+      shardHudEl.textContent = `💎 ${state.shards}`;
+    }
     const dayCounterEl = document.getElementById('day-counter');
     const curDay = getDayCount(t);
     if (dayCounterEl) dayCounterEl.textContent = `${isNightTime(t) ? '🌙' : '☀️'} Day ${curDay} ・${getTimeOfDayLabel(t)}`;

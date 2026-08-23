@@ -365,6 +365,13 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   background:rgba(255,255,255,0.75); border:1px solid rgba(150,100,220,0.35);
   border-radius:14px; padding:5px 12px; font-size:12px; font-weight:bold; color:#3d2f5c;
 }
+/* 探索中の所持シャード表示（Day表示のすぐ下に並べる） */
+#explore-shards {
+  position:absolute; top: calc(max(14px, env(safe-area-inset-top)) + 32px);
+  left: max(18px, env(safe-area-inset-left));
+  background:rgba(255,255,255,0.75); border:1px solid rgba(212,168,74,0.45);
+  border-radius:14px; padding:5px 12px; font-size:12px; font-weight:bold; color:#7a5a12;
+}
 #save-indicator {
   position:fixed; bottom:14px; left:50%; transform:translateX(-50%) translateY(20px);
   background:rgba(60,45,90,0.85); color:#fff; border-radius:14px;
