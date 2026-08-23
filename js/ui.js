@@ -552,6 +552,27 @@ export function renderStatusTab() {
 /* ============================================================
    メニュー：装備タブ
    ============================================================ */
+export function itemStatParts(item) {
+  const parts = [];
+  if (item.atk) parts.push(`攻撃+${item.atk}`);
+  if (item.def) parts.push(`防御+${item.def}`);
+  if (item.crit) parts.push(`クリ+${item.crit}%`);
+  if (item.hp) parts.push(`HP+${item.hp}`);
+  if (item.mp) parts.push(`エーテル+${item.mp}`);
+  return parts;
+}
+
+export function itemCompareTag(item) {
+  const equippedId = state.equipment[item.slot];
+  const equippedItem = equippedId ? ITEMS[equippedId] : null;
+  if (equippedId === item.id) return '';
+  if (!equippedItem) return ' <span style="color:#2e8b45;">▲装備なし</span>';
+  const diff = itemScore(item) - itemScore(equippedItem);
+  if (diff > 0) return ' <span style="color:#2e8b45;">▲強化</span>';
+  if (diff < 0) return ' <span style="color:#a3790a;">▼弱化</span>';
+  return '';
+}
+
 export function itemScore(item) {
   return (item.atk || 0) * 1.5 + (item.def || 0) * 1.5 + (item.crit || 0) * 1.2 + (item.hp || 0) * 0.3 + (item.mp || 0) * 0.2;
 }
@@ -644,23 +665,8 @@ export function renderEquipmentTab() {
     const equipped = state.equipment[item.slot] === id;
     const row = document.createElement('div');
     row.className = 'item-row' + (equipped ? ' equipped' : '');
-    const statParts = [];
-    if (item.atk) statParts.push(`攻撃+${item.atk}`);
-    if (item.def) statParts.push(`防御+${item.def}`);
-    if (item.crit) statParts.push(`会心+${item.crit}%`);
-    if (item.hp) statParts.push(`HP+${item.hp}`);
-    if (item.mp) statParts.push(`エーテル+${item.mp}`);
-    let upgradeTag = '';
-    if (!equipped) {
-      const equippedId = state.equipment[item.slot];
-      const equippedItem = equippedId ? ITEMS[equippedId] : null;
-      if (!equippedItem) upgradeTag = ' <span style="color:#2e8b45;">▲装備なし</span>';
-      else {
-        const diff = itemScore(item) - itemScore(equippedItem);
-        if (diff > 0) upgradeTag = ' <span style="color:#2e8b45;">▲強化</span>';
-        else if (diff < 0) upgradeTag = ' <span style="color:#a3790a;">▼弱化</span>';
-      }
-    }
+    const statParts = itemStatParts(item);
+    const upgradeTag = itemCompareTag(item);
     row.innerHTML = `
       <div class="item-row-main">
         <div class="item-row-name">${SLOT_ICON[item.slot] || ''} ${item.name}${upgradeTag}</div>
@@ -803,23 +809,8 @@ export function renderItemsTab() {
     const equipped = state.equipment[item.slot] === id;
     const row = document.createElement('div');
     row.className = 'item-row' + (equipped ? ' equipped' : '');
-    const statParts = [];
-    if (item.atk) statParts.push(`攻撃+${item.atk}`);
-    if (item.def) statParts.push(`防御+${item.def}`);
-    if (item.hp) statParts.push(`HP+${item.hp}`);
-    if (item.mp) statParts.push(`エーテル+${item.mp}`);
-    if (item.crit) statParts.push(`クリ+${item.crit}%`);
-    const equippedId = state.equipment[item.slot];
-    const equippedItem = equippedId ? ITEMS[equippedId] : null;
-    let compareTag = '';
-    if (!equipped) {
-      if (!equippedItem) compareTag = ' <span style="color:#2e8b45;">▲装備なし</span>';
-      else {
-        const diff = itemScore(item) - itemScore(equippedItem);
-        if (diff > 0) compareTag = ' <span style="color:#2e8b45;">▲強化</span>';
-        else if (diff < 0) compareTag = ' <span style="color:#a3790a;">▼弱化</span>';
-      }
-    }
+    const statParts = itemStatParts(item);
+    const compareTag = itemCompareTag(item);
     row.innerHTML = `
       <div class="item-row-main">
         <div class="item-row-name">${SLOT_ICON[item.slot] || ''} ${item.name}${compareTag}<span class="item-slot-tag">${slotLabel[item.slot]}${equipped ? ' ・装備中' : ''}</span></div>

@@ -8,7 +8,7 @@ import { resumeAudio, sfx, setMasterVolume, setRainIntensity, setBiomeDrone } fr
 import { CHAPTERS, ITEMS } from './data.js';
 import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, removeItem, spendShards, addShards, computeStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, totalQuestsDone, totalQuestsAll, peekSaveSummary } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
-  renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, showCenterMsg, syncSettingsUI, openMenu, closeMenu, BIOME_CATEGORY_ICON, SLOT_ICON, itemScore } from './ui.js';
+  renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, showCenterMsg, syncSettingsUI, openMenu, closeMenu, BIOME_CATEGORY_ICON, SLOT_ICON, itemScore, itemStatParts, itemCompareTag } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
 import { BIOME_NAMES, HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt, biomeNameAt, triggerLightning, updateLightning, updateButterflies, updateScorpions, updateFoxes, updateFrogs, updateCrows, updateSalamanders, updateDrones, updateSpirits, triggerRainbow, updateRainbow, updateHubSparks, updateGuideBeams } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
@@ -169,23 +169,8 @@ function renderShop() {
     const isEquipped = Object.values(state.equipment).includes(entry.itemId);
     const sellPrice = Math.floor(entry.cost * 0.5);
     if (affordableOnly && !canBuy) return;
-    const statParts = [];
-    if (item.atk) statParts.push(`攻撃+${item.atk}`);
-    if (item.def) statParts.push(`防御+${item.def}`);
-    if (item.hp) statParts.push(`HP+${item.hp}`);
-    if (item.mp) statParts.push(`エーテル+${item.mp}`);
-    if (item.crit) statParts.push(`クリ+${item.crit}%`);
-    let upgradeTag = '';
-    if (!locked && !owned) {
-      const equippedId = state.equipment[item.slot];
-      const equippedItem = equippedId ? ITEMS[equippedId] : null;
-      if (!equippedItem) upgradeTag = ' <span style="color:#2e8b45;">▲装備なし</span>';
-      else {
-        const diff = itemScore(item) - itemScore(equippedItem);
-        if (diff > 0) upgradeTag = ' <span style="color:#2e8b45;">▲強化</span>';
-        else if (diff < 0) upgradeTag = ' <span style="color:#a3790a;">▼弱化</span>';
-      }
-    }
+    const statParts = itemStatParts(item);
+    const upgradeTag = (!locked && !owned) ? itemCompareTag(item) : '';
     const card = document.createElement('div');
     card.className = 'shop-item-card';
     card.innerHTML = `
