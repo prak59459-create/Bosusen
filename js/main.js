@@ -12,7 +12,7 @@ import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQues
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
 import { BIOME_NAMES, undiscoveredBiomeSpots, HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt, biomeNameAt, triggerLightning, updateLightning, updateButterflies, updateScorpions, updateFoxes, updateFrogs, updateCrows, updateSalamanders, updateDrones, updateSpirits, triggerRainbow, updateRainbow, updateHubSparks, updateGuideBeams, campfires } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone, setOnReplayZone,
-  setOnOpenShop, setOnToggleMap, setOnToggleMute, getPlayerLocalPos, exploreActive, setMapOpen, setExploreLocalPos, getPlayerFacing, setActiveLoadoutKey } from './explore.js';
+  setOnOpenShop, setOnToggleMap, setOnToggleMute, setOnSkipTime, getPlayerLocalPos, exploreActive, setMapOpen, setExploreLocalPos, getPlayerFacing, setActiveLoadoutKey } from './explore.js';
 import { initSkirmishUI, resetSkirmish } from './skirmish.js';
 
 mountRenderer();
@@ -765,6 +765,8 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyK' && !e.repeat) toggleMute();
 });
 setOnToggleMute(toggleMute);
+// 焚き火で時間を進める（昼夜のサイクルだけを動かす）
+setOnSkipTime(delta => { t += delta; });
 
 const qbUndoneFilterEl = document.getElementById('qb-undone-filter');
 if (qbUndoneFilterEl) qbUndoneFilterEl.addEventListener('change', () => showQuestBoard(state.chapterIndex));

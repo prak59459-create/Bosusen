@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { camera, scene, setCameraMode, renderer, setPhotoFilter, PHOTO_FILTERS, setFovKick, isNightTime, getTimeOfDayLabel } from './scene.js';
+import { camera, scene, setCameraMode, renderer, setPhotoFilter, PHOTO_FILTERS, setFovKick, isNightTime, getTimeOfDayLabel, DAY_PERIOD_SEC } from './scene.js';
 import { player, crossfadeTo } from './player.js';
 import { spawnParticles } from './effects.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
@@ -122,7 +122,8 @@ function restAtCampfire() {
   const here = nearestCampfire(localPos.x, localPos.z, 4);
   if (!here) { showToast('近くに焚き火がありません', 'info'); return; }
   if (exploreStamina >= exploreStaminaMax() - 0.5) {
-    showToast('十分に休んでいる', 'info');
+    // 体力が満ちているときは、代わりに夜明け／日暮れまで待てる
+    skipTimeAtCampfire();
     return;
   }
   exploreStamina = exploreStaminaMax();
@@ -132,6 +133,33 @@ function restAtCampfire() {
   showToast('焚き火で休んだ。探索スタミナが回復した', 'quest');
   checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
   saveGame();
+}
+
+/**
+ * 焚き火で次の時間帯（昼→夜／夜→昼）まで待つ。
+ * Day をまたぐと日替わり要素を無制限に回せてしまうため、
+ * 同じ Day の中で目的の時間帯に届くときだけ待てるようにする。
+ */
+function skipTimeAtCampfire() {
+  if (!onSkipTime) { showToast('十分に休んでいる', 'info'); return; }
+  const wantNight = !isNightTime(currentAbsTime);
+  const step = 3;
+  let delta = 0;
+  while (delta < DAY_PERIOD_SEC) {
+    delta += step;
+    const t2 = currentAbsTime + delta;
+    if (Math.floor(t2 / DAY_PERIOD_SEC) !== Math.floor(currentAbsTime / DAY_PERIOD_SEC)) {
+      showToast('もうすぐ日付が変わる。ここでは待てない', 'info');
+      return;
+    }
+    if (isNightTime(t2) === wantNight) {
+      onSkipTime(delta);
+      sfx.heal();
+      showToast(wantNight ? '日が暮れるまで火を眺めた' : '夜明けまで火を守った', 'quest');
+      return;
+    }
+  }
+  showToast('うまく休めなかった', 'info');
 }
 
 /** 採取コンボの残り猶予と倍率を HUD に反映する（コンボが無いときは隠す） */
@@ -657,6 +685,9 @@ let onToggleMap = null;
 export function setOnToggleMap(fn) { onToggleMap = fn; }
 let onToggleMute = null;
 export function setOnToggleMute(fn) { onToggleMute = fn; }
+// 焚き火で時間を進めるとき、main が持つ経過時間を動かしてもらう
+let onSkipTime = null;
+export function setOnSkipTime(fn) { onSkipTime = fn; }
 
 export function enterExploreMode(spawnLocal) {
   exploreActive = true;
@@ -1113,7 +1144,13 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
     // 焚き火のそばでは休めることを知らせる（満タンなら出さない）
     const promptEl = document.getElementById('campfire-prompt');
     if (promptEl) {
-      const near = nearestCampfire(localPos.x, localPos.z, 4) && exploreStamina < exploreStaminaMax() - 0.5;
+      const near = !!nearestCampfire(localPos.x, localPos.z, 4);
+      if (near) {
+        const tired = exploreStamina < exploreStaminaMax() - 0.5;
+        promptEl.textContent = tired
+          ? '🔥 Jキーで焚き火に休む'
+          : `🔥 Jキーで${isNightTime(absTime) ? '夜明け' : '日暮れ'}まで待つ`;
+      }
       promptEl.style.display = near ? '' : 'none';
     }
   }

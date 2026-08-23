@@ -259,7 +259,8 @@ export function updateDayNightCycle(t) {
 export function isNightTime(t) {
   return (Math.sin(t * 0.015) + 1) / 2 < 0.3;
 }
-const DAY_PERIOD = (Math.PI * 2) / 0.015;
+export const DAY_PERIOD_SEC = (Math.PI * 2) / 0.015;
+const DAY_PERIOD = DAY_PERIOD_SEC;
 export function getDayCount(t) {
   return Math.floor(t / DAY_PERIOD) + 1;
 }
