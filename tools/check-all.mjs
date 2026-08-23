@@ -9,6 +9,7 @@
  * 3. state の既定値・保存・復元の対応漏れ
  * 4. 実績の定義・解除判定・進捗バーの対応
  * 5. 章・装備・スキル・ショップなどデータ間の参照整合性
+ * 6. 設定項目が「設定を初期値に戻す」の対象に入っているか
  *
  * バンドラもテストランナーも使わない構成なので、変更後にこれを通すことで
  * 「実行して該当画面に行くまで気づけない」種類の壊れ方を早期に検出する。
@@ -64,6 +65,9 @@ run('実績の配線', process.execPath, ['tools/check-achievements.mjs']);
 
 // 5. ゲームデータの整合性
 run('ゲームデータの整合性', process.execPath, ['tools/check-data.mjs']);
+
+// 6. 設定リセットの網羅
+run('設定リセットの網羅', process.execPath, ['tools/check-settings-reset.mjs']);
 
 console.log('');
 if (failures.length > 0) {

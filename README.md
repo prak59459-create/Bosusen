@@ -92,6 +92,7 @@ node tools/check-all.mjs
 | `tools/check-save-fields.mjs` | state の既定値・保存・復元の対応漏れ |
 | `tools/check-achievements.mjs` | 実績の定義・解除判定・進捗バーの対応 |
 | `tools/check-data.mjs` | 章・装備・スキル・ショップなどデータ間の参照整合性 |
+| `tools/check-settings-reset.mjs` | 設定項目が「設定を初期値に戻す」の対象に入っているか |
 
 `state` に項目を追加するときは **既定値・`saveGame`・`loadGame` の3箇所**すべてに
 書く必要がある。`check-save-fields.mjs` はこの書き漏らしを検出する。
