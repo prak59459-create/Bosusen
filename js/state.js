@@ -312,6 +312,14 @@ export function addItem(id) {
   if (!state.inventory.includes(id)) state.inventory.push(id);
 }
 
+export function removeItem(id) {
+  const idx = state.inventory.indexOf(id);
+  if (idx < 0) return false;
+  if (Object.values(state.equipment).includes(id)) return false;
+  state.inventory.splice(idx, 1);
+  return true;
+}
+
 export function equipItem(id) {
   const item = ITEMS[id];
   if (!item || !ownsItem(id)) return false;

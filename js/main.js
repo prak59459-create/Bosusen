@@ -6,7 +6,7 @@ import { spawnEnemy } from './enemy.js';
 import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles, rumble, triggerCritFlash } from './effects.js';
 import { resumeAudio, sfx, setMasterVolume, setRainIntensity, setBiomeDrone } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
-import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, addShards, computeStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, totalQuestsDone, totalQuestsAll, peekSaveSummary } from './state.js';
+import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, removeItem, spendShards, addShards, computeStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, totalQuestsDone, totalQuestsAll, peekSaveSummary } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, showCenterMsg, syncSettingsUI, openMenu, closeMenu, BIOME_CATEGORY_ICON, SLOT_ICON, itemScore } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
@@ -166,6 +166,8 @@ function renderShop() {
     const owned = ownsItem(entry.itemId);
     const locked = entry.requiresAchievement && !state.achievements.includes(entry.requiresAchievement);
     const canBuy = !owned && !locked && state.shards >= entry.cost;
+    const isEquipped = Object.values(state.equipment).includes(entry.itemId);
+    const sellPrice = Math.floor(entry.cost * 0.5);
     if (affordableOnly && !canBuy) return;
     const statParts = [];
     if (item.atk) statParts.push(`攻撃+${item.atk}`);
@@ -192,7 +194,20 @@ function renderShop() {
         <div class="shop-item-desc">${locked ? '実績「エーテリアの伝説」の解除が必要' : item.desc}</div>
       </div>
       <button class="shop-buy-btn" ${owned || !canBuy ? 'disabled' : ''}>${owned ? '所持済み' : (locked ? 'ロック中' : `${entry.cost} 欠片`)}</button>
+      ${owned && !isEquipped ? `<button class="shop-buy-btn shop-sell-btn">売却 +${sellPrice}</button>` : ''}
     `;
+    const sellBtn = card.querySelector('.shop-sell-btn');
+    if (sellBtn) {
+      sellBtn.addEventListener('click', () => {
+        if (!window.confirm(`${item.name} を ${sellPrice} 欠片で売却します。よろしいですか？`)) return;
+        if (!removeItem(entry.itemId)) { showToast('装備中のものは売却できません', 'info'); return; }
+        addShards(sellPrice);
+        sfx.shardGet();
+        showToast(`${item.name} を売却した（+${sellPrice} 欠片）`, 'info');
+        saveGame();
+        renderShop();
+      });
+    }
     const btn = card.querySelector('.shop-buy-btn');
     btn.addEventListener('click', () => {
       if (owned || locked || state.shards < entry.cost) return;
