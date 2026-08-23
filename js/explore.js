@@ -276,7 +276,7 @@ function doJump() {
   isJumping = true;
   jumpVelY = JUMP_SPEED * (jumpsUsed === 0 ? 1 : 0.85);
   jumpsUsed++;
-  sfx.footstep();
+  if (state.footstepSounds !== false) sfx.footstep();
   if (jumpsUsed > 1) {
     spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.6, 0)), 0xbfe0ff, 8);
     spinProgress = 0;
