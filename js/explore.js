@@ -151,6 +151,11 @@ const AMBIENT_LINES_CRYSTAL = [
   '「結晶の共鳴音が聞こえるか？」', '「この場所は神秘的な力に満ちている」', '「精霊たちの気配を感じるよ」',
 ];
 const npcChatterCooldown = new WeakMap();
+const COMPANION_CHATTER_LINES = [
+  'ここは静かな場所ですね', '何か気になるものはありますか？', '無理はしないでくださいね',
+  '結晶の欠片、集まってきましたか？', '少し休んでもいいんですよ', 'この先に何かある予感がします',
+];
+let companionChatterTimer = 40 + Math.random() * 40;
 let camInit = false;
 let objectiveTimer = 0;
 let jumpVelY = 0;
@@ -895,6 +900,15 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
     periodicAchCheckTimer = 30;
     checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
     saveGame();
+  }
+
+  if (!state.reduceNpcChatter) {
+    companionChatterTimer -= dt;
+    if (companionChatterTimer <= 0) {
+      companionChatterTimer = 60 + Math.random() * 60;
+      const line = COMPANION_CHATTER_LINES[Math.floor(Math.random() * COMPANION_CHATTER_LINES.length)];
+      showToast(`${state.companionName || 'イリス'}：「${line}」`, 'info');
+    }
   }
 
   chatterTimer -= dt;
