@@ -261,6 +261,10 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (state.totalCrits >= 100) tryUnlock('crit_master');
   if (state.totalParries >= 30) tryUnlock('parry_master');
   if ((state.totalDodges || 0) >= 50) tryUnlock('dodge_master');
+  {
+    const allEndings = CHAPTERS.reduce((acc, c) => acc.concat(c.endings || []), []);
+    if (allEndings.length > 0 && allEndings.every(e => (state.seenEndings || []).includes(e.id))) tryUnlock('all_endings');
+  }
   if ((state.totalPlaytimeSec || 0) >= 3600) tryUnlock('dedicated_player');
   if ((state.totalPlaytimeSec || 0) >= 18000) tryUnlock('true_resident');
   if ((state.totalPlaytimeSec || 0) >= 36000) tryUnlock('veteran_resident');

@@ -158,6 +158,11 @@ function renderEndingChoices(chapter) {
           state.seenEndings.push(ending.id);
           showToast(`結末を記録した（${state.seenEndings.length} / ${chapter.endings.length}）`, 'quest');
         }
+        checkAchievements().forEach((a, i) => {
+          sfx.achievement();
+          showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest');
+          setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300);
+        });
         saveGame();
         els.endChoices.innerHTML = '';
         els.retryBtn.style.display = 'inline-block';
