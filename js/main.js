@@ -4,7 +4,7 @@ import { player, loadPlayerModel, playerMixer, playerReady, setCompanionVisible,
 import * as EnemyModule from './enemy.js';
 import { spawnEnemy } from './enemy.js';
 import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles, rumble, triggerCritFlash } from './effects.js';
-import { resumeAudio, sfx, setMasterVolume, setRainIntensity, setBiomeDrone } from './audio.js';
+import { resumeAudio, sfx, setMasterVolume, setRainIntensity, setBiomeDrone, setCampfireIntensity } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
 import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, removeItem, spendShards, addShards, computeStats, refreshMaxStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, isFieldTargetHuntable, totalQuestsDone, totalQuestsAll, peekSaveSummary, effectiveItem, dailyTrial, trialAppliesTo, trialClaimedToday, weatherForDay, currentWeather, markWeatherSeen, currentGatherRequest } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
@@ -1160,6 +1160,13 @@ function animate() {
       checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
       saveGame();
     }
+    // 焚き火は近づくほど大きく聞こえる（15m以内で減衰）
+    {
+      let nearest = Infinity;
+      campfires.forEach(c => { nearest = Math.min(nearest, Math.hypot(c.localPos.x - lp.x, c.localPos.z - lp.z)); });
+      const level = state.proximitySounds === false ? 0 : Math.max(0, 1 - nearest / 15);
+      setCampfireIntensity(level);
+    }
     currentIsRaining = updateRain(t, dt, lp.x, lp.z, currentWeather().rain);
     setRainIntensity(currentIsRaining ? 1 : 0);
     if (wasRaining && !currentIsRaining) triggerRainbow(lp.x, lp.z);
@@ -1203,6 +1210,7 @@ function animate() {
     }
   } else {
     setRainIntensity(0);
+    setCampfireIntensity(0);
   }
   if (exploreActive) {
     updateExplore(dt, t, currentIsRaining);

@@ -83,6 +83,44 @@ export function setRainIntensity(v) {
   rainNodes.gain.gain.setTargetAtTime(target * 0.09, actx.currentTime, 0.6);
 }
 
+/* ---------- 焚き火のパチパチ音（近づくほど大きくなる） ---------- */
+// 低めに絞ったノイズを常時鳴らし、距離に応じて音量だけを動かす。
+let campfireNodes = null;
+export function setCampfireIntensity(v) {
+  const target = Math.max(0, Math.min(1, v));
+  if (target <= 0.001) {
+    if (campfireNodes) {
+      campfireNodes.gain.gain.setTargetAtTime(0, actx.currentTime, 0.3);
+      const nodes = campfireNodes;
+      setTimeout(() => { try { nodes.src.stop(); } catch (e) {} }, 600);
+      campfireNodes = null;
+    }
+    return;
+  }
+  if (!campfireNodes) {
+    const bufferSize = actx.sampleRate * 2;
+    const buffer = actx.createBuffer(1, bufferSize, actx.sampleRate);
+    const data = buffer.getChannelData(0);
+    // 一様なノイズに小さな爆ぜ音を散らして焚き火らしくする
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * 0.5;
+      if (Math.random() < 0.0006) data[i] = (Math.random() * 2 - 1);
+    }
+    const src = actx.createBufferSource();
+    src.buffer = buffer;
+    src.loop = true;
+    const filter = actx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 900;
+    const gain = actx.createGain();
+    gain.gain.value = 0;
+    src.connect(filter); filter.connect(gain); gain.connect(ambientGain);
+    src.start();
+    campfireNodes = { src, filter, gain };
+  }
+  campfireNodes.gain.gain.setTargetAtTime(target * 0.13, actx.currentTime, 0.25);
+}
+
 /* ---------- バイオームごとの環境ドローン音 ---------- */
 const DRONE_FREQ = { forest: 220, desert: 130, cyber: 90, snow: 260, swamp: 150, volcanic: 70, crystal: 330, wasteland: 100 };
 let droneNodes = null;
