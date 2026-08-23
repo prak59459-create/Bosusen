@@ -582,6 +582,26 @@ export function renderSkillsTab() {
     skillProgressBar.style.margin = '0 0 16px';
     skillProgressBar.innerHTML = `<div class="qb-progress-fill" style="width:${Math.round((state.unlockedSkills.length / SKILLS.length) * 100)}%"></div>`;
     treeEl.appendChild(skillProgressBar);
+    const affordableSkills = SKILLS.filter(s => !state.unlockedSkills.includes(s.id) && state.shards >= s.cost);
+    if (affordableSkills.length > 0) {
+      const bulkRow = document.createElement('div');
+      bulkRow.className = 'skill-reset-row';
+      bulkRow.style.margin = '0 0 16px';
+      bulkRow.innerHTML = `<button class="skill-node-btn">習得可能なスキルを一括解放（${affordableSkills.length}件）</button>`;
+      bulkRow.querySelector('button').addEventListener('click', () => {
+        let count = 0;
+        SKILLS.filter(s => !state.unlockedSkills.includes(s.id) && state.shards >= s.cost).forEach(s => {
+          if (unlockSkill(s.id)) count++;
+        });
+        sfx.skillUnlock();
+        showToast(`${count}個のスキルを一括解放しました`, 'skill');
+        checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
+        renderSkillsTab();
+        renderStatusTab();
+        saveGame();
+      });
+      treeEl.appendChild(bulkRow);
+    }
   }
   SKILLS.forEach(skill => {
     const unlocked = state.unlockedSkills.includes(skill.id);
