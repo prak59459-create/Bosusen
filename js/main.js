@@ -588,6 +588,13 @@ function toggleMute() {
   saveGame();
 }
 document.getElementById('mute-btn').addEventListener('click', toggleMute);
+window.addEventListener('bosusen-volume-slider-changed', (e) => {
+  if (volumeBeforeMute !== null && e.detail.volume > 0) {
+    volumeBeforeMute = null;
+    const btn = document.getElementById('mute-btn');
+    if (btn) { btn.textContent = '🔊'; btn.classList.remove('muted'); }
+  }
+});
 window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyK' && !e.repeat) toggleMute();
 });

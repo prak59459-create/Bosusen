@@ -981,6 +981,7 @@ export function initMenu(onSave, onTitle) {
   volumeSlider.addEventListener('input', () => {
     state.masterVolume = volumeSlider.value / 100;
     setMasterVolume(state.masterVolume);
+    window.dispatchEvent(new CustomEvent('bosusen-volume-slider-changed', { detail: { volume: state.masterVolume } }));
   });
   volumeSlider.addEventListener('change', () => { saveGame(); sfx.uiClick(); });
 
