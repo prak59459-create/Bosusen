@@ -83,6 +83,8 @@ export const state = {
   bestCollectCombo: 0,
   // ボスの技ごとの遭遇記録 { 'chapterKey|技名': { seen, avoided } }
   moveStats: {},
+  // 装備の強化段階 { itemId: 1〜MAX_ITEM_LEVEL }
+  itemLevels: {},
   achievements: [], // array of unlocked achievement ids
   questProgress: {}, // { chapterKey: { questId: true } }
   fieldQuests: {}, // { questId: 'accepted' | 'ready_turnin' }
@@ -149,6 +151,50 @@ export function spendShards(n) {
   return true;
 }
 
+/* ---------- 装備の強化（鍛冶） ---------- */
+export const MAX_ITEM_LEVEL = 5;
+
+/** その装備の現在の強化段階（未強化なら 0） */
+export function itemLevel(id) {
+  return state.itemLevels[id] || 0;
+}
+
+/** 次の強化に必要な欠片。上限に達していれば null */
+export function itemUpgradeCost(id) {
+  const lv = itemLevel(id);
+  if (lv >= MAX_ITEM_LEVEL) return null;
+  return 60 + lv * 60;
+}
+
+/**
+ * 強化段階を反映した装備データを返す。
+ * 各段階でもとの性能の 15% ずつ上乗せする（元が 0 の項目は増えない）。
+ * ステータス計算も表示もこれを通すことで、数値がずれないようにする。
+ */
+export function effectiveItem(id) {
+  const base = ITEMS[id];
+  if (!base) return null;
+  const lv = itemLevel(id);
+  if (lv <= 0) return base;
+  const bump = v => (v ? Math.max(v + lv, Math.round(v * (1 + 0.15 * lv))) : v);
+  return {
+    ...base,
+    atk: bump(base.atk), def: bump(base.def), crit: bump(base.crit),
+    hp: bump(base.hp), mp: bump(base.mp),
+    level: lv,
+  };
+}
+
+/** 強化を実行する。欠片が足りない・上限・未所持なら false */
+export function upgradeItem(id) {
+  if (!ITEMS[id] || !state.inventory.includes(id)) return false;
+  const cost = itemUpgradeCost(id);
+  if (cost == null || !spendShards(cost)) return false;
+  state.itemLevels[id] = itemLevel(id) + 1;
+  refreshMaxStats();
+  return true;
+}
+
 export function computeStats() {
   const base = levelStatsFor(state.level);
   let atk = 10, def = 5, crit = 5, hpBonus = 0, mpBonus = 0;
@@ -156,7 +202,7 @@ export function computeStats() {
   ['weapon', 'armor', 'accessory'].forEach(slot => {
     const id = state.equipment[slot];
     if (!id) return;
-    const item = ITEMS[id];
+    const item = effectiveItem(id);
     if (!item) return;
     atk += item.atk || 0;
     def += item.def || 0;
@@ -403,6 +449,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (state.butterfliesCaught >= 50) tryUnlock('butterfly_catcher');
   if ((state.spiritsCaught || 0) >= 30) tryUnlock('spirit_collector');
   if ((state.bestCollectCombo || 0) >= 15) tryUnlock('collect_combo');
+  if (Object.values(state.itemLevels || {}).some(v => v >= MAX_ITEM_LEVEL)) tryUnlock('smith_master');
   {
     // 1つの章の全ての技（覚醒後を含む）を見切ると解除
     const readAll = CHAPTERS.some(c => {
@@ -566,6 +613,7 @@ export function saveGame() {
       spiritsCaught: state.spiritsCaught,
       bestCollectCombo: state.bestCollectCombo,
       moveStats: state.moveStats,
+      itemLevels: state.itemLevels,
       achievements: state.achievements,
       questProgress: state.questProgress,
       fieldQuests: state.fieldQuests,
@@ -698,6 +746,7 @@ export function loadGame() {
       spiritsCaught: asNumber(snap.spiritsCaught, 0),
       bestCollectCombo: asNumber(snap.bestCollectCombo, 0),
       moveStats: asObject(snap.moveStats, {}),
+      itemLevels: asObject(snap.itemLevels, {}),
       achievements: asArray(snap.achievements),
       questProgress: asObject(snap.questProgress),
       fieldQuests: asObject(snap.fieldQuests),

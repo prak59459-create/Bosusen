@@ -1,6 +1,6 @@
 import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES } from './data.js';
 import { state, computeStats, calcRank, isLowHp, isQuestDone, chapterQuestsDone, ownsItem,
-  equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData, moveStat, isMoveMastered } from './state.js';
+  equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData, moveStat, isMoveMastered, effectiveItem, itemLevel, itemUpgradeCost, upgradeItem, MAX_ITEM_LEVEL } from './state.js';
 import { sfx, setMasterVolume, setAmbientVolume, setHeartbeatActive } from './audio.js';
 import { setQualityPreset, setPhotoFilter, PHOTO_FILTERS } from './scene.js';
 import { setMapOpen, setActiveLoadoutKey, pingQuestObjective } from './explore.js';
@@ -579,6 +579,7 @@ export function renderStatusTab() {
       butterfly_master: [state.butterfliesCaught || 0, 200],
       spirit_collector: [state.spiritsCaught || 0, 30],
       collect_combo: [state.bestCollectCombo || 0, 15],
+      smith_master: [Math.max(0, ...Object.values(state.itemLevels || {}), 0), MAX_ITEM_LEVEL],
       move_reader: (() => {
         // 最も見切りが進んでいる章の達成度を表示する
         let best = [0, 1];
@@ -689,7 +690,7 @@ export function itemStatParts(item) {
 
 export function itemCompareTag(item) {
   const equippedId = state.equipment[item.slot];
-  const equippedItem = equippedId ? ITEMS[equippedId] : null;
+  const equippedItem = equippedId ? effectiveItem(equippedId) : null;
   if (equippedId === item.id) return '';
   if (!equippedItem) return ' <span style="color:#2e8b45;">▲装備なし</span>';
   const diff = itemScore(item) - itemScore(equippedItem);
@@ -760,12 +761,12 @@ export function renderEquipmentTab() {
   slotsEl.innerHTML = '';
   Object.keys(slotNames).forEach(slot => {
     const itemId = state.equipment[slot];
-    const item = itemId ? ITEMS[itemId] : null;
+    const item = itemId ? effectiveItem(itemId) : null;
     const box = document.createElement('div');
     box.className = 'equip-slot-box';
     box.innerHTML = `
       <div class="equip-slot-label">${SLOT_ICON[slot] || ''} ${slotNames[slot]}</div>
-      <div class="equip-slot-item">${item ? item.name : '（なし）'}</div>
+      <div class="equip-slot-item">${item ? item.name + (itemLevel(itemId) > 0 ? ` +${itemLevel(itemId)}` : '') : '（なし）'}</div>
       ${item ? '<button class="equip-unequip-btn">外す</button>' : ''}
     `;
     if (item) {
@@ -786,25 +787,43 @@ export function renderEquipmentTab() {
     return;
   }
   owned.forEach(id => {
-    const item = ITEMS[id];
+    const item = effectiveItem(id);
+    const lv = itemLevel(id);
+    const cost = itemUpgradeCost(id);
     const equipped = state.equipment[item.slot] === id;
     const row = document.createElement('div');
     row.className = 'item-row' + (equipped ? ' equipped' : '');
     const statParts = itemStatParts(item);
     const upgradeTag = itemCompareTag(item);
+    const lvTag = lv > 0 ? ` <span style="color:#c07a12;">+${lv}</span>` : '';
+    const forgeLabel = cost == null ? '強化上限' : `強化 +${lv + 1}（💎${cost}）`;
     row.innerHTML = `
       <div class="item-row-main">
-        <div class="item-row-name">${SLOT_ICON[item.slot] || ''} ${item.name}${upgradeTag}</div>
+        <div class="item-row-name">${SLOT_ICON[item.slot] || ''} ${item.name}${lvTag}${upgradeTag}</div>
         <div class="item-row-stats">${statParts.join(' / ')}</div>
         <div class="item-row-desc">${item.desc}</div>
       </div>
-      <button class="item-row-btn">${equipped ? '装備中' : '装備する'}</button>
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <button class="item-row-btn">${equipped ? '装備中' : '装備する'}</button>
+        <button class="item-row-btn forge-btn">${forgeLabel}</button>
+      </div>
     `;
     const btn = row.querySelector('.item-row-btn');
     if (equipped) btn.disabled = true;
     btn.addEventListener('click', () => {
       equipItem(id);
       sfx.uiClick();
+      renderEquipmentTab();
+      renderStatusTab();
+      saveGame();
+    });
+    const forgeBtn = row.querySelector('.forge-btn');
+    forgeBtn.disabled = cost == null || state.shards < cost;
+    forgeBtn.addEventListener('click', () => {
+      if (!upgradeItem(id)) return;
+      sfx.achievement();
+      showToast(`${item.name} を +${itemLevel(id)} に強化した！`, 'quest');
+      checkAchievements().forEach(a => { showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
       renderEquipmentTab();
       renderStatusTab();
       saveGame();
@@ -1770,7 +1789,7 @@ const LOADING_TIPS = [
   'ジャストガードのタイミングでパリィすれば反撃のチャンス。',
   'Bキーでミニマップの表示範囲を切り替えられる。',
   'Mキーで大陸図を開き、クリックでファストトラベルできる。',
-  '拠点にはショップや鍛冶屋があり装備を強化できる。',
+  '装備タブから欠片を払って装備を+5まで強化できる。',
   '夜になると出現する野生生物や現象もある。',
   'ゲームパッドも対応しているので接続すればそのまま遊べる。',
   '図鑑タブで発見したバイオームや撃破したボスを確認できる。',
