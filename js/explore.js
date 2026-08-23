@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { camera, scene, setCameraMode, renderer, setPhotoFilter, setFovKick, isNightTime, getTimeOfDayLabel } from './scene.js';
+import { camera, scene, setCameraMode, renderer, setPhotoFilter, PHOTO_FILTERS, setFovKick, isNightTime, getTimeOfDayLabel } from './scene.js';
 import { player, crossfadeTo } from './player.js';
 import { spawnParticles } from './effects.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
@@ -356,13 +356,7 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyR' && !e.repeat) toggleSprintLock();
   if (e.code === 'KeyC' && !e.repeat) { camOrbitYaw = 0; camOrbitPitch = 0.42; sfx.uiClick(); }
   if (e.code === 'KeyV' && !e.repeat) {
-    photoFilterMode = (photoFilterMode + 1) % 4;
-    state.photoFilterMode = photoFilterMode;
-    setPhotoFilter(photoFilterMode);
-    const names = ['標準', 'セピア', 'モノクロ', '鮮やか'];
-    showToast(`フィルター: ${names[photoFilterMode]}`, 'info');
-    sfx.uiClick();
-    saveGame();
+    cyclePhotoFilter();
   }
   if (e.code === 'KeyN' && !e.repeat) returnToHub();
   if (e.code === 'KeyL' && !e.repeat) quickSwapLoadout();
@@ -395,6 +389,16 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyP' && !e.repeat) takeScreenshot();
   if (e.code === 'Space' && !e.repeat) doJump();
 });
+
+// フィルター切替はキーボードとゲームパッドの両方から呼ばれるため一箇所にまとめる
+function cyclePhotoFilter() {
+  photoFilterMode = (photoFilterMode + 1) % PHOTO_FILTERS.length;
+  state.photoFilterMode = photoFilterMode;
+  setPhotoFilter(photoFilterMode);
+  showToast(`フィルター: ${PHOTO_FILTERS[photoFilterMode]}`, 'info');
+  sfx.uiClick();
+  saveGame();
+}
 
 function togglePhotoGrid() {
   const gridEl = document.getElementById('photo-grid-overlay');
@@ -818,13 +822,7 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
     if (!(gp.buttons[2] && gp.buttons[2].pressed)) gpEmoteHeld = false;
     if (gp.buttons[12] && gp.buttons[12].pressed && !gpFilterHeld) {
       gpFilterHeld = true;
-      photoFilterMode = (photoFilterMode + 1) % 4;
-      state.photoFilterMode = photoFilterMode;
-      setPhotoFilter(photoFilterMode);
-      const names = ['標準', 'セピア', 'モノクロ', '鮮やか'];
-      showToast(`フィルター: ${names[photoFilterMode]}`, 'info');
-      sfx.uiClick();
-      saveGame();
+      cyclePhotoFilter();
     }
     if (!(gp.buttons[12] && gp.buttons[12].pressed)) gpFilterHeld = false;
     if (gp.buttons[13] && gp.buttons[13].pressed && !gpHubReturnHeld) { gpHubReturnHeld = true; returnToHub(); }

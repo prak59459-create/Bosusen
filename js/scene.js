@@ -100,6 +100,14 @@ const colorGradeShader = {
         c.rgb = vec3(gray);
       } else if (mode == 3) {
         c.rgb = pow(c.rgb, vec3(0.85)) * 1.15;
+      } else if (mode == 4) {
+        // 夕暮れ調: 暖色を持ち上げ、影を青に寄せる
+        float lum = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+        c.rgb = mix(c.rgb * vec3(1.15, 0.98, 0.82), vec3(0.16, 0.20, 0.35), (1.0 - lum) * 0.35);
+      } else if (mode == 5) {
+        // 蒼氷調: 全体を寒色へ寄せ、少し締める
+        float lum2 = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+        c.rgb = mix(c.rgb * vec3(0.82, 0.95, 1.18), vec3(lum2), 0.18);
       }
       gl_FragColor = c;
     }
@@ -107,6 +115,9 @@ const colorGradeShader = {
 };
 export const colorGradePass = new ShaderPass(colorGradeShader);
 composer.addPass(colorGradePass);
+// フィルターの一覧（表示名の並び＝mode の値）。切り替え処理はこの長さに追従する。
+export const PHOTO_FILTERS = ['標準', 'セピア', 'モノクロ', '鮮やか', '夕暮れ', '蒼氷'];
+
 export function setPhotoFilter(mode) {
   colorGradePass.uniforms.mode.value = mode;
 }
