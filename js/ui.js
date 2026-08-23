@@ -106,7 +106,9 @@ function playerTitle() {
 export function updateBars() {
   const badgeEl = document.getElementById('pinned-achievement-badge');
   if (badgeEl) {
-    const pinned = state.pinnedAchievement && ACHIEVEMENTS.find(a => a.id === state.pinnedAchievement);
+    const pinned = state.pinnedAchievement
+      && (state.achievements || []).includes(state.pinnedAchievement)
+      && ACHIEVEMENTS.find(a => a.id === state.pinnedAchievement);
     badgeEl.textContent = pinned ? ' 🏅' : '';
     badgeEl.title = pinned ? pinned.name : '';
   }
