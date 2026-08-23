@@ -12,7 +12,7 @@ import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQues
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
 import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt, biomeNameAt, triggerLightning, updateLightning, updateButterflies, updateScorpions, updateFoxes, updateFrogs, updateCrows, updateSalamanders, updateDrones, updateSpirits, triggerRainbow, updateRainbow, updateHubSparks, updateGuideBeams } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
-  setOnOpenShop, setOnToggleMap, setOnToggleMute, getPlayerLocalPos, exploreActive, setMapOpen, setExploreLocalPos, getPlayerFacing } from './explore.js';
+  setOnOpenShop, setOnToggleMap, setOnToggleMute, getPlayerLocalPos, exploreActive, setMapOpen, setExploreLocalPos, getPlayerFacing, setActiveLoadoutKey } from './explore.js';
 import { initSkirmishUI, resetSkirmish } from './skirmish.js';
 
 mountRenderer();
@@ -653,7 +653,9 @@ els.startBtn.addEventListener('click', () => {
     chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0, newGamePlus: 0, chapterClearCounts: {},
     equipment: { weapon: null, armor: null, accessory: null },
     inventory: [], unlockedSkills: [], foundTreasures: [], achievements: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
+    savedLoadouts: { a: null, b: null },
   });
+  setActiveLoadoutKey('a');
   goExplore(null);
   showToast('光る結晶の目印に近づいて、崩壊の古城へ入ろう', 'info');
   const login = checkDailyLogin();
@@ -711,7 +713,9 @@ els.retryBtn.addEventListener('click', () => {
       chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0, newGamePlus: 0, chapterClearCounts: {},
       equipment: { weapon: null, armor: null, accessory: null },
       inventory: [], unlockedSkills: [], foundTreasures: [], achievements: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
+      savedLoadouts: { a: null, b: null },
     });
+    setActiveLoadoutKey('a');
     document.getElementById('start-screen').style.display = 'flex';
   } else {
     setupChapterBattle(state.chapterIndex);
