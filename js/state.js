@@ -91,6 +91,8 @@ export const state = {
   trialClaimedDate: null,
   trialsCleared: 0,
   campfireRests: 0,
+  // 経験した天候の種類（実績用）
+  seenWeathers: [],
   // 進行中の戦闘が試練かどうか（戦闘開始時に確定させる）
   trialActive: null,
   achievements: [], // array of unlocked achievement ids
@@ -219,6 +221,14 @@ export function weatherForDay(day) {
     weatherCache = WEATHERS[h % WEATHERS.length];
   }
   return weatherCache;
+}
+
+/** その天候を体験したことを記録する（実績用）。新規なら true */
+export function markWeatherSeen(id) {
+  if (!state.seenWeathers) state.seenWeathers = [];
+  if (state.seenWeathers.includes(id)) return false;
+  state.seenWeathers.push(id);
+  return true;
 }
 
 /** 現在の天候（main が Day を更新するたびに設定する） */
@@ -523,6 +533,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (Object.values(state.itemLevels || {}).some(v => v >= MAX_ITEM_LEVEL)) tryUnlock('smith_master');
   if ((state.trialsCleared || 0) >= 10) tryUnlock('trial_veteran');
   if ((state.campfireRests || 0) >= 15) tryUnlock('camper');
+  if (WEATHERS.every(w => (state.seenWeathers || []).includes(w.id))) tryUnlock('weather_watcher');
   {
     // 1つの章の全ての技（覚醒後を含む）を見切ると解除
     const readAll = CHAPTERS.some(c => {
@@ -690,6 +701,7 @@ export function saveGame() {
       trialClaimedDate: state.trialClaimedDate,
       trialsCleared: state.trialsCleared,
       campfireRests: state.campfireRests,
+      seenWeathers: state.seenWeathers,
       achievements: state.achievements,
       questProgress: state.questProgress,
       fieldQuests: state.fieldQuests,
@@ -826,6 +838,7 @@ export function loadGame() {
       trialClaimedDate: snap.trialClaimedDate || null,
       trialsCleared: asNumber(snap.trialsCleared, 0),
       campfireRests: asNumber(snap.campfireRests, 0),
+      seenWeathers: asArray(snap.seenWeathers, []),
       achievements: asArray(snap.achievements),
       questProgress: asObject(snap.questProgress),
       fieldQuests: asObject(snap.fieldQuests),

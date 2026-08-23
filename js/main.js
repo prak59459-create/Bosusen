@@ -6,7 +6,7 @@ import { spawnEnemy } from './enemy.js';
 import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles, rumble, triggerCritFlash } from './effects.js';
 import { resumeAudio, sfx, setMasterVolume, setRainIntensity, setBiomeDrone } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
-import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, removeItem, spendShards, addShards, computeStats, refreshMaxStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, isFieldTargetHuntable, totalQuestsDone, totalQuestsAll, peekSaveSummary, effectiveItem, dailyTrial, trialAppliesTo, trialClaimedToday, weatherForDay, currentWeather } from './state.js';
+import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, removeItem, spendShards, addShards, computeStats, refreshMaxStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, isFieldTargetHuntable, totalQuestsDone, totalQuestsAll, peekSaveSummary, effectiveItem, dailyTrial, trialAppliesTo, trialClaimedToday, weatherForDay, currentWeather, markWeatherSeen } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, showCenterMsg, syncSettingsUI, openMenu, closeMenu, BIOME_CATEGORY_ICON, SLOT_ICON, itemScore, itemStatParts, itemCompareTag } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
@@ -1095,6 +1095,10 @@ function animate() {
     const dayCounterEl = document.getElementById('day-counter');
     const curDay = getDayCount(t);
     const weather = weatherForDay(curDay);
+    if (markWeatherSeen(weather.id)) {
+      checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
+      saveGame();
+    }
     // 天候に応じて霧の濃さを変える（霧の日は視界が狭くなる）
     if (scene.fog) {
       const near = 34 / weather.fog, far = 80 / weather.fog;

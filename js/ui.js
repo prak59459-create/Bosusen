@@ -1,4 +1,4 @@
-import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES } from './data.js';
+import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES, WEATHERS } from './data.js';
 import { state, computeStats, calcRank, isLowHp, isQuestDone, chapterQuestsDone, ownsItem,
   equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData, moveStat, isMoveMastered, effectiveItem, itemLevel, itemUpgradeCost, upgradeItem, MAX_ITEM_LEVEL, dailyTrial, trialClaimedToday } from './state.js';
 import { sfx, setMasterVolume, setAmbientVolume, setHeartbeatActive } from './audio.js';
@@ -590,6 +590,7 @@ export function renderStatusTab() {
       collect_combo: [state.bestCollectCombo || 0, 15],
       trial_veteran: [state.trialsCleared || 0, 10],
       camper: [state.campfireRests || 0, 15],
+      weather_watcher: [(state.seenWeathers || []).length, WEATHERS.length],
       smith_master: [Math.max(0, ...Object.values(state.itemLevels || {}), 0), MAX_ITEM_LEVEL],
       move_reader: (() => {
         // 最も見切りが進んでいる章の達成度を表示する

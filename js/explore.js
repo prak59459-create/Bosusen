@@ -1101,7 +1101,7 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
   }
 
   updateComboHud();
-  updateCampfires(absTime);
+  updateCampfires(absTime, isRaining);
   {
     // 焚き火のそばでは休めることを知らせる（満タンなら出さない）
     const promptEl = document.getElementById('campfire-prompt');

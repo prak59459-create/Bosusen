@@ -1053,12 +1053,13 @@ export const campfires = [];
   });
 }
 
-/** 焚き火の炎を揺らす */
-export function updateCampfires(t) {
+/** 焚き火の炎を揺らす。雨の日は火が小さくなる */
+export function updateCampfires(t, raining = false) {
+  const damp = raining ? 0.6 : 1;
   campfires.forEach((c, i) => {
     const f = 1 + Math.sin(t * 6 + i * 1.7) * 0.12 + Math.sin(t * 11 + i) * 0.06;
-    c.flame.scale.set(1, f, 1);
-    c.light.intensity = 2.2 * f;
+    c.flame.scale.set(damp, f * damp, damp);
+    c.light.intensity = 2.2 * f * damp;
   });
 }
 
