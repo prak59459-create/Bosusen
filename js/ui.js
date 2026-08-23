@@ -1,5 +1,5 @@
 import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES } from './data.js';
-import { state, computeStats, isQuestDone, ownsItem,
+import { state, computeStats, calcRank, isQuestDone, ownsItem,
   equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData } from './state.js';
 import { sfx, setMasterVolume, setHeartbeatActive } from './audio.js';
 import { setQualityPreset } from './scene.js';
@@ -147,6 +147,12 @@ export function updateBars() {
   if (turnsEl) turnsEl.textContent = state.turns || 0;
   const dmgEl = document.getElementById('battle-damage');
   if (dmgEl) dmgEl.textContent = Math.round(state.damageTaken || 0);
+  const rankEl = document.getElementById('battle-rank');
+  if (rankEl) {
+    const r = calcRank();
+    rankEl.textContent = r;
+    rankEl.style.color = { S: '#ffd75e', A: '#8fd35f', B: '#9fe0ff', C: '#c0b3d6' }[r] || '';
+  }
   const phaseMarkerEl = document.getElementById('boss-phase-marker');
   if (phaseMarkerEl) phaseMarkerEl.classList.toggle('hide', !!state.phase2);
   els.healCount.textContent = state.healUses;

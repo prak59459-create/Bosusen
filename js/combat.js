@@ -8,7 +8,7 @@ import { rand } from './utils.js';
 import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake, triggerCritFlash, spawnShockwave, rumble } from './effects.js';
 import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
 import { CHAPTERS, levelStatsFor, BOSS_TAUNTS, VICTORY_LINES, DEFEAT_LINES } from './data.js';
-import { state, computeStats, addShards, difficultyMult, checkAchievements, saveGame, refreshMaxStats } from './state.js';
+import { state, computeStats, addShards, difficultyMult, checkAchievements, saveGame, refreshMaxStats, calcRank } from './state.js';
 
 let dodgeActive = false;
 let dodgeAnimHandle = null;
@@ -127,13 +127,6 @@ function endCheck() {
     state.playerHP = 0; updateBars(); finishGame(false); return true;
   }
   return false;
-}
-
-function calcRank() {
-  if (state.damageTaken <= 20 && state.turns <= 10) return 'S';
-  if (state.damageTaken <= 50 && state.turns <= 16) return 'A';
-  if (state.damageTaken <= 90) return 'B';
-  return 'C';
 }
 
 function renderEndingChoices(chapter) {

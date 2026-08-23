@@ -205,6 +205,15 @@ export function refreshMaxStats() {
   state.playerStam = Math.min(state.playerStam, state.playerMaxStam);
 }
 
+// 戦闘の評価ランク。結果画面だけでなく戦闘中の見込み表示にも使うため、
+// ui/combat のどちらからも参照できる依存のないこのモジュールに置く。
+export function calcRank() {
+  if (state.damageTaken <= 20 && state.turns <= 10) return 'S';
+  if (state.damageTaken <= 50 && state.turns <= 16) return 'A';
+  if (state.damageTaken <= 90) return 'B';
+  return 'C';
+}
+
 export function applyDefense(rawDmg) {
   const stats = computeStats();
   const reduced = rawDmg * (100 / (100 + stats.def));
