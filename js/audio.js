@@ -3,8 +3,18 @@ const masterGain = actx.createGain();
 masterGain.gain.value = 0.7;
 masterGain.connect(actx.destination);
 
+// 環境音（風・雨・バイオームのドローン）は専用バスを経由させ、
+// 効果音とは独立して音量を下げられるようにする。
+const ambientGain = actx.createGain();
+ambientGain.gain.value = 1;
+ambientGain.connect(masterGain);
+
 export function setMasterVolume(v) {
   masterGain.gain.value = Math.max(0, Math.min(1, v));
+}
+
+export function setAmbientVolume(v) {
+  ambientGain.gain.value = Math.max(0, Math.min(1, v));
 }
 
 export function resumeAudio() {
@@ -28,7 +38,7 @@ export function startAmbientWind() {
   filter.Q.value = 0.6;
   const gain = actx.createGain();
   gain.gain.value = 0.05;
-  src.connect(filter); filter.connect(gain); gain.connect(masterGain);
+  src.connect(filter); filter.connect(gain); gain.connect(ambientGain);
   src.start();
   ambientNodes = { src, filter, gain };
 }
@@ -66,7 +76,7 @@ export function setRainIntensity(v) {
     filter.frequency.value = 1800;
     const gain = actx.createGain();
     gain.gain.value = 0;
-    src.connect(filter); filter.connect(gain); gain.connect(masterGain);
+    src.connect(filter); filter.connect(gain); gain.connect(ambientGain);
     src.start();
     rainNodes = { src, filter, gain };
   }
@@ -115,7 +125,7 @@ export function setBiomeDrone(category) {
     osc.frequency.value = freq;
     const gain = actx.createGain();
     gain.gain.value = 0;
-    osc.connect(gain); gain.connect(masterGain);
+    osc.connect(gain); gain.connect(ambientGain);
     osc.start();
     droneNodes = { osc, gain };
     droneNodes.gain.gain.setTargetAtTime(0.025, actx.currentTime, 1.2);

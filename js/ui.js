@@ -1,7 +1,7 @@
 import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES } from './data.js';
 import { state, computeStats, calcRank, isQuestDone, ownsItem,
   equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData } from './state.js';
-import { sfx, setMasterVolume, setHeartbeatActive } from './audio.js';
+import { sfx, setMasterVolume, setAmbientVolume, setHeartbeatActive } from './audio.js';
 import { setQualityPreset } from './scene.js';
 import { setMapOpen, setActiveLoadoutKey, pingQuestObjective } from './explore.js';
 import { BIOME_NAMES, BIOME_ENTRIES } from './world.js';
@@ -1064,6 +1064,12 @@ export function syncSettingsUI() {
   renderScreenshotGallery();
   const volumeSlider = document.getElementById('opt-volume');
   if (volumeSlider) volumeSlider.value = Math.round(state.masterVolume * 100);
+  const ambientSlider = document.getElementById('opt-ambient-volume');
+  if (ambientSlider) {
+    const v = state.ambientVolume != null ? state.ambientVolume : 1;
+    ambientSlider.value = Math.round(v * 100);
+    setAmbientVolume(v);
+  }
   const qualitySelect = document.getElementById('opt-quality');
   if (qualitySelect) qualitySelect.value = state.quality || 'high';
   const shakeCheckbox = document.getElementById('opt-shake');
@@ -1248,6 +1254,14 @@ export function initMenu(onSave, onTitle) {
     window.dispatchEvent(new CustomEvent('bosusen-volume-slider-changed', { detail: { volume: state.masterVolume } }));
   });
   volumeSlider.addEventListener('change', () => { saveGame(); sfx.uiClick(); });
+
+  const ambientSlider = document.getElementById('opt-ambient-volume');
+  ambientSlider.value = Math.round((state.ambientVolume != null ? state.ambientVolume : 1) * 100);
+  ambientSlider.addEventListener('input', () => {
+    state.ambientVolume = ambientSlider.value / 100;
+    setAmbientVolume(state.ambientVolume);
+  });
+  ambientSlider.addEventListener('change', () => { saveGame(); sfx.uiClick(); });
 
   const shakeCheckbox = document.getElementById('opt-shake');
   shakeCheckbox.checked = state.screenShake !== false;
@@ -1458,7 +1472,7 @@ export function initMenu(onSave, onTitle) {
   });
   document.getElementById('reset-settings-btn').addEventListener('click', () => {
     Object.assign(state, {
-      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1, invertCameraY: false, cameraSensitivity: 1, highContrast: false, reduceNpcChatter: false, proximitySounds: true, screenshotWatermark: true, cinematicAutoHide: false, footstepSounds: true, rumbleStrength: 1, autoQualityAdjust: true, radarZoomIdx: 1, showDamageNumbers: true,
+      masterVolume: 0.7, ambientVolume: 1, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1, invertCameraY: false, cameraSensitivity: 1, highContrast: false, reduceNpcChatter: false, proximitySounds: true, screenshotWatermark: true, cinematicAutoHide: false, footstepSounds: true, rumbleStrength: 1, autoQualityAdjust: true, radarZoomIdx: 1, showDamageNumbers: true,
     });
     setMasterVolume(state.masterVolume);
     setQualityPreset(state.quality);

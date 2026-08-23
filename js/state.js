@@ -77,6 +77,7 @@ export const state = {
   questProgress: {}, // { chapterKey: { questId: true } }
   fieldQuests: {}, // { questId: 'accepted' | 'ready_turnin' }
   masterVolume: 0.7,
+  ambientVolume: 1,
   quality: 'high',
   screenShake: true,
   showObjectiveHint: true,
@@ -461,6 +462,7 @@ export function saveGame() {
       questProgress: state.questProgress,
       fieldQuests: state.fieldQuests,
       masterVolume: state.masterVolume,
+      ambientVolume: state.ambientVolume,
       quality: state.quality,
       screenShake: state.screenShake,
       showObjectiveHint: state.showObjectiveHint,
@@ -586,6 +588,7 @@ export function loadGame() {
       questProgress: asObject(snap.questProgress),
       fieldQuests: asObject(snap.fieldQuests),
       masterVolume: (snap.masterVolume != null) ? snap.masterVolume : 0.7,
+      ambientVolume: (snap.ambientVolume != null) ? snap.ambientVolume : 1,
       quality: snap.quality || 'high',
       screenShake: (snap.screenShake != null) ? snap.screenShake : true,
       showObjectiveHint: (snap.showObjectiveHint != null) ? snap.showObjectiveHint : true,
