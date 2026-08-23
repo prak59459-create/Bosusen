@@ -123,7 +123,20 @@ function renderShop() {
   if (shopProgressFill) shopProgressFill.style.width = `${Math.round((ownedCount / SHOP_ITEMS.length) * 100)}%`;
   const affordableFilterEl = document.getElementById('shop-affordable-filter');
   const affordableOnly = affordableFilterEl && affordableFilterEl.checked;
-  SHOP_ITEMS.forEach(entry => {
+  const upgradeSortEl = document.getElementById('shop-upgrade-sort');
+  const upgradeFirst = upgradeSortEl && upgradeSortEl.checked;
+  const shopItemsSorted = upgradeFirst
+    ? [...SHOP_ITEMS].sort((a, b) => {
+        const scoreFor = (entry) => {
+          const item = ITEMS[entry.itemId];
+          const equippedId = state.equipment[item.slot];
+          const equippedItem = equippedId ? ITEMS[equippedId] : null;
+          return itemScore(item) - (equippedItem ? itemScore(equippedItem) : 0);
+        };
+        return scoreFor(b) - scoreFor(a);
+      })
+    : SHOP_ITEMS;
+  shopItemsSorted.forEach(entry => {
     const item = ITEMS[entry.itemId];
     const owned = ownsItem(entry.itemId);
     const locked = entry.requiresAchievement && !state.achievements.includes(entry.requiresAchievement);
@@ -218,6 +231,8 @@ if (rumbleTestBtn) {
 
 const shopAffordableFilterEl = document.getElementById('shop-affordable-filter');
 if (shopAffordableFilterEl) shopAffordableFilterEl.addEventListener('change', renderShop);
+const shopUpgradeSortEl = document.getElementById('shop-upgrade-sort');
+if (shopUpgradeSortEl) shopUpgradeSortEl.addEventListener('change', renderShop);
 
 function openShop() {
   renderShop();
