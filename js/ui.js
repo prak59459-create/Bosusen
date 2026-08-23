@@ -783,6 +783,9 @@ export function renderEquipmentTab() {
 /* ============================================================
    メニュー：スキルタブ
    ============================================================ */
+// スキルタブ: 習得済みを隠して未習得だけを見るための絞り込み
+let skillUnlearnedOnly = false;
+
 export function renderSkillsTab() {
   const treeEl = document.getElementById('skill-tree');
   treeEl.innerHTML = '';
@@ -829,8 +832,11 @@ export function renderSkillsTab() {
       treeEl.appendChild(bulkRow);
     }
   }
+  let shownSkills = 0;
   SKILLS.forEach(skill => {
     const unlocked = state.unlockedSkills.includes(skill.id);
+    if (skillUnlearnedOnly && unlocked) return;
+    shownSkills++;
     const canAfford = state.shards >= skill.cost;
     const node = document.createElement('div');
     node.className = 'skill-node' + (unlocked ? ' unlocked' : '');
@@ -856,6 +862,14 @@ export function renderSkillsTab() {
     }
     treeEl.appendChild(node);
   });
+
+  if (shownSkills === 0) {
+    const hint = document.createElement('div');
+    hint.className = 'empty-hint';
+    hint.style.padding = '12px 4px';
+    hint.textContent = 'すべてのスキルを習得済みです';
+    treeEl.appendChild(hint);
+  }
 
   if (state.unlockedSkills.length > 0) {
     const resetRow = document.createElement('div');
@@ -1318,6 +1332,16 @@ export function initMenu(onSave, onTitle) {
       achUnlockedOnlyBtn.textContent = achUnlockedOnly ? 'すべて表示' : '達成済みのみ表示';
       sfx.uiClick();
       renderStatusTab();
+    });
+  }
+
+  const skillUnlearnedBtn = document.getElementById('skill-unlearned-only-btn');
+  if (skillUnlearnedBtn) {
+    skillUnlearnedBtn.addEventListener('click', () => {
+      skillUnlearnedOnly = !skillUnlearnedOnly;
+      skillUnlearnedBtn.textContent = skillUnlearnedOnly ? 'すべて表示' : '未習得のみ表示';
+      sfx.uiClick();
+      renderSkillsTab();
     });
   }
 
