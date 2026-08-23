@@ -311,6 +311,7 @@ window.addEventListener('gamepaddisconnected', () => {
 
 window.addEventListener('keydown', (e) => {
   if (!exploreActive) return;
+  if (mapOpen && e.code !== 'KeyM' && e.code !== 'Escape') return;
   if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.forward = true;
   if (e.code === 'KeyS' || e.code === 'ArrowDown') keys.back = true;
   if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = true;
