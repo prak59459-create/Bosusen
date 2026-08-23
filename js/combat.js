@@ -696,10 +696,13 @@ export function startBattlePhase() {
       '攻撃・強攻撃・結晶技でダメージを与えよう',
       'ボスの攻撃が来たらガードで被ダメージ半減、タイミングよくジャストガードすればパリィで反撃できる',
       '回復でHPを回復できるが回数制限があるので注意',
+      'ターン数と被ダメージが少ないほど評価が上がる。見込み評価はボスのHPバーの下で確認できる',
     ];
     tips.forEach((tip, i) => {
       setTimeout(() => showToast(tip, 'info'), 1500 + i * 2800);
     });
+    // 探索側と違い保存されておらず、途中で閉じると再表示されていた
+    saveGame();
   } else if (chapter.battleTip && (state.chapterClearCounts[chapter.key] || 0) > 0) {
     setTimeout(() => showToast(`💡 ${chapter.battleTip}`, 'info'), 1800);
   }
