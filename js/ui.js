@@ -928,6 +928,26 @@ export function initMenu(onSave, onTitle) {
     });
   });
 
+  const copyStatsBtn = document.getElementById('copy-stats-btn');
+  if (copyStatsBtn) {
+    copyStatsBtn.addEventListener('click', async () => {
+      const rows = [...document.querySelectorAll('#page-status .status-grid .status-row')]
+        .map(r => `${r.querySelector('span').textContent}: ${r.querySelector('b').textContent}`);
+      const text = [
+        'Bosusen: Echoes of the Void ｜ 戦績',
+        ...rows,
+        `実績達成: ${state.achievements.length} / ${ACHIEVEMENTS.length}`,
+      ].join('\n');
+      sfx.uiClick();
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('戦績をクリップボードにコピーしました', 'info');
+      } catch (err) {
+        showToast('コピーに対応していない環境です', 'info');
+      }
+    });
+  }
+
   const toastHistoryToggleBtn = document.getElementById('toast-history-toggle-btn');
   const toastHistoryList = document.getElementById('toast-history-list');
   if (toastHistoryToggleBtn && toastHistoryList) {
