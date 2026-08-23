@@ -1,7 +1,7 @@
 import { state, computeStats, markFieldTargetDefeated, saveGame, checkAchievements } from './state.js';
 import { updateBars, showToast, showCenterMsg } from './ui.js';
 import { sfx, setHeartbeatActive } from './audio.js';
-import { spawnParticles, spawnShockwave, rumble, triggerCritFlash } from './effects.js';
+import { spawnParticles, spawnShockwave, rumble, triggerCritFlash, triggerShake } from './effects.js';
 
 /* ============================================================
    フィールド討伐目標との小規模スキルミッシュ(即死ではなく実際に
@@ -82,6 +82,7 @@ function attack() {
   const reduced = Math.max(1, Math.round(retaliation * (100 / (100 + stats.def))));
   state.playerHP = Math.max(1, state.playerHP - reduced);
   rumble(0.3, 150);
+  triggerShake(Math.min(0.2, reduced / 60), 0.3);
   updateBars();
   els.log.textContent = `${dmg}のダメージを与えた！${crit ? '（クリティカル！）' : ''} 反撃で${reduced}のダメージを受けた`;
 }
