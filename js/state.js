@@ -279,13 +279,15 @@ export function checkDailyLogin() {
   const today = new Date().toISOString().slice(0, 10);
   if (state.lastLoginDate === today) return null;
   const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const streakBroken = state.lastLoginDate && state.lastLoginDate !== yesterday && state.loginStreak >= 3;
+  const daysSince = state.lastLoginDate ? Math.round((Date.now() - new Date(state.lastLoginDate).getTime()) / 86400000) : 0;
   state.loginStreak = (state.lastLoginDate === yesterday) ? state.loginStreak + 1 : 1;
   state.lastLoginDate = today;
   let reward = 10 + Math.min(state.loginStreak, 7) * 5;
   const milestone = state.loginStreak > 0 && state.loginStreak % 7 === 0;
   if (milestone) reward += 30;
   addShards(reward);
-  return { streak: state.loginStreak, reward, milestone };
+  return { streak: state.loginStreak, reward, milestone, welcomeBack: streakBroken && daysSince >= 3 ? daysSince : 0 };
 }
 
 export function resetSkills() {
