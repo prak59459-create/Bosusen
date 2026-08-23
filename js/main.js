@@ -345,7 +345,12 @@ function drawRadar() {
     biomeLabelEl.textContent = bName ? `${BIOME_CATEGORY_ICON[bCat] || ''} ${bName}` : '';
   }
   const dots = [];
-  zoneMarkers.forEach(z => dots.push({ x: z.localPos.x, z: z.localPos.z, color: z.chapterIndex === state.chapterIndex ? '#ffe27a' : '#5fd35f' }));
+  // 大陸図と同じ3状態（現在=金／平定済み=緑（再挑戦可）／未到達=灰）で色分けする
+  zoneMarkers.forEach(z => dots.push({
+    x: z.localPos.x, z: z.localPos.z,
+    color: z.chapterIndex === state.chapterIndex ? '#ffe27a'
+      : (z.chapterIndex < state.chapterIndex ? '#5fd35f' : '#555'),
+  }));
   fieldTargets.forEach(f => dots.push({ x: f.localPos.x, z: f.localPos.z, color: '#ff5a5a' }));
   hiddenTreasures.forEach(tr => { if (!state.foundTreasures.includes(tr.id)) dots.push({ x: tr.localPos.x, z: tr.localPos.z, color: '#ffd700' }); });
   questGivers.forEach(g => { if (!isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId)) dots.push({ x: g.localPos.x, z: g.localPos.z, color: '#ffd75e' }); });
