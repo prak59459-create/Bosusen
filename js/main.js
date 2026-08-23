@@ -146,6 +146,16 @@ function renderShop() {
   const ownedCount = SHOP_ITEMS.filter(e => ownsItem(e.itemId)).length;
   const shopProgressFill = document.getElementById('shop-progress-fill');
   if (shopProgressFill) shopProgressFill.style.width = `${Math.round((ownedCount / SHOP_ITEMS.length) * 100)}%`;
+  const shopProgressText = document.getElementById('shop-progress-text');
+  if (shopProgressText) {
+    // ロック中の商品は購入不可なので残額の集計から除く
+    const remaining = SHOP_ITEMS.filter(e => !ownsItem(e.itemId)
+      && !(e.requiresAchievement && !state.achievements.includes(e.requiresAchievement)));
+    const remainingCost = remaining.reduce((sum, e) => sum + e.cost, 0);
+    shopProgressText.textContent = remainingCost > 0
+      ? `購入済み ${ownedCount} / ${SHOP_ITEMS.length}（残り全購入に必要な欠片: ${remainingCost}）`
+      : `購入済み ${ownedCount} / ${SHOP_ITEMS.length}`;
+  }
   const affordableFilterEl = document.getElementById('shop-affordable-filter');
   const affordableOnly = affordableFilterEl && affordableFilterEl.checked;
   const upgradeSortEl = document.getElementById('shop-upgrade-sort');
