@@ -6,7 +6,7 @@ import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTar
   explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions, collectNearbyFireflies, collectNearbyButterflies, BIOME_NAMES } from './world.js';
 import { CHAPTERS, EMOTES } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
-  fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot, ngPlusShardMult } from './state.js';
+  fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot, ngPlusShardMult, isFieldTargetHuntable } from './state.js';
 import { showToast, renderQuestTracker, showCenterMsg, addScreenshotToGallery, copyImageToClipboard } from './ui.js';
 import { sfx, startAmbientWind, stopAmbientWind } from './audio.js';
 import { startSkirmish, isSkirmishActive, scheduleHuntRespawn } from './skirmish.js';
@@ -367,8 +367,8 @@ window.addEventListener('keydown', (e) => {
     pingDirection(unfound, '未発見の秘宝', 'すべての秘宝を発見済みです');
   }
   if (e.code === 'KeyG' && !e.repeat) {
-    const active = fieldTargets.filter(f => !(isQuestDone(CHAPTERS[f.chapterIndex].key, f.questId) || fieldQuestState(f.questId) === 'ready_turnin'));
-    pingDirection(active, '討伐目標', '現在受注中の討伐目標はありません');
+    const active = fieldTargets.filter(isFieldTargetHuntable);
+    pingDirection(active, '討伐目標', '今戦える討伐目標はありません');
   }
   if (e.code === 'KeyQ' && !e.repeat) {
     const undone = questGivers.filter(g => !isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId));
@@ -1192,8 +1192,7 @@ function updateNearestObjective() {
   if (state.showObjectiveHint === false) { el.style.display = 'none'; return; }
   const candidates = [];
   fieldTargets.forEach(t => {
-    const chapterKey = CHAPTERS[t.chapterIndex].key;
-    if (fieldQuestState(t.questId) === 'accepted' && !isQuestDone(chapterKey, t.questId)) {
+    if (isFieldTargetHuntable(t)) {
       candidates.push({ name: `討伐: ${t.name}`, pos: t.localPos });
     }
   });

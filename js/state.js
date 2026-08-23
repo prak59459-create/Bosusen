@@ -223,6 +223,14 @@ export function refreshMaxStats() {
 
 // 戦闘の評価ランク。結果画面だけでなく戦闘中の見込み表示にも使うため、
 // ui/combat のどちらからも参照できる依存のないこのモジュールに置く。
+// 討伐目標が「今その場で戦える」状態か。地図・方角表示・接近判定で共有する。
+// 受注済みで未討伐、または依頼達成後の再討伐がクールダウン明けなら戦える。
+export function isFieldTargetHuntable(t) {
+  const chapterKey = CHAPTERS[t.chapterIndex].key;
+  if (isQuestDone(chapterKey, t.questId)) return Date.now() >= (t.huntReadyAt || 0);
+  return fieldQuestState(t.questId) === 'accepted';
+}
+
 export function calcRank() {
   if (state.damageTaken <= 20 && state.turns <= 10) return 'S';
   if (state.damageTaken <= 50 && state.turns <= 16) return 'A';
