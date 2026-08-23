@@ -438,6 +438,21 @@ export function hasSaveGame() {
   }
 }
 
+export function peekSaveSummary() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return null;
+    const snap = JSON.parse(raw);
+    return {
+      chapterIndex: snap.chapterIndex || 0,
+      level: snap.level || 1,
+      newGamePlus: snap.newGamePlus || 0,
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
 export function loadGame() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);

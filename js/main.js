@@ -6,7 +6,7 @@ import { spawnEnemy } from './enemy.js';
 import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles, rumble, triggerCritFlash } from './effects.js';
 import { resumeAudio, sfx, setMasterVolume, setRainIntensity, setBiomeDrone } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
-import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, addShards, computeStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, totalQuestsDone, totalQuestsAll } from './state.js';
+import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, spendShards, addShards, computeStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, totalQuestsDone, totalQuestsAll, peekSaveSummary } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, showCenterMsg, syncSettingsUI, openMenu, closeMenu, BIOME_CATEGORY_ICON, SLOT_ICON, itemScore } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
@@ -792,6 +792,13 @@ loadPlayerModel((frac) => {
   if (hasSaveGame()) {
     els.startBtn.textContent = '新しく始める';
     els.continueBtn.style.display = 'inline-block';
+    const summary = peekSaveSummary();
+    const summaryEl = document.getElementById('continue-summary');
+    if (summary && summaryEl) {
+      const chapter = CHAPTERS[summary.chapterIndex];
+      summaryEl.textContent = `Lv.${summary.level}｜${chapter ? chapter.title : '?'}${summary.newGamePlus > 0 ? `｜周回+${summary.newGamePlus}` : ''}`;
+      summaryEl.style.display = 'block';
+    }
   } else {
     els.startBtn.textContent = '物語を始める';
   }
