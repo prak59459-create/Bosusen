@@ -768,28 +768,46 @@ function addGlowDecal(x, z, radius, color) {
 }
 
 /* ---------- ゾーンごとの装飾プロップ ---------- */
+// 聖域ごとの装飾オブジェクト。章の追加・並べ替えでずれないよう、
+// 番号ではなく章のキーで引く（未定義のキーは既定の形になる）。
+const PROP_BUILDERS = {
+  castle: mat => new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.5, 2.2 + Math.random(), 8), mat),
+  forest: mat => {
+    const g = new THREE.Group();
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, 1.6, 6), mat);
+    trunk.position.y = 0.8;
+    const leaf = new THREE.Mesh(new THREE.OctahedronGeometry(0.9, 0), mat);
+    leaf.position.y = 1.9;
+    g.add(trunk, leaf);
+    return g;
+  },
+  undercity: mat => new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.6 + Math.random(), 1.2), mat),
+  // 凍てつく灯台: 傾いた氷柱を数本まとめて生やす
+  lighthouse: mat => {
+    const g = new THREE.Group();
+    const n = 2 + Math.floor(Math.random() * 3);
+    for (let k = 0; k < n; k++) {
+      const h = 1.4 + Math.random() * 1.8;
+      const shard = new THREE.Mesh(new THREE.ConeGeometry(0.18 + Math.random() * 0.16, h, 5), mat);
+      shard.position.set((Math.random() - 0.5) * 1.2, h / 2, (Math.random() - 0.5) * 1.2);
+      shard.rotation.z = (Math.random() - 0.5) * 0.5;
+      shard.rotation.x = (Math.random() - 0.5) * 0.5;
+      g.add(shard);
+    }
+    return g;
+  },
+};
+const defaultProp = mat => new THREE.Mesh(new THREE.ConeGeometry(0.4, 2.4 + Math.random(), 6), mat);
+
 function scatterProps(center, theme, chapterIndex, count = 16, spread = 40) {
   const rnd = () => Math.random() - 0.5;
   const propMat = makeToonMaterial({ color: theme.color });
+  const chapterKey = CHAPTERS[chapterIndex] ? CHAPTERS[chapterIndex].key : null;
+  const build = PROP_BUILDERS[chapterKey] || defaultProp;
   for (let i = 0; i < count; i++) {
     const ox = center.x + rnd() * spread, oz = center.z + rnd() * spread;
     addAODecal(ox, oz, 0.9 + Math.random() * 0.6);
-    let mesh;
-    if (chapterIndex === 0) {
-      mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.5, 2.2 + Math.random(), 8), propMat);
-    } else if (chapterIndex === 1) {
-      const g = new THREE.Group();
-      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, 1.6, 6), propMat);
-      trunk.position.y = 0.8;
-      const leaf = new THREE.Mesh(new THREE.OctahedronGeometry(0.9, 0), propMat);
-      leaf.position.y = 1.9;
-      g.add(trunk, leaf);
-      mesh = g;
-    } else if (chapterIndex === 2) {
-      mesh = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.6 + Math.random(), 1.2), propMat);
-    } else {
-      mesh = new THREE.Mesh(new THREE.ConeGeometry(0.4, 2.4 + Math.random(), 6), propMat);
-    }
+    const mesh = build(propMat);
     mesh.position.set(ox, 0, oz);
     mesh.rotation.y = Math.random() * Math.PI * 2;
     mesh.castShadow = true;
