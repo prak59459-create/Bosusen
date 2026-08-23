@@ -247,7 +247,9 @@ function finishGame(won) {
     } else {
       els.endTitle.textContent = `🎉 勝利！${chapter.enemyName}を打ち破った 🎉`;
       els.endTitle.style.color = '#5fd35f';
-      if (state.showBossTaunts !== false) els.endStory.textContent = VICTORY_LINES[Math.floor(Math.random() * VICTORY_LINES.length)];
+      els.endStory.textContent = state.showBossTaunts !== false
+        ? VICTORY_LINES[Math.floor(Math.random() * VICTORY_LINES.length)]
+        : '';
       els.nextBtn.style.display = 'inline-block';
     }
     if (onChapterWin) onChapterWin(state.chapterIndex, isFinal);
