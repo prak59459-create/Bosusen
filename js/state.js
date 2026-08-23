@@ -85,6 +85,7 @@ export const state = {
   reduceFlashing: false,
   uiTextScale: 1,
   photoFilterMode: 0,
+  radarZoomIdx: 1,
   // セッション内の経過時間から算出する Day 数に対応するため、保存せずセッション単位で扱う
   lastBlessingDay: 0,
   seenExploreTutorial: false,
@@ -429,6 +430,7 @@ export function saveGame() {
       reduceFlashing: state.reduceFlashing,
       uiTextScale: state.uiTextScale,
       photoFilterMode: state.photoFilterMode,
+      radarZoomIdx: state.radarZoomIdx,
       seenExploreTutorial: state.seenExploreTutorial,
       seenBattleTutorial: state.seenBattleTutorial,
       showBossTaunts: state.showBossTaunts,
@@ -540,6 +542,7 @@ export function loadGame() {
       reduceFlashing: snap.reduceFlashing || false,
       uiTextScale: snap.uiTextScale || 1,
       photoFilterMode: snap.photoFilterMode || 0,
+      radarZoomIdx: snap.radarZoomIdx != null ? snap.radarZoomIdx : 1,
       seenExploreTutorial: snap.seenExploreTutorial || false,
       seenBattleTutorial: snap.seenBattleTutorial || false,
       showBossTaunts: (snap.showBossTaunts != null) ? snap.showBossTaunts : true,
