@@ -289,6 +289,12 @@ function doJump() {
   }
 }
 
+const DIR_NAMES = ['北', '北東', '東', '南東', '南', '南西', '西', '北西'];
+function directionName(dx, dz) {
+  const angDeg = ((Math.atan2(dx, dz) * 180 / Math.PI) + 360) % 360;
+  return DIR_NAMES[Math.round(angDeg / 45) % 8];
+}
+
 function pingDirection(candidates, label, emptyMsg) {
   if (candidates.length === 0) {
     showToast(emptyMsg, 'info');
@@ -298,11 +304,8 @@ function pingDirection(candidates, label, emptyMsg) {
       const d = Math.hypot(c.localPos.x - localPos.x, c.localPos.z - localPos.z);
       if (d < nearestDist) { nearestDist = d; nearest = c; }
     });
-    const dx = nearest.localPos.x - localPos.x, dz = nearest.localPos.z - localPos.z;
-    const angDeg = ((Math.atan2(dx, dz) * 180 / Math.PI) + 360) % 360;
-    const dirNames = ['北', '北東', '東', '南東', '南', '南西', '西', '北西'];
-    const dirIdx = Math.round(angDeg / 45) % 8;
-    showToast(`最も近い${label}: ${dirNames[dirIdx]}方向へ約${Math.round(nearestDist)}m`, 'quest');
+    const dir = directionName(nearest.localPos.x - localPos.x, nearest.localPos.z - localPos.z);
+    showToast(`最も近い${label}: ${dir}方向へ約${Math.round(nearestDist)}m`, 'quest');
   }
   sfx.uiClick();
 }
@@ -1182,7 +1185,8 @@ function updateNearestObjective() {
     if (d < nearestDist) { nearestDist = d; nearest = c; }
   });
   el.style.display = 'block';
-  el.textContent = `${nearest.name}（残り${Math.round(nearestDist)}m）`;
+  const dir = directionName(nearest.pos.x - localPos.x, nearest.pos.z - localPos.z);
+  el.textContent = `${nearest.name}（${dir} ${Math.round(nearestDist)}m）`;
 }
 
 export function getExploreLocalPos() { return localPos; }
