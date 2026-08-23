@@ -400,6 +400,22 @@ export function renderStatusTab() {
   }
   document.getElementById('st-quests').textContent = `${totalQuestsDone()} / ${totalQuestsAll()}`;
   document.getElementById('st-biomes').textContent = `${(state.discoveredBiomes || []).length} / 35`;
+  {
+    const completionEl = document.getElementById('st-completion');
+    if (completionEl) {
+      const clearCounts = state.chapterClearCounts || {};
+      const questTotal = totalQuestsAll();
+      const parts = [
+        [state.achievements.length, ACHIEVEMENTS.length],
+        [(state.discoveredBiomes || []).length, BIOME_NAMES.length],
+        [totalQuestsDone(), questTotal],
+        [CHAPTERS.filter(c => (clearCounts[c.key] || 0) > 0).length, CHAPTERS.length],
+        [(state.unlockedSkills || []).length, SKILLS.length],
+      ].filter(([, total]) => total > 0);
+      const pct = parts.reduce((sum, [done, total]) => sum + Math.min(1, done / total), 0) / parts.length;
+      completionEl.textContent = `${Math.round(pct * 100)}%`;
+    }
+  }
   document.getElementById('st-fireflies').textContent = state.firefliesCaught || 0;
   document.getElementById('st-butterflies').textContent = state.butterfliesCaught || 0;
   document.getElementById('st-crits').textContent = state.totalCrits || 0;
