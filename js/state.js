@@ -287,6 +287,14 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (shopItemIds && shopItemIds.every(id => state.inventory.includes(id))) tryUnlock('collector');
   if (SKILLS.every(s => state.unlockedSkills.includes(s.id))) tryUnlock('skill_master');
   if ((state.battleDifficulty || state.difficulty) === 'hard') tryUnlock('hard_clear');
+  {
+    // 全章の初撃破日が同一日か（端末のローカル日付で判定）
+    const stamps = CHAPTERS.map(c => (state.firstDefeatedAt || {})[c.key]);
+    if (stamps.every(Boolean)) {
+      const days = stamps.map(t => new Date(t).toLocaleDateString('sv-SE'));
+      if (days.every(d => d === days[0])) tryUnlock('same_day_clear');
+    }
+  }
   if (lastRank != null && state.damageTaken === 0) tryUnlock('flawless');
   if (lastRank != null && state.turns > 0 && state.turns <= 5) tryUnlock('speed_clear');
   if ((state.totalRevives || 0) >= 1) tryUnlock('revived');

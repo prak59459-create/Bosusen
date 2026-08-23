@@ -503,6 +503,13 @@ export function renderStatusTab() {
       parry_master: [state.totalParries || 0, 30],
       dodge_master: [state.totalDodges || 0, 50],
       all_rank_s: [CHAPTERS.filter(c => (state.bestRankPerChapter || {})[c.key] === 'S').length, CHAPTERS.length],
+      same_day_clear: [(() => {
+        const stamps = CHAPTERS.map(c => (state.firstDefeatedAt || {})[c.key]).filter(Boolean);
+        if (stamps.length === 0) return 0;
+        const days = stamps.map(t => new Date(t).toLocaleDateString('sv-SE'));
+        // 同じ日に初撃破した章のうち最多のもの
+        return Math.max(...days.map(d => days.filter(x => x === d).length));
+      })(), CHAPTERS.length],
       all_endings: [(state.seenEndings || []).length, CHAPTERS.reduce((n, c) => n + (c.endings || []).length, 0)],
       quest_complete: [totalQuestsDone(), totalQuestsAll()],
       veteran_hunter: [Math.max(0, ...Object.values(state.chapterClearCounts || {}), 0), 5],
