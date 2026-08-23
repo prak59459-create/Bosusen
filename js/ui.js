@@ -1,6 +1,6 @@
 import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES, WEATHERS } from './data.js';
 import { state, computeStats, calcRank, isLowHp, isQuestDone, chapterQuestsDone, ownsItem,
-  equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData, moveStat, isMoveMastered, effectiveItem, itemLevel, itemUpgradeCost, upgradeItem, MAX_ITEM_LEVEL, dailyTrial, trialClaimedToday } from './state.js';
+  equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData, moveStat, isMoveMastered, effectiveItem, itemLevel, itemUpgradeCost, upgradeItem, MAX_ITEM_LEVEL, dailyTrial, trialClaimedToday, gatherRequestFor } from './state.js';
 import { sfx, setMasterVolume, setAmbientVolume, setHeartbeatActive } from './audio.js';
 import { setQualityPreset, setPhotoFilter, PHOTO_FILTERS } from './scene.js';
 import { setMapOpen, setActiveLoadoutKey, pingQuestObjective } from './explore.js';
@@ -516,6 +516,17 @@ export function renderStatusTab() {
   if (spiritsEl) spiritsEl.textContent = state.spiritsCaught || 0;
   const comboCollectEl = document.getElementById('st-combo-collect');
   if (comboCollectEl) comboCollectEl.textContent = state.bestCollectCombo || 0;
+  const gatherEl = document.getElementById('st-gather');
+  if (gatherEl) {
+    if (state.gatherDay < 0) {
+      gatherEl.textContent = '（探索に出ると発生）';
+    } else {
+      const req = gatherRequestFor(state.gatherDay);
+      gatherEl.textContent = state.gatherClaimed
+        ? `達成済み（累計${state.gatherDone || 0}回）`
+        : `${req.name} ${Math.min(state.gatherProgress || 0, req.need)}/${req.need}${req.unit}`;
+    }
+  }
   const trialEl = document.getElementById('st-trial');
   if (trialEl) {
     const t = dailyTrial();
@@ -591,6 +602,7 @@ export function renderStatusTab() {
       trial_veteran: [state.trialsCleared || 0, 10],
       camper: [state.campfireRests || 0, 15],
       weather_watcher: [(state.seenWeathers || []).length, WEATHERS.length],
+      gather_master: [state.gatherDone || 0, 10],
       smith_master: [Math.max(0, ...Object.values(state.itemLevels || {}), 0), MAX_ITEM_LEVEL],
       move_reader: (() => {
         // 最も見切りが進んでいる章の達成度を表示する

@@ -6,7 +6,7 @@ import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTar
   explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions, collectNearbyFireflies, collectNearbyButterflies, collectNearbySpirits, updateCampfires, nearestCampfire, BIOME_NAMES, undiscoveredBiomeSpots } from './world.js';
 import { CHAPTERS, EMOTES } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
-  fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot, ngPlusShardMult, isFieldTargetHuntable, registerCollect, collectComboMult, COLLECT_COMBO_WINDOW_MS, currentWeather } from './state.js';
+  fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot, ngPlusShardMult, isFieldTargetHuntable, registerCollect, collectComboMult, COLLECT_COMBO_WINDOW_MS, currentWeather, advanceGather } from './state.js';
 import { showToast, renderQuestTracker, showCenterMsg, addScreenshotToGallery, copyImageToClipboard } from './ui.js';
 import { sfx, startAmbientWind, stopAmbientWind } from './audio.js';
 import { startSkirmish, isSkirmishActive, scheduleHuntRespawn } from './skirmish.js';
@@ -163,6 +163,12 @@ function harvest(count, opt) {
   const comboTag = mult > 1 ? `（コンボ${combo} ×${mult.toFixed(1)}）` : '';
   const weatherTag = weather.shardMult > 1 ? `［${weather.icon}${weather.name}の恵み］` : '';
   showToast(`${opt.label}！ 結晶の欠片 +${gain}${comboTag}${weatherTag}`, 'quest');
+  const gatherReward = advanceGather(opt.counter, count);
+  if (gatherReward > 0) {
+    sfx.achievement();
+    showToast(`採取依頼を達成！ 結晶の欠片 +${gatherReward}`, 'quest');
+    showCenterMsg('採取依頼 達成！', '#8fd35f', 1400);
+  }
   checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
   saveGame();
 }

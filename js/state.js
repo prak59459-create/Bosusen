@@ -1,4 +1,4 @@
-import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES, TRIAL_MODS, WEATHERS, levelStatsFor } from './data.js';
+import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES, TRIAL_MODS, WEATHERS, GATHER_KINDS, levelStatsFor } from './data.js';
 
 const SAVE_KEY = 'aetheria_save_v1';
 export const EXPLORE_STAMINA_BASE = 100;
@@ -93,6 +93,11 @@ export const state = {
   campfireRests: 0,
   // 経験した天候の種類（実績用）
   seenWeathers: [],
+  // 日替わりの採取依頼
+  gatherDay: -1,
+  gatherProgress: 0,
+  gatherClaimed: false,
+  gatherDone: 0,
   // 進行中の戦闘が試練かどうか（戦闘開始時に確定させる）
   trialActive: null,
   achievements: [], // array of unlocked achievement ids
@@ -234,6 +239,40 @@ export function markWeatherSeen(id) {
 /** 現在の天候（main が Day を更新するたびに設定する） */
 export function currentWeather() {
   return weatherCache;
+}
+
+/* ---------- 日替わりの採取依頼 ---------- */
+/** その日の採取依頼（Day 番号から決まる） */
+export function gatherRequestFor(day) {
+  let h = Math.imul(day + 7, 2246822519) >>> 0;
+  h = (h ^ (h >>> 14)) >>> 0;
+  return GATHER_KINDS[h % GATHER_KINDS.length];
+}
+
+/** 現在の採取依頼。Day が変わっていれば作り直す */
+export function currentGatherRequest(day) {
+  if (state.gatherDay !== day) {
+    state.gatherDay = day;
+    state.gatherProgress = 0;
+    state.gatherClaimed = false;
+  }
+  return gatherRequestFor(state.gatherDay);
+}
+
+/**
+ * 採取依頼の進捗を進める。達成した瞬間だけ報酬額を返す（それ以外は 0）。
+ * 依頼の対象と違う種類を捕まえた場合は何もしない。
+ */
+export function advanceGather(kindCounter, count) {
+  if (state.gatherDay < 0 || state.gatherClaimed) return 0;
+  const req = gatherRequestFor(state.gatherDay);
+  if (req.counter !== kindCounter) return 0;
+  state.gatherProgress = (state.gatherProgress || 0) + count;
+  if (state.gatherProgress < req.need) return 0;
+  state.gatherClaimed = true;
+  state.gatherDone = (state.gatherDone || 0) + 1;
+  addShards(req.reward);
+  return req.reward;
 }
 
 /* ---------- 日替わりの試練 ---------- */
@@ -534,6 +573,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if ((state.trialsCleared || 0) >= 10) tryUnlock('trial_veteran');
   if ((state.campfireRests || 0) >= 15) tryUnlock('camper');
   if (WEATHERS.every(w => (state.seenWeathers || []).includes(w.id))) tryUnlock('weather_watcher');
+  if ((state.gatherDone || 0) >= 10) tryUnlock('gather_master');
   {
     // 1つの章の全ての技（覚醒後を含む）を見切ると解除
     const readAll = CHAPTERS.some(c => {
@@ -702,6 +742,10 @@ export function saveGame() {
       trialsCleared: state.trialsCleared,
       campfireRests: state.campfireRests,
       seenWeathers: state.seenWeathers,
+      gatherDay: state.gatherDay,
+      gatherProgress: state.gatherProgress,
+      gatherClaimed: state.gatherClaimed,
+      gatherDone: state.gatherDone,
       achievements: state.achievements,
       questProgress: state.questProgress,
       fieldQuests: state.fieldQuests,
@@ -839,6 +883,10 @@ export function loadGame() {
       trialsCleared: asNumber(snap.trialsCleared, 0),
       campfireRests: asNumber(snap.campfireRests, 0),
       seenWeathers: asArray(snap.seenWeathers, []),
+      gatherDay: asNumber(snap.gatherDay, -1),
+      gatherProgress: asNumber(snap.gatherProgress, 0),
+      gatherClaimed: !!snap.gatherClaimed,
+      gatherDone: asNumber(snap.gatherDone, 0),
       achievements: asArray(snap.achievements),
       questProgress: asObject(snap.questProgress),
       fieldQuests: asObject(snap.fieldQuests),

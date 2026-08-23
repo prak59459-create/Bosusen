@@ -355,6 +355,7 @@ export const ACHIEVEMENTS = [
   { id:'same_day_clear', name:'一日の疾走', desc:'すべての章を同じ日のうちに撃破する。', reward:55 },
   { id:'spirit_collector', name:'精霊の導き手', desc:'結晶バイオームの精霊球を累計30個集める。', reward:45 },
   { id:'collect_combo', name:'一息の収穫', desc:'蛍・蝶・精霊球を連続で15回採取する。', reward:40 },
+  { id:'gather_master', name:'採取名人', desc:'日替わりの採取依頼を10回達成する。', reward:65 },
   { id:'weather_watcher', name:'空模様の記録者', desc:'晴れ・曇り・雨・霧のすべてを体験する。', reward:40 },
   { id:'camper', name:'焚き火の旅人', desc:'焚き火で15回休む。', reward:35 },
   { id:'trial_veteran', name:'日々の試練者', desc:'日替わりの試練を10回達成する。', reward:70 },
@@ -390,4 +391,12 @@ export const WEATHERS = [
   { id:'cloudy',   name:'曇り',   icon:'☁️', rain:false, fog:1.25, shardMult:1 },
   { id:'rain',     name:'雨',     icon:'🌧', rain:true,  fog:1.4,  shardMult:1.2 },
   { id:'fog',      name:'霧',     icon:'🌫', rain:false, fog:2.2,  shardMult:1.1 },
+];
+
+/* ---------- 日替わりの採取依頼 ---------- */
+// その日の Day 番号から決まる。達成すると欠片がもらえる。
+export const GATHER_KINDS = [
+  { id:'firefly', counter:'firefliesCaught', name:'蛍',     unit:'匹', need:12, reward:90 },
+  { id:'butterfly', counter:'butterfliesCaught', name:'蝶', unit:'匹', need:10, reward:80 },
+  { id:'spirit', counter:'spiritsCaught', name:'精霊球',    unit:'個', need:6,  reward:110 },
 ];
