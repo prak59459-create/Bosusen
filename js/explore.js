@@ -3,7 +3,7 @@ import { camera, scene, setCameraMode, renderer, setPhotoFilter, PHOTO_FILTERS, 
 import { player, crossfadeTo } from './player.js';
 import { spawnParticles } from './effects.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
-  explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions, collectNearbyFireflies, collectNearbyButterflies, collectNearbySpirits, BIOME_NAMES, undiscoveredBiomeSpots } from './world.js';
+  explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions, collectNearbyFireflies, collectNearbyButterflies, collectNearbySpirits, updateCampfires, nearestCampfire, BIOME_NAMES, undiscoveredBiomeSpots } from './world.js';
 import { CHAPTERS, EMOTES } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
   fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot, ngPlusShardMult, isFieldTargetHuntable, registerCollect, collectComboMult, COLLECT_COMBO_WINDOW_MS } from './state.js';
@@ -117,6 +117,23 @@ let fireflyCheckTimer = 0;
  * @param {number} count 捕まえた数（0 なら何もしない）
  * @param {{label:string, per:number, counter:string, color:number, height:number, particles:number, sound:function}} opt
  */
+/** 焚き火のそばで休む。探索スタミナを満タンにして記録を残す */
+function restAtCampfire() {
+  const here = nearestCampfire(localPos.x, localPos.z, 4);
+  if (!here) { showToast('近くに焚き火がありません', 'info'); return; }
+  if (exploreStamina >= exploreStaminaMax() - 0.5) {
+    showToast('十分に休んでいる', 'info');
+    return;
+  }
+  exploreStamina = exploreStaminaMax();
+  state.campfireRests = (state.campfireRests || 0) + 1;
+  sfx.heal();
+  spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.2, 0)), 0xffa03c, 14);
+  showToast('焚き火で休んだ。探索スタミナが回復した', 'quest');
+  checkAchievements(hiddenTreasures.length).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
+  saveGame();
+}
+
 /** 採取コンボの残り猶予と倍率を HUD に反映する（コンボが無いときは隠す） */
 function updateComboHud() {
   const el = document.getElementById('collect-combo');
@@ -419,6 +436,7 @@ window.addEventListener('keydown', (e) => {
   }
   if (e.code === 'KeyE' && !e.repeat) doDash();
   if (e.code === 'KeyF' && !e.repeat) cycleEmote();
+  if (e.code === 'KeyJ' && !e.repeat) restAtCampfire();
   // 数字キーは EMOTES の数に追従させる（種類を増やしても割り当てが漏れない）
   if (/^Digit[1-9]$/.test(e.code) && !e.repeat && parseInt(e.code.slice(-1), 10) <= EMOTES.length) {
     playEmote(parseInt(e.code.slice(-1), 10) - 1);
@@ -1080,6 +1098,7 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
   }
 
   updateComboHud();
+  updateCampfires(absTime);
 
   fireflyCheckTimer -= dt;
   if (fireflyCheckTimer <= 0) {

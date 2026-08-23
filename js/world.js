@@ -1022,6 +1022,56 @@ export const shopLocalPos = new THREE.Vector3(8, 0, -4);
   worldGroup.add(shopLight);
 }
 
+/* ---------- 焚き火（休息地点） ---------- */
+// 拠点と各聖域の手前に置き、近づいて休むと探索スタミナが全回復する。
+export const campfires = [];
+{
+  const logMat = makeToonMaterial({ color: 0x6b4a2a, emissive: 0x2a1a0a, emissiveIntensity: 0.4 });
+  const flameMat = new THREE.MeshBasicMaterial({ color: 0xffa03c, transparent: true, opacity: 0.9 });
+  const spots = [new THREE.Vector3(-7, 0, -5)];
+  for (let i = 0; i < CHAPTERS.length; i++) {
+    const z = zoneLocalPos(i);
+    spots.push(new THREE.Vector3(z.x * 0.82, 0, z.z * 0.82));
+  }
+  spots.forEach(spot => {
+    const g = new THREE.Group();
+    for (let k = 0; k < 4; k++) {
+      const log = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 1.1, 5), logMat);
+      log.rotation.set(Math.PI / 2.6, (k / 4) * Math.PI * 2, 0);
+      log.position.y = 0.25;
+      g.add(log);
+    }
+    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.35, 0.9, 6), flameMat);
+    flame.position.y = 0.8;
+    g.add(flame);
+    g.position.set(spot.x, 0, spot.z);
+    worldGroup.add(g);
+    const light = new THREE.PointLight(0xffa03c, 2.2, 10, 2);
+    light.position.set(spot.x, 1.2, spot.z);
+    worldGroup.add(light);
+    campfires.push({ group: g, flame, light, localPos: spot.clone() });
+  });
+}
+
+/** 焚き火の炎を揺らす */
+export function updateCampfires(t) {
+  campfires.forEach((c, i) => {
+    const f = 1 + Math.sin(t * 6 + i * 1.7) * 0.12 + Math.sin(t * 11 + i) * 0.06;
+    c.flame.scale.set(1, f, 1);
+    c.light.intensity = 2.2 * f;
+  });
+}
+
+/** 指定地点から半径内にある焚き火（無ければ null） */
+export function nearestCampfire(x, z, radius) {
+  let best = null, bestD = radius;
+  campfires.forEach(c => {
+    const d = Math.hypot(c.localPos.x - x, c.localPos.z - z);
+    if (d < bestD) { bestD = d; best = c; }
+  });
+  return best;
+}
+
 /* ---------- ゾーン状態の見た目更新（未到達／挑戦可／クリア済み） ---------- */
 export function refreshZoneVisuals(currentChapterIndex) {
   zoneMarkers.forEach(z => {

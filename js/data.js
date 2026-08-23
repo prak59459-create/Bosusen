@@ -355,6 +355,7 @@ export const ACHIEVEMENTS = [
   { id:'same_day_clear', name:'一日の疾走', desc:'すべての章を同じ日のうちに撃破する。', reward:55 },
   { id:'spirit_collector', name:'精霊の導き手', desc:'結晶バイオームの精霊球を累計30個集める。', reward:45 },
   { id:'collect_combo', name:'一息の収穫', desc:'蛍・蝶・精霊球を連続で15回採取する。', reward:40 },
+  { id:'camper', name:'焚き火の旅人', desc:'焚き火で15回休む。', reward:35 },
   { id:'trial_veteran', name:'日々の試練者', desc:'日替わりの試練を10回達成する。', reward:70 },
   { id:'smith_master', name:'鍛え上げた一振り', desc:'装備をひとつ最大まで強化する。', reward:60 },
   { id:'move_reader', name:'完全読み', desc:'ある聖域のボスの技をすべて見切る（各技3回ずつ凌ぐ）。', reward:55 },

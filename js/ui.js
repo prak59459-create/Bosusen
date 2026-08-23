@@ -589,6 +589,7 @@ export function renderStatusTab() {
       spirit_collector: [state.spiritsCaught || 0, 30],
       collect_combo: [state.bestCollectCombo || 0, 15],
       trial_veteran: [state.trialsCleared || 0, 10],
+      camper: [state.campfireRests || 0, 15],
       smith_master: [Math.max(0, ...Object.values(state.itemLevels || {}), 0), MAX_ITEM_LEVEL],
       move_reader: (() => {
         // 最も見切りが進んでいる章の達成度を表示する
@@ -1801,6 +1802,7 @@ const LOADING_TIPS = [
   'Bキーでミニマップの表示範囲を切り替えられる。',
   'Mキーで大陸図を開き、クリックでファストトラベルできる。',
   '装備タブから欠片を払って装備を+5まで強化できる。',
+  '拠点や聖域の手前にある焚き火に近づいてJキーで休むと、探索スタミナが全回復する。',
   '戦闘中の「集中」(6キー)はスタミナとエーテルを取り戻し、次の攻撃の威力を40%上げる。',
   '夜になると出現する野生生物や現象もある。',
   'ゲームパッドも対応しているので接続すればそのまま遊べる。',

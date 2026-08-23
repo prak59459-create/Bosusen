@@ -90,6 +90,7 @@ export const state = {
   // 日替わりの試練
   trialClaimedDate: null,
   trialsCleared: 0,
+  campfireRests: 0,
   // 進行中の戦闘が試練かどうか（戦闘開始時に確定させる）
   trialActive: null,
   achievements: [], // array of unlocked achievement ids
@@ -498,6 +499,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if ((state.bestCollectCombo || 0) >= 15) tryUnlock('collect_combo');
   if (Object.values(state.itemLevels || {}).some(v => v >= MAX_ITEM_LEVEL)) tryUnlock('smith_master');
   if ((state.trialsCleared || 0) >= 10) tryUnlock('trial_veteran');
+  if ((state.campfireRests || 0) >= 15) tryUnlock('camper');
   {
     // 1つの章の全ての技（覚醒後を含む）を見切ると解除
     const readAll = CHAPTERS.some(c => {
@@ -664,6 +666,7 @@ export function saveGame() {
       itemLevels: state.itemLevels,
       trialClaimedDate: state.trialClaimedDate,
       trialsCleared: state.trialsCleared,
+      campfireRests: state.campfireRests,
       achievements: state.achievements,
       questProgress: state.questProgress,
       fieldQuests: state.fieldQuests,
@@ -799,6 +802,7 @@ export function loadGame() {
       itemLevels: asObject(snap.itemLevels, {}),
       trialClaimedDate: snap.trialClaimedDate || null,
       trialsCleared: asNumber(snap.trialsCleared, 0),
+      campfireRests: asNumber(snap.campfireRests, 0),
       achievements: asArray(snap.achievements),
       questProgress: asObject(snap.questProgress),
       fieldQuests: asObject(snap.fieldQuests),

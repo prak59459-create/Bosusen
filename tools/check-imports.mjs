@@ -91,7 +91,47 @@ for (const file of files) {
   }
 }
 
-console.log(`${files.length} モジュール / ${checked} 件の named import を検査しました`);
+// 定数名（SCREAMING_CASE）の未定義使用を検査する。
+// 例: ZONE_COUNT のように「ありそうな名前」を書いてしまうと、
+// import 漏れの検査にも引っかからず、実行して該当処理が動くまで気づけない。
+// 文字列・コメントの中には英大文字語（HUD、WASD など）が普通に出てくるため、
+// 先に取り除いてから識別子として使われている箇所だけを見る。
+const GLOBAL_CONSTS = new Set(['JSON', 'URL', 'NaN', 'Infinity', 'Math', 'Date', 'Image', 'Audio', 'FileReader', 'Blob']);
+function stripLiterals(src) {
+  return src
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .replace(/(^|[^:])\/\/[^\n]*/g, '$1 ')
+    .replace(/`(?:\\.|\$\{[^{}]*\}|[^`\\])*`/g, '``')
+    .replace(/'(?:\\.|[^'\\])*'/g, "''")
+    .replace(/"(?:\\.|[^"\\])*"/g, '""');
+}
+let constChecked = 0;
+for (const file of files) {
+  const raw = readFileSync(join(jsDir, file), 'utf8');
+  const src = stripLiterals(raw);
+  const defined = new Set(GLOBAL_CONSTS);
+  for (const m of src.matchAll(/(?:const|let|var|function|class)\s+([A-Z][A-Z0-9_]{2,})\b/g)) defined.add(m[1]);
+  for (const m of raw.matchAll(/import\s*(?:\*\s*as\s+(\w+)|\{([^{}]*)\}|(\w+))\s*from/g)) {
+    if (m[1]) defined.add(m[1]);
+    if (m[3]) defined.add(m[3]);
+    if (m[2]) for (const part of m[2].split(',')) {
+      const name = part.trim().split(/\s+as\s+/).pop().trim();
+      if (name) defined.add(name);
+    }
+  }
+  // 分割代入・引数・オブジェクトのキーで現れる名前も定義済みとみなす
+  for (const m of src.matchAll(/[({,]\s*([A-Z][A-Z0-9_]{2,})\s*[,)}=:]/g)) defined.add(m[1]);
+  const seen = new Set();
+  for (const m of src.matchAll(/(^|[^.\w$])([A-Z][A-Z0-9_]{2,})\s*[[(.,;)\]}=+\-*/<>?:!&|\s]/gm)) {
+    const name = m[2];
+    if (defined.has(name) || seen.has(name)) continue;
+    seen.add(name);
+    problems.push(`${file}: ${name} を使っていますが、この場で定義も import もされていません`);
+  }
+  constChecked += seen.size + defined.size;
+}
+
+console.log(`${files.length} モジュール / ${checked} 件の named import / ${constChecked} 件の定数参照を検査しました`);
 if (problems.length > 0) {
   console.error(`\n${problems.length} 件の問題:`);
   for (const p of problems) console.error(`  - ${p}`);
