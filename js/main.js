@@ -47,6 +47,10 @@ window.addEventListener('keydown', (e) => {
     showToast(`グラフィック品質: ${state.quality.toUpperCase()}`, 'info');
     saveGame();
   }
+  if (e.code === 'F5' && !e.repeat && (exploreActive || state.playing)) {
+    e.preventDefault();
+    if (saveGame()) { sfx.uiClick(); showToast('クイックセーブしました', 'info'); }
+  }
 });
 let debugOverlayVisible = false;
 
