@@ -1,4 +1,4 @@
-import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, levelStatsFor } from './data.js';
+import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES, levelStatsFor } from './data.js';
 
 const SAVE_KEY = 'aetheria_save_v1';
 export const EXPLORE_STAMINA_BASE = 100;
@@ -304,7 +304,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if ((state.screenshotsTaken || 0) >= 10) tryUnlock('photographer');
   if ((state.screenshotsTaken || 0) >= 50) tryUnlock('master_photographer');
   if (state.gotGoldenHourPhoto) tryUnlock('golden_hour');
-  if ((state.emotesUsedSet || []).length >= 4) tryUnlock('emote_master');
+  if ((state.emotesUsedSet || []).length >= EMOTES.length) tryUnlock('emote_master');
   if ((state.collectedLore || []).length >= 8) tryUnlock('lore_master');
   if ((state.newGamePlus || 0) >= 5) tryUnlock('ng_plus_5');
   const otherIds = ACHIEVEMENTS.filter(a => a.id !== 'completionist').map(a => a.id);

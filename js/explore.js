@@ -4,7 +4,7 @@ import { player, crossfadeTo } from './player.js';
 import { spawnParticles } from './effects.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
   explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions, collectNearbyFireflies, collectNearbyButterflies, BIOME_NAMES } from './world.js';
-import { CHAPTERS } from './data.js';
+import { CHAPTERS, EMOTES } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
   fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot, ngPlusShardMult } from './state.js';
 import { showToast, renderQuestTracker, showCenterMsg, addScreenshotToGallery, copyImageToClipboard } from './ui.js';
@@ -189,12 +189,6 @@ let dashCooldown = 0;
 let dashTimer = 0;
 let dashTrailTimer = 0;
 let fovKickCur = 0;
-const EMOTES = [
-  { label: '🎉 お祝い！', colors: [0xffd700, 0xff6a9f, 0x66eaff, 0x9fff7a] },
-  { label: '👋 やあ！', colors: [0x66eaff, 0x9fe0ff] },
-  { label: '✨ すごい！', colors: [0xffd700, 0xfff2a8] },
-  { label: '💪 頑張るぞ！', colors: [0xff5a5a, 0xffcc44] },
-];
 let emoteIdx = 0;
 let lastHubReturnAt = -Infinity;
 function playEmote(idx) {

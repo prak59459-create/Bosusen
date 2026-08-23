@@ -1,4 +1,4 @@
-import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS } from './data.js';
+import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES } from './data.js';
 import { state, computeStats, isQuestDone, ownsItem,
   equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData } from './state.js';
 import { sfx, setMasterVolume, setHeartbeatActive } from './audio.js';
@@ -501,7 +501,7 @@ export function renderStatusTab() {
       photographer: [state.screenshotsTaken || 0, 10],
       master_photographer: [state.screenshotsTaken || 0, 50],
       golden_hour: [state.gotGoldenHourPhoto ? 1 : 0, 1],
-      emote_master: [(state.emotesUsedSet || []).length, 4],
+      emote_master: [(state.emotesUsedSet || []).length, EMOTES.length],
       lore_master: [(state.collectedLore || []).length, 8],
       ng_plus_5: [state.newGamePlus || 0, 5],
       revived: [state.totalRevives || 0, 1],

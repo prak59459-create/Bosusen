@@ -354,3 +354,11 @@ export const ACHIEVEMENTS = [
   { id:'veteran_resident', name:'エーテリアの守護者', desc:'累計プレイ時間が10時間に達する。', reward:100 },
   { id:'golden_hour', name:'黄金の一瞬', desc:'ゴールデンアワーにスクリーンショットを撮影する。', reward:20 },
 ];
+
+/* エモート（種類数が実績「エモートの達人」の判定にも使われる） */
+export const EMOTES = [
+  { label: '🎉 お祝い！', colors: [0xffd700, 0xff6a9f, 0x66eaff, 0x9fff7a] },
+  { label: '👋 やあ！', colors: [0x66eaff, 0x9fe0ff] },
+  { label: '✨ すごい！', colors: [0xffd700, 0xfff2a8] },
+  { label: '💪 頑張るぞ！', colors: [0xff5a5a, 0xffcc44] },
+];
