@@ -386,6 +386,17 @@ export function renderStatusTab() {
   document.getElementById('st-bosses').textContent = state.bossesDefeated || 0;
   document.getElementById('st-combo').textContent = state.lifetimeBestCombo || 0;
   document.getElementById('st-ngplus').textContent = state.newGamePlus || 0;
+  {
+    const ng = state.newGamePlus || 0;
+    const multRow = document.getElementById('st-ngplus-mult-row');
+    const multEl = document.getElementById('st-ngplus-mult');
+    if (multRow && multEl) {
+      multRow.style.display = ng > 0 ? '' : 'none';
+      if (ng > 0) {
+        multEl.textContent = `敵の強さ ${Math.round((1 + ng * 0.25) * 100)}%／獲得シャード ${Math.round((1 + ng * 0.2) * 100)}%`;
+      }
+    }
+  }
   document.getElementById('st-loginstreak').textContent = state.loginStreak || 0;
   document.getElementById('st-winstreak').textContent = state.bestWinStreak || 0;
   document.getElementById('st-distance').textContent = `${Math.round(state.totalDistanceTraveled || 0)}m`;
@@ -1108,6 +1119,7 @@ export function initMenu(onSave, onTitle) {
   if (copyStatsBtn) {
     copyStatsBtn.addEventListener('click', async () => {
       const rows = [...document.querySelectorAll('#page-status .status-grid .status-row')]
+        .filter(r => r.offsetParent !== null)
         .map(r => `${r.querySelector('span').textContent}: ${r.querySelector('b').textContent}`);
       const text = [
         'Bosusen: Echoes of the Void ｜ 戦績',
