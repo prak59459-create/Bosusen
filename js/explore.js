@@ -9,7 +9,7 @@ import { state, isQuestDone, completeQuest, addShards, addItem,
   fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot, ngPlusShardMult } from './state.js';
 import { showToast, renderQuestTracker, showCenterMsg, addScreenshotToGallery, copyImageToClipboard } from './ui.js';
 import { sfx, startAmbientWind, stopAmbientWind } from './audio.js';
-import { startSkirmish, isSkirmishActive } from './skirmish.js';
+import { startSkirmish, isSkirmishActive, scheduleHuntRespawn } from './skirmish.js';
 
 /* ============================================================
    オープンワールド探索 ―― WASD/仮想スティック移動＋三人称追従カメラ
@@ -715,6 +715,9 @@ function tryTurnInOrAccept(giver) {
     checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
     checkChapterQuestCelebration(giver.chapterIndex);
     if (giver.beam) giver.beam.visible = false;
+    // 納品を終えた討伐目標は再挑戦できるので、輝きを戻して狙えることを示す
+    const doneTarget = fieldTargets.find(t => t.questId === giver.questId);
+    if (doneTarget) { doneTarget.huntReadyAt = 0; scheduleHuntRespawn(doneTarget); }
     renderQuestTracker();
     saveGame();
   } else if (fState === 'accepted') {

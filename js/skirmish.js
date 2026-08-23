@@ -37,6 +37,17 @@ export function initSkirmishUI() {
   els.fleeBtn.addEventListener('click', flee);
 }
 
+// クールダウンが明けたら輝きを戻し、再び討伐できることを見た目で示す
+export function scheduleHuntRespawn(target) {
+  const delay = Math.max(0, (target.huntReadyAt || 0) - Date.now());
+  setTimeout(() => {
+    if (target.baseEmissive === undefined) return;
+    target.material.emissiveIntensity = target.baseEmissive;
+    target.light.intensity = target.baseLight;
+    if (target.beam) target.beam.visible = true;
+  }, delay);
+}
+
 export function startSkirmish(target, isRepeat = false) {
   if (active) return;
   active = true;
@@ -103,18 +114,18 @@ function finishSkirmish(won) {
   if (won && currentTarget) {
     state.fieldKillsTotal = (state.fieldKillsTotal || 0) + 1;
     if (!repeatHunt) markFieldTargetDefeated(currentTarget.questId);
+    // 元の輝きを一度だけ控えておき、再挑戦可能になったら戻せるようにする
+    if (currentTarget.baseEmissive === undefined) {
+      currentTarget.baseEmissive = currentTarget.material.emissiveIntensity;
+      currentTarget.baseLight = currentTarget.light.intensity;
+    }
+    // 討伐直後は輝きを落とす（再挑戦のクールダウン中であることを示す）
+    currentTarget.material.emissiveIntensity = 0.1;
+    currentTarget.light.intensity = 0.2;
+    if (currentTarget.beam) currentTarget.beam.visible = false;
     if (repeatHunt) {
-      // 再討伐時は見た目を戻し、また狙えることが分かるようにする
       currentTarget.huntReadyAt = Date.now() + REPEAT_HUNT_COOLDOWN_MS;
-    } else {
-      // 初回（依頼の討伐）は元の輝きを控えて達成を示す
-      if (currentTarget.baseEmissive === undefined) {
-        currentTarget.baseEmissive = currentTarget.material.emissiveIntensity;
-        currentTarget.baseLight = currentTarget.light.intensity;
-      }
-      currentTarget.material.emissiveIntensity = 0.1;
-      currentTarget.light.intensity = 0.2;
-      if (currentTarget.beam) currentTarget.beam.visible = false;
+      scheduleHuntRespawn(currentTarget);
     }
     sfx.questDone();
     if (currentTarget.mesh) spawnShockwave(currentTarget.mesh.getWorldPosition(currentTarget.mesh.position.clone()), 0xff6644);

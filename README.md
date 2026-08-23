@@ -88,7 +88,7 @@ node tools/check-all.mjs
 | ツール | 検査内容 |
 | --- | --- |
 | （check-all に内蔵） | `js/` 全ファイルの構文チェック |
-| `tools/check-imports.mjs` | 相対 import が実在する export を指しているか |
+| `tools/check-imports.mjs` | 相対 import が実在する export を指しているか／import 忘れの検出 |
 | `tools/check-save-fields.mjs` | state の既定値・保存・復元の対応漏れ |
 | `tools/check-achievements.mjs` | 実績の定義・解除判定・進捗バーの対応 |
 | `tools/check-data.mjs` | 章・装備・スキル・ショップなどデータ間の参照整合性 |
