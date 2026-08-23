@@ -10,7 +10,7 @@ import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, ad
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, showCenterMsg, syncSettingsUI, openMenu, closeMenu, BIOME_CATEGORY_ICON, SLOT_ICON, itemScore, itemStatParts, itemCompareTag } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
-import { BIOME_NAMES, HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt, biomeNameAt, triggerLightning, updateLightning, updateButterflies, updateScorpions, updateFoxes, updateFrogs, updateCrows, updateSalamanders, updateDrones, updateSpirits, triggerRainbow, updateRainbow, updateHubSparks, updateGuideBeams } from './world.js';
+import { BIOME_NAMES, undiscoveredBiomeSpots, HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt, biomeNameAt, triggerLightning, updateLightning, updateButterflies, updateScorpions, updateFoxes, updateFrogs, updateCrows, updateSalamanders, updateDrones, updateSpirits, triggerRainbow, updateRainbow, updateHubSparks, updateGuideBeams } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone, setOnReplayZone,
   setOnOpenShop, setOnToggleMap, setOnToggleMute, getPlayerLocalPos, exploreActive, setMapOpen, setExploreLocalPos, getPlayerFacing, setActiveLoadoutKey } from './explore.js';
 import { initSkirmishUI, resetSkirmish } from './skirmish.js';
@@ -495,6 +495,24 @@ function drawMap() {
     mapCtx.fillStyle = done ? 'rgba(255,215,94,0.3)' : '#ffd75e';
     mapCtx.fill();
   });
+
+  // 未発見バイオームの目印。序盤は数が多く地図が埋まるので、
+  // 収集の詰めに入った段階（残り8種以下）でのみ表示する。
+  {
+    const spots = undiscoveredBiomeSpots(state.discoveredBiomes);
+    if (spots.length > 0 && spots.length <= 8) {
+      mapCtx.save();
+      mapCtx.strokeStyle = 'rgba(120,200,255,0.9)';
+      mapCtx.lineWidth = 2;
+      spots.forEach(sp => {
+        const x = cx + sp.localPos.x * scale, y = cy + sp.localPos.z * scale;
+        mapCtx.beginPath();
+        mapCtx.arc(x, y, 6, 0, Math.PI * 2);
+        mapCtx.stroke();
+      });
+      mapCtx.restore();
+    }
+  }
 
   explorePickups.forEach(p => {
     if (!p.mesh.visible) return;
