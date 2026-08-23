@@ -454,6 +454,14 @@ window.addEventListener('keyup', (e) => {
   if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = false;
   if ((e.code === 'ShiftLeft' || e.code === 'ShiftRight') && !sprintLock) keys.sprint = false;
 });
+window.addEventListener('blur', () => {
+  keys.forward = false;
+  keys.back = false;
+  keys.left = false;
+  keys.right = false;
+  if (!sprintLock) keys.sprint = false;
+  joyVec = { x: 0, y: 0 };
+});
 
 /* ---------- 仮想スティック(モバイル/マウスドラッグ両対応) ---------- */
 let joyBase = null, joyKnob = null, joyPointerId = null, joyOrigin = { x: 0, y: 0 };
