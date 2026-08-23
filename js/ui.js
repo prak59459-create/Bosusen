@@ -1,6 +1,6 @@
 import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES, WEATHERS, STATUS_DEFS } from './data.js';
 import { state, computeStats, calcRank, isLowHp, isQuestDone, chapterQuestsDone, ownsItem,
-  equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData, moveStat, isMoveMastered, effectiveItem, itemLevel, itemUpgradeCost, upgradeItem, MAX_ITEM_LEVEL, dailyTrial, trialClaimedToday, gatherRequestFor } from './state.js';
+  equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData, moveStat, isMoveMastered, effectiveItem, itemLevel, itemUpgradeCost, upgradeItem, MAX_ITEM_LEVEL, dailyTrial, trialClaimedToday, gatherRequestFor, weatherForDay, dailyDealFor, discountedCost } from './state.js';
 import { sfx, setMasterVolume, setAmbientVolume, setHeartbeatActive } from './audio.js';
 import { setQualityPreset, setPhotoFilter, PHOTO_FILTERS } from './scene.js';
 import { setMapOpen, setActiveLoadoutKey, pingQuestObjective } from './explore.js';
@@ -551,6 +551,40 @@ export function renderStatusTab() {
   if (spiritsEl) spiritsEl.textContent = state.spiritsCaught || 0;
   const comboCollectEl = document.getElementById('st-combo-collect');
   if (comboCollectEl) comboCollectEl.textContent = state.bestCollectCombo || 0;
+  const todayEl = document.getElementById('st-today');
+  if (todayEl) {
+    // 天候・試練・採取依頼・目玉商品が別々の場所に散らばっていたため、
+    // その日の状況をここに一覧でまとめる。
+    const day = state.currentDay || 0;
+    const w = weatherForDay(day);
+    const t = dailyTrial();
+    const rows = [
+      ['Day', `${day}`],
+      ['天候', `${w.icon} ${w.name}${w.shardMult > 1 ? `（採取 +${Math.round((w.shardMult - 1) * 100)}%）` : ''}`],
+      ['試練', trialClaimedToday()
+        ? `達成済み（累計${state.trialsCleared || 0}回）`
+        : `${CHAPTERS[t.chapterIndex].title}／${t.mod.name}`],
+    ];
+    if (state.gatherDay < 0) {
+      rows.push(['採取依頼', '（探索に出ると発生）']);
+    } else {
+      const req = gatherRequestFor(state.gatherDay);
+      rows.push(['採取依頼', state.gatherClaimed
+        ? `達成済み（累計${state.gatherDone || 0}回）`
+        : `${req.name} ${Math.min(state.gatherProgress || 0, req.need)}/${req.need}${req.unit}`]);
+    }
+    const deal = dailyDealFor(day, SHOP_ITEMS.length);
+    if (deal) {
+      const entry = SHOP_ITEMS[deal.index];
+      const item = ITEMS[entry.itemId];
+      if (item) {
+        rows.push(['商店の目玉', `${item.name}（${discountedCost(entry.cost, deal.rate)}欠片・${Math.round(deal.rate * 100)}%引）`]);
+      }
+    }
+    todayEl.innerHTML = rows
+      .map(([k, v]) => `<div class="status-row"><span>${k}</span><b>${v}</b></div>`)
+      .join('');
+  }
   const gauntletEl = document.getElementById('st-gauntlet');
   if (gauntletEl) {
     gauntletEl.textContent = state.bestGauntletMs
@@ -562,24 +596,6 @@ export function renderStatusTab() {
     // 全ての聖域を一度は平定してから挑めるようにする
     const allCleared = CHAPTERS.every(c => (state.chapterClearCounts[c.key] || 0) > 0);
     gauntletBtn.style.display = allCleared ? '' : 'none';
-  }
-  const gatherEl = document.getElementById('st-gather');
-  if (gatherEl) {
-    if (state.gatherDay < 0) {
-      gatherEl.textContent = '（探索に出ると発生）';
-    } else {
-      const req = gatherRequestFor(state.gatherDay);
-      gatherEl.textContent = state.gatherClaimed
-        ? `達成済み（累計${state.gatherDone || 0}回）`
-        : `${req.name} ${Math.min(state.gatherProgress || 0, req.need)}/${req.need}${req.unit}`;
-    }
-  }
-  const trialEl = document.getElementById('st-trial');
-  if (trialEl) {
-    const t = dailyTrial();
-    trialEl.textContent = trialClaimedToday()
-      ? `達成済み（累計${state.trialsCleared || 0}回）`
-      : `${CHAPTERS[t.chapterIndex].title || CHAPTERS[t.chapterIndex].key}：${t.mod.name}`;
   }
   document.getElementById('st-crits').textContent = state.totalCrits || 0;
   document.getElementById('st-parries').textContent = state.totalParries || 0;

@@ -220,7 +220,7 @@ const shopShardsEl = document.getElementById('shop-shards');
 function renderShop() {
   shopItemList.innerHTML = '';
   // その日の目玉商品（1点だけ割引）。Day は state.gatherDay と同じものを使う
-  const deal = dailyDealFor(state.gatherDay >= 0 ? state.gatherDay : 0, SHOP_ITEMS.length);
+  const deal = dailyDealFor(state.currentDay || 0, SHOP_ITEMS.length);
   const dealItemId = deal ? SHOP_ITEMS[deal.index].itemId : null;
   const costOf = entry => (entry.itemId === dealItemId ? discountedCost(entry.cost, deal.rate) : entry.cost);
   const ownedCount = SHOP_ITEMS.filter(e => ownsItem(e.itemId)).length;
@@ -1185,6 +1185,7 @@ function animate() {
     }
     const dayCounterEl = document.getElementById('day-counter');
     const curDay = getDayCount(t);
+    state.currentDay = curDay;
     const weather = weatherForDay(curDay);
     if (state.gatherDay !== curDay) {
       const req = currentGatherRequest(curDay);

@@ -40,6 +40,8 @@ export const state = {
   statuses: {},
   // 連戦モード（セッション限り）: { index, startedAt }
   gauntlet: null,
+  // 現在の Day（scene の時刻から算出。セッション限り）
+  currentDay: 0,
 
   equipment: { weapon: null, armor: null, accessory: null },
   inventory: [], // array of item ids owned but not necessarily equipped
