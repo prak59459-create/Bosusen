@@ -388,6 +388,7 @@ export function renderQuestBoard(chapterIndex, onResolve) {
 // 何がどれだけ強化されたのか確認できなかったため一覧にする。
 const SKILL_EFFECT_LABELS = [
   ['critDmgPct',      'クリティカル威力', 'pct'],
+  ['lowHpAtkPct',     '低HP時の与ダメージ', 'pct'],
   ['shardPct',        '獲得シャード',     'pct'],
   ['dodgeWindowPct',  'ガード受付時間',   'pct'],
   ['parryBonusPct',   'パリィ反撃威力',   'pct'],

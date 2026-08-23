@@ -8,7 +8,7 @@ import { rand } from './utils.js';
 import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake, triggerCritFlash, spawnShockwave, rumble } from './effects.js';
 import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
 import { CHAPTERS, levelStatsFor, BOSS_TAUNTS, VICTORY_LINES, DEFEAT_LINES } from './data.js';
-import { state, computeStats, addShards, difficultyMult, checkAchievements, saveGame, refreshMaxStats, calcRank, battleDifficultyMult } from './state.js';
+import { state, computeStats, addShards, difficultyMult, checkAchievements, saveGame, refreshMaxStats, calcRank, battleDifficultyMult, isLowHp } from './state.js';
 
 let dodgeActive = false;
 let dodgeAnimHandle = null;
@@ -402,7 +402,9 @@ function resolveDodge(clicked, move, isParry) {
     if (!state.playing) return;
     if (clicked && isParry) {
       const stats = computeStats();
-      const comboMult = (1 + Math.min(state.combo, 8) * 0.08) * levelStatsFor(state.level).dmgMult;
+      // 「背水の残光」: 低HP時の与ダメージ上昇
+      const desperation = isLowHp() ? (1 + (stats.lowHpAtkPct || 0)) : 1;
+      const comboMult = (1 + Math.min(state.combo, 8) * 0.08) * levelStatsFor(state.level).dmgMult * desperation;
       const counterDmg = Math.round(rand(14, 22) * comboMult * (1 + stats.parryBonusPct) + stats.atk * 0.6);
       state.bossHP -= counterDmg;
       state.totalParries = (state.totalParries || 0) + 1;
@@ -504,7 +506,9 @@ export function playerAction(type) {
   if (state.turns === 20) showToast('長期戦になっている……集中力を切らさずに攻め続けよう', 'info');
 
   const stats = computeStats();
-  const comboMult = (1 + Math.min(state.combo, 8) * 0.08) * levelStatsFor(state.level).dmgMult;
+  // 「背水の残光」: 低HP時の与ダメージ上昇
+  const desperation = isLowHp() ? (1 + (computeStats().lowHpAtkPct || 0)) : 1;
+  const comboMult = (1 + Math.min(state.combo, 8) * 0.08) * levelStatsFor(state.level).dmgMult * desperation;
   const b = getBoss();
 
   if (type === 'attack') {
