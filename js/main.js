@@ -998,6 +998,7 @@ function animate() {
       addShards(blessing);
       showCenterMsg(`本日の祝福！ +${blessing}シャード`, '#ffd700', 1800);
       sfx.pickup();
+      saveGame();
     }
     const lp = getPlayerLocalPos();
     let nearestTreasureDist = Infinity;
@@ -1037,6 +1038,7 @@ function animate() {
       showToast('流れ星に願いを込めた… +15シャード', 'quest');
       sfx.shardGet();
       checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
+      saveGame();
     }
     currentIsRaining = updateRain(t, dt, lp.x, lp.z);
     setRainIntensity(currentIsRaining ? 1 : 0);
