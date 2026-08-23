@@ -193,6 +193,10 @@ export function addScreenshotToGallery(dataUrl) {
   if (screenshotGallery.length > 5) screenshotGallery.pop();
   renderScreenshotGallery();
 }
+export function clearScreenshotGallery() {
+  screenshotGallery.length = 0;
+  renderScreenshotGallery();
+}
 function renderScreenshotGallery() {
   const el = document.getElementById('screenshot-gallery');
   if (!el) return;
@@ -911,6 +915,17 @@ export function initMenu(onSave, onTitle) {
       sfx.uiClick();
     });
   });
+
+  const clearGalleryBtn = document.getElementById('clear-gallery-btn');
+  if (clearGalleryBtn) {
+    clearGalleryBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!window.confirm('保存中の写真ギャラリーをすべて消去します。よろしいですか？')) return;
+      clearScreenshotGallery();
+      sfx.uiClick();
+      showToast('ギャラリーを消去しました', 'info');
+    });
+  }
 
   const achSortBtn = document.getElementById('ach-sort-btn');
   if (achSortBtn) {
