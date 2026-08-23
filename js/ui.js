@@ -1299,6 +1299,16 @@ export function initMenu(onSave, onTitle) {
 
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && els.menuOverlay.classList.contains('open')) closeMenu();
+    if (!els.menuOverlay.classList.contains('open')) return;
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const tag = (e.target && e.target.tagName) || '';
+    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+    e.preventDefault();
+    const tabList = [...document.querySelectorAll('.menu-tab')];
+    const cur = tabList.findIndex(t => t.classList.contains('active'));
+    if (cur < 0) return;
+    const next = (cur + (e.key === 'ArrowRight' ? 1 : -1) + tabList.length) % tabList.length;
+    tabList[next].click();
   });
 }
 
