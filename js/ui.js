@@ -183,7 +183,6 @@ function renderScreenshotGallery() {
   screenshotGallery.forEach(url => {
     const img = document.createElement('img');
     img.src = url;
-    img.title = 'クリックで別タブ表示、右クリックでコピー';
     img.addEventListener('click', () => {
       const w = window.open();
       if (w) w.document.write(`<img src="${url}" style="max-width:100%;">`);
@@ -192,6 +191,16 @@ function renderScreenshotGallery() {
       e.preventDefault();
       copyImageToClipboard(url);
     });
+    img.addEventListener('dblclick', () => {
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `bosusen-screenshot-${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      sfx.uiClick();
+    });
+    img.title = 'クリックで別タブ表示、右クリックでコピー、ダブルクリックでダウンロード';
     el.appendChild(img);
   });
 }
