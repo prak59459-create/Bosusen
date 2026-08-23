@@ -190,7 +190,7 @@ function finishGame(won) {
   state.playing = false;
   setHeartbeatActive(false);
   const chapter = CHAPTERS[state.chapterIndex];
-  const isFinal = state.chapterIndex === CHAPTERS.length - 1;
+  const isFinal = state.chapterIndex === CHAPTERS.length - 1 && !state.gauntlet;
   els.nextBtn.style.display = 'none';
   els.retryBtn.style.display = 'none';
   els.ngPlusBtn.style.display = 'none';

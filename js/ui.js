@@ -550,6 +550,18 @@ export function renderStatusTab() {
   if (spiritsEl) spiritsEl.textContent = state.spiritsCaught || 0;
   const comboCollectEl = document.getElementById('st-combo-collect');
   if (comboCollectEl) comboCollectEl.textContent = state.bestCollectCombo || 0;
+  const gauntletEl = document.getElementById('st-gauntlet');
+  if (gauntletEl) {
+    gauntletEl.textContent = state.bestGauntletMs
+      ? `${(state.bestGauntletMs / 1000).toFixed(1)}秒（${state.gauntletClears || 0}回踏破）`
+      : '未踏破';
+  }
+  const gauntletBtn = document.getElementById('gauntlet-btn');
+  if (gauntletBtn) {
+    // 全ての聖域を一度は平定してから挑めるようにする
+    const allCleared = CHAPTERS.every(c => (state.chapterClearCounts[c.key] || 0) > 0);
+    gauntletBtn.style.display = allCleared ? '' : 'none';
+  }
   const gatherEl = document.getElementById('st-gather');
   if (gatherEl) {
     if (state.gatherDay < 0) {
@@ -637,6 +649,7 @@ export function renderStatusTab() {
       camper: [state.campfireRests || 0, 15],
       weather_watcher: [(state.seenWeathers || []).length, WEATHERS.length],
       gather_master: [state.gatherDone || 0, 10],
+      gauntlet_clear: [Math.min(1, state.gauntletClears || 0), 1],
       smith_master: [Math.max(0, ...Object.values(state.itemLevels || {}), 0), MAX_ITEM_LEVEL],
       move_reader: (() => {
         // 最も見切りが進んでいる章の達成度を表示する

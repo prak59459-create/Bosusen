@@ -403,6 +403,7 @@ export const ACHIEVEMENTS = [
   { id:'same_day_clear', name:'一日の疾走', desc:'すべての章を同じ日のうちに撃破する。', reward:55 },
   { id:'spirit_collector', name:'精霊の導き手', desc:'結晶バイオームの精霊球を累計30個集める。', reward:45 },
   { id:'collect_combo', name:'一息の収穫', desc:'蛍・蝶・精霊球を連続で15回採取する。', reward:40 },
+  { id:'gauntlet_clear', name:'連戦の覇者', desc:'連戦モードで全ての聖域を一度に踏破する。', reward:120 },
   { id:'gather_master', name:'採取名人', desc:'日替わりの採取依頼を10回達成する。', reward:65 },
   { id:'weather_watcher', name:'空模様の記録者', desc:'晴れ・曇り・雨・霧のすべてを体験する。', reward:40 },
   { id:'camper', name:'焚き火の旅人', desc:'焚き火で15回休む。', reward:35 },

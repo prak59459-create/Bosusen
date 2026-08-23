@@ -151,6 +151,53 @@ setOnReplayZone((chapterIndex, zoneName) => {
   showStory(chapterIndex, null);
 });
 
+/* ---------- 連戦モード ---------- */
+// 全ての聖域を一度に踏破する挑戦。HPは持ち越し、踏破タイムを記録する。
+// 進行度が巻き戻らないよう、再挑戦と同じく replayReturnChapter に控える。
+function enterGauntletBattle(index, hpRatio) {
+  exitExploreMode();
+  player.position.set(BATTLE_SPAWN_POS.x, BATTLE_SPAWN_POS.y, BATTLE_SPAWN_POS.z);
+  player.rotation.y = BATTLE_SPAWN_ROT_Y;
+  setupChapterBattle(index);
+  if (hpRatio != null) state.playerHP = Math.max(1, Math.round(state.playerMaxHP * hpRatio));
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('quest-board-screen').style.display = 'none';
+  document.getElementById('shop-screen').style.display = 'none';
+  document.getElementById('map-screen').style.display = 'none';
+  document.getElementById('story-screen').style.display = 'none';
+  els.endScreen.style.display = 'none';
+  updateBars();
+  startBattlePhase();
+}
+
+function startGauntlet() {
+  if (state.replayReturnChapter == null) state.replayReturnChapter = state.chapterIndex;
+  state.gauntlet = { index: 0, startedAt: Date.now() };
+  closeMenu();
+  showCenterMsg(`連戦モード開始！ 全${CHAPTERS.length}聖域`, '#ffd75e', 1600);
+  enterGauntletBattle(0, null);
+}
+
+function finishGauntlet() {
+  const g = state.gauntlet;
+  state.gauntlet = null;
+  if (g) {
+    const ms = Date.now() - g.startedAt;
+    state.gauntletClears = (state.gauntletClears || 0) + 1;
+    const isBest = !state.bestGauntletMs || ms < state.bestGauntletMs;
+    if (isBest) state.bestGauntletMs = ms;
+    showToast(`連戦モード踏破！ タイム ${(ms / 1000).toFixed(1)}秒${isBest ? '（自己ベスト更新）' : ''}`, 'quest');
+    checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
+  }
+  endChapterReplay();
+}
+
+// 敗北時は結果画面をそのまま見せたいので、連戦の記録だけ終了させる
+function abortGauntlet() {
+  state.gauntlet = null;
+  showToast('連戦モードは中断された', 'info');
+}
+
 // 再挑戦を終えて探索へ戻る（勝敗どちらでも進行度・レベルを元に戻す）
 function endChapterReplay() {
   const back = state.replayReturnChapter;
@@ -812,6 +859,14 @@ els.continueBtn.addEventListener('click', () => {
 });
 
 els.nextBtn.addEventListener('click', () => {
+  if (state.gauntlet) {
+    const nextIdx = state.gauntlet.index + 1;
+    const hpRatio = state.playerHP / state.playerMaxHP;
+    if (nextIdx >= CHAPTERS.length) { finishGauntlet(); return; }
+    state.gauntlet.index = nextIdx;
+    enterGauntletBattle(nextIdx, hpRatio);
+    return;
+  }
   if (state.replayReturnChapter != null) { endChapterReplay(); return; }
   const prevChapter = CHAPTERS[state.chapterIndex];
   els.endScreen.style.display = 'none';
@@ -865,9 +920,25 @@ els.ngPlusBtn.addEventListener('click', () => {
 });
 
 setCombatCallbacks({
-  onWin: () => { saveGame(); },
-  onLose: () => { saveGame(); },
+  onWin: () => {
+    if (state.gauntlet) {
+      const done = state.gauntlet.index + 1;
+      els.endTitle.textContent = done >= CHAPTERS.length
+        ? `連戦モード踏破！ 全${CHAPTERS.length}聖域`
+        : `連戦 ${done}/${CHAPTERS.length} 突破（HPは持ち越し）`;
+      els.nextBtn.textContent = done >= CHAPTERS.length ? '結果を見る' : '次の敵へ';
+      els.nextBtn.style.display = 'inline-block';
+      els.retryBtn.style.display = 'none';
+    }
+    saveGame();
+  },
+  onLose: () => {
+    if (state.gauntlet) abortGauntlet();
+    saveGame();
+  },
 });
+const gauntletBtnEl = document.getElementById('gauntlet-btn');
+if (gauntletBtnEl) gauntletBtnEl.addEventListener('click', () => { sfx.uiClick(); startGauntlet(); });
 
 /* ============================================================
    戦闘ボタン

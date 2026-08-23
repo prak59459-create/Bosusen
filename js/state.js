@@ -36,6 +36,8 @@ export const state = {
   focused: false,
   // 状態異常 { poison: 残りターン数, ... }（戦闘中のみ）
   statuses: {},
+  // 連戦モード（セッション限り）: { index, startedAt }
+  gauntlet: null,
 
   equipment: { weapon: null, armor: null, accessory: null },
   inventory: [], // array of item ids owned but not necessarily equipped
@@ -100,6 +102,8 @@ export const state = {
   gatherProgress: 0,
   gatherClaimed: false,
   gatherDone: 0,
+  bestGauntletMs: 0,
+  gauntletClears: 0,
   // 進行中の戦闘が試練かどうか（戦闘開始時に確定させる）
   trialActive: null,
   achievements: [], // array of unlocked achievement ids
@@ -615,6 +619,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if ((state.campfireRests || 0) >= 15) tryUnlock('camper');
   if (WEATHERS.every(w => (state.seenWeathers || []).includes(w.id))) tryUnlock('weather_watcher');
   if ((state.gatherDone || 0) >= 10) tryUnlock('gather_master');
+  if ((state.gauntletClears || 0) >= 1) tryUnlock('gauntlet_clear');
   {
     // 1つの章の全ての技（覚醒後を含む）を見切ると解除
     const readAll = CHAPTERS.some(c => {
@@ -787,6 +792,8 @@ export function saveGame() {
       gatherProgress: state.gatherProgress,
       gatherClaimed: state.gatherClaimed,
       gatherDone: state.gatherDone,
+      bestGauntletMs: state.bestGauntletMs,
+      gauntletClears: state.gauntletClears,
       achievements: state.achievements,
       questProgress: state.questProgress,
       fieldQuests: state.fieldQuests,
@@ -928,6 +935,8 @@ export function loadGame() {
       gatherProgress: asNumber(snap.gatherProgress, 0),
       gatherClaimed: !!snap.gatherClaimed,
       gatherDone: asNumber(snap.gatherDone, 0),
+      bestGauntletMs: asNumber(snap.bestGauntletMs, 0),
+      gauntletClears: asNumber(snap.gauntletClears, 0),
       achievements: asArray(snap.achievements),
       questProgress: asObject(snap.questProgress),
       fieldQuests: asObject(snap.fieldQuests),
