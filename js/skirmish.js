@@ -1,7 +1,7 @@
 import { state, computeStats, markFieldTargetDefeated, saveGame } from './state.js';
 import { updateBars, showToast } from './ui.js';
 import { sfx } from './audio.js';
-import { spawnParticles } from './effects.js';
+import { spawnParticles, spawnShockwave, rumble } from './effects.js';
 
 /* ============================================================
    フィールド討伐目標との小規模スキルミッシュ(即死ではなく実際に
@@ -88,6 +88,8 @@ function finishSkirmish(won) {
     currentTarget.light.intensity = 0.2;
     if (currentTarget.beam) currentTarget.beam.visible = false;
     sfx.questDone();
+    if (currentTarget.mesh) spawnShockwave(currentTarget.mesh.getWorldPosition(currentTarget.mesh.position.clone()), 0xff6644);
+    rumble(0.6, 350);
     showToast('結晶獣を討伐した！依頼人の元へ戻ろう', 'quest');
     saveGame();
   }
