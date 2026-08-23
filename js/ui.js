@@ -868,6 +868,20 @@ export function renderItemsTab() {
 let compendiumUndiscoveredOnly = false;
 const storyArchiveOpen = new Set();
 const endingArchiveOpen = new Set();
+// 撃破済みのボスの技を一覧化する。受付時間が短い技ほどガードが難しいので
+// 攻略の手がかりとして威力とあわせて示す。
+function bestiaryMoveList(chapter) {
+  const rows = [];
+  const add = (moves, label) => {
+    (moves || []).forEach(m => {
+      rows.push(`<div class="item-row-desc">・${m.name}${label}（威力 ${m.min}〜${m.max}／受付 ${m.dodgeWindow}ms）</div>`);
+    });
+  };
+  add(chapter.movesPhase1, '');
+  add(chapter.movesPhase2, '【覚醒】');
+  return rows.length ? `<div style="margin-top:4px;">${rows.join('')}</div>` : '';
+}
+
 export function renderCompendiumTab() {
   const listEl = document.getElementById('biome-compendium-list');
   const progressEl = document.getElementById('compendium-progress');
@@ -935,6 +949,7 @@ export function renderCompendiumTab() {
           <div class="item-row-name">${found ? c.enemyName : '？？？'}</div>
           <div class="item-row-desc">${found ? `撃破回数: ${count}${dateStr ? `｜初撃破: ${dateStr}` : ''}${bestTurns ? `｜最速: ${bestTurns}ターン` : ''}${bestRank ? `｜最高評価: ${bestRank}` : ''}` : '未撃破'}</div>
           ${found && c.battleTip ? `<div class="item-row-desc">💡 ${c.battleTip}</div>` : ''}
+          ${found ? bestiaryMoveList(c) : ''}
         </div>
       `;
       bestiaryList.appendChild(row);
