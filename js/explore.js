@@ -6,7 +6,7 @@ import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTar
   explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions, collectNearbyFireflies, collectNearbyButterflies, BIOME_NAMES } from './world.js';
 import { CHAPTERS } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
-  fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot } from './state.js';
+  fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot, ngPlusShardMult } from './state.js';
 import { showToast, renderQuestTracker, showCenterMsg, addScreenshotToGallery, copyImageToClipboard } from './ui.js';
 import { sfx, startAmbientWind, stopAmbientWind } from './audio.js';
 import { startSkirmish, isSkirmishActive } from './skirmish.js';
@@ -658,10 +658,11 @@ function tryTurnInOrAccept(giver) {
   }
   if (fState === 'ready_turnin') {
     completeQuest(chapterKey, giver.questId);
-    addShards(giver.quest.reward.shards);
+    const giverReward = Math.round(giver.quest.reward.shards * ngPlusShardMult());
+    addShards(giverReward);
     if (giver.quest.reward.itemId) addItem(giver.quest.reward.itemId);
     sfx.questDone();
-    showToast(`クエスト達成: ${giver.quest.title}（結晶の欠片 +${giver.quest.reward.shards}）`, 'quest');
+    showToast(`クエスト達成: ${giver.quest.title}（結晶の欠片 +${giverReward}）`, 'quest');
     checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
     checkChapterQuestCelebration(giver.chapterIndex);
     if (giver.beam) giver.beam.visible = false;
@@ -705,7 +706,7 @@ function tryCollectPickup(pickup) {
   const chapterKey = CHAPTERS[pickup.chapterIndex].key;
   if (isQuestDone(chapterKey, pickup.questId)) return;
   completeQuest(chapterKey, pickup.questId);
-  addShards(pickup.quest.reward.shards);
+  addShards(Math.round(pickup.quest.reward.shards * ngPlusShardMult()));
   if (pickup.quest.reward.itemId) addItem(pickup.quest.reward.itemId);
   sfx.shardGet();
   showToast(`クエスト達成: ${pickup.quest.title}｜${pickup.quest.result}`, 'quest');
@@ -720,9 +721,10 @@ function tryCollectPickup(pickup) {
 function tryCollectTreasure(t) {
   if (state.foundTreasures.includes(t.id)) return;
   state.foundTreasures.push(t.id);
-  addShards(t.shardReward);
+  const treasureReward = Math.round(t.shardReward * ngPlusShardMult());
+  addShards(treasureReward);
   sfx.shardGet();
-  showToast(`結晶の秘宝を発見！ 結晶の欠片 +${t.shardReward}`, 'quest');
+  showToast(`結晶の秘宝を発見！ 結晶の欠片 +${treasureReward}`, 'quest');
   t.mesh.visible = false;
   if (t.beam) t.beam.visible = false;
   checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
@@ -733,7 +735,7 @@ function tryReadLore(monu) {
   const chapterKey = CHAPTERS[monu.chapterIndex].key;
   if (isQuestDone(chapterKey, monu.questId)) return;
   completeQuest(chapterKey, monu.questId);
-  addShards(monu.quest.reward.shards);
+  addShards(Math.round(monu.quest.reward.shards * ngPlusShardMult()));
   sfx.questDone();
   showToast(`クエスト達成: ${monu.quest.title}｜${monu.quest.result}`, 'quest');
   if (!state.collectedLore) state.collectedLore = [];

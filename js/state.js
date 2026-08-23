@@ -225,6 +225,11 @@ export function unlockSkill(id) {
   return true;
 }
 
+// フィールド報酬（クエスト・秘宝）にもボス報酬と同じ周回ボーナスを掛ける
+export function ngPlusShardMult() {
+  return 1 + (state.newGamePlus || 0) * 0.2;
+}
+
 export function addShards(n) {
   state.shards += n;
   state.totalShardsEarned += n;
