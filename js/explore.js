@@ -290,8 +290,10 @@ function doJump() {
 }
 
 const DIR_NAMES = ['北', '北東', '東', '南東', '南', '南西', '西', '北西'];
+// ミニマップ・大陸図はいずれも画面 y = z（+z が下）で描画し、北を上に表示する。
+// つまり北は -z 方向。atan2 に -dz を渡して地図の向きと一致させる。
 function directionName(dx, dz) {
-  const angDeg = ((Math.atan2(dx, dz) * 180 / Math.PI) + 360) % 360;
+  const angDeg = ((Math.atan2(dx, -dz) * 180 / Math.PI) + 360) % 360;
   return DIR_NAMES[Math.round(angDeg / 45) % 8];
 }
 
