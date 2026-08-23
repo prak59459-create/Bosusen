@@ -45,6 +45,7 @@ function gainCombo() {
   }
   if (state.combo === (state.lifetimeBestCombo || 0) + 1 && state.combo >= 5) {
     showToast(`自己ベストコンボ更新！ ${state.combo}コンボ`, 'quest');
+    sfx.shardGet();
   }
 }
 
