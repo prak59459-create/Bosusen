@@ -1,5 +1,5 @@
 import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES } from './data.js';
-import { state, computeStats, calcRank, isQuestDone, chapterQuestsDone, ownsItem,
+import { state, computeStats, calcRank, isLowHp, isQuestDone, chapterQuestsDone, ownsItem,
   equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData } from './state.js';
 import { sfx, setMasterVolume, setAmbientVolume, setHeartbeatActive } from './audio.js';
 import { setQualityPreset, setPhotoFilter, PHOTO_FILTERS } from './scene.js';
@@ -133,6 +133,12 @@ export function updateBars() {
   const vignetteEl = document.getElementById('low-hp-vignette');
   if (vignetteEl) vignetteEl.classList.toggle('active', isCritical);
   setHeartbeatActive(isCritical && (state.playing || state.inSkirmish) && state.lowHpHeartbeat !== false);
+  // 「背水の残光」は効果が数値に現れないため、発動中であることを明示する
+  const despBadge = document.getElementById('desperation-badge');
+  if (despBadge) {
+    const active = isLowHp() && (computeStats().lowHpAtkPct || 0) > 0 && (state.playing || state.inSkirmish);
+    despBadge.style.display = active ? 'inline-block' : 'none';
+  }
   els.playerHPText.textContent = `${Math.max(0, Math.round(state.playerHP))}/${state.playerMaxHP}`;
   els.playerMPFill.style.width = Math.max(0, state.playerMP / state.playerMaxMP * 100) + '%';
   els.playerMPText.textContent = `${Math.max(0, Math.round(state.playerMP))}/${state.playerMaxMP}`;
