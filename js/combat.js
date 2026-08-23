@@ -121,6 +121,7 @@ function endCheck() {
       });
       rumble(0.7, 400);
       checkAchievements().forEach(a => { sfx.achievement(); showCenterMsg(`実績解除: ${a.name}`, '#ffd700', 2000); });
+      saveGame();
       return false;
     }
     state.playerHP = 0; updateBars(); finishGame(false); return true;
