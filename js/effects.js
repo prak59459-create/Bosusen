@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { scene, camera } from './scene.js';
+import { scene, camera, isLowQuality } from './scene.js';
 import { rand } from './utils.js';
 import { state } from './state.js';
 
@@ -36,6 +36,8 @@ export function spawnDamageNumber(worldPos, text, color, big = false) {
 
 const particles = [];
 export function spawnParticles(pos, color, count = 14) {
+  // 低画質時は粒子数を減らす（1個ごとに Sprite を生成するため負荷が大きい）
+  if (isLowQuality()) count = Math.max(3, Math.round(count * 0.5));
   const mat = new THREE.SpriteMaterial({ color, transparent: true, opacity: 1, blending: THREE.AdditiveBlending });
   for (let i = 0; i < count; i++) {
     const sprite = new THREE.Sprite(mat.clone());
