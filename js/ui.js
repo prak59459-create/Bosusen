@@ -477,6 +477,7 @@ export function renderStatusTab() {
       crit_master: [state.totalCrits || 0, 100],
       parry_master: [state.totalParries || 0, 30],
       dodge_master: [state.totalDodges || 0, 50],
+      all_rank_s: [CHAPTERS.filter(c => (state.bestRankPerChapter || {})[c.key] === 'S').length, CHAPTERS.length],
       all_endings: [(state.seenEndings || []).length, CHAPTERS.reduce((n, c) => n + (c.endings || []).length, 0)],
       quest_complete: [totalQuestsDone(), totalQuestsAll()],
       veteran_hunter: [Math.max(0, ...Object.values(state.chapterClearCounts || {}), 0), 5],

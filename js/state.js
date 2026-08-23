@@ -257,6 +257,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (state.totalShardsEarned >= 1000) tryUnlock('shard_tycoon');
   if (hiddenTreasureTotal != null && state.foundTreasures.length >= hiddenTreasureTotal) tryUnlock('treasure_hunter');
   if (lastRank === 'S') tryUnlock('rank_s');
+  if (CHAPTERS.every(c => (state.bestRankPerChapter || {})[c.key] === 'S')) tryUnlock('all_rank_s');
   if (state.newGamePlus >= 1) tryUnlock('ng_plus');
   if (shopItemIds && shopItemIds.every(id => state.inventory.includes(id))) tryUnlock('collector');
   if (SKILLS.every(s => state.unlockedSkills.includes(s.id))) tryUnlock('skill_master');
