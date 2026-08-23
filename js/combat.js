@@ -283,6 +283,15 @@ function finishGame(won) {
         ? VICTORY_LINES[Math.floor(Math.random() * VICTORY_LINES.length)]
         : '';
       els.nextBtn.style.display = 'inline-block';
+      if (state.replayReturnChapter != null) {
+        // 再挑戦時は章を進めないので、戻る/もう一度 の2択にする
+        els.endTitle.textContent = `再挑戦成功！${chapter.enemyName}を打ち破った`;
+        els.nextBtn.textContent = '探索に戻る';
+        els.retryBtn.textContent = 'もう一度挑む';
+        els.retryBtn.style.display = 'inline-block';
+      } else {
+        els.nextBtn.textContent = 'つづきへ';
+      }
     }
     if (onChapterWin) onChapterWin(state.chapterIndex, isFinal);
   } else {
@@ -304,6 +313,11 @@ function finishGame(won) {
     sfx.defeat();
     els.retryBtn.textContent = 'この章に再挑戦';
     els.retryBtn.style.display = 'inline-block';
+    if (state.replayReturnChapter != null) {
+      // 再挑戦中の敗北でも探索へ戻れるようにする（再挑戦は任意の挑戦のため）
+      els.nextBtn.textContent = '探索に戻る';
+      els.nextBtn.style.display = 'inline-block';
+    }
     if (onChapterLose) onChapterLose(state.chapterIndex);
   }
   const bonusTags = [];
