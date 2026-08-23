@@ -1081,7 +1081,8 @@ function bestiaryMoveList(chapter) {
       const seen = st.seen > 0 ? `／遭遇 ${st.seen}回・凌いだ ${st.avoided}回` : '';
       const mark = isMoveMastered(chapter.key, m.name) ? ' 👁見切り済み(受付+15%)' : '';
       const st2 = m.status && STATUS_DEFS[m.status] ? `／${STATUS_DEFS[m.status].icon}${STATUS_DEFS[m.status].name}付与` : '';
-      rows.push(`<div class="item-row-desc">・${m.name}${label}${mark}（威力 ${m.min}〜${m.max}／受付 ${m.dodgeWindow}ms${st2}${seen}）</div>`);
+      const hitsTag = m.hits > 1 ? `／${m.hits}連撃` : '';
+      rows.push(`<div class="item-row-desc">・${m.name}${label}${mark}（威力 ${m.min}〜${m.max}／受付 ${m.dodgeWindow}ms${hitsTag}${st2}${seen}）</div>`);
     });
   };
   add(chapter.movesPhase1, '');
@@ -1895,6 +1896,7 @@ const LOADING_TIPS = [
   '連続ログインが7日ごとに追加ボーナスがもらえる。',
   '設定でFPS低下時のグラフィック品質自動調整をON/OFFできる。',
   '同じ技を3回凌ぐと「見切り済み」になり、以後その技のガード受付が少し延びる。',
+  '連撃の技は一撃ごとにガード判定がある。すべて凌げば無傷で切り抜けられる。',
 ];
 let loadingTipTimer = null;
 export function setLoadingProgress(pct, text) {

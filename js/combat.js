@@ -368,7 +368,7 @@ export function bossTurn() {
   if (pool.length === 0) return;
   const move = pickWeightedMove(pool, state.phase2 ? PHASE2_WEIGHTS : PHASE1_WEIGHTS);
 
-  els.telegraphName.textContent = `⚠ ${move.name} ⚠`;
+  els.telegraphName.textContent = move.hits > 1 ? `⚠ ${move.name}（${move.hits}連撃）⚠` : `⚠ ${move.name} ⚠`;
   // 何度も凌いだ技は「見切り済み」として提示する（観察が積み上がる手応え）
   const mastered = isMoveMastered(chapter.key, move.name);
   els.telegraphSub.textContent = mastered ? `${move.sub}　👁 見切り済み` : move.sub;
@@ -382,7 +382,7 @@ export function bossTurn() {
   }, 650);
 }
 
-function startDodgeQTE(move) {
+function startDodgeQTE(move, hitIndex = 0) {
   dodgeActive = true;
   els.dodgeZone.style.display = 'flex';
   els.dodgeRingWrap.classList.remove('just-zone');
@@ -406,7 +406,7 @@ function startDodgeQTE(move) {
       document.getElementById('dodge-label').textContent = 'ジャストガード（パリィ）！';
     }
     if (p < 1) { dodgeAnimHandle = requestAnimationFrame(step); }
-    else { resolveDodge(false, move, false); }
+    else { resolveDodge(false, move, false, hitIndex); }
   }
   dodgeAnimHandle = requestAnimationFrame(step);
 
@@ -414,11 +414,11 @@ function startDodgeQTE(move) {
     const elapsed = performance.now() - t0;
     const p = elapsed / window_;
     const isParry = p >= dodgeJustZoneStart && p <= 1.08;
-    resolveDodge(true, move, isParry);
+    resolveDodge(true, move, isParry, hitIndex);
   };
 }
 
-function resolveDodge(clicked, move, isParry) {
+function resolveDodge(clicked, move, isParry, hitIndex = 0) {
   if (!dodgeActive) return;
   dodgeActive = false;
   cancelAnimationFrame(dodgeAnimHandle);
@@ -500,10 +500,22 @@ function resolveDodge(clicked, move, isParry) {
     }
     state.guarding = false;
     updateBars();
-    if (!endCheck()) {
-      state.turnBusy = false;
-      setButtonsEnabled(true);
+    if (endCheck()) return;
+    // 連撃の技はここで終わらず、続けて次の一撃の受付に入る
+    const hits = move.hits || 1;
+    if (hitIndex + 1 < hits) {
+      els.telegraphName.textContent = `⚠ ${move.name}（${hitIndex + 2}/${hits}）⚠`;
+      els.telegraphSub.textContent = '続けて来る！';
+      els.telegraph.style.display = 'block';
+      setTimeout(() => {
+        if (!state.playing) return;
+        els.telegraph.style.display = 'none';
+        startDodgeQTE(move, hitIndex + 1);
+      }, 420);
+      return;
     }
+    state.turnBusy = false;
+    setButtonsEnabled(true);
   }, 250);
 }
 

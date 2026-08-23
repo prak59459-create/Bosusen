@@ -171,7 +171,7 @@ export const CHAPTERS = [
     shardsBase: 65,
     enemyDef: { skinColor:0x8fb8d8, sheenColor:0xd8ecff, emissive:0x2a4a6a, hornColor:0xcfe8ff, eyeColor:0xaee4ff, legColor:0x4a6a8a, scale:1.0 },
     movesPhase1: [
-      { name:'氷柱の落下', sub:'頭上から降る氷', min:11, max:17, dodgeWindow:900 },
+      { name:'氷柱の落下', sub:'頭上から降る氷', min:6, max:10, dodgeWindow:820, hits:2 },
       { name:'凍てつく霧', sub:'視界を奪う冷気', min:16, max:24, dodgeWindow:700, status:'curse', statusChance:0.4 },
       { name:'灯火の一閃', sub:'渾身の薙ぎ払い！', min:24, max:34, dodgeWindow:680 },
     ],
@@ -218,7 +218,7 @@ export const CHAPTERS = [
       { name:'残響の衝撃波', sub:'重い攻撃！', min:20, max:30, dodgeWindow:750 },
     ],
     movesPhase2: [
-      { name:'連鎖する残響', sub:'高速の連続攻撃', min:10, max:16, dodgeWindow:650 },
+      { name:'連鎖する残響', sub:'高速の連続攻撃', min:5, max:9, dodgeWindow:620, hits:3 },
       { name:'虚無のブレス', sub:'広範囲侵蝕攻撃！', min:18, max:28, dodgeWindow:800, status:'curse', statusChance:0.5 },
       { name:'すべての終わり', sub:'覚醒の全力攻撃！！', min:28, max:42, dodgeWindow:600 },
     ],
