@@ -67,6 +67,8 @@ export const state = {
   questTrackerCollapsed: false,
   savedLoadouts: { a: null, b: null },
   firstDefeatedAt: {},
+  // 直近の撃破日時（実績「一日の疾走」は再挑戦でも狙えるようこちらを使う）
+  lastDefeatedAt: {},
   bestTurnsPerChapter: {},
   bestRankPerChapter: {},
   biomeDiscoveredAt: {},
@@ -288,8 +290,9 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (SKILLS.every(s => state.unlockedSkills.includes(s.id))) tryUnlock('skill_master');
   if ((state.battleDifficulty || state.difficulty) === 'hard') tryUnlock('hard_clear');
   {
-    // 全章の初撃破日が同一日か（端末のローカル日付で判定）
-    const stamps = CHAPTERS.map(c => (state.firstDefeatedAt || {})[c.key]);
+    // 全章を同じ日に撃破したか。初撃破日で判定すると、日をまたいで
+    // 進めた既存プレイヤーが永久に達成できなくなるため直近の撃破日で見る。
+    const stamps = CHAPTERS.map(c => (state.lastDefeatedAt || {})[c.key]);
     if (stamps.every(Boolean)) {
       const days = stamps.map(t => new Date(t).toLocaleDateString('sv-SE'));
       if (days.every(d => d === days[0])) tryUnlock('same_day_clear');
@@ -467,6 +470,7 @@ export function saveGame() {
       questTrackerCollapsed: state.questTrackerCollapsed,
       savedLoadouts: state.savedLoadouts,
       firstDefeatedAt: state.firstDefeatedAt,
+      lastDefeatedAt: state.lastDefeatedAt,
       bestTurnsPerChapter: state.bestTurnsPerChapter,
       bestRankPerChapter: state.bestRankPerChapter,
       biomeDiscoveredAt: state.biomeDiscoveredAt,
@@ -593,6 +597,7 @@ export function loadGame() {
       questTrackerCollapsed: snap.questTrackerCollapsed || false,
       savedLoadouts: { a: null, b: null, ...asObject(snap.savedLoadouts) },
       firstDefeatedAt: asObject(snap.firstDefeatedAt),
+      lastDefeatedAt: asObject(snap.lastDefeatedAt),
       bestTurnsPerChapter: asObject(snap.bestTurnsPerChapter),
       bestRankPerChapter: asObject(snap.bestRankPerChapter),
       biomeDiscoveredAt: asObject(snap.biomeDiscoveredAt),

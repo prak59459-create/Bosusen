@@ -504,7 +504,7 @@ export function renderStatusTab() {
       dodge_master: [state.totalDodges || 0, 50],
       all_rank_s: [CHAPTERS.filter(c => (state.bestRankPerChapter || {})[c.key] === 'S').length, CHAPTERS.length],
       same_day_clear: [(() => {
-        const stamps = CHAPTERS.map(c => (state.firstDefeatedAt || {})[c.key]).filter(Boolean);
+        const stamps = CHAPTERS.map(c => (state.lastDefeatedAt || {})[c.key]).filter(Boolean);
         if (stamps.length === 0) return 0;
         const days = stamps.map(t => new Date(t).toLocaleDateString('sv-SE'));
         // 同じ日に初撃破した章のうち最多のもの

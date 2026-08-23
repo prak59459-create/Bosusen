@@ -227,6 +227,8 @@ function finishGame(won) {
     state.chapterClearCounts[chapter.key] = (state.chapterClearCounts[chapter.key] || 0) + 1;
     if (!state.firstDefeatedAt) state.firstDefeatedAt = {};
     if (!state.firstDefeatedAt[chapter.key]) state.firstDefeatedAt[chapter.key] = Date.now();
+    if (!state.lastDefeatedAt) state.lastDefeatedAt = {};
+    state.lastDefeatedAt[chapter.key] = Date.now();
     if (!state.bestTurnsPerChapter) state.bestTurnsPerChapter = {};
     const prevBest = state.bestTurnsPerChapter[chapter.key];
     if (!prevBest || state.turns < prevBest) {
