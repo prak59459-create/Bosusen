@@ -382,6 +382,24 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   background:rgba(255,255,255,0.75); border:1px solid rgba(212,168,74,0.45);
   border-radius:14px; padding:5px 12px; font-size:12px; font-weight:bold; color:#7a5a12;
 }
+/* 採取コンボ表示。残り猶予をバーで示し、途切れるタイミングを見えるようにする */
+#collect-combo {
+  position:absolute; top: calc(max(14px, env(safe-area-inset-top)) + 64px);
+  left: max(18px, env(safe-area-inset-left));
+  background:rgba(255,255,255,0.78); border:1px solid rgba(150,100,220,0.45);
+  border-radius:14px; padding:5px 12px; font-size:12px; font-weight:bold; color:#5a3d8c;
+  min-width:96px;
+}
+#collect-combo.hot { border-color:rgba(240,160,60,0.7); color:#8c5a12; }
+#collect-combo-bar {
+  margin-top:4px; height:4px; border-radius:3px; overflow:hidden;
+  background:rgba(150,100,220,0.18);
+}
+#collect-combo-fill {
+  height:100%; width:100%; border-radius:3px;
+  background:linear-gradient(90deg,#c9a0ff,#8a5aff);
+}
+#collect-combo.hot #collect-combo-fill { background:linear-gradient(90deg,#ffd75e,#ff9a3c); }
 #save-indicator {
   position:fixed; bottom:14px; left:50%; transform:translateX(-50%) translateY(20px);
   background:rgba(60,45,90,0.85); color:#fff; border-radius:14px;

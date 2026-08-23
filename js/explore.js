@@ -6,7 +6,7 @@ import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTar
   explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions, collectNearbyFireflies, collectNearbyButterflies, collectNearbySpirits, BIOME_NAMES, undiscoveredBiomeSpots } from './world.js';
 import { CHAPTERS, EMOTES } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
-  fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot, ngPlusShardMult, isFieldTargetHuntable, registerCollect } from './state.js';
+  fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot, ngPlusShardMult, isFieldTargetHuntable, registerCollect, collectComboMult, COLLECT_COMBO_WINDOW_MS } from './state.js';
 import { showToast, renderQuestTracker, showCenterMsg, addScreenshotToGallery, copyImageToClipboard } from './ui.js';
 import { sfx, startAmbientWind, stopAmbientWind } from './audio.js';
 import { startSkirmish, isSkirmishActive, scheduleHuntRespawn } from './skirmish.js';
@@ -117,6 +117,22 @@ let fireflyCheckTimer = 0;
  * @param {number} count 捕まえた数（0 なら何もしない）
  * @param {{label:string, per:number, counter:string, color:number, height:number, particles:number, sound:function}} opt
  */
+/** 採取コンボの残り猶予と倍率を HUD に反映する（コンボが無いときは隠す） */
+function updateComboHud() {
+  const el = document.getElementById('collect-combo');
+  if (!el) return;
+  const left = COLLECT_COMBO_WINDOW_MS - (Date.now() - (state.collectComboAt || 0));
+  if (!state.collectCombo || left <= 0) {
+    if (el.style.display !== 'none') el.style.display = 'none';
+    return;
+  }
+  el.style.display = '';
+  const mult = collectComboMult();
+  el.classList.toggle('hot', mult > 1);
+  document.getElementById('collect-combo-text').textContent = `コンボ ${state.collectCombo} ×${mult.toFixed(1)}`;
+  document.getElementById('collect-combo-fill').style.width = `${(left / COLLECT_COMBO_WINDOW_MS) * 100}%`;
+}
+
 function harvest(count, opt) {
   if (count <= 0) return;
   const { combo, mult } = registerCollect(count);
@@ -1062,6 +1078,8 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
       }
     }
   }
+
+  updateComboHud();
 
   fireflyCheckTimer -= dt;
   if (fireflyCheckTimer <= 0) {
