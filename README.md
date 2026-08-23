@@ -90,6 +90,7 @@ node tools/check-all.mjs
 | （check-all に内蔵） | `js/` 全ファイルの構文チェック |
 | `tools/check-imports.mjs` | 相対 import が実在する export を指しているか |
 | `tools/check-save-fields.mjs` | state の既定値・保存・復元の対応漏れ |
+| `tools/check-achievements.mjs` | 実績の定義・解除判定・進捗バーの対応 |
 
 `state` に項目を追加するときは **既定値・`saveGame`・`loadGame` の3箇所**すべてに
 書く必要がある。`check-save-fields.mjs` はこの書き漏らしを検出する。
