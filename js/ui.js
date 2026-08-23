@@ -328,6 +328,7 @@ export function renderStatusTab() {
   document.getElementById('st-star-wishes').textContent = state.starWishesMade || 0;
   document.getElementById('st-screenshots').textContent = state.screenshotsTaken || 0;
   document.getElementById('st-revives').textContent = state.totalRevives || 0;
+  document.getElementById('st-field-kills').textContent = state.fieldKillsTotal || 0;
 
   const achList = document.getElementById('achievement-list');
   if (achList) {
@@ -392,6 +393,7 @@ export function renderStatusTab() {
       lore_master: [(state.collectedLore || []).length, 8],
       ng_plus_5: [state.newGamePlus || 0, 5],
       revived: [state.totalRevives || 0, 1],
+      field_hunter: [state.fieldKillsTotal || 0, 20],
       comeback: [state.hadComeback ? 1 : 0, 1],
     };
     let achOrder = ACHIEVEMENTS;

@@ -49,6 +49,7 @@ export const state = {
   reduceNpcChatter: false,
   footstepSounds: true,
   rumbleStrength: 1,
+  fieldKillsTotal: 0,
   companionName: 'イリス',
   totalRevives: 0,
   proximitySounds: true,
@@ -239,6 +240,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (lastRank != null && state.healUses === state.healUsesMax) tryUnlock('no_heal');
   if (lastRank != null && !state.guardUsedThisBattle) tryUnlock('no_guard');
   if (lastRank != null && !state.skillUsedThisBattle) tryUnlock('no_skill');
+  if ((state.fieldKillsTotal || 0) >= 20) tryUnlock('field_hunter');
   if (Object.values(state.chapterClearCounts).some(c => c >= 5)) tryUnlock('veteran_hunter');
   if (state.winStreak >= 3) tryUnlock('win_streak_3');
   if (state.winStreak >= 5) tryUnlock('win_streak_5');
@@ -366,6 +368,7 @@ export function saveGame() {
       reduceNpcChatter: state.reduceNpcChatter,
       footstepSounds: state.footstepSounds,
       rumbleStrength: state.rumbleStrength,
+      fieldKillsTotal: state.fieldKillsTotal,
       companionName: state.companionName,
       totalRevives: state.totalRevives,
       proximitySounds: state.proximitySounds,
@@ -458,6 +461,7 @@ export function loadGame() {
       reduceNpcChatter: snap.reduceNpcChatter || false,
       footstepSounds: snap.footstepSounds !== false,
       rumbleStrength: snap.rumbleStrength != null ? snap.rumbleStrength : 1,
+      fieldKillsTotal: snap.fieldKillsTotal || 0,
       companionName: snap.companionName || 'イリス',
       totalRevives: snap.totalRevives || 0,
       proximitySounds: snap.proximitySounds !== false,

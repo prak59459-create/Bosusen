@@ -1,5 +1,5 @@
-import { state, computeStats, markFieldTargetDefeated, saveGame } from './state.js';
-import { updateBars, showToast } from './ui.js';
+import { state, computeStats, markFieldTargetDefeated, saveGame, checkAchievements } from './state.js';
+import { updateBars, showToast, showCenterMsg } from './ui.js';
 import { sfx } from './audio.js';
 import { spawnParticles, spawnShockwave, rumble, triggerCritFlash } from './effects.js';
 
@@ -90,6 +90,7 @@ function finishSkirmish(won) {
   els.panel.style.display = 'none';
   if (currentTarget && currentTarget.mesh) currentTarget.mesh.scale.setScalar(1);
   if (won && currentTarget) {
+    state.fieldKillsTotal = (state.fieldKillsTotal || 0) + 1;
     markFieldTargetDefeated(currentTarget.questId);
     currentTarget.material.emissiveIntensity = 0.1;
     currentTarget.light.intensity = 0.2;
@@ -98,6 +99,7 @@ function finishSkirmish(won) {
     if (currentTarget.mesh) spawnShockwave(currentTarget.mesh.getWorldPosition(currentTarget.mesh.position.clone()), 0xff6644);
     rumble(0.6, 350);
     showToast('結晶獣を討伐した！依頼人の元へ戻ろう', 'quest');
+    checkAchievements().forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
     saveGame();
   }
   currentTarget = null;
