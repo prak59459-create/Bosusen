@@ -4,7 +4,7 @@ import { state, computeStats, calcRank, isLowHp, isQuestDone, chapterQuestsDone,
 import { sfx, setMasterVolume, setAmbientVolume, setHeartbeatActive } from './audio.js';
 import { setQualityPreset, setPhotoFilter, PHOTO_FILTERS } from './scene.js';
 import { setMapOpen, setActiveLoadoutKey, pingQuestObjective } from './explore.js';
-import { BIOME_NAMES, BIOME_ENTRIES, hiddenTreasures } from './world.js';
+import { BIOME_NAMES, BIOME_ENTRIES, hiddenTreasures, SHOP_ITEMS } from './world.js';
 import { rumble } from './effects.js';
 
 export const SLOT_ICON = { weapon: '⚔️', armor: '🛡️', accessory: '💍' };
@@ -561,6 +561,11 @@ export function renderStatusTab() {
       biome_explorer: [(state.discoveredBiomes || []).length, 10],
       biome_master: [(state.discoveredBiomes || []).length, BIOME_NAMES.length],
       treasure_hunter: [(state.foundTreasures || []).length, hiddenTreasures.length],
+      // 解除条件と同じく、実績でロックされた商品は母数から除く
+      collector: (() => {
+        const buyable = SHOP_ITEMS.filter(e => !e.requiresAchievement);
+        return [buyable.filter(e => (state.inventory || []).includes(e.itemId)).length, buyable.length];
+      })(),
       firefly_catcher: [state.firefliesCaught || 0, 50],
       butterfly_catcher: [state.butterfliesCaught || 0, 50],
       firefly_master: [state.firefliesCaught || 0, 200],
