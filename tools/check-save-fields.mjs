@@ -25,6 +25,8 @@ const TRANSIENT = new Set([
   'playerHP', 'playerMP', 'playerStam', 'bossHP', 'healUses', 'guarding',
   'playing', 'inSkirmish', 'turnBusy', 'combo', 'maxCombo', 'phase2',
   'turns', 'damageTaken', 'skillCooldown',
+  // 戦闘開始時に固定する難易度スナップショット
+  'battleDifficulty',
   // 装備・スキルから導出するため保存不要
   'exploreStaminaMax',
   // セッション内の経過時間を基準にするため保存しない

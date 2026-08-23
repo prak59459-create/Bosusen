@@ -8,7 +8,7 @@ import { rand } from './utils.js';
 import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake, triggerCritFlash, spawnShockwave, rumble } from './effects.js';
 import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
 import { CHAPTERS, levelStatsFor, BOSS_TAUNTS, VICTORY_LINES, DEFEAT_LINES } from './data.js';
-import { state, computeStats, addShards, difficultyMult, checkAchievements, saveGame, refreshMaxStats, calcRank } from './state.js';
+import { state, computeStats, addShards, difficultyMult, checkAchievements, saveGame, refreshMaxStats, calcRank, battleDifficultyMult } from './state.js';
 
 let dodgeActive = false;
 let dodgeAnimHandle = null;
@@ -221,7 +221,7 @@ function finishGame(won) {
     }
     const shardPct = computeStats().shardPct || 0;
     const ngPlusShardMult = 1 + (state.newGamePlus || 0) * 0.2;
-    const shardReward = Math.round(chapter.shardsBase * difficultyMult().shards * RANK_BONUS[rank] * (1 + shardPct) * ngPlusShardMult);
+    const shardReward = Math.round(chapter.shardsBase * battleDifficultyMult().shards * RANK_BONUS[rank] * (1 + shardPct) * ngPlusShardMult);
     state.xp += chapter.xp;
     state.bossesDefeated++;
     state.chapterClearCounts[chapter.key] = (state.chapterClearCounts[chapter.key] || 0) + 1;
@@ -397,7 +397,7 @@ function resolveDodge(clicked, move, isParry) {
       crossfadeTo('Walk', 0.1);
       setTimeout(() => crossfadeTo('Idle', 0.25), 260);
     } else {
-      let dmg = Math.round(rand(move.min, move.max) * difficultyMult().dmg);
+      let dmg = Math.round(rand(move.min, move.max) * battleDifficultyMult().dmg);
       if (state.guarding) { dmg = Math.round(dmg / 2); }
       const stats = computeStats();
       dmg = Math.round(dmg * (100 / (100 + stats.def)));
@@ -615,6 +615,7 @@ export function setupChapterBattle(chapterIndex) {
   state.level = level;
   refreshMaxStats();
   const stats = computeStats();
+  state.battleDifficulty = state.difficulty;
   const dMult = difficultyMult();
   const ngPlusMult = 1 + (state.newGamePlus || 0) * 0.25;
   const scaledBossHP = Math.round(chapter.hp * dMult.hp * ngPlusMult);

@@ -97,6 +97,8 @@ export const state = {
   seenExploreTutorial: false,
   seenBattleTutorial: false,
   difficulty: 'normal',
+  // 戦闘開始時の難易度を固定して使う（戦闘中の変更で報酬や実績が変わらないように）
+  battleDifficulty: null,
   newGamePlus: 0,
   lastLoginDate: null,
   loginStreak: 0,
@@ -109,6 +111,13 @@ const DIFFICULTY_MULT = {
 };
 export function difficultyMult() {
   return DIFFICULTY_MULT[state.difficulty] || DIFFICULTY_MULT.normal;
+}
+
+// 進行中の戦闘に適用する難易度。開始時に固定するため、戦闘中に設定を
+// 変更しても被ダメージ・報酬・実績が揺れない。
+export function battleDifficultyMult() {
+  const key = state.battleDifficulty || state.difficulty;
+  return DIFFICULTY_MULT[key] || DIFFICULTY_MULT.normal;
 }
 
 export function fieldQuestState(questId) {
@@ -277,7 +286,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (state.newGamePlus >= 1) tryUnlock('ng_plus');
   if (shopItemIds && shopItemIds.every(id => state.inventory.includes(id))) tryUnlock('collector');
   if (SKILLS.every(s => state.unlockedSkills.includes(s.id))) tryUnlock('skill_master');
-  if (state.difficulty === 'hard') tryUnlock('hard_clear');
+  if ((state.battleDifficulty || state.difficulty) === 'hard') tryUnlock('hard_clear');
   if (lastRank != null && state.damageTaken === 0) tryUnlock('flawless');
   if (lastRank != null && state.turns > 0 && state.turns <= 5) tryUnlock('speed_clear');
   if ((state.totalRevives || 0) >= 1) tryUnlock('revived');
