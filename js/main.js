@@ -626,6 +626,8 @@ window.addEventListener('bosusen-volume-slider-changed', (e) => {
   }
 });
 window.addEventListener('keydown', (e) => {
+  const tag = (e.target && e.target.tagName) || '';
+  if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
   if (e.code === 'KeyK' && !e.repeat) toggleMute();
 });
 setOnToggleMute(toggleMute);
@@ -1103,6 +1105,8 @@ window.addEventListener('keydown', (e) => {
 
 window.addEventListener('keydown', (e) => {
   if (e.repeat || !exploreActive || e.key !== 'Tab') return;
+  const tag = (e.target && e.target.tagName) || '';
+  if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
   e.preventDefault();
   if (els.menuOverlay.classList.contains('open')) closeMenu(); else openMenu();
 });
