@@ -35,6 +35,8 @@ const TRANSIENT = new Set([
   'lastBlessingDay',
   // 進行中の採取コンボ。最高記録 bestCollectCombo だけを保存する
   'collectCombo', 'collectComboAt',
+  // 戦闘開始時に確定する試練の適用状態
+  'trialActive',
 ]);
 
 /** state ではなくスナップショットにのみ書き出すメタ情報 */

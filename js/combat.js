@@ -8,7 +8,7 @@ import { rand } from './utils.js';
 import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake, triggerCritFlash, spawnShockwave, rumble } from './effects.js';
 import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
 import { CHAPTERS, levelStatsFor, BOSS_TAUNTS, VICTORY_LINES, DEFEAT_LINES } from './data.js';
-import { state, computeStats, addShards, difficultyMult, checkAchievements, saveGame, refreshMaxStats, calcRank, battleDifficultyMult, isLowHp, recordMoveOutcome, isMoveMastered } from './state.js';
+import { state, computeStats, addShards, difficultyMult, checkAchievements, saveGame, refreshMaxStats, calcRank, battleDifficultyMult, isLowHp, recordMoveOutcome, isMoveMastered, dailyTrial, trialAppliesTo, claimTrial } from './state.js';
 
 let dodgeActive = false;
 let dodgeAnimHandle = null;
@@ -261,9 +261,16 @@ function finishGame(won) {
     addShards(shardReward);
     const comboBonus = Math.min(30, Math.floor((state.maxCombo || 0) / 2));
     if (comboBonus > 0) addShards(comboBonus);
+    let trialNote = '';
+    if (state.trialActive && claimTrial()) {
+      const trialBonus = Math.round(shardReward * (state.trialActive.reward - 1));
+      addShards(trialBonus);
+      trialNote = ` / 試練「${state.trialActive.name}」達成 +${trialBonus}`;
+      showToast(`日替わりの試練「${state.trialActive.name}」を達成！ 結晶の欠片 +${trialBonus}`, 'quest');
+    }
     const rankBonusNote = RANK_BONUS[rank] > 1 ? `（ランク${rank}ボーナス+${Math.round((RANK_BONUS[rank]-1)*100)}%）` : '';
     const comboBonusNote = comboBonus > 0 ? ` / コンボボーナス +${comboBonus}` : '';
-    els.endRewards.textContent = `獲得経験値 +${chapter.xp} / 結晶の欠片 +${shardReward}${rankBonusNote}${comboBonusNote}（累計 ${state.totalShardsEarned}）`;
+    els.endRewards.textContent = `獲得経験値 +${chapter.xp} / 結晶の欠片 +${shardReward}${rankBonusNote}${comboBonusNote}${trialNote}（累計 ${state.totalShardsEarned}）`;
     checkAchievements(undefined, rank).forEach((a, i) => {
       sfx.achievement();
       showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest');
@@ -375,7 +382,8 @@ function startDodgeQTE(move) {
   const assist = state.guardWindowAssist ? 1.5 : 1;
   // 見切った技は動きが読めている扱いで、ガード受付をわずかに延ばす
   const mastered = isMoveMastered(CHAPTERS[state.chapterIndex].key, move.name) ? 1.15 : 1;
-  const window_ = move.dodgeWindow * (1 + stats.dodgeWindowPct) * assist * mastered;
+  const trialWindow = state.trialActive ? state.trialActive.window : 1;
+  const window_ = move.dodgeWindow * (1 + stats.dodgeWindowPct) * assist * mastered * trialWindow;
   const circumference = 389.6;
   els.dodgeCircle.setAttribute('stroke-dashoffset', '0');
   const t0 = performance.now();
@@ -671,7 +679,10 @@ export function setupChapterBattle(chapterIndex) {
   state.battleDifficulty = state.difficulty;
   const dMult = difficultyMult();
   const ngPlusMult = 1 + (state.newGamePlus || 0) * 0.25;
-  const scaledBossHP = Math.round(chapter.hp * dMult.hp * ngPlusMult);
+  // 今日の試練が対象の章なら、その条件を戦闘開始時に固定して適用する
+  state.trialActive = trialAppliesTo(chapterIndex) ? dailyTrial().mod : null;
+  const trialHP = state.trialActive ? state.trialActive.hp : 1;
+  const scaledBossHP = Math.round(chapter.hp * dMult.hp * ngPlusMult * trialHP);
   Object.assign(state, {
     playerHP: stats.maxHP, playerMaxHP: stats.maxHP,
     playerMP: stats.maxMP, playerMaxMP: stats.maxMP,
@@ -692,6 +703,9 @@ export function setupChapterBattle(chapterIndex) {
   setButtonsEnabled(true);
   els.logWrap.innerHTML = '';
   renderQuestTracker();
+  if (state.trialActive) {
+    showToast(`日替わりの試練「${state.trialActive.name}」：${state.trialActive.desc}`, 'quest');
+  }
 }
 
 export function startBattlePhase() {

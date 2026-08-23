@@ -355,6 +355,7 @@ export const ACHIEVEMENTS = [
   { id:'same_day_clear', name:'一日の疾走', desc:'すべての章を同じ日のうちに撃破する。', reward:55 },
   { id:'spirit_collector', name:'精霊の導き手', desc:'結晶バイオームの精霊球を累計30個集める。', reward:45 },
   { id:'collect_combo', name:'一息の収穫', desc:'蛍・蝶・精霊球を連続で15回採取する。', reward:40 },
+  { id:'trial_veteran', name:'日々の試練者', desc:'日替わりの試練を10回達成する。', reward:70 },
   { id:'smith_master', name:'鍛え上げた一振り', desc:'装備をひとつ最大まで強化する。', reward:60 },
   { id:'move_reader', name:'完全読み', desc:'ある聖域のボスの技をすべて見切る（各技3回ずつ凌ぐ）。', reward:55 },
   { id:'butterfly_master', name:'蝶舞の達人', desc:'蝶を累計200匹捕まえる。', reward:40 },
@@ -369,4 +370,13 @@ export const EMOTES = [
   { label: '✨ すごい！', colors: [0xffd700, 0xfff2a8] },
   { label: '💪 頑張るぞ！', colors: [0xff5a5a, 0xffcc44] },
   { label: '🤔 考え中…', colors: [0x9fa8da, 0xc5cae9] },
+];
+
+/* ---------- 日替わりの試練 ---------- */
+// 日付から決まる章に一時的な条件を付け、達成すると追加報酬が出る。
+export const TRIAL_MODS = [
+  { id:'fierce', name:'猛攻の刻', desc:'ボスの最大HPが30%増える', hp:1.3, window:1, reward:2 },
+  { id:'swift',  name:'刹那の刻', desc:'ガード受付が20%短くなる', hp:1, window:0.8, reward:2.2 },
+  { id:'plenty', name:'豊穣の刻', desc:'条件なし。報酬の欠片が増える', hp:1, window:1, reward:1.6 },
+  { id:'ordeal', name:'試練の刻', desc:'ボスの最大HP+15%、ガード受付-10%', hp:1.15, window:0.9, reward:2.5 },
 ];

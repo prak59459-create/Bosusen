@@ -1,6 +1,6 @@
 import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES } from './data.js';
 import { state, computeStats, calcRank, isLowHp, isQuestDone, chapterQuestsDone, ownsItem,
-  equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData, moveStat, isMoveMastered, effectiveItem, itemLevel, itemUpgradeCost, upgradeItem, MAX_ITEM_LEVEL } from './state.js';
+  equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData, moveStat, isMoveMastered, effectiveItem, itemLevel, itemUpgradeCost, upgradeItem, MAX_ITEM_LEVEL, dailyTrial, trialClaimedToday } from './state.js';
 import { sfx, setMasterVolume, setAmbientVolume, setHeartbeatActive } from './audio.js';
 import { setQualityPreset, setPhotoFilter, PHOTO_FILTERS } from './scene.js';
 import { setMapOpen, setActiveLoadoutKey, pingQuestObjective } from './explore.js';
@@ -514,6 +514,13 @@ export function renderStatusTab() {
   if (spiritsEl) spiritsEl.textContent = state.spiritsCaught || 0;
   const comboCollectEl = document.getElementById('st-combo-collect');
   if (comboCollectEl) comboCollectEl.textContent = state.bestCollectCombo || 0;
+  const trialEl = document.getElementById('st-trial');
+  if (trialEl) {
+    const t = dailyTrial();
+    trialEl.textContent = trialClaimedToday()
+      ? `達成済み（累計${state.trialsCleared || 0}回）`
+      : `${CHAPTERS[t.chapterIndex].title || CHAPTERS[t.chapterIndex].key}：${t.mod.name}`;
+  }
   document.getElementById('st-crits').textContent = state.totalCrits || 0;
   document.getElementById('st-parries').textContent = state.totalParries || 0;
   document.getElementById('st-dodges').textContent = state.totalDodges || 0;
@@ -579,6 +586,7 @@ export function renderStatusTab() {
       butterfly_master: [state.butterfliesCaught || 0, 200],
       spirit_collector: [state.spiritsCaught || 0, 30],
       collect_combo: [state.bestCollectCombo || 0, 15],
+      trial_veteran: [state.trialsCleared || 0, 10],
       smith_master: [Math.max(0, ...Object.values(state.itemLevels || {}), 0), MAX_ITEM_LEVEL],
       move_reader: (() => {
         // 最も見切りが進んでいる章の達成度を表示する

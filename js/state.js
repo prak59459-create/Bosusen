@@ -1,4 +1,4 @@
-import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES, levelStatsFor } from './data.js';
+import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES, TRIAL_MODS, levelStatsFor } from './data.js';
 
 const SAVE_KEY = 'aetheria_save_v1';
 export const EXPLORE_STAMINA_BASE = 100;
@@ -85,6 +85,11 @@ export const state = {
   moveStats: {},
   // 装備の強化段階 { itemId: 1〜MAX_ITEM_LEVEL }
   itemLevels: {},
+  // 日替わりの試練
+  trialClaimedDate: null,
+  trialsCleared: 0,
+  // 進行中の戦闘が試練かどうか（戦闘開始時に確定させる）
+  trialActive: null,
   achievements: [], // array of unlocked achievement ids
   questProgress: {}, // { chapterKey: { questId: true } }
   fieldQuests: {}, // { questId: 'accepted' | 'ready_turnin' }
@@ -192,6 +197,46 @@ export function upgradeItem(id) {
   if (cost == null || !spendShards(cost)) return false;
   state.itemLevels[id] = itemLevel(id) + 1;
   refreshMaxStats();
+  return true;
+}
+
+/* ---------- 日替わりの試練 ---------- */
+/** その日の日付キー（ローカル時間） */
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
+
+/** 日付から決まる今日の試練（章と条件）。同じ日なら誰が呼んでも同じ結果になる */
+export function dailyTrial() {
+  const key = todayKey();
+  let h = 0;
+  for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  // 単純な右シフトだと日ごとに条件がほとんど変わらないため、
+  // 章と条件で別々に撹拌した値を使う
+  const m = Math.imul(h ^ (h >>> 13), 2654435761) >>> 0;
+  return {
+    key,
+    chapterIndex: h % CHAPTERS.length,
+    mod: TRIAL_MODS[m % TRIAL_MODS.length],
+  };
+}
+
+/** 今日の試練をすでに達成済みか */
+export function trialClaimedToday() {
+  return state.trialClaimedDate === todayKey();
+}
+
+/** その章に挑むとき、今日の試練が適用されるか */
+export function trialAppliesTo(chapterIndex) {
+  return !trialClaimedToday() && dailyTrial().chapterIndex === chapterIndex;
+}
+
+/** 試練の達成を記録する（同じ日に二重取得しない） */
+export function claimTrial() {
+  if (trialClaimedToday()) return false;
+  state.trialClaimedDate = todayKey();
+  state.trialsCleared = (state.trialsCleared || 0) + 1;
   return true;
 }
 
@@ -450,6 +495,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if ((state.spiritsCaught || 0) >= 30) tryUnlock('spirit_collector');
   if ((state.bestCollectCombo || 0) >= 15) tryUnlock('collect_combo');
   if (Object.values(state.itemLevels || {}).some(v => v >= MAX_ITEM_LEVEL)) tryUnlock('smith_master');
+  if ((state.trialsCleared || 0) >= 10) tryUnlock('trial_veteran');
   {
     // 1つの章の全ての技（覚醒後を含む）を見切ると解除
     const readAll = CHAPTERS.some(c => {
@@ -614,6 +660,8 @@ export function saveGame() {
       bestCollectCombo: state.bestCollectCombo,
       moveStats: state.moveStats,
       itemLevels: state.itemLevels,
+      trialClaimedDate: state.trialClaimedDate,
+      trialsCleared: state.trialsCleared,
       achievements: state.achievements,
       questProgress: state.questProgress,
       fieldQuests: state.fieldQuests,
@@ -747,6 +795,8 @@ export function loadGame() {
       bestCollectCombo: asNumber(snap.bestCollectCombo, 0),
       moveStats: asObject(snap.moveStats, {}),
       itemLevels: asObject(snap.itemLevels, {}),
+      trialClaimedDate: snap.trialClaimedDate || null,
+      trialsCleared: asNumber(snap.trialsCleared, 0),
       achievements: asArray(snap.achievements),
       questProgress: asObject(snap.questProgress),
       fieldQuests: asObject(snap.fieldQuests),
