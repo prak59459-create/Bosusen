@@ -1112,7 +1112,9 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
   if (objectiveTimer <= 0) {
     objectiveTimer = 0.5;
     updateNearestObjective();
-    checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
+    const newlyUnlocked = checkAchievements(hiddenTreasures.length);
+    newlyUnlocked.forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
+    if (newlyUnlocked.length > 0) saveGame();
   }
 }
 

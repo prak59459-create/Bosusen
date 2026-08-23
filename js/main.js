@@ -766,7 +766,7 @@ els.ngPlusBtn.addEventListener('click', () => {
 
 setCombatCallbacks({
   onWin: () => { saveGame(); },
-  onLose: () => {},
+  onLose: () => { saveGame(); },
 });
 
 /* ============================================================
