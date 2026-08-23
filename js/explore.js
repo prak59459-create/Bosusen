@@ -620,12 +620,16 @@ export function enterExploreMode(spawnLocal) {
     if (t.beam) t.beam.visible = !found;
   });
   fieldTargets.forEach(t => {
-    const done = isQuestDone(CHAPTERS[t.chapterIndex].key, t.questId) || fieldQuestState(t.questId) === 'ready_turnin';
-    if (done) {
-      t.material.emissiveIntensity = 0.1;
-      t.light.intensity = 0.2;
+    // 探索へ戻るたびに見た目を現在の状態へ合わせる
+    // （再討伐が可能になっている的を暗いままにしない）
+    const huntable = isFieldTargetHuntable(t);
+    if (t.baseEmissive === undefined) {
+      t.baseEmissive = t.material.emissiveIntensity;
+      t.baseLight = t.light.intensity;
     }
-    if (t.beam) t.beam.visible = !done;
+    t.material.emissiveIntensity = huntable ? t.baseEmissive : 0.1;
+    t.light.intensity = huntable ? t.baseLight : 0.2;
+    if (t.beam) t.beam.visible = huntable;
   });
   questGivers.forEach(g => {
     if (g.beam) g.beam.visible = !isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId);
