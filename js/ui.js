@@ -142,6 +142,11 @@ export function updateBars() {
   els.bossHPFill.style.width = bossHpPct + '%';
   els.bossHPFill.classList.toggle('critical', bossHpPct > 0 && bossHpPct <= 20);
   els.bossHPText.textContent = `${Math.max(0, Math.round(state.bossHP))}/${state.bossMaxHP}（${Math.max(0, Math.round(bossHpPct))}%）`;
+  // 評価ランク（Sは10ターン以内・被ダメ20以下）や最速記録の判断材料を戦闘中にも見せる
+  const turnsEl = document.getElementById('battle-turns');
+  if (turnsEl) turnsEl.textContent = state.turns || 0;
+  const dmgEl = document.getElementById('battle-damage');
+  if (dmgEl) dmgEl.textContent = Math.round(state.damageTaken || 0);
   const phaseMarkerEl = document.getElementById('boss-phase-marker');
   if (phaseMarkerEl) phaseMarkerEl.classList.toggle('hide', !!state.phase2);
   els.healCount.textContent = state.healUses;
