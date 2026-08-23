@@ -127,17 +127,17 @@
 
 <div id="menu-overlay">
   <div class="menu-panel">
-    <div class="menu-tabs">
-      <button class="menu-tab active" data-tab="status">ステータス</button>
-      <button class="menu-tab" data-tab="equipment">装備</button>
-      <button class="menu-tab" data-tab="skills">スキル</button>
-      <button class="menu-tab" data-tab="items">所持品</button>
-      <button class="menu-tab" data-tab="compendium">図鑑</button>
-      <button class="menu-tab" data-tab="system">設定</button>
+    <div class="menu-tabs" role="tablist" aria-label="メニュー">
+      <button class="menu-tab active" data-tab="status" role="tab" aria-selected="true" aria-controls="page-status">ステータス</button>
+      <button class="menu-tab" data-tab="equipment" role="tab" aria-selected="false" aria-controls="page-equipment">装備</button>
+      <button class="menu-tab" data-tab="skills" role="tab" aria-selected="false" aria-controls="page-skills">スキル</button>
+      <button class="menu-tab" data-tab="items" role="tab" aria-selected="false" aria-controls="page-items">所持品</button>
+      <button class="menu-tab" data-tab="compendium" role="tab" aria-selected="false" aria-controls="page-compendium">図鑑</button>
+      <button class="menu-tab" data-tab="system" role="tab" aria-selected="false" aria-controls="page-system">設定</button>
       <button id="menu-close-btn" title="閉じる" aria-label="閉じる">✕</button>
     </div>
     <div class="menu-body">
-      <div class="menu-page active" id="page-status">
+      <div class="menu-page active" id="page-status" role="tabpanel">
         <div class="status-grid">
           <div class="status-row"><span>称号</span><b id="st-title">なし</b></div>
           <div class="status-row"><span>総合達成度</span><b id="st-completion">0%</b></div>
@@ -179,7 +179,7 @@
         </div>
         <div id="achievement-list" class="item-list"></div>
       </div>
-      <div class="menu-page" id="page-equipment">
+      <div class="menu-page" id="page-equipment" role="tabpanel">
         <div class="skill-reset-row">
           <button class="skill-node-btn" id="auto-equip-btn">最強装備に切り替え</button>
           <button class="skill-node-btn" id="save-loadout-btn-a">装備セットAを記憶</button>
@@ -190,13 +190,13 @@
         <div class="equip-slots" id="equip-slots"></div>
         <div class="equip-list" id="equip-list"></div>
       </div>
-      <div class="menu-page" id="page-skills">
+      <div class="menu-page" id="page-skills" role="tabpanel">
         <div class="skill-tree" id="skill-tree"></div>
       </div>
-      <div class="menu-page" id="page-items">
+      <div class="menu-page" id="page-items" role="tabpanel">
         <div class="item-list" id="item-list"></div>
       </div>
-      <div class="menu-page" id="page-compendium">
+      <div class="menu-page" id="page-compendium" role="tabpanel">
         <div class="status-row"><span>発見バイオーム</span><b id="compendium-progress">0 / 35</b></div>
         <div class="skill-reset-row" style="margin-top:6px;">
           <button class="skill-node-btn" id="compendium-undiscovered-btn">未発見のみ表示</button>
@@ -211,7 +211,7 @@
         <div class="status-row" style="margin-top:10px;"><span>結末の記録</span><b id="ending-archive-progress">0 / 3</b></div>
         <div class="item-list" id="ending-archive-list"></div>
       </div>
-      <div class="menu-page" id="page-system">
+      <div class="menu-page" id="page-system" role="tabpanel">
         <input type="search" id="settings-search" placeholder="設定名で絞り込む（例: 音量、カメラ）" style="width:100%; box-sizing:border-box; margin:0 0 8px; padding:6px 8px; font:inherit; font-size:12px;">
         <div class="empty-hint" id="settings-no-match" style="display:none; padding:8px 4px;">該当する設定が見つかりません</div>
         <div class="settings-section-title">🔊 音声</div>
