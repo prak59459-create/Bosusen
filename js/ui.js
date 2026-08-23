@@ -1473,6 +1473,7 @@ export function openMenu() {
 }
 export function closeMenu() {
   els.menuOverlay.classList.remove('open');
+  updateBars();
   sfx.menuClose();
   state.playing = menuPausedPlaying;
   setMapOpen(false);

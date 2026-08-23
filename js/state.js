@@ -185,6 +185,18 @@ export function computeStats() {
   };
 }
 
+// 装備変更やスキル習得で最大値が変わったとき、探索中でも上限へ反映する。
+// 現在値は増やさない（回復の代用にしない）が、上限を下回るよう切り詰める。
+export function refreshMaxStats() {
+  const stats = computeStats();
+  state.playerMaxHP = stats.maxHP;
+  state.playerMaxMP = stats.maxMP;
+  state.playerMaxStam = stats.maxStam;
+  state.playerHP = Math.min(state.playerHP, state.playerMaxHP);
+  state.playerMP = Math.min(state.playerMP, state.playerMaxMP);
+  state.playerStam = Math.min(state.playerStam, state.playerMaxStam);
+}
+
 export function applyDefense(rawDmg) {
   const stats = computeStats();
   const reduced = rawDmg * (100 / (100 + stats.def));
@@ -202,6 +214,7 @@ export function unlockSkill(id) {
   if (state.shards < skill.cost) return false;
   state.shards -= skill.cost;
   state.unlockedSkills.push(id);
+  refreshMaxStats();
   return true;
 }
 
@@ -308,6 +321,7 @@ export function resetSkills() {
   }, 0);
   state.shards += refund;
   state.unlockedSkills = [];
+  refreshMaxStats();
   return refund;
 }
 
@@ -331,11 +345,13 @@ export function equipItem(id) {
   const item = ITEMS[id];
   if (!item || !ownsItem(id)) return false;
   state.equipment[item.slot] = id;
+  refreshMaxStats();
   return true;
 }
 
 export function unequipSlot(slot) {
   state.equipment[slot] = null;
+  refreshMaxStats();
 }
 
 export function isQuestDone(chapterKey, questId) {
