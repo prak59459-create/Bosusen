@@ -843,8 +843,10 @@ function animate() {
   if (boss) {
     boss.position.y = Math.sin(t * 0.8) * 0.06;
     boss.rotation.y = (state.playing ? -0.5 : boss.rotation.y) + Math.sin(t * 0.3) * 0.05;
-    bossGlow.intensity = (state.phase2 ? 5.0 : 3.2) + Math.sin(t * 2) * 0.6;
-    boss.userData.eyes.forEach(e => e.material.emissiveIntensity = (state.phase2 ? 5 : 3) + Math.sin(t * 3) * 0.8);
+    const bossHpRatio = state.bossMaxHP > 0 ? state.bossHP / state.bossMaxHP : 1;
+    const lowHpBoost = state.playing ? (1 - bossHpRatio) * 2.5 : 0;
+    bossGlow.intensity = (state.phase2 ? 5.0 : 3.2) + lowHpBoost + Math.sin(t * (2 + lowHpBoost)) * 0.6;
+    boss.userData.eyes.forEach(e => e.material.emissiveIntensity = (state.phase2 ? 5 : 3) + lowHpBoost + Math.sin(t * 3) * 0.8);
   }
 
   torchFires.forEach((f, i) => {
