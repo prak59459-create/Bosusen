@@ -155,6 +155,12 @@ const COMPANION_CHATTER_LINES = [
   'ここは静かな場所ですね', '何か気になるものはありますか？', '無理はしないでくださいね',
   '結晶の欠片、集まってきましたか？', '少し休んでもいいんですよ', 'この先に何かある予感がします',
 ];
+const COMPANION_CHATTER_NIGHT = [
+  '夜は星の光がよく見えますね', '静かな夜ですね……少し眠くなってきました', '夜行性の生き物には気をつけて',
+];
+const COMPANION_CHATTER_RAIN = [
+  '雨、冷たくないですか？', '雨上がりには虹が見えるかもしれません', '足元が滑りやすいので気をつけて',
+];
 let companionChatterTimer = 40 + Math.random() * 40;
 let camInit = false;
 let objectiveTimer = 0;
@@ -906,7 +912,8 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
     companionChatterTimer -= dt;
     if (companionChatterTimer <= 0) {
       companionChatterTimer = 60 + Math.random() * 60;
-      const line = COMPANION_CHATTER_LINES[Math.floor(Math.random() * COMPANION_CHATTER_LINES.length)];
+      const pool = isRaining ? COMPANION_CHATTER_RAIN : (isNightTime(absTime) ? COMPANION_CHATTER_NIGHT : COMPANION_CHATTER_LINES);
+      const line = pool[Math.floor(Math.random() * pool.length)];
       showToast(`${state.companionName || 'イリス'}：「${line}」`, 'info');
     }
   }
