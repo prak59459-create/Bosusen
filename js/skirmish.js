@@ -45,6 +45,8 @@ export function startSkirmish(target) {
   updateEnemyBar();
   els.panel.style.display = 'flex';
   if (target.mesh) target.mesh.scale.setScalar(1.3);
+  sfx.roar();
+  rumble(0.4, 250);
 }
 
 function updateEnemyBar() {
