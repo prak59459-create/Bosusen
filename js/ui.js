@@ -158,6 +158,16 @@ export function log(msg) {
   while (els.logWrap.children.length > 4) els.logWrap.removeChild(els.logWrap.lastChild);
 }
 
+async function copyImageToClipboard(dataUrl) {
+  try {
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+    showToast('画像をクリップボードにコピーしました', 'info');
+  } catch (err) {
+    showToast('コピーに対応していない環境です', 'info');
+  }
+}
 const screenshotGallery = [];
 export function addScreenshotToGallery(dataUrl) {
   screenshotGallery.unshift(dataUrl);
@@ -173,9 +183,14 @@ function renderScreenshotGallery() {
   screenshotGallery.forEach(url => {
     const img = document.createElement('img');
     img.src = url;
+    img.title = 'クリックで別タブ表示、右クリックでコピー';
     img.addEventListener('click', () => {
       const w = window.open();
       if (w) w.document.write(`<img src="${url}" style="max-width:100%;">`);
+    });
+    img.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      copyImageToClipboard(url);
     });
     el.appendChild(img);
   });
