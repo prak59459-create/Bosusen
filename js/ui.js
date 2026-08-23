@@ -437,7 +437,7 @@ export function renderStatusTab() {
 /* ============================================================
    メニュー：装備タブ
    ============================================================ */
-function itemScore(item) {
+export function itemScore(item) {
   return (item.atk || 0) * 1.5 + (item.def || 0) * 1.5 + (item.crit || 0) * 1.2 + (item.hp || 0) * 0.3 + (item.mp || 0) * 0.2;
 }
 
