@@ -100,6 +100,7 @@ export const state = {
   trialsCleared: 0,
   campfireRests: 0,
   eliteKills: 0,
+  sawAurora: false,
   // 経験した天候の種類（実績用）
   seenWeathers: [],
   // 日替わりの採取依頼
@@ -641,6 +642,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if ((state.trialsCleared || 0) >= 10) tryUnlock('trial_veteran');
   if ((state.campfireRests || 0) >= 15) tryUnlock('camper');
   if ((state.eliteKills || 0) >= 5) tryUnlock('elite_hunter');
+  if (state.sawAurora) tryUnlock('aurora_witness');
   if (WEATHERS.every(w => (state.seenWeathers || []).includes(w.id))) tryUnlock('weather_watcher');
   if ((state.gatherDone || 0) >= 10) tryUnlock('gather_master');
   if ((state.gauntletClears || 0) >= 1) tryUnlock('gauntlet_clear');
@@ -812,6 +814,7 @@ export function saveGame() {
       trialsCleared: state.trialsCleared,
       campfireRests: state.campfireRests,
       eliteKills: state.eliteKills,
+      sawAurora: state.sawAurora,
       seenWeathers: state.seenWeathers,
       gatherDay: state.gatherDay,
       gatherProgress: state.gatherProgress,
@@ -956,6 +959,7 @@ export function loadGame() {
       trialsCleared: asNumber(snap.trialsCleared, 0),
       campfireRests: asNumber(snap.campfireRests, 0),
       eliteKills: asNumber(snap.eliteKills, 0),
+      sawAurora: !!snap.sawAurora,
       seenWeathers: asArray(snap.seenWeathers, []),
       gatherDay: asNumber(snap.gatherDay, -1),
       gatherProgress: asNumber(snap.gatherProgress, 0),

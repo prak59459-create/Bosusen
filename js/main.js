@@ -10,7 +10,7 @@ import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, ad
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, showCenterMsg, syncSettingsUI, openMenu, closeMenu, BIOME_CATEGORY_ICON, SLOT_ICON, itemScore, itemStatParts, itemCompareTag } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
-import { BIOME_NAMES, undiscoveredBiomeSpots, HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt, biomeNameAt, triggerLightning, updateLightning, updateButterflies, updateScorpions, updateFoxes, updateFrogs, updateCrows, updateSalamanders, updateDrones, updateSpirits, triggerRainbow, updateRainbow, updateHubSparks, updateGuideBeams, campfires } from './world.js';
+import { BIOME_NAMES, undiscoveredBiomeSpots, HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt, biomeNameAt, triggerLightning, updateLightning, updateButterflies, updateScorpions, updateFoxes, updateFrogs, updateCrows, updateSalamanders, updateDrones, updateSpirits, triggerRainbow, updateRainbow, updateHubSparks, updateGuideBeams, campfires, updateAurora } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone, setOnReplayZone,
   setOnOpenShop, setOnToggleMap, setOnToggleMute, setOnSkipTime, getPlayerLocalPos, exploreActive, setMapOpen, setExploreLocalPos, getPlayerFacing, setActiveLoadoutKey } from './explore.js';
 import { initSkirmishUI, resetSkirmish } from './skirmish.js';
@@ -1283,6 +1283,13 @@ function animate() {
     }
     updateLightning(dt);
     updateSnow(t, dt, lp.x, lp.z);
+    // 雪原の夜にだけ現れるオーロラ。初めて見たときは実績として記録する
+    if (updateAurora(t, lp.x, lp.z, isNightTime(t)) && !state.sawAurora) {
+      state.sawAurora = true;
+      showToast('空にオーロラが揺れている……', 'quest');
+      checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
+      saveGame();
+    }
     updateEmbers(t, dt, lp.x, lp.z);
     updateSandstorm(t, dt, lp.x, lp.z);
     updateCyberMotes(t, dt, lp.x, lp.z);

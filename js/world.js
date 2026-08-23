@@ -1764,6 +1764,52 @@ export function updateRain(t, dt, centerX, centerZ, forceRain = false) {
   return true;
 }
 
+/* ---------- 雪原バイオームの夜に現れるオーロラ ---------- */
+// 空高くに帯状の面を並べ、緑〜紫のグラデーションをゆっくり波打たせる。
+const AURORA_BANDS = 5;
+const auroraGroup = new THREE.Group();
+const auroraBands = [];
+{
+  for (let i = 0; i < AURORA_BANDS; i++) {
+    const mat = new THREE.MeshBasicMaterial({
+      color: new THREE.Color().setHSL(0.35 + i * 0.045, 0.8, 0.6),
+      transparent: true, opacity: 0, side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending, depthWrite: false,
+    });
+    const geo = new THREE.PlaneGeometry(260, 60, 24, 1);
+    const band = new THREE.Mesh(geo, mat);
+    band.position.set(0, 90 + i * 9, -150 - i * 14);
+    band.rotation.x = -0.35;
+    auroraBands.push({ mesh: band, mat, phase: Math.random() * Math.PI * 2, base: geo.attributes.position.array.slice() });
+    auroraGroup.add(band);
+  }
+  auroraGroup.visible = false;
+  worldGroup.add(auroraGroup);
+}
+
+/**
+ * オーロラの更新。雪原の夜だけ現れ、ゆっくり明滅しながら波打つ。
+ * @returns {boolean} 今オーロラが見えているか
+ */
+export function updateAurora(t, centerX, centerZ, isNight) {
+  const biomeIdx = nearestBiome(centerX, centerZ);
+  const cat = BIOME_DEFS[biomeIdx] ? BIOME_DEFS[biomeIdx].category : null;
+  const visible = isNight && cat === 'snow';
+  auroraGroup.visible = visible;
+  if (!visible) return false;
+  auroraGroup.position.set(centerX, 0, centerZ);
+  auroraBands.forEach((b, i) => {
+    b.mat.opacity = 0.18 + Math.sin(t * 0.25 + b.phase) * 0.09;
+    const pos = b.mesh.geometry.attributes.position;
+    for (let v = 0; v < pos.count; v++) {
+      const x = b.base[v * 3];
+      pos.array[v * 3 + 1] = b.base[v * 3 + 1] + Math.sin(t * 0.5 + x * 0.03 + i) * 7;
+    }
+    pos.needsUpdate = true;
+  });
+  return true;
+}
+
 /* ---------- 雪原バイオームに降る雪 ---------- */
 const SNOW_COUNT = 320;
 const snowGeo = new THREE.SphereGeometry(0.08, 5, 5);
