@@ -354,7 +354,7 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.sprint = true;
   if (e.code === 'KeyM' && onToggleMap) onToggleMap();
   if (e.code === 'KeyR' && !e.repeat) toggleSprintLock();
-  if (e.code === 'KeyC' && !e.repeat) { camOrbitYaw = 0; camOrbitPitch = 0.42; sfx.uiClick(); }
+  if (e.code === 'KeyC' && !e.repeat) resetCameraAngle();
   if (e.code === 'KeyV' && !e.repeat) {
     cyclePhotoFilter();
   }
@@ -377,10 +377,7 @@ window.addEventListener('keydown', (e) => {
     pingDirection(unfinished, '聖域', 'すべての聖域を制覇済みです');
   }
   if (e.code === 'KeyE' && !e.repeat) doDash();
-  if (e.code === 'KeyF' && !e.repeat) {
-    playEmote(emoteIdx % EMOTES.length);
-    emoteIdx++;
-  }
+  if (e.code === 'KeyF' && !e.repeat) cycleEmote();
   // 数字キーは EMOTES の数に追従させる（種類を増やしても割り当てが漏れない）
   if (/^Digit[1-9]$/.test(e.code) && !e.repeat && parseInt(e.code.slice(-1), 10) <= EMOTES.length) {
     playEmote(parseInt(e.code.slice(-1), 10) - 1);
@@ -389,6 +386,18 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyP' && !e.repeat) takeScreenshot();
   if (e.code === 'Space' && !e.repeat) doJump();
 });
+
+// カメラリセットとエモート送りも複数の入力経路から呼ばれるため共通化する
+function resetCameraAngle() {
+  camOrbitYaw = 0;
+  camOrbitPitch = 0.42;
+  sfx.uiClick();
+}
+
+function cycleEmote() {
+  playEmote(emoteIdx % EMOTES.length);
+  emoteIdx++;
+}
 
 // フィルター切替はキーボードとゲームパッドの両方から呼ばれるため一箇所にまとめる
 function cyclePhotoFilter() {
@@ -524,7 +533,7 @@ export function initJoystick() {
   const dashBtn = document.getElementById('dash-btn');
   if (dashBtn) dashBtn.addEventListener('click', () => { if (exploreActive) doDash(); });
   const emoteBtn = document.getElementById('emote-btn');
-  if (emoteBtn) emoteBtn.addEventListener('click', () => { if (exploreActive) { playEmote(emoteIdx % EMOTES.length); emoteIdx++; } });
+  if (emoteBtn) emoteBtn.addEventListener('click', () => { if (exploreActive) cycleEmote(); });
   const screenshotBtn = document.getElementById('screenshot-btn');
   if (screenshotBtn) screenshotBtn.addEventListener('click', () => { if (exploreActive) takeScreenshot(); });
   const hubReturnBtn = document.getElementById('hub-return-btn');
@@ -816,9 +825,9 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
     if (Math.abs(ry) > 0.2) camOrbitPitch = Math.max(0.05, Math.min(1.2, camOrbitPitch + ry * dt * 2 * gpSens * (state.invertCameraY ? -1 : 1)));
     if (gp.buttons[9] && gp.buttons[9].pressed && !gpMapHeld) { gpMapHeld = true; if (onToggleMap) onToggleMap(); }
     if (!(gp.buttons[9] && gp.buttons[9].pressed)) gpMapHeld = false;
-    if (gp.buttons[3] && gp.buttons[3].pressed && !gpCamResetHeld) { gpCamResetHeld = true; camOrbitYaw = 0; camOrbitPitch = 0.42; }
+    if (gp.buttons[3] && gp.buttons[3].pressed && !gpCamResetHeld) { gpCamResetHeld = true; resetCameraAngle(); }
     if (!(gp.buttons[3] && gp.buttons[3].pressed)) gpCamResetHeld = false;
-    if (gp.buttons[2] && gp.buttons[2].pressed && !gpEmoteHeld) { gpEmoteHeld = true; playEmote(emoteIdx % EMOTES.length); emoteIdx++; }
+    if (gp.buttons[2] && gp.buttons[2].pressed && !gpEmoteHeld) { gpEmoteHeld = true; cycleEmote(); }
     if (!(gp.buttons[2] && gp.buttons[2].pressed)) gpEmoteHeld = false;
     if (gp.buttons[12] && gp.buttons[12].pressed && !gpFilterHeld) {
       gpFilterHeld = true;
