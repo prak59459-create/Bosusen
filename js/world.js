@@ -92,6 +92,18 @@ const BIOME_SEEDS = BIOME_DEFS.map(() => {
   const ang = Math.random() * Math.PI * 2;
   return { x: Math.cos(ang) * r * WORLD_RADIUS, z: Math.sin(ang) * r * WORLD_RADIUS };
 });
+// 未発見バイオームの中心座標を返す（発見済みの名前一覧を渡す）。
+// バイオームはシード点のボロノイ領域なので、シード点がそのまま目的地になる。
+export function undiscoveredBiomeSpots(discoveredNames) {
+  const found = new Set(discoveredNames || []);
+  const spots = [];
+  BIOME_DEFS.forEach((def, i) => {
+    if (found.has(def.name)) return;
+    spots.push({ name: def.name, localPos: { x: BIOME_SEEDS[i].x, z: BIOME_SEEDS[i].z } });
+  });
+  return spots;
+}
+
 export function nearestBiome(x, z) {
   let best = -1, bestD = Infinity;
   for (let i = 0; i < BIOME_SEEDS.length; i++) {

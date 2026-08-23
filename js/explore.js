@@ -3,7 +3,7 @@ import { camera, scene, setCameraMode, renderer, setPhotoFilter, PHOTO_FILTERS, 
 import { player, crossfadeTo } from './player.js';
 import { spawnParticles } from './effects.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
-  explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions, collectNearbyFireflies, collectNearbyButterflies, BIOME_NAMES } from './world.js';
+  explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions, collectNearbyFireflies, collectNearbyButterflies, BIOME_NAMES, undiscoveredBiomeSpots } from './world.js';
 import { CHAPTERS, EMOTES } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
   fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot, ngPlusShardMult, isFieldTargetHuntable } from './state.js';
@@ -373,6 +373,9 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyQ' && !e.repeat) {
     const undone = questGivers.filter(g => !isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId));
     pingDirection(undone, 'クエスト依頼人', 'すべての依頼人のクエストを達成済みです');
+  }
+  if (e.code === 'KeyX' && !e.repeat) {
+    pingDirection(undiscoveredBiomeSpots(state.discoveredBiomes), '未発見のバイオーム', 'すべてのバイオームを発見済みです');
   }
   if (e.code === 'KeyZ' && !e.repeat) {
     const unfinished = zoneMarkers.filter(z => z.chapterIndex >= state.chapterIndex);
