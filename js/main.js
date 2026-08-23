@@ -20,7 +20,26 @@ mountRenderer();
 function toggleHelpOverlay() {
   const el = document.getElementById('help-overlay');
   if (el) el.classList.toggle('show');
+  const searchEl = document.getElementById('help-search');
+  if (searchEl && searchEl.value) {
+    searchEl.value = '';
+    searchEl.dispatchEvent(new Event('input'));
+  }
   sfx.uiClick();
+}
+const helpSearchEl = document.getElementById('help-search');
+if (helpSearchEl) {
+  helpSearchEl.addEventListener('input', () => {
+    const q = helpSearchEl.value.trim().toLowerCase();
+    let shown = 0;
+    document.querySelectorAll('#help-overlay .help-row').forEach(row => {
+      const match = !q || row.textContent.toLowerCase().includes(q);
+      row.style.display = match ? '' : 'none';
+      if (match) shown++;
+    });
+    const noMatchEl = document.getElementById('help-no-match');
+    if (noMatchEl) noMatchEl.style.display = shown === 0 ? 'block' : 'none';
+  });
 }
 document.getElementById('help-btn').addEventListener('click', toggleHelpOverlay);
 document.getElementById('help-close-btn').addEventListener('click', toggleHelpOverlay);
@@ -28,8 +47,10 @@ document.getElementById('help-overlay').addEventListener('click', (e) => {
   if (e.target.id === 'help-overlay') toggleHelpOverlay();
 });
 window.addEventListener('keydown', (e) => {
-  if (e.code === 'KeyH' && !e.repeat) toggleHelpOverlay();
-  if (e.code === 'KeyB' && !e.repeat && exploreActive) cycleRadarZoom();
+  const tag = (e.target && e.target.tagName) || '';
+  const typing = tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA';
+  if (e.code === 'KeyH' && !e.repeat && !typing) toggleHelpOverlay();
+  if (e.code === 'KeyB' && !e.repeat && exploreActive && !typing) cycleRadarZoom();
   if (e.code === 'F3' && !e.repeat) {
     e.preventDefault();
     debugOverlayVisible = !debugOverlayVisible;
