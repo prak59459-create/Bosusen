@@ -714,7 +714,7 @@ export function renderEquipmentTab() {
       Object.keys(slotNames).forEach(slot => {
         const candidates = state.inventory.filter(id => ITEMS[id] && ITEMS[id].slot === slot);
         if (candidates.length === 0) return;
-        const best = candidates.reduce((a, b) => itemScore(ITEMS[a]) >= itemScore(ITEMS[b]) ? a : b);
+        const best = candidates.reduce((a, b) => itemScore(effectiveItem(a)) >= itemScore(effectiveItem(b)) ? a : b);
         if (state.equipment[slot] !== best) { equipItem(best); changed = true; }
       });
       sfx.uiClick();
@@ -781,7 +781,7 @@ export function renderEquipmentTab() {
   });
 
   listEl.innerHTML = '';
-  const owned = state.inventory.filter(id => ITEMS[id]).sort((a, b) => itemScore(ITEMS[b]) - itemScore(ITEMS[a]));
+  const owned = state.inventory.filter(id => ITEMS[id]).sort((a, b) => itemScore(effectiveItem(b)) - itemScore(effectiveItem(a)));
   if (owned.length === 0) {
     listEl.innerHTML = '<div class="empty-hint">所持している装備はまだありません。クエストで入手しましょう。</div>';
     return;
@@ -963,7 +963,8 @@ export function renderItemsTab() {
     return sa !== sb ? sa - sb : ITEMS[a].name.localeCompare(ITEMS[b].name, 'ja');
   });
   sorted.forEach(id => {
-    const item = ITEMS[id];
+    const item = effectiveItem(id);
+    const lvTag = itemLevel(id) > 0 ? ` <span style="color:#c07a12;">+${itemLevel(id)}</span>` : '';
     const equipped = state.equipment[item.slot] === id;
     const row = document.createElement('div');
     row.className = 'item-row' + (equipped ? ' equipped' : '');
@@ -971,7 +972,7 @@ export function renderItemsTab() {
     const compareTag = itemCompareTag(item);
     row.innerHTML = `
       <div class="item-row-main">
-        <div class="item-row-name">${SLOT_ICON[item.slot] || ''} ${item.name}${compareTag}<span class="item-slot-tag">${slotLabel[item.slot]}${equipped ? ' ・装備中' : ''}</span></div>
+        <div class="item-row-name">${SLOT_ICON[item.slot] || ''} ${item.name}${lvTag}${compareTag}<span class="item-slot-tag">${slotLabel[item.slot]}${equipped ? ' ・装備中' : ''}</span></div>
         <div class="item-row-desc">${item.desc}</div>
         ${statParts.length ? `<div class="item-row-desc">${statParts.join(' / ')}</div>` : ''}
       </div>
