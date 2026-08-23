@@ -587,3 +587,16 @@ body.high-contrast .quest-tracker, body.high-contrast #biome-label {
 
 #explore-hud.cinematic-fade { opacity: 0.15; transition: opacity 1.5s ease; }
 #explore-hud { transition: opacity 0.4s ease; }
+
+/* キーボード操作時のフォーカス位置を明示する。
+   暗い背景でブラウザ既定のリングが埋もれるため、金色で統一する。
+   :focus-visible なのでマウスのクリック時には表示されない。 */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+canvas:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid #ffd75e;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
