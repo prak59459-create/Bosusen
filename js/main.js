@@ -332,6 +332,14 @@ function cycleRadarZoom() {
   saveGame();
 }
 
+// 討伐目標が「今その場で戦える」状態か。
+// 受注済みで未討伐、または依頼達成後の再討伐がクールダウン明けなら戦える。
+function isFieldTargetHuntable(t) {
+  const chapterKey = CHAPTERS[t.chapterIndex].key;
+  if (isQuestDone(chapterKey, t.questId)) return Date.now() >= (t.huntReadyAt || 0);
+  return fieldQuestState(t.questId) === 'accepted';
+}
+
 function drawRadar() {
   if (!radarCtx || !exploreActive) return;
   const w = radarCanvas.width, h = radarCanvas.height;
@@ -353,7 +361,10 @@ function drawRadar() {
     color: z.chapterIndex === state.chapterIndex ? '#ffe27a'
       : (z.chapterIndex < state.chapterIndex ? '#5fd35f' : '#555'),
   }));
-  fieldTargets.forEach(f => dots.push({ x: f.localPos.x, z: f.localPos.z, color: '#ff5a5a' }));
+  fieldTargets.forEach(f => dots.push({
+    x: f.localPos.x, z: f.localPos.z,
+    color: isFieldTargetHuntable(f) ? '#ff5a5a' : 'rgba(255,90,90,0.28)',
+  }));
   hiddenTreasures.forEach(tr => { if (!state.foundTreasures.includes(tr.id)) dots.push({ x: tr.localPos.x, z: tr.localPos.z, color: '#ffd700' }); });
   questGivers.forEach(g => { if (!isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId)) dots.push({ x: g.localPos.x, z: g.localPos.z, color: '#ffd75e' }); });
   loreMarkers.forEach(m => { if (!isQuestDone(CHAPTERS[m.chapterIndex].key, m.questId)) dots.push({ x: m.localPos.x, z: m.localPos.z, color: '#b39ddb' }); });
@@ -477,12 +488,10 @@ function drawMap() {
   });
 
   fieldTargets.forEach(t => {
-    const chapterKey = CHAPTERS[t.chapterIndex].key;
-    const defeated = isQuestDone(chapterKey, t.questId) || fieldQuestState(t.questId) === 'ready_turnin';
     const x = cx + t.localPos.x * scale, y = cy + t.localPos.z * scale;
     mapCtx.beginPath();
     mapCtx.arc(x, y, 4, 0, Math.PI * 2);
-    mapCtx.fillStyle = defeated ? 'rgba(255,85,85,0.3)' : '#ff5555';
+    mapCtx.fillStyle = isFieldTargetHuntable(t) ? '#ff5555' : 'rgba(255,85,85,0.3)';
     mapCtx.fill();
   });
   questGivers.forEach(g => {
