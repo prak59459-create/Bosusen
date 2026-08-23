@@ -1123,6 +1123,9 @@ export function syncSettingsUI() {
   applyUiTextScale(state.uiTextScale || 1);
 }
 
+// メニューを開いた時点で戦闘中だったか（戦闘は menu 表示中 state.playing=false になるため別途保持）
+let menuPausedPlaying = false;
+
 export function initMenu(onSave, onTitle) {
   const tabs = document.querySelectorAll('.menu-tab');
   const pages = document.querySelectorAll('.menu-page');
@@ -1450,7 +1453,13 @@ export function initMenu(onSave, onTitle) {
   difficultySelect.addEventListener('change', () => {
     state.difficulty = difficultySelect.value;
     sfx.uiClick();
-    showToast(`難易度を「${{easy:'簡単',normal:'普通',hard:'難しい'}[state.difficulty]}」に変更しました`, 'info');
+    const label = { easy: '簡単', normal: '普通', hard: '難しい' }[state.difficulty];
+    // 進行中の戦闘は開始時の難易度で固定されるため、その旨を明示する
+    if (menuPausedPlaying) {
+      showToast(`難易度を「${label}」に変更しました（進行中の戦闘には適用されません）`, 'info');
+    } else {
+      showToast(`難易度を「${label}」に変更しました`, 'info');
+    }
     updateDifficultyDetail();
     saveGame();
   });
@@ -1558,7 +1567,6 @@ export function initMenu(onSave, onTitle) {
   });
 }
 
-let menuPausedPlaying = false;
 export function openMenu() {
   const hudEl = document.getElementById('explore-hud');
   if (hudEl) hudEl.classList.remove('cinematic-fade');
