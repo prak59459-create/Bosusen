@@ -319,7 +319,7 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.sprint = true;
   if (e.code === 'KeyM' && onToggleMap) onToggleMap();
   if (e.code === 'KeyR' && !e.repeat) toggleSprintLock();
-  if (e.code === 'KeyC' && !e.repeat) { camOrbitYaw = 0; camOrbitPitch = 0.42; }
+  if (e.code === 'KeyC' && !e.repeat) { camOrbitYaw = 0; camOrbitPitch = 0.42; sfx.uiClick(); }
   if (e.code === 'KeyV' && !e.repeat) {
     photoFilterMode = (photoFilterMode + 1) % 4;
     state.photoFilterMode = photoFilterMode;
