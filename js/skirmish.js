@@ -15,6 +15,9 @@ let active = false;
 let enemyHP = 0, enemyMaxHP = 0;
 let currentTarget = null;
 let repeatHunt = false;
+// 再討伐時にまれに現れる強敵。報酬が大きい代わりに硬く、反撃も痛い
+let isElite = false;
+const ELITE_CHANCE = 0.25;
 // 再討伐の間隔（連打でシャードを稼げないようにする）
 const REPEAT_HUNT_COOLDOWN_MS = 90000;
 let els = null;
@@ -23,6 +26,7 @@ export function isSkirmishActive() { return active; }
 
 export function resetSkirmish() {
   active = false;
+  isElite = false;
   currentTarget = null;
   if (els) els.panel.style.display = 'none';
 }
@@ -61,13 +65,15 @@ export function startSkirmish(target, isRepeat = false) {
   // ボス戦と同じく難易度と周回数でスケールさせ、強化された自機に対して形骸化しないようにする
   const dMult = difficultyMult();
   const ngPlusMult = 1 + (state.newGamePlus || 0) * 0.25;
-  enemyMaxHP = Math.round((target.hp || 30) * dMult.hp * ngPlusMult);
+  isElite = isRepeat && Math.random() < ELITE_CHANCE;
+  enemyMaxHP = Math.round((target.hp || 30) * dMult.hp * ngPlusMult * (isElite ? 2.2 : 1));
   enemyHP = enemyMaxHP;
-  els.name.textContent = target.name || '結晶獣（フィールド）';
-  els.log.textContent = '襲いかかってきた！';
+  const baseName = target.name || '結晶獣（フィールド）';
+  els.name.textContent = isElite ? `★精鋭 ${baseName}` : baseName;
+  els.log.textContent = isElite ? '禍々しい気配――精鋭個体が襲いかかってきた！' : '襲いかかってきた！';
   updateEnemyBar();
   els.panel.style.display = 'flex';
-  if (target.mesh) target.mesh.scale.setScalar(1.3);
+  if (target.mesh) target.mesh.scale.setScalar(isElite ? 1.8 : 1.3);
   sfx.roar();
   rumble(0.4, 250);
 }
@@ -100,7 +106,7 @@ function attack() {
     return;
   }
 
-  const retaliation = Math.round((4 + Math.random() * 6) * difficultyMult().dmg * (1 + (state.newGamePlus || 0) * 0.25));
+  const retaliation = Math.round((4 + Math.random() * 6) * difficultyMult().dmg * (1 + (state.newGamePlus || 0) * 0.25) * (isElite ? 1.5 : 1));
   const reduced = Math.max(1, Math.round(retaliation * (100 / (100 + stats.def))));
   state.playerHP = Math.max(1, state.playerHP - reduced);
   rumble(0.3, 150);
@@ -135,11 +141,16 @@ function finishSkirmish(won) {
     if (currentTarget.mesh) spawnShockwave(currentTarget.mesh.getWorldPosition(currentTarget.mesh.position.clone()), 0xff6644);
     rumble(0.6, 350);
     if (repeatHunt) {
-      const bounty = Math.round(12 * ngPlusShardMult());
+      const bounty = Math.round(12 * ngPlusShardMult() * (isElite ? 3 : 1));
       addShards(bounty);
-      showToast(`結晶獣を討伐した！ 結晶の欠片 +${bounty}`, 'quest');
+      if (isElite) {
+        state.eliteKills = (state.eliteKills || 0) + 1;
+        sfx.achievement();
+        showCenterMsg('精鋭個体を撃破！', '#ffd75e', 1500);
+      }
+      showToast(`${isElite ? '精鋭の' : ''}結晶獣を討伐した！ 結晶の欠片 +${bounty}`, 'quest');
       // 再討伐を続ける目標として、未入手なら稀に専用の装飾品を落とす
-      if (!ownsItem(HUNTER_DROP_ID) && Math.random() < HUNTER_DROP_RATE) {
+      if (!ownsItem(HUNTER_DROP_ID) && Math.random() < HUNTER_DROP_RATE * (isElite ? 3 : 1)) {
         addItem(HUNTER_DROP_ID);
         sfx.achievement();
         showCenterMsg('野伏の首飾りを手に入れた！', '#ffd75e', 1800);
@@ -152,6 +163,7 @@ function finishSkirmish(won) {
     saveGame();
   }
   currentTarget = null;
+  isElite = false;
 }
 
 function flee() {

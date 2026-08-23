@@ -406,6 +406,7 @@ export const ACHIEVEMENTS = [
   { id:'gauntlet_clear', name:'連戦の覇者', desc:'連戦モードで全ての聖域を一度に踏破する。', reward:120 },
   { id:'gather_master', name:'採取名人', desc:'日替わりの採取依頼を10回達成する。', reward:65 },
   { id:'weather_watcher', name:'空模様の記録者', desc:'晴れ・曇り・雨・霧のすべてを体験する。', reward:40 },
+  { id:'elite_hunter', name:'精鋭狩り', desc:'フィールドの精鋭個体を5体討伐する。', reward:75 },
   { id:'camper', name:'焚き火の旅人', desc:'焚き火で15回休む。', reward:35 },
   { id:'trial_veteran', name:'日々の試練者', desc:'日替わりの試練を10回達成する。', reward:70 },
   { id:'smith_master', name:'鍛え上げた一振り', desc:'装備をひとつ最大まで強化する。', reward:60 },

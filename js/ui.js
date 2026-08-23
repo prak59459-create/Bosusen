@@ -648,6 +648,7 @@ export function renderStatusTab() {
       collect_combo: [state.bestCollectCombo || 0, 15],
       trial_veteran: [state.trialsCleared || 0, 10],
       camper: [state.campfireRests || 0, 15],
+      elite_hunter: [state.eliteKills || 0, 5],
       weather_watcher: [(state.seenWeathers || []).length, WEATHERS.length],
       gather_master: [state.gatherDone || 0, 10],
       gauntlet_clear: [Math.min(1, state.gauntletClears || 0), 1],
