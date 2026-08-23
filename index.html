@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#05040a">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f6f2ff">
 <title>AETHERIA: ECHOES OF THE VOID</title>
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/menu.css">
@@ -18,6 +18,7 @@
   <div class="loading-sub">ECHOES OF THE VOID</div>
   <div class="loading-bar-wrap"><div class="loading-bar-fill" id="loading-bar-fill"></div></div>
   <div class="loading-text" id="loading-text">結晶データを読み込み中...</div>
+  <div class="loading-tip" id="loading-tip"></div>
 </div>
 
 <div id="start-screen">
@@ -47,6 +48,9 @@
   <div class="chapter-tag" id="qb-chapter-tag">聖域 I</div>
   <h1 id="qb-title">クエストボード</h1>
   <p class="qb-hint">結晶獣に挑む前に、聖域に残る欠片を回収せよ。すべて達成すると報酬が増える。</p>
+  <div class="qb-progress-bar"><div class="qb-progress-fill" id="qb-progress-fill"></div></div>
+  <label class="system-check-row"><input type="checkbox" id="qb-undone-filter"><span>未達成のクエストのみ表示</span></label>
+  <label class="system-check-row"><input type="checkbox" id="qb-sort-reward"><span>報酬が多い順に並び替え</span></label>
   <div id="qb-quest-list"></div>
   <button class="big-btn" id="qb-fight-btn">結晶獣と戦う</button>
 </div>
@@ -60,11 +64,19 @@
   <div id="end-choices"></div>
   <button class="big-btn" id="next-btn">つづきへ</button>
   <button class="big-btn" id="retry-btn">もう一度挑む</button>
+  <button class="big-btn ghost" id="ngplus-btn" style="display:none;">装備を引き継いで周回+</button>
 </div>
 
 <div id="ui">
+  <div id="lightning-flash"></div>
+  <div id="crit-flash"></div>
+  <div id="boss-intro-banner"><div class="boss-intro-name"></div><div class="boss-intro-sub">討伐対象</div></div>
+  <div id="debug-overlay" style="display:none;"></div>
+  <div id="photo-grid-overlay" style="display:none;"></div>
+  <img id="screenshot-preview" alt="スクリーンショットプレビュー">
+  <div id="low-hp-vignette"></div>
   <div class="bar-wrap" id="player-wrap">
-    <div class="name-row"><span class="name">アッシュ</span><span class="lv" id="player-lv">Lv.1</span></div>
+    <div class="name-row"><span class="name"><span id="player-title"></span>アッシュ<span id="pinned-achievement-badge" title=""></span></span><span class="lv" id="player-lv">Lv.1</span></div>
     <div class="stat-bar-bg"><div class="stat-bar-fill hp" id="player-hp-fill" style="width:100%"></div><div class="stat-bar-ghost" id="player-hp-ghost"></div></div>
     <div class="stat-label">HP <span id="player-hp-text">100/100</span></div>
     <div class="stat-bar-bg small"><div class="stat-bar-fill mp" id="player-mp-fill" style="width:100%"></div></div>
@@ -74,12 +86,12 @@
   </div>
   <div class="bar-wrap" id="boss-wrap">
     <div class="name-row"><span class="phase-tag" id="phase-tag">覚醒</span><span class="name" id="boss-name">???</span></div>
-    <div class="stat-bar-bg"><div class="stat-bar-fill hp" id="boss-hp-fill" style="width:100%"></div></div>
+    <div class="stat-bar-bg"><div class="stat-bar-fill hp" id="boss-hp-fill" style="width:100%"></div><div class="phase-marker" id="boss-phase-marker"></div></div>
     <div class="stat-label">HP <span id="boss-hp-text">320/320</span></div>
   </div>
 
   <div class="quest-tracker" id="quest-tracker" style="display:none;">
-    <div class="quest-tracker-title">目標</div>
+    <div class="quest-tracker-title" id="quest-tracker-title" style="cursor:pointer;">目標 ▾</div>
     <div id="quest-tracker-list"></div>
   </div>
 
@@ -118,12 +130,14 @@
       <button class="menu-tab" data-tab="equipment">装備</button>
       <button class="menu-tab" data-tab="skills">スキル</button>
       <button class="menu-tab" data-tab="items">所持品</button>
+      <button class="menu-tab" data-tab="compendium">図鑑</button>
       <button class="menu-tab" data-tab="system">設定</button>
       <button id="menu-close-btn" title="閉じる">✕</button>
     </div>
     <div class="menu-body">
       <div class="menu-page active" id="page-status">
         <div class="status-grid">
+          <div class="status-row"><span>称号</span><b id="st-title">なし</b></div>
           <div class="status-row"><span>レベル</span><b id="st-level">1</b></div>
           <div class="status-row"><span>攻撃力</span><b id="st-atk">10</b></div>
           <div class="status-row"><span>防御力</span><b id="st-def">5</b></div>
@@ -131,9 +145,39 @@
           <div class="status-row"><span>最大HP</span><b id="st-hp">100</b></div>
           <div class="status-row"><span>最大エーテル</span><b id="st-mp">50</b></div>
           <div class="status-row"><span>結晶の欠片</span><b id="st-shards">0</b></div>
+          <div class="status-row"><span>生涯獲得シャード</span><b id="st-shards-lifetime">0</b></div>
+          <div class="status-row"><span>結晶獣 撃破数</span><b id="st-bosses">0</b></div>
+          <div class="status-row"><span>自己ベストコンボ</span><b id="st-combo">0</b></div>
+          <div class="status-row"><span>周回数</span><b id="st-ngplus">0</b></div>
+          <div class="status-row"><span>連続ログイン</span><b id="st-loginstreak">0</b></div>
+          <div class="status-row"><span>最高連勝数</span><b id="st-winstreak">0</b></div>
+          <div class="status-row"><span>累計踏破距離</span><b id="st-distance">0m</b></div>
+          <div class="status-row"><span>累計プレイ時間</span><b id="st-playtime">0分</b></div>
+          <div class="status-row"><span>合計最速撃破ターン数</span><b id="st-best-turns-total">-</b></div>
+          <div class="status-row"><span>達成クエスト数</span><b id="st-quests">0</b></div>
+          <div class="status-row"><span>発見バイオーム数</span><b id="st-biomes">0/35</b></div>
+          <div class="status-row"><span>捕まえた蛍</span><b id="st-fireflies">0</b></div>
+          <div class="status-row"><span>捕まえた蝶</span><b id="st-butterflies">0</b></div>
+          <div class="status-row"><span>クリティカルヒット累計</span><b id="st-crits">0</b></div>
+          <div class="status-row"><span>ジャストガード成功累計</span><b id="st-parries">0</b></div>
+          <div class="status-row"><span>流れ星への願いごと</span><b id="st-star-wishes">0</b></div>
+          <div class="status-row"><span>スクリーンショット枚数</span><b id="st-screenshots">0</b></div>
+          <div class="status-row"><span>蘇生発動回数</span><b id="st-revives">0</b></div>
         </div>
+        <div class="skill-reset-row" style="margin-top:16px;">
+          <button class="skill-node-btn" id="ach-sort-btn">未達成を進捗順で表示</button>
+          <button class="skill-node-btn" id="ach-unlocked-only-btn">達成済みのみ表示</button>
+        </div>
+        <div id="achievement-list" class="item-list"></div>
       </div>
       <div class="menu-page" id="page-equipment">
+        <div class="skill-reset-row">
+          <button class="skill-node-btn" id="auto-equip-btn">最強装備に切り替え</button>
+          <button class="skill-node-btn" id="save-loadout-btn-a">装備セットAを記憶</button>
+          <button class="skill-node-btn" id="load-loadout-btn-a">セットAを呼び出す</button>
+          <button class="skill-node-btn" id="save-loadout-btn-b">装備セットBを記憶</button>
+          <button class="skill-node-btn" id="load-loadout-btn-b">セットBを呼び出す</button>
+        </div>
         <div class="equip-slots" id="equip-slots"></div>
         <div class="equip-list" id="equip-list"></div>
       </div>
@@ -143,11 +187,39 @@
       <div class="menu-page" id="page-items">
         <div class="item-list" id="item-list"></div>
       </div>
+      <div class="menu-page" id="page-compendium">
+        <div class="status-row"><span>発見バイオーム</span><b id="compendium-progress">0 / 35</b></div>
+        <div class="item-list" id="biome-compendium-list"></div>
+        <div class="status-row" style="margin-top:10px;"><span>撃破ボス図鑑</span><b id="bestiary-progress">0 / 0</b></div>
+        <div class="item-list" id="bestiary-list"></div>
+        <div class="status-row" style="margin-top:10px;"><span>伝承記録</span><b id="lore-progress">0</b></div>
+        <div class="item-list" id="lore-list"></div>
+      </div>
       <div class="menu-page" id="page-system">
+        <div class="settings-section-title">🔊 音声</div>
         <div class="system-row">
           <label for="opt-volume">音量</label>
           <input type="range" id="opt-volume" min="0" max="100" value="70">
         </div>
+        <div class="system-row">
+          <label for="opt-reduce-chatter">NPCの独り言を減らす</label>
+          <input type="checkbox" id="opt-reduce-chatter">
+        </div>
+        <div class="system-row">
+          <label for="opt-proximity-sounds">目標接近時の感知音</label>
+          <input type="checkbox" id="opt-proximity-sounds" checked>
+        </div>
+        <div class="system-row">
+          <label for="opt-screenshot-watermark">スクリーンショットに日付・地名を焼き込む</label>
+          <input type="checkbox" id="opt-screenshot-watermark" checked>
+        </div>
+        <div class="system-row">
+          <label for="opt-cinematic-hide">静止中にHUDを自動で薄くする（撮影向け）</label>
+          <input type="checkbox" id="opt-cinematic-hide">
+        </div>
+        <div class="empty-hint" id="screenshot-gallery-label" style="display:none; padding:2px 0;">最近の写真</div>
+        <div id="screenshot-gallery"></div>
+        <div class="settings-section-title">🖥️ グラフィック</div>
         <div class="system-row">
           <label for="opt-quality">グラフィック品質</label>
           <select id="opt-quality">
@@ -159,18 +231,147 @@
         <div class="system-row">
           <label for="opt-shake">画面揺れ</label>
           <input type="checkbox" id="opt-shake" checked>
+          <button class="mini-btn" id="shake-test-btn">テスト</button>
         </div>
+        <div class="system-row">
+          <label for="opt-guide-beams">目標の案内ビーム表示</label>
+          <input type="checkbox" id="opt-guide-beams" checked>
+        </div>
+        <div class="settings-section-title">🎮 操作</div>
+        <div class="system-row">
+          <label for="opt-gamepad-rumble">ゲームパッド振動</label>
+          <input type="checkbox" id="opt-gamepad-rumble" checked>
+          <button class="mini-btn" id="rumble-test-btn">テスト</button>
+        </div>
+        <div class="system-row">
+          <label for="opt-objective-hint">最寄り目標の距離表示</label>
+          <input type="checkbox" id="opt-objective-hint" checked>
+        </div>
+        <div class="system-row">
+          <label for="opt-invert-camera-y">カメラ上下反転</label>
+          <input type="checkbox" id="opt-invert-camera-y">
+        </div>
+        <div class="system-row">
+          <label for="opt-camera-sensitivity">カメラ感度</label>
+          <input type="range" id="opt-camera-sensitivity" min="50" max="200" value="100">
+          <span id="opt-camera-sensitivity-val" style="min-width:44px;text-align:right;font-size:12px;">100%</span>
+        </div>
+        <div class="settings-section-title">♿ アクセシビリティ</div>
+        <div class="system-row">
+          <label for="opt-low-hp-heartbeat">HP危険時の心拍音</label>
+          <input type="checkbox" id="opt-low-hp-heartbeat" checked>
+          <button class="mini-btn" id="heartbeat-test-btn">テスト</button>
+        </div>
+        <div class="system-row">
+          <label for="opt-reduce-flashing">画面フラッシュ演出を減らす</label>
+          <input type="checkbox" id="opt-reduce-flashing">
+          <button class="mini-btn" id="flash-test-btn">テスト</button>
+        </div>
+        <div class="system-row">
+          <label for="opt-high-contrast">高コントラストモード</label>
+          <input type="checkbox" id="opt-high-contrast">
+        </div>
+        <div class="settings-section-title">🧚 パーソナライズ</div>
+        <div class="system-row">
+          <label for="opt-companion-name">相棒オーブの名前</label>
+          <input type="text" id="opt-companion-name" maxlength="10" style="width:100px; text-align:right;">
+        </div>
+        <div class="system-row">
+          <label for="opt-text-scale">UI文字サイズ</label>
+          <select id="opt-text-scale">
+            <option value="0.9">小</option>
+            <option value="1">標準</option>
+            <option value="1.15">大</option>
+            <option value="1.3">特大</option>
+          </select>
+        </div>
+        <div class="settings-section-title">⚔️ ゲームプレイ</div>
+        <div class="system-row">
+          <label for="opt-boss-taunts">結晶獣の台詞表示</label>
+          <input type="checkbox" id="opt-boss-taunts" checked>
+        </div>
+        <div class="system-row">
+          <label for="opt-difficulty">難易度</label>
+          <select id="opt-difficulty">
+            <option value="easy">簡単</option>
+            <option value="normal">普通</option>
+            <option value="hard">難しい</option>
+          </select>
+        </div>
+        <div class="system-row" id="difficulty-detail-row" style="font-size:11px; opacity:0.7; justify-content:flex-end;">
+          <span id="difficulty-detail"></span>
+        </div>
+        <div class="settings-section-title">💾 データ</div>
         <button class="big-btn small-btn" id="save-btn">今すぐセーブ</button>
+        <button class="big-btn small-btn ghost" id="reset-settings-btn">設定を初期値に戻す</button>
         <button class="big-btn small-btn ghost" id="title-btn">タイトルに戻る</button>
+        <button class="big-btn small-btn ghost" id="delete-save-btn">セーブデータを削除</button>
+        <button class="big-btn small-btn ghost" id="replay-tutorial-btn">チュートリアルをもう一度見る</button>
+        <button class="big-btn small-btn ghost" id="export-save-btn">セーブデータをエクスポート</button>
+        <button class="big-btn small-btn ghost" id="import-save-btn">セーブデータをインポート</button>
+        <input type="file" id="import-save-input" accept=".json" style="display:none;">
+        <div id="app-credits">Bosusen: Echoes of the Void ｜ v1.0</div>
       </div>
     </div>
   </div>
 </div>
 
 <div id="explore-hud">
-  <div id="explore-hint">WASD / 矢印キー / スティックで移動（Shiftで走る）。光る目印に近づくと自動で反応する</div>
+  <div id="explore-hint">WASD / 矢印キー / スティックで移動（Shiftで走る、Rで走行固定、Spaceで2段ジャンプ、Eでダッシュ、Fでお祝いエモート、Pでスクリーンショット保存、右ドラッグでカメラ操作・Cでリセット、Tで秘宝の方角、Gで討伐目標の方角、Qで依頼人の方角、Zで聖域の方角、Vでフォトフィルター切替）。光る目印に近づくと自動で反応する（Mでマップ、Tabでメニューを開く）</div>
+  <div id="sprint-lock-indicator" style="display:none;">🏃 走行固定 ON</div>
+  <div id="explore-stamina-wrap"><div id="explore-stamina-fill"></div></div>
+  <div id="dash-cooldown-icon">⚡</div>
+  <div id="nearest-objective" style="display:none;"></div>
+  <div id="day-counter">☀️ Day 1</div>
+  <div id="save-indicator">💾 セーブしました</div>
+  <button id="help-btn" title="操作方法">❓</button>
+  <canvas id="minimap-radar" width="130" height="130"></canvas>
+  <div id="biome-label"></div>
   <button id="map-btn" title="マップ">🗺</button>
+  <button id="sprint-lock-btn" title="走行固定">🏃</button>
+  <button id="mute-btn" title="ミュート">🔊</button>
   <div id="joy-base"><div id="joy-knob"></div></div>
+  <button id="jump-btn" title="ジャンプ">⬆</button>
+  <button id="dash-btn" title="ダッシュ">💨</button>
+  <button id="emote-btn" title="エモート">🎉</button>
+  <button id="screenshot-btn" title="スクリーンショット">📷</button>
+  <button id="hub-return-btn" title="拠点へ帰還">🏠</button>
+  <button id="loadout-swap-btn" title="装備セット切替">🔁</button>
+  <button id="photo-grid-btn" title="構図グリッド">▦</button>
+</div>
+
+<div id="help-overlay">
+  <div class="help-panel">
+    <div class="help-title">操作方法<button id="help-close-btn">✕</button></div>
+    <div class="help-row"><span>W A S D / 矢印キー</span><span>移動</span></div>
+    <div class="help-row"><span>Shift</span><span>スプリント（スタミナ消費）</span></div>
+    <div class="help-row"><span>R</span><span>走行固定 切り替え</span></div>
+    <div class="help-row"><span>Space</span><span>ジャンプ（空中でもう一度で2段ジャンプ）</span></div>
+    <div class="help-row"><span>E</span><span>ダッシュ（スタミナ消費・クールダウンあり）</span></div>
+    <div class="help-row"><span>F</span><span>エモート（4種類を順番に切り替え）</span></div>
+    <div class="help-row"><span>1〜4</span><span>特定のエモートを直接使用</span></div>
+    <div class="help-row"><span>P</span><span>スクリーンショット保存</span></div>
+    <div class="help-row"><span>右クリックドラッグ</span><span>カメラを見回す</span></div>
+    <div class="help-row"><span>C</span><span>カメラアングルをリセット</span></div>
+    <div class="help-row"><span>T</span><span>最も近い未発見の秘宝の方角を表示</span></div>
+    <div class="help-row"><span>G</span><span>最も近い討伐目標の方角を表示</span></div>
+    <div class="help-row"><span>Q</span><span>最も近い未達成の依頼人の方角を表示</span></div>
+    <div class="help-row"><span>Z</span><span>最も近い未制覇の聖域の方角を表示</span></div>
+    <div class="help-row"><span>V</span><span>フォトフィルター切替（標準・セピア・モノクロ・鮮やか）</span></div>
+    <div class="help-row"><span>O</span><span>構図グリッド（三分割法）の表示切替</span></div>
+    <div class="help-row"><span>M</span><span>大陸図を開く（クリックでファストトラベル）</span></div>
+    <div class="help-row"><span>N</span><span>拠点へ即座に帰還する</span></div>
+    <div class="help-row"><span>L</span><span>記憶した装備セットA/Bを切り替え（装備タブで事前に記憶）</span></div>
+    <div class="help-row"><span>B</span><span>ミニマップの表示範囲を切り替え（250m/500m/1000m）</span></div>
+    <div class="help-row"><span>K</span><span>ミュートの切り替え</span></div>
+    <div class="help-row"><span>ミニマップの色</span><span>金＝秘宝、赤＝討伐目標、黄＝依頼人、緑＝採取物、紫＝石碑、黄緑/黄＝聖域</span></div>
+    <div class="help-row"><span>Tab</span><span>メニューを開く</span></div>
+    <div class="help-row"><span>マウスホイール</span><span>カメラズーム</span></div>
+    <div class="help-row"><span>H</span><span>このヘルプを開閉</span></div>
+    <div class="help-row"><span>F3</span><span>デバッグ情報（FPS・座標）の表示切替</span></div>
+    <div class="help-row"><span>F4</span><span>グラフィック品質を切り替え（HIGH/MEDIUM/LOW）</span></div>
+    <div class="help-row"><span>ゲームパッド</span><span>左スティックで移動、右スティックでカメラ、Aでジャンプ、Bでダッシュ、Yでカメラリセット、Startでマップ、十字キー上でフィルター切替、十字キー下で拠点帰還、Xでエモート、L1で装備セット切替、R1でミュート切替、Selectで構図グリッド切替</span></div>
+  </div>
 </div>
 
 <div id="skirmish-panel">
@@ -188,6 +389,8 @@
   <div class="chapter-tag">商店</div>
   <h1>旅の行商人</h1>
   <p class="qb-hint">結晶の欠片で武器や防具と交換できる。</p>
+  <div class="qb-progress-bar"><div class="qb-progress-fill" id="shop-progress-fill"></div></div>
+  <label class="system-check-row"><input type="checkbox" id="shop-affordable-filter"><span>購入可能な商品のみ表示</span></label>
   <div id="shop-item-list"></div>
   <div id="shop-shards"></div>
   <button class="big-btn ghost" id="shop-close-btn">閉じる</button>
@@ -195,13 +398,23 @@
 
 <div id="map-screen">
   <div class="chapter-tag">大陸図</div>
+  <div id="map-summary"></div>
   <canvas id="map-canvas" width="600" height="600"></canvas>
+  <p class="qb-hint" style="text-align:center;">
+    ドラッグで移動、マウスホイールで拡大縮小、ダブルクリックでリセット（<span id="map-zoom-label">100%</span>）
+    <button class="mini-btn" id="map-zoom-out-btn" style="margin-left:8px;">－</button>
+    <button class="mini-btn" id="map-zoom-in-btn">＋</button>
+    <button class="mini-btn" id="map-recenter-btn">自分の位置へ</button>
+  </p>
   <div id="map-legend">
     <span><i style="background:#1a6fd4"></i>自分</span>
+    <span><i style="background:#7a5fd0"></i>拠点</span>
+    <span><i style="background:#ffe27a"></i>聖域</span>
     <span><i style="background:#ff5555"></i>討伐目標</span>
     <span><i style="background:#ffd75e"></i>依頼人</span>
     <span><i style="background:#8fd35f"></i>採取物</span>
     <span><i style="background:#b39ddb"></i>石碑</span>
+    <span><i style="background:#ffd700"></i>秘宝</span>
     <span><i style="background:#d4a84a"></i>商店</span>
   </div>
   <button class="big-btn ghost" id="map-close-btn">閉じる</button>

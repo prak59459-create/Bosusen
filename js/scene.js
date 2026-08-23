@@ -29,7 +29,7 @@ export function setCameraMode(m) { cameraMode = m; }
 camera.position.copy(camBase);
 camera.lookAt(camLookAt);
 
-export const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', stencil: false });
+export const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', stencil: false, preserveDrawingBuffer: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isMobile ? 3 : 3));
 renderer.shadowMap.enabled = true;
@@ -81,14 +81,39 @@ vignettePass.uniforms.offset.value = 1.35;
 vignettePass.uniforms.darkness.value = 0.6;
 composer.addPass(vignettePass);
 
+const colorGradeShader = {
+  uniforms: { tDiffuse: { value: null }, mode: { value: 0 } },
+  vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform int mode;
+    varying vec2 vUv;
+    void main() {
+      vec4 c = texture2D(tDiffuse, vUv);
+      if (mode == 1) {
+        float gray = dot(c.rgb, vec3(0.393, 0.769, 0.189));
+        float gray2 = dot(c.rgb, vec3(0.349, 0.686, 0.168));
+        float gray3 = dot(c.rgb, vec3(0.272, 0.534, 0.131));
+        c.rgb = vec3(gray, gray2, gray3);
+      } else if (mode == 2) {
+        float gray = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+        c.rgb = vec3(gray);
+      } else if (mode == 3) {
+        c.rgb = pow(c.rgb, vec3(0.85)) * 1.15;
+      }
+      gl_FragColor = c;
+    }
+  `,
+};
+export const colorGradePass = new ShaderPass(colorGradeShader);
+composer.addPass(colorGradePass);
+export function setPhotoFilter(mode) {
+  colorGradePass.uniforms.mode.value = mode;
+}
+
 export const smaaPass = new SMAAPass(window.innerWidth * renderer.getPixelRatio(), window.innerHeight * renderer.getPixelRatio());
 smaaPass.renderToScreen = true;
 composer.addPass(smaaPass);
-
-export let postFXEnabled = true;
-export function setPostFXEnabled(on) {
-  postFXEnabled = on;
-}
 
 /* ============================================================
    原神風トゥーンシェーディング（段階的ライティング＋輪郭線）
@@ -160,13 +185,21 @@ export function addOutline(root, colorHex = 0x0c0a16, thickness = 0.02) {
 const BASE_FOV = 48;
 const BASE_ASPECT = 16 / 9;
 const BASE_HALF_HFOV = Math.atan(Math.tan(THREE.MathUtils.degToRad(BASE_FOV) / 2) * BASE_ASPECT);
+let baseFov = BASE_FOV;
+let fovKick = 0;
+export function setFovKick(amount) {
+  fovKick = amount;
+  camera.fov = baseFov + fovKick;
+  camera.updateProjectionMatrix();
+}
 export function fitCameraToViewport() {
   const w = window.innerWidth, h = window.innerHeight;
   const aspect = w / h;
   camera.aspect = aspect;
   let vFov = THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(BASE_HALF_HFOV) / aspect));
   vFov = THREE.MathUtils.clamp(vFov, BASE_FOV, 100);
-  camera.fov = vFov;
+  baseFov = vFov;
+  camera.fov = vFov + fovKick;
   const portraitFactor = aspect < 1 ? THREE.MathUtils.clamp(1 / aspect, 1, 2.1) : 1;
   const dist = camBase.length() * (1 + (portraitFactor - 1) * 0.22);
   const dir = camBase.clone().normalize();
@@ -196,6 +229,36 @@ export function mountRenderer() {
 /* ---------- ライティング ---------- */
 const hemi = new THREE.HemisphereLight(0xffffff, 0xd8c9a0, 0.75);
 scene.add(hemi);
+
+const DAY_SKY = new THREE.Color(0xcfe8ff);
+const NIGHT_SKY = new THREE.Color(0x0a0f2a);
+const GOLDEN_SKY = new THREE.Color(0xff9d5c);
+const _cycleColor = new THREE.Color();
+export function updateDayNightCycle(t) {
+  const cycle = (Math.sin(t * 0.015) + 1) / 2; // 0=夜, 1=昼。約420秒で1周
+  _cycleColor.copy(NIGHT_SKY).lerp(DAY_SKY, cycle);
+  const goldenAmount = Math.max(0, 1 - Math.abs(cycle - 0.42) / 0.18);
+  if (goldenAmount > 0) _cycleColor.lerp(GOLDEN_SKY, goldenAmount * 0.5);
+  scene.background = _cycleColor;
+  if (scene.fog) scene.fog.color.copy(_cycleColor);
+  hemi.intensity = 0.22 + cycle * 0.58;
+  dirLight.intensity = 0.35 + cycle * 1.55;
+  dirLight.color.setHSL(0.12 - goldenAmount * 0.03, 0.55 + goldenAmount * 0.2, 0.42 + cycle * 0.28);
+}
+export function isNightTime(t) {
+  return (Math.sin(t * 0.015) + 1) / 2 < 0.3;
+}
+const DAY_PERIOD = (Math.PI * 2) / 0.015;
+export function getDayCount(t) {
+  return Math.floor(t / DAY_PERIOD) + 1;
+}
+export function getTimeOfDayLabel(t) {
+  const cycle = (Math.sin(t * 0.015) + 1) / 2;
+  const rising = Math.cos(t * 0.015) < 0;
+  if (cycle < 0.3) return '夜';
+  if (cycle < 0.55) return rising ? '明け方' : '夕暮れ';
+  return '昼';
+}
 export const dirLight = new THREE.DirectionalLight(0xfff6e0, 1.8);
 dirLight.position.set(6, 13, 7);
 dirLight.castShadow = true;
@@ -334,7 +397,10 @@ for (let i = 0; i < 8; i++) {
 /* ============================================================
    グラフィック品質プリセット（設定画面から切り替え可能）
    ============================================================ */
+let currentQuality = 'high';
+export function isLowQuality() { return currentQuality === 'low'; }
 export function setQualityPreset(level) {
+  currentQuality = level;
   let pr;
   if (level === 'high') {
     pr = Math.min(window.devicePixelRatio || 1, isMobile ? 3 : 3);

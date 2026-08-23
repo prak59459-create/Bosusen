@@ -8,6 +8,10 @@ export const CHAPTERS = [
     sanctuaryLabel: '聖域 I',
     title: '崩壊の古城',
     enemyName: '軋みの番人',
+    taunts: [
+      '（軋む金属音……）「侵入者……騎士の誓いは、今も此処に」',
+      '「主は……もう……戻らぬというのに」',
+    ],
     storyBefore:
       '目覚めたアッシュは、崩れ落ちる古城の地下から地上へと這い出た。\n' +
       '「……ここは、聖域の中でも一番浅い場所ね。まずは足慣らしよ」\n' +
@@ -21,6 +25,7 @@ export const CHAPTERS = [
       'プライム・コアの共鳴が眠っています』\n' +
       'イリスの声に導かれ、アッシュは崩れた城壁の先へと踏み出す。',
     hp: 130,
+    battleTip: '「守護の怒り」は突進の隙が大きい。避けた直後に強攻撃を叩き込もう。',
     hasPhases: false,
     xp: 60,
     shardsBase: 30,
@@ -50,6 +55,10 @@ export const CHAPTERS = [
     sanctuaryLabel: '聖域 II',
     title: '結晶の森',
     enemyName: '棘毒のドライアス',
+    taunts: [
+      '「森は……もう、あなたたちのものではない」',
+      '「毒の棘が、その血に安らぎを与えよう」',
+    ],
     storyBefore:
       '木々までもが結晶化した森。触れれば切れそうな枝葉が、\n' +
       '青白い光を弱々しく明滅させている。\n' +
@@ -63,6 +72,7 @@ export const CHAPTERS = [
       '『お前の右腕……それは、最初のヴォイドの、欠片そのものだ……』\n' +
       'アッシュは無意識に右腕を押さえる。イリスの表情が、初めて曇った。',
     hp: 190,
+    battleTip: '「棘蔦の鞭」はガードで大きく被害を抑えられる。回復を惜しまず長期戦に備えよう。',
     hasPhases: false,
     xp: 90,
     shardsBase: 40,
@@ -92,6 +102,10 @@ export const CHAPTERS = [
     sanctuaryLabel: '聖域 III',
     title: '浸食された地下都市',
     enemyName: '反響するアーカイヴィスト',
+    taunts: [
+      '「記録は……記録は、消させない……」',
+      '「お前もいずれ、書架の一部となるだろう」',
+    ],
     storyBefore:
       '地下深く沈んだ旧都。水没した図書館には、いまも記録者の残響が漂う。\n' +
       '「彼女はかつて、この都市の“知”を司る守護霊でした。\n' +
@@ -105,6 +119,7 @@ export const CHAPTERS = [
       '『そして今のあなたは……その“観測者”が遺した、ただの残響（エコー）……』\n' +
       'イリスが何かを言おうとして、言葉を飲み込んだ。最後の聖域が、目の前に迫る。',
     hp: 230,
+    battleTip: '結晶技のクールダウンを常に把握し、使えるタイミングを逃さず火力を上げよう。',
     hasPhases: false,
     xp: 130,
     shardsBase: 55,
@@ -134,6 +149,11 @@ export const CHAPTERS = [
     sanctuaryLabel: '聖域 IV',
     title: '虚無の塔・プライム・コア',
     enemyName: 'ヴォイド・エコー',
+    awakenLine: '「……ようやく、本気を出せる。虚無の深淵を見せてやろう」',
+    taunts: [
+      '「終わりも、始まりも……虚無の中では同じこと」',
+      '「プライム・コアは……お前などに触れさせぬ」',
+    ],
     storyBefore:
       '世界の中心、崩落する尖塔の頂で、それは待っていた。\n' +
       '巨大な影と化した、もう一人の「アッシュ」――ヴォイドと同化した“最初の観測者”の残響。\n' +
@@ -141,6 +161,7 @@ export const CHAPTERS = [
       '「……それでも。今のこの手で、決着をつける」',
     storyAfter: null,
     hp: 320,
+    battleTip: 'HP50%で覚醒し攻撃が激化する。覚醒前にできる限り削り、覚醒後はガードを重視しよう。',
     hasPhases: true,
     xp: 220,
     shardsBase: 90,
@@ -224,6 +245,13 @@ export const ITEMS = {
   armor_voidguard:     { id:'armor_voidguard', slot:'armor', name:'虚無守りの鎧', def:16, hp:25, desc:'ヴォイドの侵蝕そのものを僅かに退ける、最後の聖域で得られる鎧。' },
   accessory_lens:      { id:'accessory_lens', slot:'accessory', name:'観測者のレンズ', crit:6, desc:'かけると、かすかに敵の弱点が見える気がする片眼鏡。' },
   accessory_core_shard: { id:'accessory_core_shard', slot:'accessory', name:'コアの欠片', mp:15, crit:4, desc:'プライム・コアからこぼれ落ちた、温かい光を放つ欠片。' },
+  sword_traveler:      { id:'sword_traveler', slot:'weapon', name:'旅商人の片刃', atk:6, crit:3, desc:'行商人が護身用に扱っていた軽量な片刃剣。振りが速い。' },
+  armor_wanderer:      { id:'armor_wanderer', slot:'armor', name:'旅人のマント', def:4, hp:10, desc:'各地を巡った行商人が譲ってくれた、丈夫な旅装束。' },
+  accessory_charm:     { id:'accessory_charm', slot:'accessory', name:'小さな護符', hp:12, mp:8, desc:'旅の安全を願って作られた素朴な護符。じんわりと力が湧く。' },
+  sword_primecore:     { id:'sword_primecore', slot:'weapon', name:'プライムコアの聖剣', atk:22, crit:6, desc:'プライム・コアの結晶を鍛え上げた、最果ての剣。持つ者を選ぶ。' },
+  armor_eternal:       { id:'armor_eternal', slot:'armor', name:'永劫の鎧', def:22, hp:35, desc:'幾多の結晶病を退けてきたという伝説の鎧。時を超えて輝く。' },
+  accessory_starlight: { id:'accessory_starlight', slot:'accessory', name:'星霜の結晶', mp:25, crit:8, hp:15, desc:'星々の記憶を宿すという、最も澄んだ結晶。' },
+  accessory_legend:    { id:'accessory_legend', slot:'accessory', name:'伝説の証', atk:8, def:8, crit:10, hp:20, mp:15, desc:'エーテリアの伝説を成し遂げた者だけが持つことを許される、至高の証。' },
 };
 
 /* ---------- スキルツリー定義 ---------- */
@@ -232,7 +260,91 @@ export const SKILLS = [
   { id:'def_up',    name:'鉄壁の心得',       cost:30, desc:'防御力が+15%される。', effect:{ defPct:0.15 } },
   { id:'mp_up',     name:'深奥の共鳴',       cost:30, desc:'最大エーテルが+20される。', effect:{ mp:20 } },
   { id:'crit_up',   name:'会心の一撃',       cost:40, desc:'クリティカル率が+10%される。', effect:{ crit:10 } },
+  { id:'crit_dmg_up', name:'会心の極意',     cost:55, desc:'クリティカルダメージ倍率が+25%される。', effect:{ critDmgPct:0.25 } },
   { id:'dodge_up',  name:'疾風の反射神経',   cost:40, desc:'ガード／パリィの受付時間が+15%長くなる。', effect:{ dodgeWindowPct:0.15 } },
   { id:'parry_up',  name:'パリィの極意',     cost:50, desc:'パリィ成功時の反撃ダメージが+50%される。', effect:{ parryBonusPct:0.5 } },
+  { id:'heal_up',   name:'癒しの心得',       cost:35, desc:'回復技のHP回復量が+40%される。', effect:{ healBonusPct:0.4 } },
+  { id:'stam_up',   name:'省エネの型',       cost:35, desc:'攻撃／強攻撃のスタミナ消費が-20%される。', effect:{ staminaCostPct:-0.2 } },
+  { id:'heal_extra', name:'秘薬の心得',      cost:45, desc:'戦闘開始時の回復回数が+1される。', effect:{ healUsesBonus:1 } },
+  { id:'shard_up',   name:'結晶感応',        cost:40, desc:'結晶獣撃破時の結晶の欠片獲得量が+20%される。', effect:{ shardPct:0.2 } },
+  { id:'guard_reflect', name:'反射の盾',      cost:45, desc:'ガード成功時、被ダメージの30%を結晶獣に反射する。', effect:{ guardReflectPct:0.3 } },
+  { id:'mp_regen_up', name:'エーテル還流',    cost:40, desc:'毎ターンのエーテル自然回復量が+4される。', effect:{ mpRegenBonus:4 } },
+  { id:'stam_max_up', name:'鍛え抜かれた肉体', cost:35, desc:'最大スタミナが+25される。', effect:{ staminaMaxBonus:25 } },
+  { id:'heavy_accuracy', name:'確実なる一撃', cost:35, desc:'強攻撃の失敗率が半分になる。', effect:{ heavyAccuracyPct:0.5 } },
+  { id:'parry_mp',     name:'反撃の共鳴',     cost:35, desc:'ジャストガード成功時にエーテルを15回復する。', effect:{ parryMpRestore:15 } },
   { id:'revive',    name:'蘇生の残光',       cost:80, desc:'戦闘不能になったとき、一度だけHP30%で復活する。', effect:{ revive:true } },
+  { id:'revive_up', name:'蘇生の輝き',       cost:60, desc:'蘇生時の復活HPが+20%される（要：蘇生の残光）。', effect:{ reviveHpPct:0.2 } },
+];
+
+export const BOSS_TAUNTS = [
+  '「……侵入者か。この地に眠るものを暴くつもりか」',
+  '「エーテルの匂いがする。お前もいずれ結晶に還る」',
+  '「無駄なことを。虚無はすべてを飲み込む」',
+  '「その剣で、私を止められるとでも？」',
+  '「記憶など、この地では何の意味も持たない」',
+];
+
+export const VICTORY_LINES = [
+  '「……見事だ。エーテルの奔流が、お前を選んだのかもしれない」',
+  '「これで、この地に安らぎが少し戻るだろう」',
+  '「アッシュ、お前の剣は本物だ」',
+  '「まだ、道は長い。だが今は……勝利を噛み締めろ」',
+];
+
+export const DEFEAT_LINES = [
+  '「まだ、其処までか……修練が足りぬようだ」',
+  '「エーテルに呑まれるな。次こそは違う結末を」',
+  '「立ち上がれ。物語はまだ終わっていない」',
+];
+
+export const ACHIEVEMENTS = [
+  { id:'first_boss',   name:'初陣の証',       desc:'結晶獣を初めて撃破する。', reward:20 },
+  { id:'boss_master',  name:'結晶獣狩り',     desc:'結晶獣を4体撃破する。', reward:50 },
+  { id:'boss_slayer',  name:'結晶獣の天敵',   desc:'結晶獣を累計10体撃破する。', reward:60 },
+  { id:'combo_10',     name:'連撃の達人',     desc:'コンボを10以上つなげる。', reward:20 },
+  { id:'combo_20',     name:'無双の剣',       desc:'コンボを20以上つなげる。', reward:40 },
+  { id:'treasure_hunter', name:'秘宝の探求者', desc:'すべての結晶の秘宝を発見する。', reward:60 },
+  { id:'shard_rich',   name:'結晶長者',       desc:'結晶の欠片を累計300獲得する。', reward:30 },
+  { id:'shard_tycoon', name:'結晶王',         desc:'結晶の欠片を累計1000獲得する。', reward:70 },
+  { id:'rank_s',       name:'完璧なる一撃',   desc:'結晶獣戦で評価ランクSを獲得する。', reward:40 },
+  { id:'completionist', name:'エーテリアの伝説', desc:'他のすべての実績を解除する。', reward:100 },
+  { id:'ng_plus',      name:'周回の覚悟',     desc:'装備を引き継いで周回+に挑む。', reward:30 },
+  { id:'collector',    name:'蒐集家',         desc:'商店の武具をすべて購入する。', reward:50 },
+  { id:'skill_master', name:'結晶技の極致',   desc:'すべての結晶技スキルを習得する。', reward:60 },
+  { id:'hard_clear',   name:'不屈の意志',     desc:'難易度「難しい」で結晶獣を撃破する。', reward:50 },
+  { id:'flawless',     name:'無傷の勝利',     desc:'被ダメージ0で結晶獣を撃破する。', reward:45 },
+  { id:'week_streak',  name:'旅の常連',       desc:'7日連続でログインする。', reward:40 },
+  { id:'no_heal',      name:'自信の証',       desc:'回復を一度も使わずに結晶獣を撃破する。', reward:35 },
+  { id:'no_guard',     name:'不屈の攻勢',     desc:'一度もガードせずに結晶獣を撃破する。', reward:40 },
+  { id:'combo_30',     name:'刃の舞踏者',     desc:'コンボを30以上つなげる。', reward:55 },
+  { id:'veteran_hunter', name:'手練れの討伐者', desc:'同じ結晶獣を5回撃破する。', reward:45 },
+  { id:'win_streak_3', name:'連勝の炎',       desc:'結晶獣戦に3連勝する。', reward:35 },
+  { id:'win_streak_5', name:'不敗の英雄',     desc:'結晶獣戦に5連勝する。', reward:60 },
+  { id:'quest_complete', name:'聖域の記録者', desc:'すべての聖域のクエストを達成する。', reward:65 },
+  { id:'combo_50',     name:'虚無を斬る者',   desc:'コンボを50以上つなげる。', reward:80 },
+  { id:'wanderer',     name:'放浪者',         desc:'累計10,000m以上を踏破する。', reward:35 },
+  { id:'pilgrim',      name:'大陸の巡礼者',   desc:'累計50,000m以上を踏破する。', reward:60 },
+  { id:'biome_explorer', name:'大陸の地理学者', desc:'10種類のバイオームを発見する。', reward:35 },
+  { id:'biome_master', name:'万象の踏破者',   desc:'すべてのバイオームを発見する。', reward:80 },
+  { id:'firefly_catcher', name:'蛍集めの名手', desc:'蛍を累計50匹捕まえる。', reward:30 },
+  { id:'butterfly_catcher', name:'蝶を追う者',  desc:'蝶を累計50匹捕まえる。', reward:30 },
+  { id:'crit_master', name:'会心の刃',         desc:'クリティカルヒットを累計100回発生させる。', reward:45 },
+  { id:'parry_master', name:'見切りの達人',    desc:'ジャストガード（パリィ）を累計30回成功させる。', reward:40 },
+  { id:'dedicated_player', name:'エーテリアの住人', desc:'累計プレイ時間が1時間に達する。', reward:35 },
+  { id:'true_resident', name:'エーテリアの生粋の民', desc:'累計プレイ時間が5時間に達する。', reward:70 },
+  { id:'bestiary_complete', name:'図鑑の完成者', desc:'すべてのボスを一度以上撃破する。', reward:60 },
+  { id:'star_wisher', name:'星に願いを', desc:'流れ星に累計20回願いごとをする。', reward:30 },
+  { id:'photographer', name:'旅の記録者', desc:'スクリーンショットを累計10枚撮影する。', reward:25 },
+  { id:'emote_master', name:'表現豊かな旅人', desc:'すべての種類のエモートを使用する。', reward:20 },
+  { id:'lore_master', name:'伝承の語り部', desc:'伝承の石碑を累計8個発見する。', reward:35 },
+  { id:'ng_plus_5', name:'永劫回帰の勇者', desc:'周回+5に到達する。', reward:80 },
+  { id:'speed_clear', name:'閃光の一撃', desc:'5ターン以内に結晶獣を撃破する。', reward:45 },
+  { id:'revived', name:'不屈の残光', desc:'蘇生の残光で力尽きる寸前から復活する。', reward:35 },
+  { id:'comeback', name:'不屈の再挑戦者', desc:'3連敗した後、あきらめずに撃破する。', reward:30 },
+  { id:'master_photographer', name:'熟練の記録者', desc:'スクリーンショットを累計50枚撮影する。', reward:45 },
+  { id:'star_wisher_master', name:'星々の寵愛', desc:'流れ星に累計50回願いごとをする。', reward:50 },
+  { id:'firefly_master', name:'蛍火の達人', desc:'蛍を累計200匹捕まえる。', reward:40 },
+  { id:'butterfly_master', name:'蝶舞の達人', desc:'蝶を累計200匹捕まえる。', reward:40 },
+  { id:'veteran_resident', name:'エーテリアの守護者', desc:'累計プレイ時間が10時間に達する。', reward:100 },
+  { id:'golden_hour', name:'黄金の一瞬', desc:'ゴールデンアワーにスクリーンショットを撮影する。', reward:20 },
 ];

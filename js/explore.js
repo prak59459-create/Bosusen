@@ -1,13 +1,14 @@
 import * as THREE from 'three';
-import { camera, scene, setCameraMode } from './scene.js';
+import { camera, scene, setCameraMode, renderer, setPhotoFilter, setFovKick, isNightTime, getTimeOfDayLabel } from './scene.js';
 import { player, crossfadeTo } from './player.js';
+import { spawnParticles } from './effects.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
-  explorePickups, loreMarkers, shopLocalPos, refreshZoneVisuals } from './world.js';
+  explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions, collectNearbyFireflies, collectNearbyButterflies } from './world.js';
 import { CHAPTERS } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
-  fieldQuestState, acceptFieldQuest, saveGame } from './state.js';
-import { showToast, renderQuestTracker } from './ui.js';
-import { sfx } from './audio.js';
+  fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot } from './state.js';
+import { showToast, renderQuestTracker, showCenterMsg, addScreenshotToGallery } from './ui.js';
+import { sfx, startAmbientWind, stopAmbientWind } from './audio.js';
 import { startSkirmish, isSkirmishActive } from './skirmish.js';
 
 /* ============================================================
@@ -17,21 +18,285 @@ export let exploreActive = false;
 let mapOpen = false;
 export function setMapOpen(v) { mapOpen = v; }
 
+const DUST_COLOR_BY_CATEGORY = {
+  forest: 0x9ab26a, desert: 0xd8b168, cyber: 0x66ccff, snow: 0xffffff,
+  swamp: 0x6a8a4a, volcanic: 0xff8844, crystal: 0xd0a0ff, wasteland: 0x9a9284,
+};
+
 const localPos = new THREE.Vector3(HUB_SPAWN.x, 0, HUB_SPAWN.z);
+
+/* ---------- 足跡デカール ---------- */
+const footprintGeo = new THREE.PlaneGeometry(0.22, 0.4);
+const footprintMat = new THREE.MeshBasicMaterial({ color: 0x3a2a18, transparent: true, opacity: 0.35, depthWrite: false });
+const footprints = [];
+let footSide = 1;
+const FOOTPRINT_COLOR_BY_CATEGORY = {
+  desert: 0x8a6a3a, snow: 0xaacfe0, cyber: 0x2a3a4a, volcanic: 0x1a0f08,
+};
+function spawnFootprint(pos, rotY, category) {
+  const mat = footprintMat.clone();
+  if (FOOTPRINT_COLOR_BY_CATEGORY[category]) mat.color.setHex(FOOTPRINT_COLOR_BY_CATEGORY[category]);
+  const mesh = new THREE.Mesh(footprintGeo, mat);
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.rotation.z = rotY;
+  footSide *= -1;
+  mesh.position.set(
+    pos.x + Math.cos(rotY) * 0.18 * footSide,
+    0.015,
+    pos.z - Math.sin(rotY) * 0.18 * footSide
+  );
+  scene.add(mesh);
+  const maxLife = category === 'snow' ? 16 : (category === 'volcanic' ? 3 : 6);
+  footprints.push({ mesh, life: 0, maxLife });
+}
+function updateFootprints(dt) {
+  for (let i = footprints.length - 1; i >= 0; i--) {
+    const f = footprints[i];
+    f.life += dt;
+    f.mesh.material.opacity = 0.35 * Math.max(0, 1 - f.life / f.maxLife);
+    if (f.life >= f.maxLife) {
+      scene.remove(f.mesh);
+      f.mesh.material.dispose();
+      footprints.splice(i, 1);
+    }
+  }
+}
 let facing = Math.PI; // 進行方向(ラジアン)
 const WALK_SPEED = 14;
 const SPRINT_SPEED = 34;
 const camOffset = new THREE.Vector3(0, 20, 42);
+const CAM_ZOOM_MIN = 20, CAM_ZOOM_MAX = 90, CAM_ZOOM_BASE = 42;
+let camZoomDist = CAM_ZOOM_BASE;
+window.addEventListener('wheel', (e) => {
+  if (!exploreActive) return;
+  camZoomDist = Math.max(CAM_ZOOM_MIN, Math.min(CAM_ZOOM_MAX, camZoomDist + e.deltaY * 0.05));
+  const zoomRatio = camZoomDist / CAM_ZOOM_BASE;
+  camOffset.y = 20 * zoomRatio;
+  camOffset.z = camZoomDist;
+}, { passive: true });
+
+let camOrbitYaw = 0, camOrbitPitch = 0.42;
+let photoFilterMode = 0;
+let orbitDragging = false, orbitLastX = 0, orbitLastY = 0;
+window.addEventListener('mousedown', (e) => {
+  if (!exploreActive || e.button !== 2) return;
+  orbitDragging = true;
+  orbitLastX = e.clientX; orbitLastY = e.clientY;
+});
+window.addEventListener('mouseup', () => { orbitDragging = false; });
+window.addEventListener('mousemove', (e) => {
+  if (!orbitDragging) return;
+  const sens = state.cameraSensitivity || 1;
+  camOrbitYaw -= (e.clientX - orbitLastX) * 0.005 * sens;
+  const pitchDelta = (e.clientY - orbitLastY) * 0.004 * sens * (state.invertCameraY ? -1 : 1);
+  camOrbitPitch = Math.max(0.05, Math.min(1.2, camOrbitPitch - pitchDelta));
+  orbitLastX = e.clientX; orbitLastY = e.clientY;
+});
+window.addEventListener('contextmenu', (e) => {
+  if (exploreActive) e.preventDefault();
+});
 const camCurrentPos = new THREE.Vector3();
 const camLookTarget = new THREE.Vector3();
 let stepTimer = 0;
+let speedTrailTimer = 0;
+let gpJumpHeld = false;
+let gpDashHeld = false;
+let gpMapHeld = false;
+let gpCamResetHeld = false;
+let gpFilterHeld = false;
+let gpHubReturnHeld = false;
+let gpEmoteHeld = false;
+let gpLoadoutHeld = false;
+let gpMuteHeld = false;
+let gpPhotoGridHeld = false;
+let fireflyCheckTimer = 0;
+let chatterTimer = 0;
+let periodicAchCheckTimer = 30;
+const AMBIENT_LINES = [
+  '「今日はいい天気だ」', '「気をつけて行くんだぞ」', '「何か困ったことがあれば言ってくれ」',
+  '「この辺りも随分変わったものだ」', '「結晶獣の噂は聞いているかい？」', '「無理はしないようにな」',
+];
+const AMBIENT_LINES_DONE = [
+  '「お前のおかげでこの聖域も救われたよ、ありがとう」', '「あの時の働き、忘れないさ」',
+  '「また何かあれば頼らせてもらうよ」', '「英雄殿、今日も息災で何より」',
+];
+const AMBIENT_LINES_PENDING = [
+  '「頼んだ討伐、まだかい？」', '「あの結晶獣、油断せず倒してくれよ」', '「待っているぞ」',
+];
+const AMBIENT_LINES_NIGHT = [
+  '「こんな夜更けに出歩くとは、感心しないな」', '「夜の聖域は昼間と違う顔を見せる」', '「星がきれいな夜だ」',
+];
+const AMBIENT_LINES_RAIN = [
+  '「今日は雨か、足元に気をつけて」', '「雨宿りしていくかい？」', '「雨の音も悪くないものだ」',
+];
+const AMBIENT_LINES_SNOW = [
+  '「この雪原は美しいが、油断すると凍えるぞ」', '「暖かい格好をしてきたか？」', '「雪解けはまだ先だな」',
+];
+const AMBIENT_LINES_VOLCANIC = [
+  '「この熱気には慣れたものだが、お前は大丈夫か？」', '「溶岩には近づきすぎるなよ」', '「灰が舞う日は特に注意しろ」',
+];
+const AMBIENT_LINES_DESERT = [
+  '「水は十分に持ってきたか？」', '「この砂漠は昼と夜で顔つきが変わる」', '「砂嵐には気をつけろよ」',
+];
+const AMBIENT_LINES_SWAMP = [
+  '「この沼地はぬかるみが深い、足元によく気をつけろ」', '「蛙の声が心地よい夜だ」', '「霧が出る日は迷いやすいから注意しろ」',
+];
+const AMBIENT_LINES_WASTELAND = [
+  '「この荒野で生き延びるのは容易じゃない」', '「灰色の空はもう見慣れたものさ」', '「カラスの鳴き声が聞こえるな」',
+];
+const AMBIENT_LINES_CYBER = [
+  '「このネオンの光、目がチカチカするだろう」', '「ドローンの巡回には気をつけろ」', '「電子音が絶えない街だな」',
+];
+const AMBIENT_LINES_CRYSTAL = [
+  '「結晶の共鳴音が聞こえるか？」', '「この場所は神秘的な力に満ちている」', '「精霊たちの気配を感じるよ」',
+];
+const npcChatterCooldown = new WeakMap();
 let camInit = false;
+let objectiveTimer = 0;
+let jumpVelY = 0;
+let isJumping = false;
+let jumpsUsed = 0;
+const MAX_JUMPS = 2;
+let spinning = false;
+let spinProgress = 0;
+const SPIN_DURATION = 0.4;
+const GRAVITY = 32;
+const JUMP_SPEED = 11;
+let currentBiomeName = '';
+let exploreStamina = 100;
+const STAMINA_MAX = 100;
+const STAMINA_DRAIN = 22;
+const STAMINA_REGEN = 14;
 
 const EXPLORE_FOG = { near: 260, far: 3200 };
 const BATTLE_FOG = { near: 34, far: 80 };
 
 const keys = { forward: false, back: false, left: false, right: false, sprint: false };
 let joyVec = { x: 0, y: 0 }; // タッチ用ベクトル(-1..1)
+let sprintLock = false;
+let dashCooldown = 0;
+let dashTimer = 0;
+let dashTrailTimer = 0;
+let fovKickCur = 0;
+const EMOTES = [
+  { label: '🎉 お祝い！', colors: [0xffd700, 0xff6a9f, 0x66eaff, 0x9fff7a] },
+  { label: '👋 やあ！', colors: [0x66eaff, 0x9fe0ff] },
+  { label: '✨ すごい！', colors: [0xffd700, 0xfff2a8] },
+  { label: '💪 頑張るぞ！', colors: [0xff5a5a, 0xffcc44] },
+];
+let emoteIdx = 0;
+let lastHubReturnAt = -Infinity;
+function playEmote(idx) {
+  const emote = EMOTES[idx];
+  if (!emote) return;
+  sfx.achievement();
+  emote.colors.forEach((c, i) => {
+    spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6 + i * 0.15, 0)), c, 10);
+  });
+  showToast(emote.label, 'info');
+  if (!state.emotesUsedSet) state.emotesUsedSet = [];
+  if (!state.emotesUsedSet.includes(idx)) {
+    state.emotesUsedSet.push(idx);
+    checkAchievements().forEach(a => { sfx.achievement(); showCenterMsg(`実績解除: ${a.name}`, '#ffd700', 2000); });
+  }
+}
+let staminaWasEmpty = false;
+const DASH_DURATION = 0.18;
+const DASH_SPEED = 70;
+const DASH_COOLDOWN = 2.2;
+const DASH_STAMINA_COST = 30;
+
+function toggleSprintLock() {
+  sprintLock = !sprintLock;
+  keys.sprint = sprintLock;
+  const ind = document.getElementById('sprint-lock-indicator');
+  if (ind) ind.style.display = sprintLock ? 'block' : 'none';
+  const btn = document.getElementById('sprint-lock-btn');
+  if (btn) btn.classList.toggle('active', sprintLock);
+}
+
+function doDash() {
+  if (dashCooldown > 0 || exploreStamina < DASH_STAMINA_COST) return;
+  dashTimer = DASH_DURATION;
+  dashCooldown = DASH_COOLDOWN;
+  exploreStamina -= DASH_STAMINA_COST;
+  sfx.dodgeSuccess();
+  spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1, 0)), 0x9fe0ff, 12);
+}
+
+function returnToHub() {
+  const now = performance.now();
+  if (now - lastHubReturnAt < 5000) { showToast('拠点帰還はクールダウン中', 'info'); return; }
+  lastHubReturnAt = now;
+  localPos.set(HUB_SPAWN.x, 0, HUB_SPAWN.z);
+  spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1, 0)), 0x9fe0ff, 16);
+  sfx.uiClick();
+  showToast('拠点へ帰還した', 'quest');
+  const teleportFlash = document.getElementById('lightning-flash');
+  if (teleportFlash && !state.reduceFlashing) {
+    teleportFlash.style.background = '#9fe0ff';
+    teleportFlash.classList.add('flash');
+    setTimeout(() => {
+      teleportFlash.classList.remove('flash');
+      teleportFlash.style.background = '';
+    }, 200);
+  }
+}
+
+let activeLoadoutKey = 'a';
+function quickSwapLoadout() {
+  const nextKey = activeLoadoutKey === 'a' ? 'b' : 'a';
+  const loadout = state.savedLoadouts && state.savedLoadouts[nextKey];
+  if (!loadout) { showToast(`セット${nextKey.toUpperCase()}はまだ記憶されていません（装備タブで記憶できます）`, 'info'); return; }
+  const slotNames = ['weapon', 'armor', 'accessory'];
+  slotNames.forEach(slot => {
+    const id = loadout[slot];
+    if (id && state.inventory.includes(id)) equipItem(id);
+    else if (!id) unequipSlot(slot);
+  });
+  activeLoadoutKey = nextKey;
+  sfx.uiClick();
+  showToast(`装備セット${nextKey.toUpperCase()}に切り替えた`, 'quest');
+  saveGame();
+}
+
+function doJump() {
+  if (jumpsUsed >= MAX_JUMPS) return;
+  isJumping = true;
+  jumpVelY = JUMP_SPEED * (jumpsUsed === 0 ? 1 : 0.85);
+  jumpsUsed++;
+  sfx.footstep();
+  if (jumpsUsed > 1) {
+    spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.6, 0)), 0xbfe0ff, 8);
+    spinProgress = 0;
+    spinning = true;
+  }
+}
+
+function pingDirection(candidates, label, emptyMsg) {
+  if (candidates.length === 0) {
+    showToast(emptyMsg, 'info');
+  } else {
+    let nearest = null, nearestDist = Infinity;
+    candidates.forEach(c => {
+      const d = Math.hypot(c.localPos.x - localPos.x, c.localPos.z - localPos.z);
+      if (d < nearestDist) { nearestDist = d; nearest = c; }
+    });
+    const dx = nearest.localPos.x - localPos.x, dz = nearest.localPos.z - localPos.z;
+    const angDeg = ((Math.atan2(dx, dz) * 180 / Math.PI) + 360) % 360;
+    const dirNames = ['北', '北東', '東', '南東', '南', '南西', '西', '北西'];
+    const dirIdx = Math.round(angDeg / 45) % 8;
+    showToast(`最も近い${label}: ${dirNames[dirIdx]}方向へ約${Math.round(nearestDist)}m`, 'quest');
+  }
+  sfx.uiClick();
+}
+
+window.addEventListener('gamepadconnected', (e) => {
+  showToast(`ゲームパッドを接続しました: ${e.gamepad.id}`, 'info');
+});
+window.addEventListener('gamepaddisconnected', () => {
+  showToast('ゲームパッドが切断されました', 'info');
+});
 
 window.addEventListener('keydown', (e) => {
   if (!exploreActive) return;
@@ -41,13 +306,141 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = true;
   if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.sprint = true;
   if (e.code === 'KeyM' && onToggleMap) onToggleMap();
+  if (e.code === 'KeyR' && !e.repeat) toggleSprintLock();
+  if (e.code === 'KeyC' && !e.repeat) { camOrbitYaw = 0; camOrbitPitch = 0.42; }
+  if (e.code === 'KeyV' && !e.repeat) {
+    photoFilterMode = (photoFilterMode + 1) % 4;
+    state.photoFilterMode = photoFilterMode;
+    setPhotoFilter(photoFilterMode);
+    const names = ['標準', 'セピア', 'モノクロ', '鮮やか'];
+    showToast(`フィルター: ${names[photoFilterMode]}`, 'info');
+    sfx.uiClick();
+    saveGame();
+  }
+  if (e.code === 'KeyN' && !e.repeat) returnToHub();
+  if (e.code === 'KeyL' && !e.repeat) quickSwapLoadout();
+  if (e.code === 'KeyT' && !e.repeat) {
+    const unfound = hiddenTreasures.filter(tr => !state.foundTreasures.includes(tr.id));
+    pingDirection(unfound, '未発見の秘宝', 'すべての秘宝を発見済みです');
+  }
+  if (e.code === 'KeyG' && !e.repeat) {
+    const active = fieldTargets.filter(f => !(isQuestDone(CHAPTERS[f.chapterIndex].key, f.questId) || fieldQuestState(f.questId) === 'ready_turnin'));
+    pingDirection(active, '討伐目標', '現在受注中の討伐目標はありません');
+  }
+  if (e.code === 'KeyQ' && !e.repeat) {
+    const undone = questGivers.filter(g => !isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId));
+    pingDirection(undone, 'クエスト依頼人', 'すべての依頼人のクエストを達成済みです');
+  }
+  if (e.code === 'KeyZ' && !e.repeat) {
+    const unfinished = zoneMarkers.filter(z => z.chapterIndex >= state.chapterIndex);
+    pingDirection(unfinished, '聖域', 'すべての聖域を制覇済みです');
+  }
+  if (e.code === 'KeyE' && !e.repeat) doDash();
+  if (e.code === 'KeyF' && !e.repeat) {
+    playEmote(emoteIdx % EMOTES.length);
+    emoteIdx++;
+  }
+  if (['Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(e.code) && !e.repeat) {
+    playEmote(parseInt(e.code.slice(-1), 10) - 1);
+  }
+  if (e.code === 'KeyO' && !e.repeat) togglePhotoGrid();
+  if (e.code === 'KeyP' && !e.repeat) takeScreenshot();
+  if (e.code === 'Space' && !e.repeat) doJump();
 });
+
+function togglePhotoGrid() {
+  const gridEl = document.getElementById('photo-grid-overlay');
+  if (!gridEl) return;
+  const showing = gridEl.style.display === 'block';
+  gridEl.style.display = showing ? 'none' : 'block';
+  showToast(showing ? '構図グリッドを非表示' : '構図グリッドを表示（三分割法）', 'info');
+}
+
+function takeScreenshot() {
+  const hud = document.getElementById('explore-hud');
+  const hadHidden = hud && hud.classList.contains('hidden');
+  if (hud && !hadHidden) hud.classList.add('photo-capture-hide');
+  const gridEl = document.getElementById('photo-grid-overlay');
+  const gridWasShown = gridEl && gridEl.style.display === 'block';
+  if (gridWasShown) gridEl.style.display = 'none';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      try {
+        let dataUrl;
+        if (state.screenshotWatermark !== false) {
+          const src = renderer.domElement;
+          const tmp = document.createElement('canvas');
+          tmp.width = src.width; tmp.height = src.height;
+          const tctx = tmp.getContext('2d');
+          tctx.drawImage(src, 0, 0);
+          const bName = biomeNameAt(localPos.x, localPos.z) || '';
+          const dayNum = Math.floor(currentAbsTime / ((Math.PI * 2) / 0.015)) + 1;
+          const label = `${new Date().toLocaleDateString('ja-JP')}｜Day ${dayNum}｜${bName}`;
+          tctx.font = `${Math.round(tmp.height * 0.018)}px sans-serif`;
+          tctx.textAlign = 'right';
+          tctx.textBaseline = 'bottom';
+          const pad = tmp.height * 0.02;
+          tctx.fillStyle = 'rgba(0,0,0,0.5)';
+          const textW = tctx.measureText(label).width;
+          tctx.fillRect(tmp.width - textW - pad * 2, tmp.height - pad * 2.4, textW + pad * 1.5, pad * 1.8);
+          tctx.fillStyle = '#fff';
+          tctx.fillText(label, tmp.width - pad, tmp.height - pad * 1.4);
+          dataUrl = tmp.toDataURL('image/png');
+        } else {
+          dataUrl = renderer.domElement.toDataURL('image/png');
+        }
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = `bosusen-${Date.now()}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        sfx.uiClick();
+        addScreenshotToGallery(dataUrl);
+        const previewEl = document.getElementById('screenshot-preview');
+        if (previewEl) {
+          previewEl.src = dataUrl;
+          previewEl.classList.add('show');
+          clearTimeout(previewEl._hideTimer);
+          previewEl._hideTimer = setTimeout(() => previewEl.classList.remove('show'), 2500);
+          if (!previewEl._clickBound) {
+            previewEl._clickBound = true;
+            previewEl.addEventListener('click', () => {
+              const w = window.open();
+              if (w) w.document.write(`<img src="${previewEl.src}" style="max-width:100%;">`);
+            });
+          }
+        }
+        const timeLabel = getTimeOfDayLabel(currentAbsTime);
+        if (timeLabel === '明け方' || timeLabel === '夕暮れ') {
+          addShards(10);
+          showToast(`ゴールデンアワーの一枚！ 結晶の欠片+10`, 'quest');
+          state.gotGoldenHourPhoto = true;
+        } else {
+          showToast('スクリーンショットを保存しました', 'info');
+        }
+        state.screenshotsTaken = (state.screenshotsTaken || 0) + 1;
+        checkAchievements().forEach(a => { sfx.achievement(); showCenterMsg(`実績解除: ${a.name}`, '#ffd700', 2000); });
+        const flashEl = document.getElementById('lightning-flash');
+        if (flashEl && !state.reduceFlashing) {
+          flashEl.classList.add('flash');
+          setTimeout(() => flashEl.classList.remove('flash'), 90);
+        }
+      } catch (err) {
+        console.error('スクリーンショットの保存に失敗', err);
+      } finally {
+        if (hud && !hadHidden) hud.classList.remove('photo-capture-hide');
+        if (gridWasShown) gridEl.style.display = 'block';
+      }
+    });
+  });
+}
 window.addEventListener('keyup', (e) => {
   if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.forward = false;
   if (e.code === 'KeyS' || e.code === 'ArrowDown') keys.back = false;
   if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = false;
   if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = false;
-  if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') keys.sprint = false;
+  if ((e.code === 'ShiftLeft' || e.code === 'ShiftRight') && !sprintLock) keys.sprint = false;
 });
 
 /* ---------- 仮想スティック(モバイル/マウスドラッグ両対応) ---------- */
@@ -55,6 +448,22 @@ let joyBase = null, joyKnob = null, joyPointerId = null, joyOrigin = { x: 0, y: 
 export function initJoystick() {
   joyBase = document.getElementById('joy-base');
   joyKnob = document.getElementById('joy-knob');
+  const sprintBtn = document.getElementById('sprint-lock-btn');
+  if (sprintBtn) sprintBtn.addEventListener('click', () => { if (exploreActive) toggleSprintLock(); });
+  const jumpBtn = document.getElementById('jump-btn');
+  if (jumpBtn) jumpBtn.addEventListener('click', () => { if (exploreActive) doJump(); });
+  const dashBtn = document.getElementById('dash-btn');
+  if (dashBtn) dashBtn.addEventListener('click', () => { if (exploreActive) doDash(); });
+  const emoteBtn = document.getElementById('emote-btn');
+  if (emoteBtn) emoteBtn.addEventListener('click', () => { if (exploreActive) { playEmote(emoteIdx % EMOTES.length); emoteIdx++; } });
+  const screenshotBtn = document.getElementById('screenshot-btn');
+  if (screenshotBtn) screenshotBtn.addEventListener('click', () => { if (exploreActive) takeScreenshot(); });
+  const hubReturnBtn = document.getElementById('hub-return-btn');
+  if (hubReturnBtn) hubReturnBtn.addEventListener('click', () => { if (exploreActive) returnToHub(); });
+  const loadoutSwapBtn = document.getElementById('loadout-swap-btn');
+  if (loadoutSwapBtn) loadoutSwapBtn.addEventListener('click', () => { if (exploreActive) quickSwapLoadout(); });
+  const photoGridBtn = document.getElementById('photo-grid-btn');
+  if (photoGridBtn) photoGridBtn.addEventListener('click', () => { if (exploreActive) togglePhotoGrid(); });
   if (!joyBase || !joyKnob) return;
 
   const onDown = (e) => {
@@ -97,6 +506,8 @@ let onOpenShop = null;
 export function setOnOpenShop(fn) { onOpenShop = fn; }
 let onToggleMap = null;
 export function setOnToggleMap(fn) { onToggleMap = fn; }
+let onToggleMute = null;
+export function setOnToggleMute(fn) { onToggleMute = fn; }
 
 export function enterExploreMode(spawnLocal) {
   exploreActive = true;
@@ -106,32 +517,82 @@ export function enterExploreMode(spawnLocal) {
   scene.fog.near = EXPLORE_FOG.near;
   scene.fog.far = EXPLORE_FOG.far;
   if (spawnLocal) localPos.copy(spawnLocal);
+  jumpVelY = 0;
+  isJumping = false;
+  jumpsUsed = 0;
+  dashCooldown = 0;
+  dashTimer = 0;
+  exploreStamina = STAMINA_MAX;
   player.position.set(HUB_OFFSET.x + localPos.x, 0, HUB_OFFSET.z + localPos.z);
   player.rotation.y = facing + Math.PI;
   crossfadeTo('Idle', 0.2);
   refreshZoneVisuals(state.chapterIndex);
   explorePickups.forEach(p => {
-    if (isQuestDone(CHAPTERS[p.chapterIndex].key, p.questId)) p.mesh.visible = false;
+    const pDone = isQuestDone(CHAPTERS[p.chapterIndex].key, p.questId);
+    if (pDone) p.mesh.visible = false;
+    if (p.beam) p.beam.visible = !pDone;
+  });
+  hiddenTreasures.forEach(t => {
+    const found = state.foundTreasures.includes(t.id);
+    t.mesh.visible = !found;
+    if (t.beam) t.beam.visible = !found;
   });
   fieldTargets.forEach(t => {
-    if (isQuestDone(CHAPTERS[t.chapterIndex].key, t.questId) || fieldQuestState(t.questId) === 'ready_turnin') {
+    const done = isQuestDone(CHAPTERS[t.chapterIndex].key, t.questId) || fieldQuestState(t.questId) === 'ready_turnin';
+    if (done) {
       t.material.emissiveIntensity = 0.1;
       t.light.intensity = 0.2;
     }
+    if (t.beam) t.beam.visible = !done;
+  });
+  questGivers.forEach(g => {
+    if (g.beam) g.beam.visible = !isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId);
+  });
+  loreMarkers.forEach(m => {
+    if (m.beam) m.beam.visible = !isQuestDone(CHAPTERS[m.chapterIndex].key, m.questId);
   });
   camInit = false;
   document.getElementById('explore-hud').style.display = 'flex';
   document.getElementById('ui').classList.add('exploring');
+  startAmbientWind();
+  photoFilterMode = state.photoFilterMode || 0;
+  setPhotoFilter(photoFilterMode);
+  if (!state.seenExploreTutorial) {
+    state.seenExploreTutorial = true;
+    const tips = [
+      'WASD / 矢印キーで移動しよう',
+      'Spaceでジャンプ、空中でもう一度押すと2段ジャンプ',
+      'Shiftでスプリント、Eでダッシュ（スタミナを消費）',
+      '困ったらHキーでいつでも操作方法を確認できるよ',
+    ];
+    tips.forEach((tip, i) => {
+      setTimeout(() => showToast(tip, 'info'), 1500 + i * 2600);
+    });
+    saveGame();
+  }
 }
 
 export function exitExploreMode() {
   exploreActive = false;
+  cinematicIdleTime = 0;
+  const hudEl = document.getElementById('explore-hud');
+  if (hudEl) hudEl.classList.remove('cinematic-fade');
+  stopAmbientWind();
   setCameraMode('battle');
+  fovKickCur = 0;
+  setFovKick(0);
   camera.far = 200;
   camera.updateProjectionMatrix();
   scene.fog.near = BATTLE_FOG.near;
   scene.fog.far = BATTLE_FOG.far;
   keys.forward = keys.back = keys.left = keys.right = keys.sprint = false;
+  sprintLock = false;
+  const ind = document.getElementById('sprint-lock-indicator');
+  if (ind) ind.style.display = 'none';
+  const btn = document.getElementById('sprint-lock-btn');
+  if (btn) btn.classList.remove('active');
+  const objEl = document.getElementById('nearest-objective');
+  if (objEl) objEl.style.display = 'none';
   joyVec = { x: 0, y: 0 };
   const hud = document.getElementById('explore-hud');
   if (hud) hud.style.display = 'none';
@@ -158,6 +619,8 @@ function tryTurnInOrAccept(giver) {
     if (giver.quest.reward.itemId) addItem(giver.quest.reward.itemId);
     sfx.questDone();
     showToast(`クエスト達成: ${giver.quest.title}（結晶の欠片 +${giver.quest.reward.shards}）`, 'quest');
+    checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
+    if (giver.beam) giver.beam.visible = false;
     renderQuestTracker();
     saveGame();
   } else if (fState === 'accepted') {
@@ -190,8 +653,22 @@ function tryCollectPickup(pickup) {
   if (pickup.quest.reward.itemId) addItem(pickup.quest.reward.itemId);
   sfx.shardGet();
   showToast(`クエスト達成: ${pickup.quest.title}｜${pickup.quest.result}`, 'quest');
+  checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
   pickup.mesh.visible = false;
+  if (pickup.beam) pickup.beam.visible = false;
   renderQuestTracker();
+  saveGame();
+}
+
+function tryCollectTreasure(t) {
+  if (state.foundTreasures.includes(t.id)) return;
+  state.foundTreasures.push(t.id);
+  addShards(t.shardReward);
+  sfx.shardGet();
+  showToast(`結晶の秘宝を発見！ 結晶の欠片 +${t.shardReward}`, 'quest');
+  t.mesh.visible = false;
+  if (t.beam) t.beam.visible = false;
+  checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
   saveGame();
 }
 
@@ -202,11 +679,19 @@ function tryReadLore(monu) {
   addShards(monu.quest.reward.shards);
   sfx.questDone();
   showToast(`クエスト達成: ${monu.quest.title}｜${monu.quest.result}`, 'quest');
+  if (!state.collectedLore) state.collectedLore = [];
+  state.collectedLore.push({ title: monu.quest.title, text: monu.quest.result, foundAt: Date.now() });
+  checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
+  if (monu.beam) monu.beam.visible = false;
   renderQuestTracker();
   saveGame();
 }
 
-export function updateExplore(dt) {
+let currentAbsTime = 0;
+let cinematicIdleTime = 0;
+export function updateExplore(dt, absTime = 0, isRaining = false) {
+  currentAbsTime = absTime;
+  updateFootprints(dt);
   if (!exploreActive) return;
   if (isSkirmishActive()) return;
   if (mapOpen) return;
@@ -219,40 +704,264 @@ export function updateExplore(dt) {
   mx += joyVec.x;
   mz += joyVec.y;
 
-  const len = Math.hypot(mx, mz);
-  const moving = len > 0.08;
-  const speed = keys.sprint ? SPRINT_SPEED : WALK_SPEED;
+  const gp = navigator.getGamepads ? navigator.getGamepads()[0] : null;
+  if (gp) {
+    const gx = gp.axes[0] || 0, gy = gp.axes[1] || 0;
+    const deadzone = 0.15;
+    if (Math.abs(gx) > deadzone) mx += gx;
+    if (Math.abs(gy) > deadzone) mz += gy;
+    if (gp.buttons[0] && gp.buttons[0].pressed && !gpJumpHeld) { gpJumpHeld = true; doJump(); }
+    if (!(gp.buttons[0] && gp.buttons[0].pressed)) gpJumpHeld = false;
+    if (gp.buttons[1] && gp.buttons[1].pressed && !gpDashHeld) { gpDashHeld = true; doDash(); }
+    if (!(gp.buttons[1] && gp.buttons[1].pressed)) gpDashHeld = false;
+    if (gp.buttons[4] && gp.buttons[4].pressed && !gpLoadoutHeld) { gpLoadoutHeld = true; quickSwapLoadout(); }
+    if (!(gp.buttons[4] && gp.buttons[4].pressed)) gpLoadoutHeld = false;
+    if (gp.buttons[5] && gp.buttons[5].pressed && !gpMuteHeld) { gpMuteHeld = true; if (onToggleMute) onToggleMute(); }
+    if (!(gp.buttons[5] && gp.buttons[5].pressed)) gpMuteHeld = false;
+    if (gp.buttons[8] && gp.buttons[8].pressed && !gpPhotoGridHeld) { gpPhotoGridHeld = true; togglePhotoGrid(); }
+    if (!(gp.buttons[8] && gp.buttons[8].pressed)) gpPhotoGridHeld = false;
+    keys.sprint = keys.sprint || (gp.buttons[10] && gp.buttons[10].pressed);
+    const rx = gp.axes[2] || 0, ry = gp.axes[3] || 0;
+    const gpSens = state.cameraSensitivity || 1;
+    if (Math.abs(rx) > 0.2) camOrbitYaw -= rx * dt * 2.5 * gpSens;
+    if (Math.abs(ry) > 0.2) camOrbitPitch = Math.max(0.05, Math.min(1.2, camOrbitPitch + ry * dt * 2 * gpSens * (state.invertCameraY ? -1 : 1)));
+    if (gp.buttons[9] && gp.buttons[9].pressed && !gpMapHeld) { gpMapHeld = true; if (onToggleMap) onToggleMap(); }
+    if (!(gp.buttons[9] && gp.buttons[9].pressed)) gpMapHeld = false;
+    if (gp.buttons[3] && gp.buttons[3].pressed && !gpCamResetHeld) { gpCamResetHeld = true; camOrbitYaw = 0; camOrbitPitch = 0.42; }
+    if (!(gp.buttons[3] && gp.buttons[3].pressed)) gpCamResetHeld = false;
+    if (gp.buttons[2] && gp.buttons[2].pressed && !gpEmoteHeld) { gpEmoteHeld = true; playEmote(emoteIdx % EMOTES.length); emoteIdx++; }
+    if (!(gp.buttons[2] && gp.buttons[2].pressed)) gpEmoteHeld = false;
+    if (gp.buttons[12] && gp.buttons[12].pressed && !gpFilterHeld) {
+      gpFilterHeld = true;
+      photoFilterMode = (photoFilterMode + 1) % 4;
+      state.photoFilterMode = photoFilterMode;
+      setPhotoFilter(photoFilterMode);
+      const names = ['標準', 'セピア', 'モノクロ', '鮮やか'];
+      showToast(`フィルター: ${names[photoFilterMode]}`, 'info');
+      sfx.uiClick();
+      saveGame();
+    }
+    if (!(gp.buttons[12] && gp.buttons[12].pressed)) gpFilterHeld = false;
+    if (gp.buttons[13] && gp.buttons[13].pressed && !gpHubReturnHeld) { gpHubReturnHeld = true; returnToHub(); }
+    if (!(gp.buttons[13] && gp.buttons[13].pressed)) gpHubReturnHeld = false;
+  }
+
+  dashCooldown = Math.max(0, dashCooldown - dt);
+  const dashing = dashTimer > 0;
+  if (dashing) {
+    dashTimer -= dt;
+    dashTrailTimer -= dt;
+    if (dashTrailTimer <= 0) {
+      dashTrailTimer = 0.04;
+      const trailColor = (state.achievements || []).includes('completionist') ? 0xffd700 : 0x9fe0ff;
+      spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.9, 0)), trailColor, 2);
+    }
+  }
+
+  let len = Math.hypot(mx, mz);
+  let moving = len > 0.08;
+  if (dashing && !moving) {
+    mx = Math.sin(facing); mz = Math.cos(facing);
+    len = 1;
+    moving = true;
+  }
+  if (state.cinematicAutoHide) {
+    if (moving || dashing) {
+      cinematicIdleTime = 0;
+      const hudEl = document.getElementById('explore-hud');
+      if (hudEl) hudEl.classList.remove('cinematic-fade');
+    } else {
+      cinematicIdleTime += dt;
+      if (cinematicIdleTime > 8) {
+        const hudEl = document.getElementById('explore-hud');
+        if (hudEl) hudEl.classList.add('cinematic-fade');
+      }
+    }
+  }
+  const sprinting = keys.sprint && exploreStamina > 0.5 && moving && !dashing;
+  const speed = dashing ? DASH_SPEED : (sprinting ? SPRINT_SPEED : WALK_SPEED);
+  const targetFovKick = state.reduceFlashing ? 0 : (dashing ? 10 : (sprinting ? 5 : 0));
+  fovKickCur += (targetFovKick - fovKickCur) * Math.min(1, dt * 6);
+  setFovKick(fovKickCur);
+  if (sprinting) {
+    exploreStamina = Math.max(0, exploreStamina - STAMINA_DRAIN * dt);
+  } else {
+    exploreStamina = Math.min(STAMINA_MAX, exploreStamina + STAMINA_REGEN * dt);
+  }
+  const staminaEl = document.getElementById('explore-stamina-fill');
+  if (staminaEl) {
+    const pct = (exploreStamina / STAMINA_MAX) * 100;
+    staminaEl.style.width = pct + '%';
+    staminaEl.classList.toggle('low', pct < 30);
+  }
+  if (exploreStamina <= 0 && !staminaWasEmpty) {
+    staminaWasEmpty = true;
+    sfx.dodgeFail();
+    showToast('スタミナ切れ！', 'info');
+  } else if (exploreStamina > 0) {
+    staminaWasEmpty = false;
+  }
+  const dashIconEl = document.getElementById('dash-cooldown-icon');
+  if (dashIconEl) dashIconEl.classList.toggle('ready', dashCooldown <= 0 && exploreStamina >= DASH_STAMINA_COST);
   if (moving) {
     mx /= len; mz /= len;
     const moveAng = Math.atan2(mx, mz);
     facing = moveAng;
     localPos.x += Math.sin(moveAng) * speed * dt;
     localPos.z += Math.cos(moveAng) * speed * dt;
+    state.totalDistanceTraveled = (state.totalDistanceTraveled || 0) + speed * dt;
     const r = Math.hypot(localPos.x, localPos.z);
     if (r > WORLD_RADIUS - 4) {
       const s = (WORLD_RADIUS - 4) / r;
       localPos.x *= s; localPos.z *= s;
     }
-    player.position.set(HUB_OFFSET.x + localPos.x, 0, HUB_OFFSET.z + localPos.z);
+    player.position.set(HUB_OFFSET.x + localPos.x, player.position.y, HUB_OFFSET.z + localPos.z);
     player.rotation.y = facing + Math.PI;
     stepTimer -= dt;
     if (stepTimer <= 0) {
-      sfx.footstep();
-      stepTimer = keys.sprint ? 0.22 : 0.36;
+      const inPuddle = puddlePositions.some(p => Math.hypot(localPos.x - p.x, localPos.z - p.z) < p.r);
+      if (inPuddle) {
+        sfx.footstepWater();
+        spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.05, 0)), 0x9fc4e0, 8);
+      } else {
+        const cat = biomeCategoryAt(localPos.x, localPos.z);
+        if (cat === 'desert') sfx.footstepSand();
+        else if (cat === 'snow') sfx.footstepSnow();
+        else if (cat === 'cyber') sfx.footstepMetal();
+        else if (cat === 'swamp') sfx.footstepSwamp();
+        else if (cat === 'crystal') sfx.footstepCrystal();
+        else if (cat === 'volcanic') sfx.footstepVolcanic();
+        else if (cat === 'wasteland') sfx.footstepAsh();
+        else sfx.footstep();
+        spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.05, 0)), DUST_COLOR_BY_CATEGORY[cat] || 0xcabf9a, 4);
+        spawnFootprint(player.position, facing, cat);
+      }
+      stepTimer = sprinting ? 0.22 : 0.36;
+    }
+    if (sprinting || dashing) {
+      speedTrailTimer -= dt;
+      if (speedTrailTimer <= 0) {
+        const behindX = player.position.x + Math.sin(facing) * 0.5;
+        const behindZ = player.position.z + Math.cos(facing) * 0.5;
+        spawnParticles(new THREE.Vector3(behindX, player.position.y + 0.5, behindZ), dashing ? 0x9fe0ff : 0xffffff, 3);
+        speedTrailTimer = 0.05;
+      }
     }
   } else {
     stepTimer = 0;
+    player.position.set(HUB_OFFSET.x + localPos.x, player.position.y, HUB_OFFSET.z + localPos.z);
+  }
+  if (isJumping) {
+    jumpVelY -= GRAVITY * dt;
+    let ny = player.position.y + jumpVelY * dt;
+    if (ny <= 0) {
+      ny = 0;
+      isJumping = false;
+      jumpVelY = 0;
+      jumpsUsed = 0;
+      spinning = false;
+      player.rotation.x = 0;
+      const landCat = biomeCategoryAt(localPos.x, localPos.z);
+      spawnParticles(player.position.clone().set(player.position.x, 0.05, player.position.z), DUST_COLOR_BY_CATEGORY[landCat] || 0xcabf9a, 10);
+    }
+    player.position.y = ny;
+  }
+  if (spinning) {
+    spinProgress += dt;
+    player.rotation.x = Math.min(1, spinProgress / SPIN_DURATION) * Math.PI * 2;
+    if (spinProgress >= SPIN_DURATION) { spinning = false; player.rotation.x = 0; }
   }
   if (moving && !wasMoving) crossfadeTo('Walk', 0.15);
   if (!moving && wasMoving) crossfadeTo('Idle', 0.25);
   wasMoving = moving;
 
-  // 三人称追従カメラ
-  const behindAng = facing;
+  periodicAchCheckTimer -= dt;
+  if (periodicAchCheckTimer <= 0) {
+    periodicAchCheckTimer = 30;
+    checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
+    saveGame();
+  }
+
+  chatterTimer -= dt;
+  if (chatterTimer <= 0) {
+    chatterTimer = 1.2;
+    for (const g of questGivers) {
+      const d = Math.hypot(localPos.x - g.localPos.x, localPos.z - g.localPos.z);
+      if (d < 8) {
+        const lastSaid = npcChatterCooldown.get(g) || 0;
+        const chatterCooldownMs = state.reduceNpcChatter ? 60000 : 25000;
+        const chatterChance = state.reduceNpcChatter ? 0.12 : 0.35;
+        if (performance.now() - lastSaid > chatterCooldownMs && Math.random() < chatterChance) {
+          npcChatterCooldown.set(g, performance.now());
+          const done = isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId);
+          const pending = !done && fieldQuestState(g.questId) === 'accepted';
+          const gCat = biomeCategoryAt(g.localPos.x, g.localPos.z);
+          const CAT_LINES = { snow: AMBIENT_LINES_SNOW, volcanic: AMBIENT_LINES_VOLCANIC, desert: AMBIENT_LINES_DESERT, swamp: AMBIENT_LINES_SWAMP, wasteland: AMBIENT_LINES_WASTELAND, cyber: AMBIENT_LINES_CYBER, crystal: AMBIENT_LINES_CRYSTAL };
+          const pool = done ? AMBIENT_LINES_DONE : (pending ? AMBIENT_LINES_PENDING : (CAT_LINES[gCat] || (isRaining ? AMBIENT_LINES_RAIN : (isNightTime(absTime) ? AMBIENT_LINES_NIGHT : AMBIENT_LINES))));
+          const line = pool[Math.floor(Math.random() * pool.length)];
+          showToast(`${g.name}：${line}`, 'info');
+        }
+        break;
+      }
+    }
+  }
+
+  fireflyCheckTimer -= dt;
+  if (fireflyCheckTimer <= 0) {
+    fireflyCheckTimer = 0.3;
+    const caught = collectNearbyFireflies(localPos.x, localPos.z, 2.5);
+    if (caught > 0) {
+      addShards(caught * 2);
+      state.firefliesCaught = (state.firefliesCaught || 0) + caught;
+      sfx.shardGet();
+      spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.2, 0)), 0xbdffa0, 6 * caught);
+      showToast(`蛍を捕まえた！ 結晶の欠片 +${caught * 2}`, 'quest');
+      checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
+      saveGame();
+    }
+    const caughtB = collectNearbyButterflies(localPos.x, localPos.z, 2.2);
+    if (caughtB > 0) {
+      addShards(caughtB);
+      state.butterfliesCaught = (state.butterfliesCaught || 0) + caughtB;
+      sfx.shardGet();
+      spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.2, 0)), 0xff9fd0, 5 * caughtB);
+      showToast(`蝶を捕まえた！ 結晶の欠片 +${caughtB}`, 'quest');
+      checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
+      saveGame();
+    }
+  }
+
+  if (moving) {
+    const name = biomeNameAt(localPos.x, localPos.z);
+    if (name && name !== currentBiomeName) {
+      currentBiomeName = name;
+      const isNew = !state.discoveredBiomes.includes(name);
+      if (isNew) {
+        state.discoveredBiomes.push(name);
+        if (!state.biomeDiscoveredAt) state.biomeDiscoveredAt = {};
+        state.biomeDiscoveredAt[name] = Date.now();
+        addShards(5);
+        sfx.questDone();
+        [0xffd700, 0x9fe0ff, 0xff9fd0, 0x9fff7a].forEach((c, i) => {
+          spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.4 + i * 0.15, 0)), c, 8);
+        });
+        showToast(`新しいバイオーム発見: ${name}（${state.discoveredBiomes.length}/35） 結晶の欠片+5`, 'quest');
+        checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
+        saveGame();
+      } else {
+        showToast(`${name} に入った`, 'quest');
+      }
+    }
+  }
+
+  // 三人称追従カメラ（右クリックドラッグで自由に見回せる）
+  const behindAng = facing + camOrbitYaw;
+  const pitchHeight = Math.sin(camOrbitPitch) * camOffset.z;
+  const pitchDist = Math.cos(camOrbitPitch) * camOffset.z;
   const desiredCamPos = new THREE.Vector3(
-    player.position.x - Math.sin(behindAng) * camOffset.z,
-    player.position.y + camOffset.y,
-    player.position.z - Math.cos(behindAng) * camOffset.z
+    player.position.x - Math.sin(behindAng) * pitchDist,
+    player.position.y + pitchHeight,
+    player.position.z - Math.cos(behindAng) * pitchDist
   );
   if (!camInit) { camCurrentPos.copy(desiredCamPos); camInit = true; }
   camCurrentPos.lerp(desiredCamPos, Math.min(1, dt * 5));
@@ -309,6 +1018,13 @@ export function updateExplore(dt) {
     }
   }
 
+  // 隠しボーナスアイテム（結晶の秘宝）
+  for (const t of hiddenTreasures) {
+    if (t.mesh.visible && Math.hypot(localPos.x - t.localPos.x, localPos.z - t.localPos.z) < t.radius) {
+      tryCollectTreasure(t);
+    }
+  }
+
   // ロアクエスト（石碑）
   let nearLore = null;
   for (const m of loreMarkers) {
@@ -329,9 +1045,54 @@ export function updateExplore(dt) {
   } else if (!nearShop) {
     shopHintShown = false;
   }
+
+  objectiveTimer -= dt;
+  if (objectiveTimer <= 0) {
+    objectiveTimer = 0.5;
+    updateNearestObjective();
+    checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
+  }
+}
+
+function updateNearestObjective() {
+  const el = document.getElementById('nearest-objective');
+  if (!el) return;
+  if (state.showObjectiveHint === false) { el.style.display = 'none'; return; }
+  const candidates = [];
+  fieldTargets.forEach(t => {
+    const chapterKey = CHAPTERS[t.chapterIndex].key;
+    if (fieldQuestState(t.questId) === 'accepted' && !isQuestDone(chapterKey, t.questId)) {
+      candidates.push({ name: `討伐: ${t.name}`, pos: t.localPos });
+    }
+  });
+  questGivers.forEach(g => {
+    const chapterKey = CHAPTERS[g.chapterIndex].key;
+    if (!isQuestDone(chapterKey, g.questId) && fieldQuestState(g.questId) !== 'accepted') {
+      candidates.push({ name: `依頼人: ${g.name}`, pos: g.localPos });
+    }
+  });
+  explorePickups.forEach(p => {
+    if (p.mesh.visible) candidates.push({ name: '採取物', pos: p.localPos });
+  });
+  loreMarkers.forEach(m => {
+    const chapterKey = CHAPTERS[m.chapterIndex].key;
+    if (!isQuestDone(chapterKey, m.questId)) candidates.push({ name: '石碑', pos: m.localPos });
+  });
+  hiddenTreasures.forEach(t => {
+    if (t.mesh.visible) candidates.push({ name: '結晶の秘宝', pos: t.localPos });
+  });
+  if (candidates.length === 0) { el.style.display = 'none'; return; }
+  let nearest = null, nearestDist = Infinity;
+  candidates.forEach(c => {
+    const d = Math.hypot(localPos.x - c.pos.x, localPos.z - c.pos.z);
+    if (d < nearestDist) { nearestDist = d; nearest = c; }
+  });
+  el.style.display = 'block';
+  el.textContent = `${nearest.name}（残り${Math.round(nearestDist)}m）`;
 }
 
 export function getExploreLocalPos() { return localPos; }
 export function setExploreLocalPos(v) { localPos.copy(v); }
 export function getPlayerLocalPos() { return localPos; }
+export function getPlayerFacing() { return facing; }
 export function getZoneMarkersRef() { return zoneMarkers; }

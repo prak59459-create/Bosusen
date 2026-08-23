@@ -67,6 +67,26 @@ export function triggerShake(mag, dur) {
   if (state.screenShake === false) return;
   shakeState.mag = mag; shakeState.time = dur;
 }
+export function rumble(strength = 0.5, duration = 200) {
+  if (state.gamepadRumble === false) return;
+  try {
+    const gp = navigator.getGamepads ? navigator.getGamepads()[0] : null;
+    if (gp && gp.vibrationActuator) {
+      gp.vibrationActuator.playEffect('dual-rumble', {
+        duration,
+        strongMagnitude: strength,
+        weakMagnitude: strength * 0.7,
+      });
+    }
+  } catch (e) {}
+}
+export function triggerCritFlash() {
+  if (state.reduceFlashing) return;
+  const el = document.getElementById('crit-flash');
+  if (!el) return;
+  el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 80);
+}
 export function updateShakeAndApplyCamera(dt, camFittedPos) {
   if (shakeState.time > 0) {
     shakeState.time -= dt;
@@ -106,6 +126,29 @@ export function animateLunge(obj, dir, dist, duration = 300) {
     else obj.position.copy(startPos);
   }
   requestAnimationFrame(step);
+}
+
+export function spawnShockwave(pos, color = 0xffd75e) {
+  const geo = new THREE.RingGeometry(0.1, 0.3, 24);
+  const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9, side: THREE.DoubleSide });
+  const ring = new THREE.Mesh(geo, mat);
+  ring.position.copy(pos);
+  ring.lookAt(camera.position);
+  scene.add(ring);
+  const t0 = performance.now();
+  function grow(t) {
+    const p = Math.min(1, (t - t0) / 400);
+    const s = 1 + p * 5;
+    ring.scale.set(s, s, s);
+    mat.opacity = 0.9 * (1 - p);
+    if (p < 1) requestAnimationFrame(grow);
+    else {
+      scene.remove(ring);
+      geo.dispose();
+      mat.dispose();
+    }
+  }
+  requestAnimationFrame(grow);
 }
 
 export function flashHit(mesh) {
