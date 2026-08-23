@@ -78,7 +78,13 @@ export function applyUiTextScale(scale) {
   const hudEl = document.getElementById('explore-hud');
   if (hudEl) hudEl.style.zoom = scale;
 }
-let achSortByProgress = false;
+const ACH_SORT_MODES = ['default', 'progress', 'recent'];
+const ACH_SORT_LABEL = {
+  default: '未達成を進捗順で表示',
+  progress: '最近解除した順で表示',
+  recent: 'デフォルト順で表示',
+};
+let achSortMode = 'default';
 let achUnlockedOnly = false;
 const TITLE_TIERS = [
   { min: 21, title: '神話の' },
@@ -473,13 +479,16 @@ export function renderStatusTab() {
       comeback: [state.hadComeback ? 1 : 0, 1],
     };
     let achOrder = ACHIEVEMENTS;
-    if (achSortByProgress) {
+    if (achSortMode === 'progress') {
       const ratio = a => {
         if (state.achievements.includes(a.id)) return -1;
         const p = ACH_PROGRESS[a.id];
         return p ? p[0] / p[1] : 0;
       };
       achOrder = [...ACHIEVEMENTS].sort((a, b) => ratio(b) - ratio(a));
+    } else if (achSortMode === 'recent') {
+      const at = a => (state.achievementUnlockedAt || {})[a.id] || -1;
+      achOrder = [...ACHIEVEMENTS].sort((a, b) => at(b) - at(a));
     }
     achOrder.forEach(a => {
       const unlocked = state.achievements.includes(a.id);
@@ -1014,8 +1023,8 @@ export function initMenu(onSave, onTitle) {
   const achSortBtn = document.getElementById('ach-sort-btn');
   if (achSortBtn) {
     achSortBtn.addEventListener('click', () => {
-      achSortByProgress = !achSortByProgress;
-      achSortBtn.textContent = achSortByProgress ? 'デフォルト順で表示' : '未達成を進捗順で表示';
+      achSortMode = ACH_SORT_MODES[(ACH_SORT_MODES.indexOf(achSortMode) + 1) % ACH_SORT_MODES.length];
+      achSortBtn.textContent = ACH_SORT_LABEL[achSortMode];
       sfx.uiClick();
       renderStatusTab();
     });
