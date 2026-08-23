@@ -561,6 +561,9 @@ export function renderStatusTab() {
       biome_explorer: [(state.discoveredBiomes || []).length, 10],
       biome_master: [(state.discoveredBiomes || []).length, BIOME_NAMES.length],
       treasure_hunter: [(state.foundTreasures || []).length, hiddenTreasures.length],
+      skill_master: [(state.unlockedSkills || []).length, SKILLS.length],
+      // completionist は自分自身を除いた全実績が対象
+      completionist: [state.achievements.length, ACHIEVEMENTS.length - 1],
       // 解除条件と同じく、実績でロックされた商品は母数から除く
       collector: (() => {
         const buyable = SHOP_ITEMS.filter(e => !e.requiresAchievement);
