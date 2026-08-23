@@ -665,7 +665,15 @@ export function renderSkillsTab() {
     skillProgressBar.style.margin = '0 0 16px';
     skillProgressBar.innerHTML = `<div class="qb-progress-fill" style="width:${Math.round((state.unlockedSkills.length / SKILLS.length) * 100)}%"></div>`;
     treeEl.appendChild(skillProgressBar);
-    const affordableSkills = SKILLS.filter(s => !state.unlockedSkills.includes(s.id) && state.shards >= s.cost);
+    let budget = state.shards;
+    const affordableSkills = SKILLS
+      .filter(s => !state.unlockedSkills.includes(s.id))
+      .sort((a, b) => a.cost - b.cost)
+      .filter(s => {
+        if (budget < s.cost) return false;
+        budget -= s.cost;
+        return true;
+      });
     if (affordableSkills.length > 0) {
       const bulkRow = document.createElement('div');
       bulkRow.className = 'skill-reset-row';
@@ -673,7 +681,7 @@ export function renderSkillsTab() {
       bulkRow.innerHTML = `<button class="skill-node-btn">習得可能なスキルを一括解放（${affordableSkills.length}件）</button>`;
       bulkRow.querySelector('button').addEventListener('click', () => {
         let count = 0;
-        SKILLS.filter(s => !state.unlockedSkills.includes(s.id) && state.shards >= s.cost).forEach(s => {
+        affordableSkills.forEach(s => {
           if (unlockSkill(s.id)) count++;
         });
         sfx.skillUnlock();
