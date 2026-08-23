@@ -241,6 +241,7 @@ export function showCenterMsg(text, color, ms = 800) {
   showCenterMsg._t = setTimeout(() => els.centerMsg.style.display = 'none', ms);
 }
 
+const toastHistory = [];
 export function showToast(text, kind = 'info') {
   const el = document.createElement('div');
   el.className = `toast toast-${kind}`;
@@ -251,6 +252,15 @@ export function showToast(text, kind = 'info') {
     el.classList.remove('show');
     setTimeout(() => el.remove(), 400);
   }, 2600);
+  toastHistory.unshift({ text, kind, time: Date.now() });
+  if (toastHistory.length > 30) toastHistory.pop();
+}
+export function renderToastHistory() {
+  const el = document.getElementById('toast-history-list');
+  if (!el) return;
+  el.innerHTML = toastHistory.length
+    ? toastHistory.map(h => `<div class="log-line">${new Date(h.time).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })} ${h.text}</div>`).join('')
+    : '<div class="empty-hint">まだ通知はありません</div>';
 }
 
 export function setButtonsEnabled(enabled) {
@@ -915,6 +925,18 @@ export function initMenu(onSave, onTitle) {
       sfx.uiClick();
     });
   });
+
+  const toastHistoryToggleBtn = document.getElementById('toast-history-toggle-btn');
+  const toastHistoryList = document.getElementById('toast-history-list');
+  if (toastHistoryToggleBtn && toastHistoryList) {
+    toastHistoryToggleBtn.addEventListener('click', () => {
+      const show = toastHistoryList.style.display === 'none';
+      toastHistoryList.style.display = show ? 'block' : 'none';
+      toastHistoryToggleBtn.textContent = show ? '直近の通知を隠す' : '直近の通知を表示';
+      if (show) renderToastHistory();
+      sfx.uiClick();
+    });
+  }
 
   const clearGalleryBtn = document.getElementById('clear-gallery-btn');
   if (clearGalleryBtn) {
