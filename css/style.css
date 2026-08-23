@@ -384,6 +384,12 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   background:rgba(255,255,255,0.75); border:1px solid rgba(212,168,74,0.45);
   border-radius:14px; padding:5px 12px; font-size:12px; font-weight:bold; color:#7a5a12;
 }
+#campfire-prompt {
+  position:absolute; left:50%; transform:translateX(-50%);
+  bottom: max(190px, env(safe-area-inset-bottom) + 160px);
+  background:rgba(60,40,20,0.82); color:#ffd9a0; border:1px solid rgba(255,160,60,0.6);
+  border-radius:14px; padding:6px 16px; font-size:13px; font-weight:bold; pointer-events:none;
+}
 /* 採取コンボ表示。残り猶予をバーで示し、途切れるタイミングを見えるようにする */
 #collect-combo {
   position:absolute; top: calc(max(14px, env(safe-area-inset-top)) + 64px);

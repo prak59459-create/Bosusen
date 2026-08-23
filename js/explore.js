@@ -1099,6 +1099,14 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
 
   updateComboHud();
   updateCampfires(absTime);
+  {
+    // 焚き火のそばでは休めることを知らせる（満タンなら出さない）
+    const promptEl = document.getElementById('campfire-prompt');
+    if (promptEl) {
+      const near = nearestCampfire(localPos.x, localPos.z, 4) && exploreStamina < exploreStaminaMax() - 0.5;
+      promptEl.style.display = near ? '' : 'none';
+    }
+  }
 
   fireflyCheckTimer -= dt;
   if (fireflyCheckTimer <= 0) {

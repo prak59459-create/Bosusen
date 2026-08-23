@@ -10,7 +10,7 @@ import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, ad
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, showCenterMsg, syncSettingsUI, openMenu, closeMenu, BIOME_CATEGORY_ICON, SLOT_ICON, itemScore, itemStatParts, itemCompareTag } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
-import { BIOME_NAMES, undiscoveredBiomeSpots, HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt, biomeNameAt, triggerLightning, updateLightning, updateButterflies, updateScorpions, updateFoxes, updateFrogs, updateCrows, updateSalamanders, updateDrones, updateSpirits, triggerRainbow, updateRainbow, updateHubSparks, updateGuideBeams } from './world.js';
+import { BIOME_NAMES, undiscoveredBiomeSpots, HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt, biomeNameAt, triggerLightning, updateLightning, updateButterflies, updateScorpions, updateFoxes, updateFrogs, updateCrows, updateSalamanders, updateDrones, updateSpirits, triggerRainbow, updateRainbow, updateHubSparks, updateGuideBeams, campfires } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone, setOnReplayZone,
   setOnOpenShop, setOnToggleMap, setOnToggleMute, getPlayerLocalPos, exploreActive, setMapOpen, setExploreLocalPos, getPlayerFacing, setActiveLoadoutKey } from './explore.js';
 import { initSkirmishUI, resetSkirmish } from './skirmish.js';
@@ -366,6 +366,7 @@ function drawRadar() {
   questGivers.forEach(g => { if (!isQuestDone(CHAPTERS[g.chapterIndex].key, g.questId)) dots.push({ x: g.localPos.x, z: g.localPos.z, color: '#ffd75e' }); });
   loreMarkers.forEach(m => { if (!isQuestDone(CHAPTERS[m.chapterIndex].key, m.questId)) dots.push({ x: m.localPos.x, z: m.localPos.z, color: '#b39ddb' }); });
   explorePickups.forEach(p => { if (p.mesh.visible) dots.push({ x: p.localPos.x, z: p.localPos.z, color: '#8fd35f' }); });
+  campfires.forEach(c => dots.push({ x: c.localPos.x, z: c.localPos.z, color: '#ffa03c' }));
   radarCtx.save();
   radarCtx.beginPath();
   radarCtx.arc(cx, cy, Math.min(w, h) / 2 - 2, 0, Math.PI * 2);
@@ -525,6 +526,13 @@ function drawMap() {
     mapCtx.beginPath();
     mapCtx.arc(x, y, 3.5, 0, Math.PI * 2);
     mapCtx.fillStyle = '#8fd35f';
+    mapCtx.fill();
+  });
+  campfires.forEach(c => {
+    const x = cx + c.localPos.x * scale, y = cy + c.localPos.z * scale;
+    mapCtx.beginPath();
+    mapCtx.arc(x, y, 3.5, 0, Math.PI * 2);
+    mapCtx.fillStyle = '#ffa03c';
     mapCtx.fill();
   });
   loreMarkers.forEach(m => {
