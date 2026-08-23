@@ -461,6 +461,7 @@ window.addEventListener('blur', () => {
   keys.right = false;
   if (!sprintLock) keys.sprint = false;
   joyVec = { x: 0, y: 0 };
+  orbitDragging = false;
 });
 
 /* ---------- 仮想スティック(モバイル/マウスドラッグ両対応) ---------- */
