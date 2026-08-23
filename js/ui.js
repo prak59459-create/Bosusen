@@ -158,7 +158,7 @@ export function log(msg) {
   while (els.logWrap.children.length > 4) els.logWrap.removeChild(els.logWrap.lastChild);
 }
 
-async function copyImageToClipboard(dataUrl) {
+export async function copyImageToClipboard(dataUrl) {
   try {
     const res = await fetch(dataUrl);
     const blob = await res.blob();

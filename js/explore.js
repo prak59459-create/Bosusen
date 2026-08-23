@@ -7,7 +7,7 @@ import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTar
 import { CHAPTERS } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
   fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot } from './state.js';
-import { showToast, renderQuestTracker, showCenterMsg, addScreenshotToGallery } from './ui.js';
+import { showToast, renderQuestTracker, showCenterMsg, addScreenshotToGallery, copyImageToClipboard } from './ui.js';
 import { sfx, startAmbientWind, stopAmbientWind } from './audio.js';
 import { startSkirmish, isSkirmishActive } from './skirmish.js';
 
@@ -417,9 +417,14 @@ function takeScreenshot() {
           previewEl._hideTimer = setTimeout(() => previewEl.classList.remove('show'), 2500);
           if (!previewEl._clickBound) {
             previewEl._clickBound = true;
+            previewEl.title = 'クリックで別タブ表示、右クリックでコピー';
             previewEl.addEventListener('click', () => {
               const w = window.open();
               if (w) w.document.write(`<img src="${previewEl.src}" style="max-width:100%;">`);
+            });
+            previewEl.addEventListener('contextmenu', (e) => {
+              e.preventDefault();
+              copyImageToClipboard(previewEl.src);
             });
           }
         }
