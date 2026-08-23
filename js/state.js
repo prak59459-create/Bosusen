@@ -241,6 +241,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (lastRank != null && !state.guardUsedThisBattle) tryUnlock('no_guard');
   if (lastRank != null && !state.skillUsedThisBattle) tryUnlock('no_skill');
   if ((state.fieldKillsTotal || 0) >= 20) tryUnlock('field_hunter');
+  if ((state.fieldKillsTotal || 0) >= 75) tryUnlock('field_hunter_master');
   if (Object.values(state.chapterClearCounts).some(c => c >= 5)) tryUnlock('veteran_hunter');
   if (state.winStreak >= 3) tryUnlock('win_streak_3');
   if (state.winStreak >= 5) tryUnlock('win_streak_5');
