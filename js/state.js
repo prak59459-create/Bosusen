@@ -67,6 +67,7 @@ export const state = {
   firstDefeatedAt: {},
   bestTurnsPerChapter: {},
   biomeDiscoveredAt: {},
+  achievementUnlockedAt: {},
   butterfliesCaught: 0,
   achievements: [], // array of unlocked achievement ids
   questProgress: {}, // { chapterKey: { questId: true } }
@@ -211,6 +212,8 @@ export function unlockAchievement(id) {
   const ach = ACHIEVEMENTS.find(a => a.id === id);
   if (!ach) return null;
   state.achievements.push(id);
+  if (!state.achievementUnlockedAt) state.achievementUnlockedAt = {};
+  state.achievementUnlockedAt[id] = Date.now();
   if (ach.reward) addShards(ach.reward);
   return ach;
 }
@@ -393,6 +396,7 @@ export function saveGame() {
       firstDefeatedAt: state.firstDefeatedAt,
       bestTurnsPerChapter: state.bestTurnsPerChapter,
       biomeDiscoveredAt: state.biomeDiscoveredAt,
+      achievementUnlockedAt: state.achievementUnlockedAt,
       totalParries: state.totalParries,
       totalDodges: state.totalDodges,
       butterfliesCaught: state.butterfliesCaught,
@@ -503,6 +507,7 @@ export function loadGame() {
       firstDefeatedAt: snap.firstDefeatedAt || {},
       bestTurnsPerChapter: snap.bestTurnsPerChapter || {},
       biomeDiscoveredAt: snap.biomeDiscoveredAt || {},
+      achievementUnlockedAt: snap.achievementUnlockedAt || {},
       totalParries: snap.totalParries || 0,
       totalDodges: snap.totalDodges || 0,
       butterfliesCaught: snap.butterfliesCaught || 0,

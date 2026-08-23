@@ -491,10 +491,13 @@ export function renderStatusTab() {
       if (isPinned) row.dataset.pinned = '1';
       const prog = !unlocked && ACH_PROGRESS[a.id];
       const progHtml = prog ? `<div class="qb-progress-bar" style="margin-top:4px;"><div class="qb-progress-fill" style="width:${Math.min(100, Math.round(prog[0] / prog[1] * 100))}%"></div></div><div class="item-row-desc">${Math.min(prog[0], prog[1])} / ${prog[1]}</div>` : '';
+      const unlockedAt = unlocked && (state.achievementUnlockedAt || {})[a.id];
+      const dateHtml = unlockedAt ? `<div class="item-row-desc">解除日: ${new Date(unlockedAt).toLocaleDateString('ja-JP')}</div>` : '';
       row.innerHTML = `
         <div>
           <div class="item-row-name">${unlocked ? '🏆 ' : '🔒 '}${a.name}${isPinned ? ' 📌' : ''}</div>
           <div class="item-row-desc">${a.desc}（報酬: 欠片${a.reward || 0}）</div>
+          ${dateHtml}
           ${progHtml}
         </div>
         ${unlocked ? `<button class="item-row-btn pin-achievement-btn">${isPinned ? '固定中' : '称号バッジに設定'}</button>` : ''}

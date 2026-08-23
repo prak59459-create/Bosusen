@@ -676,7 +676,7 @@ els.startBtn.addEventListener('click', () => {
     chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0, newGamePlus: 0, chapterClearCounts: {},
     equipment: { weapon: null, armor: null, accessory: null },
     inventory: [], unlockedSkills: [], foundTreasures: [], achievements: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
-    savedLoadouts: { a: null, b: null }, pinnedAchievement: null,
+    savedLoadouts: { a: null, b: null }, pinnedAchievement: null, achievementUnlockedAt: {},
   });
   setActiveLoadoutKey('a');
   goExplore(null);
@@ -736,7 +736,7 @@ els.retryBtn.addEventListener('click', () => {
       chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0, newGamePlus: 0, chapterClearCounts: {},
       equipment: { weapon: null, armor: null, accessory: null },
       inventory: [], unlockedSkills: [], foundTreasures: [], achievements: [], questProgress: {}, fieldQuests: {}, usedRevive: false,
-      savedLoadouts: { a: null, b: null }, pinnedAchievement: null,
+      savedLoadouts: { a: null, b: null }, pinnedAchievement: null, achievementUnlockedAt: {},
     });
     setActiveLoadoutKey('a');
     document.getElementById('start-screen').style.display = 'flex';
