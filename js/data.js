@@ -353,6 +353,7 @@ export const ACHIEVEMENTS = [
   { id:'all_endings', name:'すべての結末の目撃者', desc:'すべての結末を見届ける。', reward:70 },
   { id:'all_rank_s', name:'完全無欠の討伐者', desc:'すべての章で評価ランクSを獲得する。', reward:80 },
   { id:'same_day_clear', name:'一日の疾走', desc:'すべての章を同じ日のうちに撃破する。', reward:55 },
+  { id:'spirit_collector', name:'精霊の導き手', desc:'結晶バイオームの精霊球を累計30個集める。', reward:45 },
   { id:'butterfly_master', name:'蝶舞の達人', desc:'蝶を累計200匹捕まえる。', reward:40 },
   { id:'veteran_resident', name:'エーテリアの守護者', desc:'累計プレイ時間が10時間に達する。', reward:100 },
   { id:'golden_hour', name:'黄金の一瞬', desc:'ゴールデンアワーにスクリーンショットを撮影する。', reward:20 },

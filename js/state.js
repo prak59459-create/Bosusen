@@ -76,6 +76,7 @@ export const state = {
   achievementUnlockedAt: {},
   seenEndings: [],
   butterfliesCaught: 0,
+  spiritsCaught: 0,
   achievements: [], // array of unlocked achievement ids
   questProgress: {}, // { chapterKey: { questId: true } }
   fieldQuests: {}, // { questId: 'accepted' | 'ready_turnin' }
@@ -349,6 +350,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if ((state.totalPlaytimeSec || 0) >= 18000) tryUnlock('true_resident');
   if ((state.totalPlaytimeSec || 0) >= 36000) tryUnlock('veteran_resident');
   if (state.butterfliesCaught >= 50) tryUnlock('butterfly_catcher');
+  if ((state.spiritsCaught || 0) >= 30) tryUnlock('spirit_collector');
   if (CHAPTERS.every(c => (state.chapterClearCounts[c.key] || 0) > 0)) tryUnlock('bestiary_complete');
   if ((state.starWishesMade || 0) >= 20) tryUnlock('star_wisher');
   if ((state.starWishesMade || 0) >= 50) tryUnlock('star_wisher_master');
@@ -501,6 +503,7 @@ export function saveGame() {
       totalParries: state.totalParries,
       totalDodges: state.totalDodges,
       butterfliesCaught: state.butterfliesCaught,
+      spiritsCaught: state.spiritsCaught,
       achievements: state.achievements,
       questProgress: state.questProgress,
       fieldQuests: state.fieldQuests,
@@ -630,6 +633,7 @@ export function loadGame() {
       totalParries: snap.totalParries || 0,
       totalDodges: snap.totalDodges || 0,
       butterfliesCaught: snap.butterfliesCaught || 0,
+      spiritsCaught: asNumber(snap.spiritsCaught, 0),
       achievements: asArray(snap.achievements),
       questProgress: asObject(snap.questProgress),
       fieldQuests: asObject(snap.fieldQuests),

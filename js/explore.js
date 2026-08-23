@@ -3,7 +3,7 @@ import { camera, scene, setCameraMode, renderer, setPhotoFilter, PHOTO_FILTERS, 
 import { player, crossfadeTo } from './player.js';
 import { spawnParticles } from './effects.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
-  explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions, collectNearbyFireflies, collectNearbyButterflies, BIOME_NAMES, undiscoveredBiomeSpots } from './world.js';
+  explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions, collectNearbyFireflies, collectNearbyButterflies, collectNearbySpirits, BIOME_NAMES, undiscoveredBiomeSpots } from './world.js';
 import { CHAPTERS, EMOTES } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
   fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot, ngPlusShardMult, isFieldTargetHuntable } from './state.js';
@@ -1053,6 +1053,17 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
       sfx.shardGet();
       spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.2, 0)), 0xbdffa0, 6 * caught);
       showToast(`蛍を捕まえた！ 結晶の欠片 +${caught * 2}`, 'quest');
+      checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
+      saveGame();
+    }
+    const caughtS = collectNearbySpirits(localPos.x, localPos.z, 2.8);
+    if (caughtS > 0) {
+      const gain = Math.round(caughtS * 5 * ngPlusShardMult());
+      addShards(gain);
+      state.spiritsCaught = (state.spiritsCaught || 0) + caughtS;
+      sfx.spiritChime();
+      spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.4, 0)), 0xd0a0ff, 8 * caughtS);
+      showToast(`精霊球を集めた！ 結晶の欠片 +${gain}`, 'quest');
       checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
       saveGame();
     }

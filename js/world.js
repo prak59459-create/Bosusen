@@ -1531,18 +1531,44 @@ for (let i = 0; i < SPIRIT_COUNT; i++) {
 }
 worldGroup.add(spiritMesh);
 const spiritDummy = new THREE.Object3D();
+// 精霊球は数が少なく貴重なので、蛍より長めに姿を消す
+const SPIRIT_RESPAWN_MS = 45000;
 export function updateSpirits(t) {
   for (let i = 0; i < SPIRIT_COUNT; i++) {
     const d = spiritData[i];
+    // 捕まえた精霊球はしばらく姿を消してから戻る（蛍と同じ扱い）
+    if (d.caught && Date.now() - d.caughtAt < SPIRIT_RESPAWN_MS) {
+      spiritDummy.position.set(d.baseX, -1000, d.baseZ);
+      spiritDummy.updateMatrix();
+      spiritMesh.setMatrixAt(i, spiritDummy.matrix);
+      d.curX = null;
+      continue;
+    }
+    if (d.caught) d.caught = false;
     const x = d.baseX + Math.cos(t * d.speed + d.phase) * d.radius;
     const z = d.baseZ + Math.sin(t * d.speed * 0.8 + d.phase) * d.radius;
     const y = d.baseY + Math.sin(t * d.speed * 1.5 + d.phase) * 0.8;
+    d.curX = x; d.curZ = z;
     spiritDummy.position.set(x, y, z);
     spiritDummy.rotation.set(t * d.speed, t * d.speed * 1.3, 0);
     spiritDummy.updateMatrix();
     spiritMesh.setMatrixAt(i, spiritDummy.matrix);
   }
   spiritMesh.instanceMatrix.needsUpdate = true;
+}
+
+export function collectNearbySpirits(x, z, radius) {
+  let caught = 0;
+  for (let i = 0; i < SPIRIT_COUNT; i++) {
+    const d = spiritData[i];
+    if (d.caught || d.curX == null) continue;
+    if (Math.hypot(d.curX - x, d.curZ - z) < radius) {
+      d.caught = true;
+      d.caughtAt = Date.now();
+      caught++;
+    }
+  }
+  return caught;
 }
 
 /* ---------- 流れ星（時折プレイヤー頭上を横切る） ---------- */
