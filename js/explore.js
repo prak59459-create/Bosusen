@@ -307,6 +307,31 @@ function pingDirection(candidates, label, emptyMsg) {
   sfx.uiClick();
 }
 
+// クエストトラッカーから呼ぶ、指定クエストの現在の目的地を指す処理。
+// 討伐クエストは進行状況によって行き先が依頼人／討伐目標と入れ替わる。
+export function pingQuestObjective(questId, type) {
+  let target = null;
+  let label = '目標';
+  if (type === 'battle') {
+    const fState = fieldQuestState(questId);
+    if (fState === 'accepted') {
+      target = fieldTargets.find(t => t.questId === questId);
+      label = '討伐目標';
+    } else {
+      target = questGivers.find(g => g.questId === questId);
+      label = fState === 'ready_turnin' ? '報告先の依頼人' : '依頼人';
+    }
+  } else if (type === 'lore') {
+    target = loreMarkers.find(m => m.questId === questId);
+    label = '伝承の石碑';
+  } else {
+    target = explorePickups.find(p => p.questId === questId);
+    label = '採取物';
+  }
+  if (!target) { showToast('目的地が見つかりませんでした', 'info'); return; }
+  pingDirection([target], label, '');
+}
+
 window.addEventListener('gamepadconnected', (e) => {
   showToast(`ゲームパッドを接続しました: ${e.gamepad.id}`, 'info');
 });

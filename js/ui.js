@@ -3,7 +3,7 @@ import { state, computeStats, isQuestDone, ownsItem,
   equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData } from './state.js';
 import { sfx, setMasterVolume, setHeartbeatActive } from './audio.js';
 import { setQualityPreset } from './scene.js';
-import { setMapOpen, setActiveLoadoutKey } from './explore.js';
+import { setMapOpen, setActiveLoadoutKey, pingQuestObjective } from './explore.js';
 import { BIOME_NAMES, BIOME_ENTRIES } from './world.js';
 import { rumble } from './effects.js';
 
@@ -316,6 +316,9 @@ export function renderQuestTracker() {
     row.className = 'quest-tracker-row';
     const typeIcon = q.type === 'battle' ? '⚔️' : (q.type === 'lore' ? '📜' : '🔍');
     row.textContent = `${typeIcon} ${q.title}`;
+    row.style.cursor = 'pointer';
+    row.title = 'クリックで目的地の方角を表示';
+    row.addEventListener('click', () => pingQuestObjective(q.id, q.type));
     els.questTrackerList.appendChild(row);
   });
 }
