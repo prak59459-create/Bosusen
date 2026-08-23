@@ -2,7 +2,7 @@ import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES } from './data.js';
 import { state, computeStats, calcRank, isQuestDone, ownsItem,
   equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData } from './state.js';
 import { sfx, setMasterVolume, setAmbientVolume, setHeartbeatActive } from './audio.js';
-import { setQualityPreset } from './scene.js';
+import { setQualityPreset, setPhotoFilter, PHOTO_FILTERS } from './scene.js';
 import { setMapOpen, setActiveLoadoutKey, pingQuestObjective } from './explore.js';
 import { BIOME_NAMES, BIOME_ENTRIES } from './world.js';
 import { rumble } from './effects.js';
@@ -1085,6 +1085,14 @@ export function syncSettingsUI() {
   if (autoQualityCheckbox) autoQualityCheckbox.checked = state.autoQualityAdjust !== false;
   const damageNumbersCheckbox = document.getElementById('opt-damage-numbers');
   if (damageNumbersCheckbox) damageNumbersCheckbox.checked = state.showDamageNumbers !== false;
+  const photoFilterSelect = document.getElementById('opt-photo-filter');
+  if (photoFilterSelect) {
+    if (photoFilterSelect.options.length !== PHOTO_FILTERS.length) {
+      photoFilterSelect.innerHTML = PHOTO_FILTERS
+        .map((name, i) => `<option value="${i}">${name}</option>`).join('');
+    }
+    photoFilterSelect.value = String(state.photoFilterMode || 0);
+  }
   const difficultySelect = document.getElementById('opt-difficulty');
   if (difficultySelect) difficultySelect.value = state.difficulty || 'normal';
   updateDifficultyDetail();
@@ -1285,6 +1293,17 @@ export function initMenu(onSave, onTitle) {
   damageNumbersCheckbox.checked = state.showDamageNumbers !== false;
   damageNumbersCheckbox.addEventListener('change', () => {
     state.showDamageNumbers = damageNumbersCheckbox.checked;
+    sfx.uiClick();
+    saveGame();
+  });
+
+  const photoFilterSelect = document.getElementById('opt-photo-filter');
+  photoFilterSelect.innerHTML = PHOTO_FILTERS
+    .map((name, i) => `<option value="${i}">${name}</option>`).join('');
+  photoFilterSelect.value = String(state.photoFilterMode || 0);
+  photoFilterSelect.addEventListener('change', () => {
+    state.photoFilterMode = parseInt(photoFilterSelect.value, 10) || 0;
+    setPhotoFilter(state.photoFilterMode);
     sfx.uiClick();
     saveGame();
   });
