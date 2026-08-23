@@ -219,6 +219,13 @@ function finishGame(won) {
     }
 
     const RANK_BONUS = { S: 1.5, A: 1.2, B: 1.0, C: 1.0 };
+    const RANK_ORDER = { S: 4, A: 3, B: 2, C: 1 };
+    if (!state.bestRankPerChapter) state.bestRankPerChapter = {};
+    const prevRank = state.bestRankPerChapter[chapter.key];
+    if (!prevRank || RANK_ORDER[rank] > RANK_ORDER[prevRank]) {
+      state.bestRankPerChapter[chapter.key] = rank;
+      if (prevRank) showToast(`自己ベスト評価を更新！ ランク${prevRank} → ${rank}`, 'quest');
+    }
     const shardPct = computeStats().shardPct || 0;
     const ngPlusShardMult = 1 + (state.newGamePlus || 0) * 0.2;
     const shardReward = Math.round(chapter.shardsBase * difficultyMult().shards * RANK_BONUS[rank] * (1 + shardPct) * ngPlusShardMult);

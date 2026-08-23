@@ -894,12 +894,13 @@ export function renderCompendiumTab() {
       const firstAt = (state.firstDefeatedAt || {})[c.key];
       const dateStr = firstAt ? new Date(firstAt).toLocaleDateString('ja-JP') : '';
       const bestTurns = (state.bestTurnsPerChapter || {})[c.key];
+      const bestRank = (state.bestRankPerChapter || {})[c.key];
       const row = document.createElement('div');
       row.className = 'item-row' + (found ? ' equipped' : '');
       row.innerHTML = `
         <div class="item-row-main">
           <div class="item-row-name">${found ? c.enemyName : '？？？'}</div>
-          <div class="item-row-desc">${found ? `撃破回数: ${count}${dateStr ? `｜初撃破: ${dateStr}` : ''}${bestTurns ? `｜最速: ${bestTurns}ターン` : ''}` : '未撃破'}</div>
+          <div class="item-row-desc">${found ? `撃破回数: ${count}${dateStr ? `｜初撃破: ${dateStr}` : ''}${bestTurns ? `｜最速: ${bestTurns}ターン` : ''}${bestRank ? `｜最高評価: ${bestRank}` : ''}` : '未撃破'}</div>
           ${found && c.battleTip ? `<div class="item-row-desc">💡 ${c.battleTip}</div>` : ''}
         </div>
       `;
