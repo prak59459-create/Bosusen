@@ -40,6 +40,7 @@ export const state = {
   firefliesCaught: 0,
   totalCrits: 0,
   totalParries: 0,
+  totalDodges: 0,
   starWishesMade: 0,
   screenshotsTaken: 0,
   emotesUsedSet: [],
@@ -255,6 +256,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (state.butterfliesCaught >= 200) tryUnlock('butterfly_master');
   if (state.totalCrits >= 100) tryUnlock('crit_master');
   if (state.totalParries >= 30) tryUnlock('parry_master');
+  if ((state.totalDodges || 0) >= 50) tryUnlock('dodge_master');
   if ((state.totalPlaytimeSec || 0) >= 3600) tryUnlock('dedicated_player');
   if ((state.totalPlaytimeSec || 0) >= 18000) tryUnlock('true_resident');
   if ((state.totalPlaytimeSec || 0) >= 36000) tryUnlock('veteran_resident');
@@ -390,6 +392,7 @@ export function saveGame() {
       bestTurnsPerChapter: state.bestTurnsPerChapter,
       biomeDiscoveredAt: state.biomeDiscoveredAt,
       totalParries: state.totalParries,
+      totalDodges: state.totalDodges,
       butterfliesCaught: state.butterfliesCaught,
       achievements: state.achievements,
       questProgress: state.questProgress,
@@ -484,6 +487,7 @@ export function loadGame() {
       bestTurnsPerChapter: snap.bestTurnsPerChapter || {},
       biomeDiscoveredAt: snap.biomeDiscoveredAt || {},
       totalParries: snap.totalParries || 0,
+      totalDodges: snap.totalDodges || 0,
       butterfliesCaught: snap.butterfliesCaught || 0,
       achievements: snap.achievements || [],
       questProgress: snap.questProgress || {},

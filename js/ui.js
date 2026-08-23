@@ -387,6 +387,7 @@ export function renderStatusTab() {
   document.getElementById('st-butterflies').textContent = state.butterfliesCaught || 0;
   document.getElementById('st-crits').textContent = state.totalCrits || 0;
   document.getElementById('st-parries').textContent = state.totalParries || 0;
+  document.getElementById('st-dodges').textContent = state.totalDodges || 0;
   document.getElementById('st-star-wishes').textContent = state.starWishesMade || 0;
   document.getElementById('st-screenshots').textContent = state.screenshotsTaken || 0;
   document.getElementById('st-revives').textContent = state.totalRevives || 0;
@@ -440,6 +441,7 @@ export function renderStatusTab() {
       butterfly_master: [state.butterfliesCaught || 0, 200],
       crit_master: [state.totalCrits || 0, 100],
       parry_master: [state.totalParries || 0, 30],
+      dodge_master: [state.totalDodges || 0, 50],
       quest_complete: [totalQuestsDone(), totalQuestsAll()],
       veteran_hunter: [Math.max(0, ...Object.values(state.chapterClearCounts || {}), 0), 5],
       dedicated_player: [Math.round(state.totalPlaytimeSec || 0), 3600],

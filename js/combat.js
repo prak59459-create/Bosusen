@@ -368,6 +368,7 @@ function resolveDodge(clicked, move, isParry) {
       setTimeout(() => crossfadeTo('Idle', 0.25), 260);
       checkPhaseTransition();
     } else if (clicked) {
+      state.totalDodges = (state.totalDodges || 0) + 1;
       sfx.dodgeSuccess();
       log(`${move.name}を華麗に回避した！`);
       showCenterMsg('DODGE!', '#5eb6ff', 700);
