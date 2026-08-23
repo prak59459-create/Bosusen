@@ -1,4 +1,4 @@
-import { state, computeStats, markFieldTargetDefeated, saveGame, checkAchievements } from './state.js';
+import { state, computeStats, markFieldTargetDefeated, saveGame, checkAchievements, difficultyMult } from './state.js';
 import { updateBars, showToast, showCenterMsg } from './ui.js';
 import { sfx, setHeartbeatActive } from './audio.js';
 import { spawnParticles, spawnShockwave, rumble, triggerCritFlash, triggerShake } from './effects.js';
@@ -39,7 +39,10 @@ export function startSkirmish(target) {
   active = true;
   state.inSkirmish = true;
   currentTarget = target;
-  enemyMaxHP = target.hp || 30;
+  // ボス戦と同じく難易度と周回数でスケールさせ、強化された自機に対して形骸化しないようにする
+  const dMult = difficultyMult();
+  const ngPlusMult = 1 + (state.newGamePlus || 0) * 0.25;
+  enemyMaxHP = Math.round((target.hp || 30) * dMult.hp * ngPlusMult);
   enemyHP = enemyMaxHP;
   els.name.textContent = target.name || '結晶獣（フィールド）';
   els.log.textContent = '襲いかかってきた！';
@@ -78,7 +81,7 @@ function attack() {
     return;
   }
 
-  const retaliation = Math.round(4 + Math.random() * 6);
+  const retaliation = Math.round((4 + Math.random() * 6) * difficultyMult().dmg * (1 + (state.newGamePlus || 0) * 0.25));
   const reduced = Math.max(1, Math.round(retaliation * (100 / (100 + stats.def))));
   state.playerHP = Math.max(1, state.playerHP - reduced);
   rumble(0.3, 150);
