@@ -347,6 +347,15 @@ export function renderQuestBoard(chapterIndex, onResolve) {
     `;
     els.qbQuestList.appendChild(card);
   });
+  if (els.qbQuestList.children.length === 0) {
+    const hint = document.createElement('div');
+    hint.className = 'empty-hint';
+    hint.style.padding = '12px 4px';
+    hint.textContent = undoneOnly
+      ? 'この聖域のクエストはすべて達成済みです'
+      : 'この聖域にはクエストがありません';
+    els.qbQuestList.appendChild(hint);
+  }
 }
 
 /* ============================================================
