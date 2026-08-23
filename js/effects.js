@@ -69,6 +69,9 @@ export function triggerShake(mag, dur) {
 }
 export function rumble(strength = 0.5, duration = 200) {
   if (state.gamepadRumble === false) return;
+  const scale = state.rumbleStrength != null ? state.rumbleStrength : 1;
+  if (scale <= 0) return;
+  strength = Math.min(1, strength * scale);
   try {
     const gp = navigator.getGamepads ? navigator.getGamepads()[0] : null;
     if (gp && gp.vibrationActuator) {

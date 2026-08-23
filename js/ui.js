@@ -837,6 +837,10 @@ export function syncSettingsUI() {
   if (sensSlider) sensSlider.value = Math.round((state.cameraSensitivity || 1) * 100);
   const sensValLabel = document.getElementById('opt-camera-sensitivity-val');
   if (sensValLabel) sensValLabel.textContent = `${Math.round((state.cameraSensitivity || 1) * 100)}%`;
+  const rumbleStrengthSlider = document.getElementById('opt-rumble-strength');
+  if (rumbleStrengthSlider) rumbleStrengthSlider.value = Math.round((state.rumbleStrength != null ? state.rumbleStrength : 1) * 100);
+  const rumbleStrengthVal = document.getElementById('opt-rumble-strength-val');
+  if (rumbleStrengthVal) rumbleStrengthVal.textContent = `${Math.round((state.rumbleStrength != null ? state.rumbleStrength : 1) * 100)}%`;
   const textScaleSelect = document.getElementById('opt-text-scale');
   if (textScaleSelect) textScaleSelect.value = state.uiTextScale || 1;
   applyUiTextScale(state.uiTextScale || 1);
@@ -1035,6 +1039,15 @@ export function initMenu(onSave, onTitle) {
   });
   sensSlider.addEventListener('change', () => saveGame());
 
+  const rumbleStrengthSlider = document.getElementById('opt-rumble-strength');
+  rumbleStrengthSlider.value = Math.round((state.rumbleStrength != null ? state.rumbleStrength : 1) * 100);
+  rumbleStrengthSlider.addEventListener('input', () => {
+    state.rumbleStrength = rumbleStrengthSlider.value / 100;
+    const label = document.getElementById('opt-rumble-strength-val');
+    if (label) label.textContent = `${rumbleStrengthSlider.value}%`;
+  });
+  rumbleStrengthSlider.addEventListener('change', () => saveGame());
+
   const textScaleSelect = document.getElementById('opt-text-scale');
   textScaleSelect.value = state.uiTextScale || 1;
   applyUiTextScale(state.uiTextScale || 1);
@@ -1072,7 +1085,7 @@ export function initMenu(onSave, onTitle) {
   });
   document.getElementById('reset-settings-btn').addEventListener('click', () => {
     Object.assign(state, {
-      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1, invertCameraY: false, cameraSensitivity: 1, highContrast: false, reduceNpcChatter: false, proximitySounds: true, screenshotWatermark: true, cinematicAutoHide: false, footstepSounds: true,
+      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1, invertCameraY: false, cameraSensitivity: 1, highContrast: false, reduceNpcChatter: false, proximitySounds: true, screenshotWatermark: true, cinematicAutoHide: false, footstepSounds: true, rumbleStrength: 1,
     });
     setMasterVolume(state.masterVolume);
     setQualityPreset(state.quality);
