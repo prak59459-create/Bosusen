@@ -828,6 +828,8 @@ export function syncSettingsUI() {
   if (qualitySelect) qualitySelect.value = state.quality || 'high';
   const shakeCheckbox = document.getElementById('opt-shake');
   if (shakeCheckbox) shakeCheckbox.checked = state.screenShake !== false;
+  const autoQualityCheckbox = document.getElementById('opt-auto-quality');
+  if (autoQualityCheckbox) autoQualityCheckbox.checked = state.autoQualityAdjust !== false;
   const difficultySelect = document.getElementById('opt-difficulty');
   if (difficultySelect) difficultySelect.value = state.difficulty || 'normal';
   updateDifficultyDetail();
@@ -923,6 +925,14 @@ export function initMenu(onSave, onTitle) {
   shakeCheckbox.checked = state.screenShake !== false;
   shakeCheckbox.addEventListener('change', () => {
     state.screenShake = shakeCheckbox.checked;
+    sfx.uiClick();
+    saveGame();
+  });
+
+  const autoQualityCheckbox = document.getElementById('opt-auto-quality');
+  autoQualityCheckbox.checked = state.autoQualityAdjust !== false;
+  autoQualityCheckbox.addEventListener('change', () => {
+    state.autoQualityAdjust = autoQualityCheckbox.checked;
     sfx.uiClick();
     saveGame();
   });
@@ -1112,7 +1122,7 @@ export function initMenu(onSave, onTitle) {
   });
   document.getElementById('reset-settings-btn').addEventListener('click', () => {
     Object.assign(state, {
-      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1, invertCameraY: false, cameraSensitivity: 1, highContrast: false, reduceNpcChatter: false, proximitySounds: true, screenshotWatermark: true, cinematicAutoHide: false, footstepSounds: true, rumbleStrength: 1,
+      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1, invertCameraY: false, cameraSensitivity: 1, highContrast: false, reduceNpcChatter: false, proximitySounds: true, screenshotWatermark: true, cinematicAutoHide: false, footstepSounds: true, rumbleStrength: 1, autoQualityAdjust: true,
     });
     setMasterVolume(state.masterVolume);
     setQualityPreset(state.quality);

@@ -823,6 +823,7 @@ let afkVolumeReduced = false;
 let wildlifeSoundTimer = 5;
 let lastTime = performance.now();
 let fpsAccum = 0, fpsFrames = 0, fpsLastUpdate = 0;
+let autoQualityAccum = 0, autoQualityFrames = 0, autoQualityLastCheck = 0, autoQualityTriggered = false;
 function animate() {
   requestAnimationFrame(animate);
   const now = performance.now();
@@ -842,6 +843,26 @@ function animate() {
         const p = exploreActive ? getPlayerLocalPos() : { x: 0, z: 0 };
         const bName = exploreActive ? (biomeNameAt(p.x, p.z) || '-') : '-';
         debugEl.textContent = `FPS: ${fps}\n位置: x=${p.x.toFixed(1)} z=${p.z.toFixed(1)}\nバイオーム: ${bName}\n章: ${state.chapterIndex + 1}｜NG+${state.newGamePlus || 0}\n画質: ${(state.quality || 'high').toUpperCase()}\n経過時間: ${Math.round(t)}s`;
+      }
+    }
+  }
+
+  if (!autoQualityTriggered && state.autoQualityAdjust !== false && (state.quality || 'high') !== 'low') {
+    autoQualityAccum += dt; autoQualityFrames++;
+    if (now - autoQualityLastCheck > 6000) {
+      autoQualityLastCheck = now;
+      const avgFps = autoQualityFrames / autoQualityAccum;
+      autoQualityAccum = 0; autoQualityFrames = 0;
+      if (avgFps < 24) {
+        autoQualityTriggered = true;
+        const order = ['high', 'medium', 'low'];
+        const idx = order.indexOf(state.quality || 'high');
+        state.quality = order[Math.min(order.length - 1, idx + 1)];
+        setQualityPreset(state.quality);
+        const qSelect = document.getElementById('opt-quality');
+        if (qSelect) qSelect.value = state.quality;
+        showToast(`動作が重いためグラフィック品質を${state.quality.toUpperCase()}に自動調整しました`, 'info');
+        saveGame();
       }
     }
   }
