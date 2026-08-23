@@ -600,7 +600,13 @@ export function exportSaveData() {
 
 export function importSaveData(raw) {
   try {
-    JSON.parse(raw); // 妥当なJSONか検証
+    const snap = JSON.parse(raw);
+    // JSON として妥当なだけでは不十分。null や配列・文字列をそのまま保存すると
+    // hasSaveGame() は真になるのに loadGame() が失敗し、復帰不能な状態になる。
+    if (!snap || typeof snap !== 'object' || Array.isArray(snap)) return false;
+    // このゲームのセーブらしさを最低限確認する（無関係な JSON の取り違え対策）
+    const KNOWN_KEYS = ['chapterIndex', 'level', 'shards', 'equipment', 'inventory', 'achievements', 'savedAt'];
+    if (!KNOWN_KEYS.some(k => k in snap)) return false;
     localStorage.setItem(SAVE_KEY, raw);
     return true;
   } catch (e) {
