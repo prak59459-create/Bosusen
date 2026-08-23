@@ -1003,7 +1003,9 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   const helpOverlayEl = document.getElementById('help-overlay');
-  if (helpOverlayEl && helpOverlayEl.classList.contains('show')) toggleHelpOverlay();
+  const skirmishPanelEl = document.getElementById('skirmish-panel');
+  if (skirmishPanelEl && skirmishPanelEl.style.display === 'flex') document.getElementById('skirmish-flee-btn').click();
+  else if (helpOverlayEl && helpOverlayEl.classList.contains('show')) toggleHelpOverlay();
   else if (shopScreen.style.display === 'flex') closeShop();
   else if (mapScreen.style.display === 'flex') closeMap();
   else if (els.menuOverlay.classList.contains('open')) closeMenu();
@@ -1020,7 +1022,12 @@ window.addEventListener('keydown', (e) => {
   if (e.repeat || e.key !== 'Enter') return;
   const active = document.activeElement;
   if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.tagName === 'BUTTON')) return;
-  if (document.getElementById('start-screen').style.display !== 'none' && els.startBtn.style.pointerEvents !== 'none') {
+  const skirmishPanelEl = document.getElementById('skirmish-panel');
+  if (skirmishPanelEl && skirmishPanelEl.style.display === 'flex') {
+    e.preventDefault();
+    document.getElementById('skirmish-attack-btn').click();
+  }
+  else if (document.getElementById('start-screen').style.display !== 'none' && els.startBtn.style.pointerEvents !== 'none') {
     e.preventDefault();
     if (els.continueBtn.style.display !== 'none') els.continueBtn.click();
     else els.startBtn.click();
