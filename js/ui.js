@@ -375,6 +375,7 @@ export function renderStatusTab() {
   const title = playerTitle();
   document.getElementById('st-title').textContent = title ? title.replace(/[【】]/g, '') : 'なし';
   document.getElementById('st-level').textContent = state.level;
+  document.getElementById('st-xp').textContent = state.xp || 0;
   document.getElementById('st-atk').textContent = s.atk;
   document.getElementById('st-def').textContent = s.def;
   document.getElementById('st-crit').textContent = `${s.crit}%`;
