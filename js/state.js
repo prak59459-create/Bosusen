@@ -494,9 +494,9 @@ export function peekSaveSummary() {
     if (!raw) return null;
     const snap = JSON.parse(raw);
     return {
-      chapterIndex: snap.chapterIndex || 0,
-      level: snap.level || 1,
-      newGamePlus: snap.newGamePlus || 0,
+      chapterIndex: asChapterIndex(snap.chapterIndex),
+      level: asNumber(snap.level, 1),
+      newGamePlus: asNumber(snap.newGamePlus, 0),
     };
   } catch (e) {
     return null;
@@ -507,6 +507,12 @@ export function peekSaveSummary() {
 // `snap.x || []` だけでは文字列や数値がそのまま入り、後段の filter/forEach で落ちる。
 function asArray(v) { return Array.isArray(v) ? v : []; }
 function asObject(v) { return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; }
+function asNumber(v, fallback) { return Number.isFinite(v) ? v : fallback; }
+// CHAPTERS の添字に使うため、範囲外だと chapter が undefined になり参照時に落ちる
+function asChapterIndex(v) {
+  const n = Math.floor(asNumber(v, 0));
+  return Math.min(CHAPTERS.length - 1, Math.max(0, n));
+}
 
 export function loadGame() {
   try {
@@ -514,8 +520,8 @@ export function loadGame() {
     if (!raw) return false;
     const snap = JSON.parse(raw);
     Object.assign(state, {
-      chapterIndex: snap.chapterIndex || 0,
-      level: snap.level || 1,
+      chapterIndex: asChapterIndex(snap.chapterIndex),
+      level: asNumber(snap.level, 1),
       xp: snap.xp || 0,
       shards: snap.shards || 0,
       totalShardsEarned: snap.totalShardsEarned || 0,
@@ -583,7 +589,7 @@ export function loadGame() {
       seenBattleTutorial: snap.seenBattleTutorial || false,
       showBossTaunts: (snap.showBossTaunts != null) ? snap.showBossTaunts : true,
       difficulty: snap.difficulty || 'normal',
-      newGamePlus: snap.newGamePlus || 0,
+      newGamePlus: asNumber(snap.newGamePlus, 0),
       lastLoginDate: snap.lastLoginDate || null,
       loginStreak: snap.loginStreak || 0,
       usedRevive: snap.usedRevive || false,
