@@ -591,14 +591,18 @@ export function renderEquipmentTab() {
       loadBtn.onclick = () => {
         const loadout = state.savedLoadouts[key];
         if (!loadout) { showToast(`セット${key.toUpperCase()}はまだ記憶されていません`, 'info'); return; }
+        let missing = 0;
         Object.keys(slotNames).forEach(slot => {
           const id = loadout[slot];
           if (id && state.inventory.includes(id)) equipItem(id);
           else if (!id) unequipSlot(slot);
+          else missing++;
         });
         setActiveLoadoutKey(key);
         sfx.uiClick();
-        showToast(`セット${key.toUpperCase()}を呼び出しました`, 'info');
+        showToast(missing > 0
+          ? `セット${key.toUpperCase()}を呼び出しました（${missing}枠は所持していないため据え置き）`
+          : `セット${key.toUpperCase()}を呼び出しました`, 'info');
         renderEquipmentTab();
         renderStatusTab();
         saveGame();

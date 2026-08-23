@@ -263,14 +263,18 @@ function quickSwapLoadout() {
   const loadout = state.savedLoadouts && state.savedLoadouts[nextKey];
   if (!loadout) { showToast(`セット${nextKey.toUpperCase()}はまだ記憶されていません（装備タブで記憶できます）`, 'info'); return; }
   const slotNames = ['weapon', 'armor', 'accessory'];
+  let missing = 0;
   slotNames.forEach(slot => {
     const id = loadout[slot];
     if (id && state.inventory.includes(id)) equipItem(id);
     else if (!id) unequipSlot(slot);
+    else missing++;
   });
   activeLoadoutKey = nextKey;
   sfx.uiClick();
-  showToast(`装備セット${nextKey.toUpperCase()}に切り替えた`, 'quest');
+  showToast(missing > 0
+    ? `装備セット${nextKey.toUpperCase()}に切り替えた（${missing}枠は所持していないため据え置き）`
+    : `装備セット${nextKey.toUpperCase()}に切り替えた`, 'quest');
   saveGame();
 }
 
