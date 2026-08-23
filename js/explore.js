@@ -620,6 +620,7 @@ function tryTurnInOrAccept(giver) {
     sfx.questDone();
     showToast(`クエスト達成: ${giver.quest.title}（結晶の欠片 +${giver.quest.reward.shards}）`, 'quest');
     checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
+    checkChapterQuestCelebration(giver.chapterIndex);
     if (giver.beam) giver.beam.visible = false;
     renderQuestTracker();
     saveGame();
@@ -645,6 +646,18 @@ function tryDefeatTarget(target) {
   }
 }
 
+function checkChapterQuestCelebration(chapterIndex) {
+  const chapter = CHAPTERS[chapterIndex];
+  const chapterKey = chapter.key;
+  if (chapter.quests.every(q => isQuestDone(chapterKey, q.id))) {
+    sfx.achievement();
+    showCenterMsg(`${chapter.sanctuaryLabel} 全クエスト達成！`, '#ffd75e', 2000);
+    [0xffd700, 0x9fe0ff, 0xff9fd0, 0x9fff7a].forEach((c, i) => {
+      setTimeout(() => spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6 + i * 0.15, 0)), c, 10), i * 120);
+    });
+  }
+}
+
 function tryCollectPickup(pickup) {
   const chapterKey = CHAPTERS[pickup.chapterIndex].key;
   if (isQuestDone(chapterKey, pickup.questId)) return;
@@ -654,6 +667,7 @@ function tryCollectPickup(pickup) {
   sfx.shardGet();
   showToast(`クエスト達成: ${pickup.quest.title}｜${pickup.quest.result}`, 'quest');
   checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
+  checkChapterQuestCelebration(pickup.chapterIndex);
   pickup.mesh.visible = false;
   if (pickup.beam) pickup.beam.visible = false;
   renderQuestTracker();
@@ -682,6 +696,7 @@ function tryReadLore(monu) {
   if (!state.collectedLore) state.collectedLore = [];
   state.collectedLore.push({ title: monu.quest.title, text: monu.quest.result, foundAt: Date.now() });
   checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
+  checkChapterQuestCelebration(monu.chapterIndex);
   if (monu.beam) monu.beam.visible = false;
   renderQuestTracker();
   saveGame();
