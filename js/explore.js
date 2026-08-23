@@ -580,6 +580,8 @@ export function initJoystick() {
 /* ---------- コールバック ---------- */
 let onEnterZone = null;
 export function setOnEnterZone(fn) { onEnterZone = fn; }
+let onReplayZone = null;
+export function setOnReplayZone(fn) { onReplayZone = fn; }
 let onOpenShop = null;
 export function setOnOpenShop(fn) { onOpenShop = fn; }
 let onToggleMap = null;
@@ -1081,7 +1083,7 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
   if (nearZone && zoneHintShown !== nearZone.key) {
     zoneHintShown = nearZone.key;
     if (nearZone.chapterIndex < state.chapterIndex) {
-      showToast(`${nearZone.name}：すでに平定済みの聖域だ`, 'info');
+      if (onReplayZone) onReplayZone(nearZone.chapterIndex, nearZone.name);
     } else if (nearZone.chapterIndex > state.chapterIndex) {
       showToast('まだこの先には進めない……', 'info');
     } else if (onEnterZone) {

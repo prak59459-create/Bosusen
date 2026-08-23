@@ -11,7 +11,7 @@ import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQues
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, showCenterMsg, syncSettingsUI, openMenu, closeMenu, BIOME_CATEGORY_ICON, SLOT_ICON, itemScore, itemStatParts, itemCompareTag } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
 import { BIOME_NAMES, HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt, biomeNameAt, triggerLightning, updateLightning, updateButterflies, updateScorpions, updateFoxes, updateFrogs, updateCrows, updateSalamanders, updateDrones, updateSpirits, triggerRainbow, updateRainbow, updateHubSparks, updateGuideBeams } from './world.js';
-import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
+import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone, setOnReplayZone,
   setOnOpenShop, setOnToggleMap, setOnToggleMute, getPlayerLocalPos, exploreActive, setMapOpen, setExploreLocalPos, getPlayerFacing, setActiveLoadoutKey } from './explore.js';
 import { initSkirmishUI, resetSkirmish } from './skirmish.js';
 
@@ -133,6 +133,28 @@ setOnEnterZone((chapterIndex) => {
   showStory(chapterIndex, pendingPrependText);
   pendingPrependText = null;
 });
+
+// 平定済みの聖域への再挑戦。進行度を巻き戻さないよう復帰先を控えてから戦闘へ入る。
+setOnReplayZone((chapterIndex, zoneName) => {
+  const ch = CHAPTERS[chapterIndex];
+  const best = (state.bestRankPerChapter || {})[ch.key];
+  const bestNote = best ? `（自己ベスト評価: ${best}）` : '';
+  if (!window.confirm(`${zoneName}：${ch.enemyName}に再挑戦しますか？${bestNote}\nレベルはこの聖域に挑んだ当時（Lv.${chapterIndex + 1}）に戻ります。進行状況は変わりません。`)) return;
+  state.replayReturnChapter = state.chapterIndex;
+  showStory(chapterIndex, null);
+});
+
+// 再挑戦を終えて探索へ戻る（勝敗どちらでも進行度・レベルを元に戻す）
+function endChapterReplay() {
+  const back = state.replayReturnChapter;
+  state.replayReturnChapter = null;
+  state.chapterIndex = back;
+  state.level = back + 1;
+  refreshMaxStats();
+  els.endScreen.style.display = 'none';
+  goExplore(back);
+  saveGame();
+}
 
 /* ============================================================
    商店（結晶の欠片で武器・防具を購入）
@@ -735,6 +757,7 @@ els.continueBtn.addEventListener('click', () => {
 });
 
 els.nextBtn.addEventListener('click', () => {
+  if (state.replayReturnChapter != null) { endChapterReplay(); return; }
   const prevChapter = CHAPTERS[state.chapterIndex];
   els.endScreen.style.display = 'none';
   const nextIndex = state.chapterIndex + 1;
@@ -746,6 +769,13 @@ els.nextBtn.addEventListener('click', () => {
 
 els.retryBtn.addEventListener('click', () => {
   const isFinalWin = els.retryBtn.textContent === 'もう一度最初から';
+  if (state.replayReturnChapter != null && !isFinalWin) {
+    // 再挑戦中の敗北 → 同じ聖域にもう一度挑む
+    els.endScreen.style.display = 'none';
+    setupChapterBattle(state.chapterIndex);
+    startBattlePhase();
+    return;
+  }
   els.endScreen.style.display = 'none';
   if (isFinalWin) {
     Object.assign(state, {

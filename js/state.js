@@ -101,6 +101,10 @@ export const state = {
   difficulty: 'normal',
   // 戦闘開始時の難易度を固定して使う（戦闘中の変更で報酬や実績が変わらないように）
   battleDifficulty: null,
+  // 平定済みの聖域に再挑戦している間、復帰先の章番号を保持する。
+  // 再挑戦中は setupChapterBattle が chapterIndex を書き換えるため、
+  // 保存時はこちらを進行度として書き出す（進行度の巻き戻り防止）。
+  replayReturnChapter: null,
   newGamePlus: 0,
   lastLoginDate: null,
   loginStreak: 0,
@@ -427,7 +431,7 @@ export function chapterQuestsDone(chapterKey) {
 export function saveGame() {
   try {
     const snapshot = {
-      chapterIndex: state.chapterIndex,
+      chapterIndex: state.replayReturnChapter != null ? state.replayReturnChapter : state.chapterIndex,
       level: state.level,
       xp: state.xp,
       shards: state.shards,

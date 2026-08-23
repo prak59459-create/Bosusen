@@ -27,6 +27,8 @@ const TRANSIENT = new Set([
   'turns', 'damageTaken', 'skillCooldown',
   // 戦闘開始時に固定する難易度スナップショット
   'battleDifficulty',
+  // 再挑戦中の復帰先。進行度は chapterIndex として書き出すため単独では保存しない
+  'replayReturnChapter',
   // 装備・スキルから導出するため保存不要
   'exploreStaminaMax',
   // セッション内の経過時間を基準にするため保存しない
