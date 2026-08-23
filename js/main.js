@@ -868,9 +868,10 @@ document.getElementById('btn-attack').addEventListener('click', () => playerActi
 document.getElementById('btn-heavy').addEventListener('click', () => playerAction('heavy'));
 document.getElementById('btn-skill').addEventListener('click', () => playerAction('skill'));
 document.getElementById('btn-guard').addEventListener('click', () => playerAction('guard'));
+document.getElementById('btn-focus').addEventListener('click', () => playerAction('focus'));
 document.getElementById('btn-heal').addEventListener('click', () => playerAction('heal'));
 
-const BATTLE_KEY_ACTIONS = { '1': 'attack', '2': 'heavy', '3': 'skill', '4': 'guard', '5': 'heal' };
+const BATTLE_KEY_ACTIONS = { '1': 'attack', '2': 'heavy', '3': 'skill', '4': 'guard', '5': 'heal', '6': 'focus' };
 window.addEventListener('keydown', (e) => {
   if (!state.playing || exploreActive) return;
   if (e.repeat) return;

@@ -132,6 +132,8 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 .action-btn.cool { opacity:0.35; pointer-events:none; }
 .action-btn.skill { border-color:#5eb6ff; }
 .action-btn.heal { border-color:#5fd35f; }
+/* 「集中」が乗っている間は光らせて、次の攻撃が強化されていることを示す */
+.action-btn.focused { border-color:#c9a0ff; box-shadow:0 0 12px rgba(180,130,255,0.7); }
 .action-btn.heavy { border-color:#ff8844; }
 .action-btn.denied { animation:btnDenied 0.35s ease; }
 @keyframes btnDenied {

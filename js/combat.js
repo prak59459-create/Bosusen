@@ -515,6 +515,12 @@ export function playerAction(type) {
     flashDenied('btn-skill');
     return;
   }
+  if (type === 'focus' && state.focused) {
+    showToast('すでに集中しています', 'info');
+    sfx.dodgeFail();
+    flashDenied('btn-focus');
+    return;
+  }
   if (type === 'heal' && state.healUses <= 0) {
     log('回復はもう使えない！');
     showToast('回復の使用回数がありません', 'info');
@@ -532,7 +538,13 @@ export function playerAction(type) {
   const stats = computeStats();
   // 「背水の残光」: 低HP時の与ダメージ上昇
   const desperation = isLowHp() ? (1 + (computeStats().lowHpAtkPct || 0)) : 1;
-  const comboMult = (1 + Math.min(state.combo, 8) * 0.08) * levelStatsFor(state.level).dmgMult * desperation;
+  // 「集中」直後の攻撃は威力が上がる。攻撃系の行動を取った時点で解除する
+  const focusMult = state.focused && (type === 'attack' || type === 'heavy' || type === 'skill') ? 1.4 : 1;
+  if (focusMult > 1) {
+    state.focused = false;
+    log('集中が乗った一撃！');
+  }
+  const comboMult = (1 + Math.min(state.combo, 8) * 0.08) * levelStatsFor(state.level).dmgMult * desperation * focusMult;
   const b = getBoss();
 
   if (type === 'attack') {
@@ -652,6 +664,17 @@ export function playerAction(type) {
     sfx.guard();
     setTimeout(bossTurn, 400);
 
+  } else if (type === 'focus') {
+    // 攻撃せずに息を整える。スタミナとエーテルを取り戻し、次の攻撃を強化する
+    state.focused = true;
+    state.playerStam = Math.min(state.playerMaxStam, state.playerStam + 35);
+    state.playerMP = Math.min(state.playerMaxMP, state.playerMP + 18);
+    updateBars();
+    log('呼吸を整えた。次の攻撃の威力が上がる。');
+    showCenterMsg('FOCUS', '#c9a0ff', 600);
+    sfx.guard();
+    setTimeout(bossTurn, 420);
+
   } else if (type === 'heal') {
     state.healUses--;
     const heal = Math.round((rand(20, 32) + stats.maxHP * 0.05) * (1 + stats.healBonusPct));
@@ -691,6 +714,7 @@ export function setupChapterBattle(chapterIndex) {
     healUses: 3 + (stats.healUsesBonus || 0), healUsesMax: 3 + (stats.healUsesBonus || 0), guarding: false, playing: false, turnBusy: false,
     combo: 0, maxCombo: 0, phase2: false, turns: 0, damageTaken: 0, skillCooldown: 0,
     usedRevive: false,
+    focused: false,
     bossLowHpWarned: false,
     guardUsedThisBattle: false,
     skillUsedThisBattle: false,

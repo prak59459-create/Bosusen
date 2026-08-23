@@ -24,7 +24,7 @@ const TRANSIENT = new Set([
   // 戦闘中のみ意味を持つ値（戦闘開始時に組み立て直す）
   'playerHP', 'playerMP', 'playerStam', 'bossHP', 'healUses', 'guarding',
   'playing', 'inSkirmish', 'turnBusy', 'combo', 'maxCombo', 'phase2',
-  'turns', 'damageTaken', 'skillCooldown',
+  'turns', 'damageTaken', 'skillCooldown', 'focused',
   // 戦闘開始時に固定する難易度スナップショット
   'battleDifficulty',
   // 再挑戦中の復帰先。進行度は chapterIndex として書き出すため単独では保存しない

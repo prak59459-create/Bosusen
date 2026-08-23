@@ -303,6 +303,8 @@ export function setButtonsEnabled(enabled) {
     if (state.playerStam < 30) document.getElementById('btn-heavy').classList.add('cool');
     if (state.playerMP < 25 || state.skillCooldown > 0) document.getElementById('btn-skill').classList.add('cool');
     if (state.healUses <= 0) document.getElementById('btn-heal').classList.add('cool');
+    const focusBtn = document.getElementById('btn-focus');
+    if (focusBtn) focusBtn.classList.toggle('focused', !!state.focused);
   }
 }
 
@@ -1799,6 +1801,7 @@ const LOADING_TIPS = [
   'Bキーでミニマップの表示範囲を切り替えられる。',
   'Mキーで大陸図を開き、クリックでファストトラベルできる。',
   '装備タブから欠片を払って装備を+5まで強化できる。',
+  '戦闘中の「集中」(6キー)はスタミナとエーテルを取り戻し、次の攻撃の威力を40%上げる。',
   '夜になると出現する野生生物や現象もある。',
   'ゲームパッドも対応しているので接続すればそのまま遊べる。',
   '図鑑タブで発見したバイオームや撃破したボスを確認できる。',

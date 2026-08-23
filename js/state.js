@@ -32,6 +32,8 @@ export const state = {
   damageTaken: 0,
   skillCooldown: 0,
   usedRevive: false,
+  // 「集中」で次の攻撃が強化されている状態（戦闘中のみ）
+  focused: false,
 
   equipment: { weapon: null, armor: null, accessory: null },
   inventory: [], // array of item ids owned but not necessarily equipped
