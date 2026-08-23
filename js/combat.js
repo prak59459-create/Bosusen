@@ -514,6 +514,7 @@ export function playerAction(type) {
   } else if (type === 'skill') {
     state.playerMP -= 25;
     state.skillCooldown = 3;
+    state.skillUsedThisBattle = true;
     playerMotionBeat('attack');
     showCenterMsg('結晶技発動！', '#5eb6ff', 600);
     sfx.skill();
@@ -604,6 +605,7 @@ export function setupChapterBattle(chapterIndex) {
     usedRevive: false,
     bossLowHpWarned: false,
     guardUsedThisBattle: false,
+    skillUsedThisBattle: false,
   });
   els.phaseTag.style.display = 'none';
   spawnEnemy(chapter.enemyDef);
