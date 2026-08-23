@@ -1,4 +1,4 @@
-import { state, computeStats, markFieldTargetDefeated, saveGame, checkAchievements, difficultyMult } from './state.js';
+import { state, computeStats, markFieldTargetDefeated, saveGame, checkAchievements, difficultyMult, addShards, ngPlusShardMult } from './state.js';
 import { updateBars, showToast, showCenterMsg } from './ui.js';
 import { sfx, setHeartbeatActive } from './audio.js';
 import { spawnParticles, spawnShockwave, rumble, triggerCritFlash, triggerShake } from './effects.js';
@@ -10,6 +10,9 @@ import { spawnParticles, spawnShockwave, rumble, triggerCritFlash, triggerShake 
 let active = false;
 let enemyHP = 0, enemyMaxHP = 0;
 let currentTarget = null;
+let repeatHunt = false;
+// 再討伐の間隔（連打でシャードを稼げないようにする）
+const REPEAT_HUNT_COOLDOWN_MS = 90000;
 let els = null;
 
 export function isSkirmishActive() { return active; }
@@ -34,9 +37,10 @@ export function initSkirmishUI() {
   els.fleeBtn.addEventListener('click', flee);
 }
 
-export function startSkirmish(target) {
+export function startSkirmish(target, isRepeat = false) {
   if (active) return;
   active = true;
+  repeatHunt = isRepeat;
   state.inSkirmish = true;
   currentTarget = target;
   // ボス戦と同じく難易度と周回数でスケールさせ、強化された自機に対して形骸化しないようにする
@@ -98,14 +102,30 @@ function finishSkirmish(won) {
   if (currentTarget && currentTarget.mesh) currentTarget.mesh.scale.setScalar(1);
   if (won && currentTarget) {
     state.fieldKillsTotal = (state.fieldKillsTotal || 0) + 1;
-    markFieldTargetDefeated(currentTarget.questId);
-    currentTarget.material.emissiveIntensity = 0.1;
-    currentTarget.light.intensity = 0.2;
-    if (currentTarget.beam) currentTarget.beam.visible = false;
+    if (!repeatHunt) markFieldTargetDefeated(currentTarget.questId);
+    if (repeatHunt) {
+      // 再討伐時は見た目を戻し、また狙えることが分かるようにする
+      currentTarget.huntReadyAt = Date.now() + REPEAT_HUNT_COOLDOWN_MS;
+    } else {
+      // 初回（依頼の討伐）は元の輝きを控えて達成を示す
+      if (currentTarget.baseEmissive === undefined) {
+        currentTarget.baseEmissive = currentTarget.material.emissiveIntensity;
+        currentTarget.baseLight = currentTarget.light.intensity;
+      }
+      currentTarget.material.emissiveIntensity = 0.1;
+      currentTarget.light.intensity = 0.2;
+      if (currentTarget.beam) currentTarget.beam.visible = false;
+    }
     sfx.questDone();
     if (currentTarget.mesh) spawnShockwave(currentTarget.mesh.getWorldPosition(currentTarget.mesh.position.clone()), 0xff6644);
     rumble(0.6, 350);
-    showToast('結晶獣を討伐した！依頼人の元へ戻ろう', 'quest');
+    if (repeatHunt) {
+      const bounty = Math.round(12 * ngPlusShardMult());
+      addShards(bounty);
+      showToast(`結晶獣を討伐した！ 結晶の欠片 +${bounty}`, 'quest');
+    } else {
+      showToast('結晶獣を討伐した！依頼人の元へ戻ろう', 'quest');
+    }
     checkAchievements().forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
     saveGame();
   }

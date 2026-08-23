@@ -728,7 +728,19 @@ function tryTurnInOrAccept(giver) {
 
 function tryDefeatTarget(target) {
   const chapterKey = CHAPTERS[target.chapterIndex].key;
-  if (isQuestDone(chapterKey, target.questId)) return;
+  // 依頼を果たした後も再び挑める（クエストは再達成されず、討伐数と報酬のみ）。
+  // フィールドの討伐目標は各章1体しかなく、これが無いと討伐系の実績が
+  // 周回を何度も重ねないと到達できない目標になってしまう。
+  if (isQuestDone(chapterKey, target.questId)) {
+    const readyAt = target.huntReadyAt || 0;
+    if (Date.now() < readyAt) {
+      const left = Math.ceil((readyAt - Date.now()) / 1000);
+      showToast(`この結晶獣はまだ力を取り戻していない（あと${left}秒）`, 'info');
+      return;
+    }
+    startSkirmish(target, true);
+    return;
+  }
   const fState = fieldQuestState(target.questId);
   if (fState === 'accepted') {
     startSkirmish(target);

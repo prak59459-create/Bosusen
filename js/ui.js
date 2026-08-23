@@ -578,7 +578,7 @@ export function renderStatusTab() {
       ng_plus_5: [state.newGamePlus || 0, 5],
       revived: [state.totalRevives || 0, 1],
       field_hunter: [state.fieldKillsTotal || 0, 20],
-      field_hunter_master: [state.fieldKillsTotal || 0, 75],
+      field_hunter_master: [state.fieldKillsTotal || 0, 50],
       comeback: [state.hadComeback ? 1 : 0, 1],
     };
     let achOrder = ACHIEVEMENTS;

@@ -318,7 +318,7 @@ export const ACHIEVEMENTS = [
   { id:'no_guard',     name:'不屈の攻勢',     desc:'一度もガードせずに結晶獣を撃破する。', reward:40 },
   { id:'no_skill',     name:'剣一筋',         desc:'結晶技を一度も使わずに結晶獣を撃破する。', reward:40 },
   { id:'field_hunter', name:'野を駆ける討伐者', desc:'フィールドの結晶獣を累計20体討伐する。', reward:35 },
-  { id:'field_hunter_master', name:'野の覇者', desc:'フィールドの結晶獣を累計75体討伐する。', reward:60 },
+  { id:'field_hunter_master', name:'野の覇者', desc:'フィールドの結晶獣を累計50体討伐する。', reward:60 },
   { id:'combo_30',     name:'刃の舞踏者',     desc:'コンボを30以上つなげる。', reward:55 },
   { id:'veteran_hunter', name:'手練れの討伐者', desc:'同じ結晶獣を5回撃破する。', reward:45 },
   { id:'win_streak_3', name:'連勝の炎',       desc:'結晶獣戦に3連勝する。', reward:35 },
