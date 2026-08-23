@@ -190,6 +190,8 @@ let dashTimer = 0;
 let dashTrailTimer = 0;
 let fovKickCur = 0;
 let emoteIdx = 0;
+// 操作ヒントを自動的に消すためのタイマー
+let exploreHintTimer = null;
 let lastHubReturnAt = -Infinity;
 function playEmote(idx) {
   const emote = EMOTES[idx];
@@ -633,6 +635,13 @@ export function enterExploreMode(spawnLocal) {
   });
   camInit = false;
   document.getElementById('explore-hud').style.display = 'flex';
+  // 常時表示だと画面上部を占有し続けるため、しばらくしたら消す（詳細は H キーのヘルプへ）
+  const hintEl = document.getElementById('explore-hint');
+  if (hintEl) {
+    hintEl.classList.remove('faded');
+    clearTimeout(exploreHintTimer);
+    exploreHintTimer = setTimeout(() => hintEl.classList.add('faded'), 12000);
+  }
   document.getElementById('ui').classList.add('exploring');
   startAmbientWind();
   photoFilterMode = state.photoFilterMode || 0;
