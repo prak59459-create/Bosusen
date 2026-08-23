@@ -847,18 +847,20 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
     if (stepTimer <= 0) {
       const inPuddle = puddlePositions.some(p => Math.hypot(localPos.x - p.x, localPos.z - p.z) < p.r);
       if (inPuddle) {
-        sfx.footstepWater();
+        if (state.footstepSounds !== false) sfx.footstepWater();
         spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.05, 0)), 0x9fc4e0, 8);
       } else {
         const cat = biomeCategoryAt(localPos.x, localPos.z);
-        if (cat === 'desert') sfx.footstepSand();
-        else if (cat === 'snow') sfx.footstepSnow();
-        else if (cat === 'cyber') sfx.footstepMetal();
-        else if (cat === 'swamp') sfx.footstepSwamp();
-        else if (cat === 'crystal') sfx.footstepCrystal();
-        else if (cat === 'volcanic') sfx.footstepVolcanic();
-        else if (cat === 'wasteland') sfx.footstepAsh();
-        else sfx.footstep();
+        if (state.footstepSounds !== false) {
+          if (cat === 'desert') sfx.footstepSand();
+          else if (cat === 'snow') sfx.footstepSnow();
+          else if (cat === 'cyber') sfx.footstepMetal();
+          else if (cat === 'swamp') sfx.footstepSwamp();
+          else if (cat === 'crystal') sfx.footstepCrystal();
+          else if (cat === 'volcanic') sfx.footstepVolcanic();
+          else if (cat === 'wasteland') sfx.footstepAsh();
+          else sfx.footstep();
+        }
         spawnParticles(player.position.clone().add(new THREE.Vector3(0, 0.05, 0)), DUST_COLOR_BY_CATEGORY[cat] || 0xcabf9a, 4);
         spawnFootprint(player.position, facing, cat);
       }

@@ -803,6 +803,8 @@ export function syncSettingsUI() {
   document.body.classList.toggle('high-contrast', state.highContrast === true);
   const reduceChatterCheckbox = document.getElementById('opt-reduce-chatter');
   if (reduceChatterCheckbox) reduceChatterCheckbox.checked = state.reduceNpcChatter === true;
+  const footstepSoundsCheckbox = document.getElementById('opt-footstep-sounds');
+  if (footstepSoundsCheckbox) footstepSoundsCheckbox.checked = state.footstepSounds !== false;
   const companionNameInput = document.getElementById('opt-companion-name');
   if (companionNameInput) companionNameInput.value = state.companionName || 'イリス';
   const proximitySoundsCheckbox = document.getElementById('opt-proximity-sounds');
@@ -959,6 +961,14 @@ export function initMenu(onSave, onTitle) {
     saveGame();
   });
 
+  const footstepSoundsCheckbox = document.getElementById('opt-footstep-sounds');
+  footstepSoundsCheckbox.checked = state.footstepSounds !== false;
+  footstepSoundsCheckbox.addEventListener('change', () => {
+    state.footstepSounds = footstepSoundsCheckbox.checked;
+    sfx.uiClick();
+    saveGame();
+  });
+
   const companionNameInput = document.getElementById('opt-companion-name');
   companionNameInput.value = state.companionName || 'イリス';
   companionNameInput.addEventListener('change', () => {
@@ -1042,7 +1052,7 @@ export function initMenu(onSave, onTitle) {
   });
   document.getElementById('reset-settings-btn').addEventListener('click', () => {
     Object.assign(state, {
-      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1, invertCameraY: false, cameraSensitivity: 1, highContrast: false, reduceNpcChatter: false, proximitySounds: true, screenshotWatermark: true, cinematicAutoHide: false,
+      masterVolume: 0.7, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1, invertCameraY: false, cameraSensitivity: 1, highContrast: false, reduceNpcChatter: false, proximitySounds: true, screenshotWatermark: true, cinematicAutoHide: false, footstepSounds: true,
     });
     setMasterVolume(state.masterVolume);
     setQualityPreset(state.quality);
