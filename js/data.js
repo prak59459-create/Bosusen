@@ -381,3 +381,12 @@ export const TRIAL_MODS = [
   { id:'plenty', name:'豊穣の刻', desc:'条件なし。報酬の欠片が増える', hp:1, window:1, reward:1.6 },
   { id:'ordeal', name:'試練の刻', desc:'ボスの最大HP+15%、ガード受付-10%', hp:1.15, window:0.9, reward:2.5 },
 ];
+
+/* ---------- 天候 ---------- */
+// Day が変わるごとに切り替わる。見た目に加えて採取量にも影響する。
+export const WEATHERS = [
+  { id:'clear',    name:'晴れ',   icon:'☀️', rain:false, fog:1,    shardMult:1 },
+  { id:'cloudy',   name:'曇り',   icon:'☁️', rain:false, fog:1.25, shardMult:1 },
+  { id:'rain',     name:'雨',     icon:'🌧', rain:true,  fog:1.4,  shardMult:1.2 },
+  { id:'fog',      name:'霧',     icon:'🌫', rain:false, fog:2.2,  shardMult:1.1 },
+];

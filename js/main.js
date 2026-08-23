@@ -1,12 +1,12 @@
 import * as THREE from 'three';
-import { camera, composer, camFittedPos, camLookAt, mountRenderer, torchFires, bossGlow, setQualityPreset, updateDayNightCycle, isNightTime, isLowQuality, getDayCount, getTimeOfDayLabel } from './scene.js';
+import { scene, camera, composer, camFittedPos, camLookAt, mountRenderer, torchFires, bossGlow, setQualityPreset, updateDayNightCycle, isNightTime, isLowQuality, getDayCount, getTimeOfDayLabel } from './scene.js';
 import { player, loadPlayerModel, playerMixer, playerReady, setCompanionVisible, updateCompanion } from './player.js';
 import * as EnemyModule from './enemy.js';
 import { spawnEnemy } from './enemy.js';
 import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles, rumble, triggerCritFlash } from './effects.js';
 import { resumeAudio, sfx, setMasterVolume, setRainIntensity, setBiomeDrone } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
-import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, removeItem, spendShards, addShards, computeStats, refreshMaxStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, isFieldTargetHuntable, totalQuestsDone, totalQuestsAll, peekSaveSummary, effectiveItem, dailyTrial, trialAppliesTo, trialClaimedToday } from './state.js';
+import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, removeItem, spendShards, addShards, computeStats, refreshMaxStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, isFieldTargetHuntable, totalQuestsDone, totalQuestsAll, peekSaveSummary, effectiveItem, dailyTrial, trialAppliesTo, trialClaimedToday, weatherForDay, currentWeather } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, showCenterMsg, syncSettingsUI, openMenu, closeMenu, BIOME_CATEGORY_ICON, SLOT_ICON, itemScore, itemStatParts, itemCompareTag } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
@@ -1094,7 +1094,14 @@ function animate() {
     }
     const dayCounterEl = document.getElementById('day-counter');
     const curDay = getDayCount(t);
-    if (dayCounterEl) dayCounterEl.textContent = `${isNightTime(t) ? '🌙' : '☀️'} Day ${curDay} ・${getTimeOfDayLabel(t)}`;
+    const weather = weatherForDay(curDay);
+    // 天候に応じて霧の濃さを変える（霧の日は視界が狭くなる）
+    if (scene.fog) {
+      const near = 34 / weather.fog, far = 80 / weather.fog;
+      scene.fog.near += (near - scene.fog.near) * Math.min(1, dt * 1.5);
+      scene.fog.far += (far - scene.fog.far) * Math.min(1, dt * 1.5);
+    }
+    if (dayCounterEl) dayCounterEl.textContent = `${isNightTime(t) ? '🌙' : '☀️'} Day ${curDay} ・${getTimeOfDayLabel(t)} ${weather.icon}${weather.name}`;
     if (curDay > (state.lastBlessingDay || 0)) {
       state.lastBlessingDay = curDay;
       const blessing = 20 + Math.floor(Math.random() * 30);
@@ -1143,7 +1150,7 @@ function animate() {
       checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
       saveGame();
     }
-    currentIsRaining = updateRain(t, dt, lp.x, lp.z);
+    currentIsRaining = updateRain(t, dt, lp.x, lp.z, currentWeather().rain);
     setRainIntensity(currentIsRaining ? 1 : 0);
     if (wasRaining && !currentIsRaining) triggerRainbow(lp.x, lp.z);
     wasRaining = currentIsRaining;

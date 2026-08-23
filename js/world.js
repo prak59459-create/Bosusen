@@ -1709,10 +1709,11 @@ for (let i = 0; i < RAIN_COUNT; i++) {
 }
 worldGroup.add(rainMesh);
 const rainDummy = new THREE.Object3D();
-export function updateRain(t, dt, centerX, centerZ) {
+export function updateRain(t, dt, centerX, centerZ, forceRain = false) {
   const biomeIdx = nearestBiome(centerX, centerZ);
   const cat = BIOME_DEFS[biomeIdx] ? BIOME_DEFS[biomeIdx].category : null;
-  const isRaining = cat === 'swamp';
+  // 沼地はもともと雨がちだが、その日の天候が雨なら世界中どこでも降る
+  const isRaining = cat === 'swamp' || forceRain;
   rainMesh.visible = isRaining;
   if (!isRaining) return false;
   for (let i = 0; i < RAIN_COUNT; i++) {

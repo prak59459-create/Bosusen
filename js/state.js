@@ -1,4 +1,4 @@
-import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES, TRIAL_MODS, levelStatsFor } from './data.js';
+import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES, TRIAL_MODS, WEATHERS, levelStatsFor } from './data.js';
 
 const SAVE_KEY = 'aetheria_save_v1';
 export const EXPLORE_STAMINA_BASE = 100;
@@ -201,6 +201,29 @@ export function upgradeItem(id) {
   state.itemLevels[id] = itemLevel(id) + 1;
   refreshMaxStats();
   return true;
+}
+
+/* ---------- 天候 ---------- */
+// その日の天候。Day 番号だけで決まるので、どこから呼んでも同じ結果になる。
+let weatherDay = -1;
+let weatherCache = WEATHERS[0];
+export function weatherForDay(day) {
+  if (day !== weatherDay) {
+    weatherDay = day;
+    // 単純な乗算＋シフトだと数日ごとに同じ天候が続いてしまうため、
+    // 2段階で撹拌してから選ぶ
+    let h = Math.imul(day + 1, 2654435761) >>> 0;
+    h = (h ^ (h >>> 15)) >>> 0;
+    h = Math.imul(h, 2246822519) >>> 0;
+    h = (h ^ (h >>> 13)) >>> 0;
+    weatherCache = WEATHERS[h % WEATHERS.length];
+  }
+  return weatherCache;
+}
+
+/** 現在の天候（main が Day を更新するたびに設定する） */
+export function currentWeather() {
+  return weatherCache;
 }
 
 /* ---------- 日替わりの試練 ---------- */
