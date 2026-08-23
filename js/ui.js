@@ -446,6 +446,7 @@ const SKILL_EFFECT_LABELS = [
   ['healUsesBonus',   '回復回数',         'plus'],
   ['mpRegenBonus',    'エーテル自然回復', 'plus'],
   ['parryMpRestore',  'パリィ時エーテル', 'plus'],
+  ['statusResistPct', '状態異常の耐性',   'pct'],
 ];
 function renderSkillEffectSummary(stats) {
   const el = document.getElementById('st-skill-effects');

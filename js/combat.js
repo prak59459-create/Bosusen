@@ -483,7 +483,7 @@ function resolveDodge(clicked, move, isParry) {
           spawnDamageNumber(bossHitPoint(), `-${reflectDmg}`, '#88ccff', false);
         }
       }
-      if (move.status && Math.random() < (move.statusChance || 0)) {
+      if (move.status && Math.random() < (move.statusChance || 0) * (1 - (stats.statusResistPct || 0))) {
         const def = STATUS_DEFS[move.status];
         if (def && applyStatus(move.status)) {
           log(`${def.name}に侵された！（${def.desc}・${def.turns}ターン）`);
