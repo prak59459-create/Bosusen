@@ -255,11 +255,17 @@ function finishGame(won) {
     els.endTitle.textContent = '💀 敗北... 💀';
     els.endTitle.style.color = '#e04a4a';
     els.endRank.textContent = '';
-    if (state.showBossTaunts !== false) els.endStory.textContent = DEFEAT_LINES[Math.floor(Math.random() * DEFEAT_LINES.length)];
+    els.endStory.textContent = state.showBossTaunts !== false
+      ? DEFEAT_LINES[Math.floor(Math.random() * DEFEAT_LINES.length)]
+      : '';
     state.winStreak = 0;
     state.lossStreak = (state.lossStreak || 0) + 1;
     if (state.lossStreak === 3 && state.difficulty !== 'easy') {
       setTimeout(() => showToast('連敗が続いている……装備の見直しや難易度「簡単」への変更も検討してみよう', 'info'), 1200);
+    }
+    if (state.lossStreak >= 2 && chapter.battleTip) {
+      const prefix = els.endStory.textContent ? '\n\n' : '';
+      els.endStory.textContent += `${prefix}💡 ${chapter.battleTip}`;
     }
     sfx.defeat();
     els.retryBtn.textContent = 'この章に再挑戦';
