@@ -1203,6 +1203,8 @@ export function initMenu(onSave, onTitle) {
     if (!window.confirm('セーブデータを削除します。よろしいですか？（この操作は取り消せません）')) return;
     clearSave();
     els.continueBtn.style.display = 'none';
+    const continueSummaryEl = document.getElementById('continue-summary');
+    if (continueSummaryEl) continueSummaryEl.style.display = 'none';
     showToast('セーブデータを削除しました', 'info');
     sfx.menuClose();
     closeMenu();
