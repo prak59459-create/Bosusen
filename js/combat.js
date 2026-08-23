@@ -64,6 +64,24 @@ function rollCrit(critPct) {
 /* ============================================================
    ボスフェーズ判定・演出
    ============================================================ */
+export // 技の抽選。技数と重み定義の数がずれても破綻しないよう、
+// 不足分は均等割りで補い、合計で正規化してから選ぶ。
+// （重みを配列で直書きしていた頃は、技を1つ増やすと weights[i] が
+//   undefined になり、常に先頭の技しか出ないという静かな不具合になっていた）
+const PHASE1_WEIGHTS = [0.4, 0.4, 0.2];
+const PHASE2_WEIGHTS = [0.35, 0.35, 0.3];
+function pickWeightedMove(pool, weights) {
+  const w = pool.map((_, i) => (typeof weights[i] === 'number' ? weights[i] : 1 / pool.length));
+  const total = w.reduce((a, b) => a + b, 0);
+  if (!(total > 0)) return pool[Math.floor(Math.random() * pool.length)];
+  let r = Math.random() * total;
+  for (let i = 0; i < pool.length; i++) {
+    r -= w[i];
+    if (r <= 0) return pool[i];
+  }
+  return pool[pool.length - 1];
+}
+
 export function checkPhaseTransition() {
   const chapter = CHAPTERS[state.chapterIndex];
   const b = getBoss();
@@ -308,10 +326,9 @@ export function bossTurn() {
   updateBars();
 
   const chapter = CHAPTERS[state.chapterIndex];
-  const pool = state.phase2 ? chapter.movesPhase2 : chapter.movesPhase1;
-  const weights = state.phase2 ? [0.35, 0.35, 0.3] : [0.4, 0.4, 0.2];
-  let r = Math.random(), acc = 0, move = pool[0];
-  for (let i = 0; i < pool.length; i++) { acc += weights[i]; if (r <= acc) { move = pool[i]; break; } }
+  const pool = (state.phase2 ? chapter.movesPhase2 : chapter.movesPhase1) || [];
+  if (pool.length === 0) return;
+  const move = pickWeightedMove(pool, state.phase2 ? PHASE2_WEIGHTS : PHASE1_WEIGHTS);
 
   els.telegraphName.textContent = `⚠ ${move.name} ⚠`;
   els.telegraphSub.textContent = move.sub;
