@@ -606,12 +606,14 @@ function toggleMute() {
     state.masterVolume = 0;
     setMasterVolume(0);
     btn.textContent = '🔇';
+    btn.setAttribute('aria-label', 'ミュート解除');
     btn.classList.add('muted');
   } else {
     state.masterVolume = volumeBeforeMute;
     setMasterVolume(volumeBeforeMute);
     volumeBeforeMute = null;
     btn.textContent = '🔊';
+    btn.setAttribute('aria-label', 'ミュート');
     btn.classList.remove('muted');
   }
   const volumeSlider = document.getElementById('opt-volume');
@@ -623,7 +625,7 @@ window.addEventListener('bosusen-volume-slider-changed', (e) => {
   if (volumeBeforeMute !== null && e.detail.volume > 0) {
     volumeBeforeMute = null;
     const btn = document.getElementById('mute-btn');
-    if (btn) { btn.textContent = '🔊'; btn.classList.remove('muted'); }
+    if (btn) { btn.textContent = '🔊'; btn.setAttribute('aria-label', 'ミュート'); btn.classList.remove('muted'); }
   }
 });
 window.addEventListener('keydown', (e) => {
