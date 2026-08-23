@@ -259,6 +259,8 @@ export function renderQuestBoard(chapterIndex, onResolve) {
   const doneCount = chapter.quests.filter(q => isQuestDone(chapter.key, q.id)).length;
   const progressFill = document.getElementById('qb-progress-fill');
   if (progressFill) progressFill.style.width = `${Math.round((doneCount / chapter.quests.length) * 100)}%`;
+  const completeBadge = document.getElementById('qb-complete-badge');
+  if (completeBadge) completeBadge.style.display = doneCount >= chapter.quests.length ? 'block' : 'none';
   const undoneFilterEl = document.getElementById('qb-undone-filter');
   const undoneOnly = undoneFilterEl && undoneFilterEl.checked;
   const sortRewardEl = document.getElementById('qb-sort-reward');
