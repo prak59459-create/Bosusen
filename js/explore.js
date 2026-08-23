@@ -576,11 +576,25 @@ function takeScreenshot() {
             });
           }
         }
+        // 撮影テーマ: 条件を満たした一枚には追加の欠片ボーナスを出す
         const timeLabel = getTimeOfDayLabel(currentAbsTime);
+        const themes = [];
         if (timeLabel === '明け方' || timeLabel === '夕暮れ') {
-          addShards(10);
-          showToast(`ゴールデンアワーの一枚！ 結晶の欠片+10`, 'quest');
           state.gotGoldenHourPhoto = true;
+          themes.push(['ゴールデンアワーの一枚', 10]);
+        }
+        if (state.auroraVisible) {
+          state.gotAuroraPhoto = true;
+          themes.push(['オーロラの一枚', 20]);
+        }
+        if (lastPhotoWasRainy) {
+          state.gotRainPhoto = true;
+          themes.push(['雨中の一枚', 15]);
+        }
+        if (themes.length > 0) {
+          const gain = themes.reduce((sum, th) => sum + th[1], 0);
+          addShards(gain);
+          showToast(`${themes.map(th => th[0]).join('・')}！ 結晶の欠片+${gain}`, 'quest');
         } else {
           showToast('スクリーンショットを保存しました', 'info');
         }
@@ -914,9 +928,12 @@ function tryReadLore(monu) {
 }
 
 let currentAbsTime = 0;
+// 撮影テーマの判定に使う、直近フレームの降雨状態
+let lastPhotoWasRainy = false;
 let cinematicIdleTime = 0;
 export function updateExplore(dt, absTime = 0, isRaining = false) {
   currentAbsTime = absTime;
+  lastPhotoWasRainy = isRaining;
   updateFootprints(dt);
   if (!exploreActive) return;
   if (isSkirmishActive()) return;

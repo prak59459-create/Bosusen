@@ -415,6 +415,8 @@ export const ACHIEVEMENTS = [
   { id:'butterfly_master', name:'蝶舞の達人', desc:'蝶を累計200匹捕まえる。', reward:40 },
   { id:'veteran_resident', name:'エーテリアの守護者', desc:'累計プレイ時間が10時間に達する。', reward:100 },
   { id:'golden_hour', name:'黄金の一瞬', desc:'ゴールデンアワーにスクリーンショットを撮影する。', reward:20 },
+  { id:'photo_aurora', name:'光の帯を収めて', desc:'オーロラが出ている間に写真を撮る。', reward:50 },
+  { id:'photo_rain', name:'雨音のシャッター', desc:'雨の中で写真を撮る。', reward:35 },
 ];
 
 /* エモート（種類数が実績「エモートの達人」の判定にも使われる） */

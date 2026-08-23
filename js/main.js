@@ -1283,8 +1283,9 @@ function animate() {
     }
     updateLightning(dt);
     updateSnow(t, dt, lp.x, lp.z);
-    // 雪原の夜にだけ現れるオーロラ。初めて見たときは実績として記録する
-    if (updateAurora(t, lp.x, lp.z, isNightTime(t)) && !state.sawAurora) {
+    // 雪原の夜にだけ現れるオーロラ。撮影テーマの判定にも使うため常に状態を持つ
+    state.auroraVisible = updateAurora(t, lp.x, lp.z, isNightTime(t));
+    if (state.auroraVisible && !state.sawAurora) {
       state.sawAurora = true;
       showToast('空にオーロラが揺れている……', 'quest');
       checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });

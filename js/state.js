@@ -101,6 +101,10 @@ export const state = {
   campfireRests: 0,
   eliteKills: 0,
   sawAurora: false,
+  // オーロラが今見えているか（描画状態から毎フレーム更新するため保存しない）
+  auroraVisible: false,
+  gotAuroraPhoto: false,
+  gotRainPhoto: false,
   // 経験した天候の種類（実績用）
   seenWeathers: [],
   // 日替わりの採取依頼
@@ -643,6 +647,8 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if ((state.campfireRests || 0) >= 15) tryUnlock('camper');
   if ((state.eliteKills || 0) >= 5) tryUnlock('elite_hunter');
   if (state.sawAurora) tryUnlock('aurora_witness');
+  if (state.gotAuroraPhoto) tryUnlock('photo_aurora');
+  if (state.gotRainPhoto) tryUnlock('photo_rain');
   if (WEATHERS.every(w => (state.seenWeathers || []).includes(w.id))) tryUnlock('weather_watcher');
   if ((state.gatherDone || 0) >= 10) tryUnlock('gather_master');
   if ((state.gauntletClears || 0) >= 1) tryUnlock('gauntlet_clear');
@@ -815,6 +821,8 @@ export function saveGame() {
       campfireRests: state.campfireRests,
       eliteKills: state.eliteKills,
       sawAurora: state.sawAurora,
+      gotAuroraPhoto: state.gotAuroraPhoto,
+      gotRainPhoto: state.gotRainPhoto,
       seenWeathers: state.seenWeathers,
       gatherDay: state.gatherDay,
       gatherProgress: state.gatherProgress,
@@ -960,6 +968,8 @@ export function loadGame() {
       campfireRests: asNumber(snap.campfireRests, 0),
       eliteKills: asNumber(snap.eliteKills, 0),
       sawAurora: !!snap.sawAurora,
+      gotAuroraPhoto: !!snap.gotAuroraPhoto,
+      gotRainPhoto: !!snap.gotRainPhoto,
       seenWeathers: asArray(snap.seenWeathers, []),
       gatherDay: asNumber(snap.gatherDay, -1),
       gatherProgress: asNumber(snap.gatherProgress, 0),

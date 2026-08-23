@@ -33,6 +33,8 @@ const TRANSIENT = new Set([
   'exploreStaminaMax',
   // セッション内の経過時間を基準にするため保存しない
   'lastBlessingDay',
+  // 描画状態から毎フレーム更新する派生値のため保存しない
+  'auroraVisible',
   // 進行中の採取コンボ。最高記録 bestCollectCombo だけを保存する
   'collectCombo', 'collectComboAt',
   // 戦闘開始時に確定する試練の適用状態
