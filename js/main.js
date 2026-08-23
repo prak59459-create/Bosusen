@@ -627,10 +627,12 @@ els.qbFightBtn.addEventListener('click', () => {
   startBattlePhase();
 });
 
+let sessionStartShards = 0, sessionStartBosses = 0;
 els.startBtn.addEventListener('click', () => {
   if (!playerReady) return;
   if (hasSaveGame() && !window.confirm('既存のセーブデータを上書きして新しく始めます。よろしいですか？（この操作は取り消せません）')) return;
   resumeAudio();
+  sessionStartShards = 0; sessionStartBosses = 0;
   Object.assign(state, {
     chapterIndex: 0, level: 1, xp: 0, shards: 0, totalShardsEarned: 0, bossesDefeated: 0, lifetimeBestCombo: 0, newGamePlus: 0, chapterClearCounts: {},
     equipment: { weapon: null, armor: null, accessory: null },
@@ -652,6 +654,8 @@ els.continueBtn.addEventListener('click', () => {
   if (!playerReady) return;
   resumeAudio();
   loadGame();
+  sessionStartShards = state.totalShardsEarned || 0;
+  sessionStartBosses = state.bossesDefeated || 0;
   setMasterVolume(state.masterVolume);
   setQualityPreset(state.quality);
   syncSettingsUI();
@@ -752,6 +756,11 @@ initMenu(
   () => {
     els.menuOverlay.classList.remove('open');
     saveGame();
+    const shardsEarned = (state.totalShardsEarned || 0) - sessionStartShards;
+    const bossesEarned = (state.bossesDefeated || 0) - sessionStartBosses;
+    if (shardsEarned > 0 || bossesEarned > 0) {
+      showToast(`今回の冒険: 結晶獣撃破 ${bossesEarned}体｜獲得シャード ${shardsEarned}`, 'quest');
+    }
     resetSkirmish();
     cancelDodgeQTE();
     exitExploreMode();
