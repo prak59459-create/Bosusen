@@ -1,4 +1,4 @@
-import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES, TRIAL_MODS, WEATHERS, GATHER_KINDS, levelStatsFor } from './data.js';
+import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES, TRIAL_MODS, WEATHERS, GATHER_KINDS, STATUS_DEFS, levelStatsFor } from './data.js';
 
 const SAVE_KEY = 'aetheria_save_v1';
 export const EXPLORE_STAMINA_BASE = 100;
@@ -34,6 +34,8 @@ export const state = {
   usedRevive: false,
   // 「集中」で次の攻撃が強化されている状態（戦闘中のみ）
   focused: false,
+  // 状態異常 { poison: 残りターン数, ... }（戦闘中のみ）
+  statuses: {},
 
   equipment: { weapon: null, armor: null, accessory: null },
   inventory: [], // array of item ids owned but not necessarily equipped
@@ -208,6 +210,43 @@ export function upgradeItem(id) {
   state.itemLevels[id] = itemLevel(id) + 1;
   refreshMaxStats();
   return true;
+}
+
+/* ---------- 状態異常 ---------- */
+/** 状態異常を付与する（すでに掛かっていればターン数を上書きで延長） */
+export function applyStatus(id) {
+  const def = STATUS_DEFS[id];
+  if (!def) return false;
+  state.statuses[id] = def.turns;
+  return true;
+}
+
+/** 状態異常のターンを1つ進める。今ターンの継続ダメージ合計を返す */
+export function tickStatuses() {
+  let dmg = 0;
+  Object.keys(state.statuses).forEach(id => {
+    const def = STATUS_DEFS[id];
+    if (!def) { delete state.statuses[id]; return; }
+    if (def.dmgPerTurn) dmg += def.dmgPerTurn;
+    state.statuses[id] -= 1;
+    if (state.statuses[id] <= 0) delete state.statuses[id];
+  });
+  return dmg;
+}
+
+/** 状態異常による与ダメージ倍率 */
+export function statusAtkMult() {
+  let mult = 1;
+  Object.keys(state.statuses).forEach(id => {
+    const def = STATUS_DEFS[id];
+    if (def && def.atkMult) mult *= def.atkMult;
+  });
+  return mult;
+}
+
+/** 状態異常をすべて解除する */
+export function clearStatuses() {
+  state.statuses = {};
 }
 
 /* ---------- 天候 ---------- */

@@ -79,7 +79,7 @@ export const CHAPTERS = [
     enemyDef: { skinColor:0x1f6b3a, sheenColor:0x123322, emissive:0x0a2a12, hornColor:0x0c1f10, eyeColor:0xaaff33, legColor:0x143018, metalness:0.15, roughness:0.5, clearcoat:0.4, scale:1.05 },
     movesPhase1: [
       { name:'棘蔦の鞭', sub:'絡みつく一撃', min:8, max:14, dodgeWindow:900 },
-      { name:'毒胞子の爆散', sub:'広範囲の毒撃', min:13, max:20, dodgeWindow:850 },
+      { name:'毒胞子の爆散', sub:'広範囲の毒撃', min:13, max:20, dodgeWindow:850, status:'poison', statusChance:0.5 },
       { name:'大樹の怒り', sub:'渾身の一撃！', min:20, max:28, dodgeWindow:700 },
     ],
     quests: [
@@ -126,7 +126,7 @@ export const CHAPTERS = [
     enemyDef: { skinColor:0x4a1f7a, sheenColor:0x2a0f4a, emissive:0x1a0530, hornColor:0x120620, eyeColor:0x9955ff, legColor:0x22103a, scale:0.95 },
     movesPhase1: [
       { name:'呪縛の光弾', sub:'魔力の弾丸', min:9, max:15, dodgeWindow:850 },
-      { name:'反響する詠唱', sub:'広範囲の呪詛', min:15, max:22, dodgeWindow:800 },
+      { name:'反響する詠唱', sub:'広範囲の呪詛', min:15, max:22, dodgeWindow:800, status:'curse', statusChance:0.45 },
       { name:'狂詩曲', sub:'渾身の魔弾！', min:22, max:30, dodgeWindow:650 },
     ],
     quests: [
@@ -173,7 +173,7 @@ export const CHAPTERS = [
     ],
     movesPhase2: [
       { name:'連鎖する残響', sub:'高速の連続攻撃', min:10, max:16, dodgeWindow:650 },
-      { name:'虚無のブレス', sub:'広範囲侵蝕攻撃！', min:18, max:28, dodgeWindow:800 },
+      { name:'虚無のブレス', sub:'広範囲侵蝕攻撃！', min:18, max:28, dodgeWindow:800, status:'curse', statusChance:0.5 },
       { name:'すべての終わり', sub:'覚醒の全力攻撃！！', min:28, max:42, dodgeWindow:600 },
     ],
     quests: [
@@ -400,3 +400,10 @@ export const GATHER_KINDS = [
   { id:'butterfly', counter:'butterfliesCaught', name:'蝶', unit:'匹', need:10, reward:80 },
   { id:'spirit', counter:'spiritsCaught', name:'精霊球',    unit:'個', need:6,  reward:110 },
 ];
+
+/* ---------- 状態異常 ---------- */
+// ボスの一部の技は、直撃したときに一定確率で状態異常を残す。
+export const STATUS_DEFS = {
+  poison: { name:'毒', icon:'🧪', turns:3, dmgPerTurn:6, desc:'毎ターン継続ダメージ' },
+  curse:  { name:'呪縛', icon:'🕸', turns:2, atkMult:0.8, desc:'与ダメージが20%低下' },
+};

@@ -1,4 +1,4 @@
-import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES, WEATHERS } from './data.js';
+import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES, WEATHERS, STATUS_DEFS } from './data.js';
 import { state, computeStats, calcRank, isLowHp, isQuestDone, chapterQuestsDone, ownsItem,
   equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData, moveStat, isMoveMastered, effectiveItem, itemLevel, itemUpgradeCost, upgradeItem, MAX_ITEM_LEVEL, dailyTrial, trialClaimedToday, gatherRequestFor } from './state.js';
 import { sfx, setMasterVolume, setAmbientVolume, setHeartbeatActive } from './audio.js';
@@ -122,6 +122,16 @@ export function updateBars() {
   if (titleEl) {
     titleEl.textContent = playerTitle();
     titleEl.classList.toggle('title-completionist', (state.achievements || []).includes('completionist'));
+  }
+  const statusEl = document.getElementById('player-statuses');
+  if (statusEl) {
+    const active = Object.keys(state.statuses || {});
+    statusEl.innerHTML = active
+      .map(id => {
+        const def = STATUS_DEFS[id];
+        return def ? `<span title="${def.desc}">${def.icon} ${def.name} ${state.statuses[id]}</span>` : '';
+      })
+      .join('');
   }
   const hpPct = Math.max(0, state.playerHP / state.playerMaxHP * 100);
   els.playerHPFill.style.width = hpPct + '%';
@@ -1049,7 +1059,8 @@ function bestiaryMoveList(chapter) {
       const st = moveStat(chapter.key, m.name);
       const seen = st.seen > 0 ? `／遭遇 ${st.seen}回・凌いだ ${st.avoided}回` : '';
       const mark = isMoveMastered(chapter.key, m.name) ? ' 👁見切り済み(受付+15%)' : '';
-      rows.push(`<div class="item-row-desc">・${m.name}${label}${mark}（威力 ${m.min}〜${m.max}／受付 ${m.dodgeWindow}ms${seen}）</div>`);
+      const st2 = m.status && STATUS_DEFS[m.status] ? `／${STATUS_DEFS[m.status].icon}${STATUS_DEFS[m.status].name}付与` : '';
+      rows.push(`<div class="item-row-desc">・${m.name}${label}${mark}（威力 ${m.min}〜${m.max}／受付 ${m.dodgeWindow}ms${st2}${seen}）</div>`);
     });
   };
   add(chapter.movesPhase1, '');

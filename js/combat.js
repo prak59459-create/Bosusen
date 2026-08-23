@@ -7,8 +7,8 @@ import { sfx, setHeartbeatActive } from './audio.js';
 import { rand } from './utils.js';
 import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake, triggerCritFlash, spawnShockwave, rumble } from './effects.js';
 import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
-import { CHAPTERS, levelStatsFor, BOSS_TAUNTS, VICTORY_LINES, DEFEAT_LINES } from './data.js';
-import { state, computeStats, addShards, difficultyMult, checkAchievements, saveGame, refreshMaxStats, calcRank, battleDifficultyMult, isLowHp, recordMoveOutcome, isMoveMastered, dailyTrial, trialAppliesTo, claimTrial } from './state.js';
+import { CHAPTERS, levelStatsFor, BOSS_TAUNTS, VICTORY_LINES, DEFEAT_LINES, STATUS_DEFS } from './data.js';
+import { state, computeStats, addShards, difficultyMult, checkAchievements, saveGame, refreshMaxStats, calcRank, battleDifficultyMult, isLowHp, recordMoveOutcome, isMoveMastered, dailyTrial, trialAppliesTo, claimTrial, applyStatus, tickStatuses, statusAtkMult } from './state.js';
 
 let dodgeActive = false;
 let dodgeAnimHandle = null;
@@ -349,6 +349,16 @@ export function bossTurn() {
   if (!state.playing) return;
 
   if (state.skillCooldown > 0) state.skillCooldown--;
+  // 状態異常の経過。継続ダメージがあればここで受ける
+  const statusDmg = tickStatuses();
+  if (statusDmg > 0) {
+    state.playerHP -= statusDmg;
+    state.damageTaken += statusDmg;
+    log(`状態異常のダメージ！ ${statusDmg} ダメージ`);
+    spawnDamageNumber(player.position.clone().add(new THREE.Vector3(0, 2.4, 0)), `-${statusDmg}`, '#9fdc5f', false);
+    updateBars();
+    if (endCheck()) return;
+  }
   state.playerStam = Math.min(state.playerMaxStam, state.playerStam + 8);
   state.playerMP = Math.min(state.playerMaxMP, state.playerMP + 6 + (computeStats().mpRegenBonus || 0));
   updateBars();
@@ -473,6 +483,13 @@ function resolveDodge(clicked, move, isParry) {
           spawnDamageNumber(bossHitPoint(), `-${reflectDmg}`, '#88ccff', false);
         }
       }
+      if (move.status && Math.random() < (move.statusChance || 0)) {
+        const def = STATUS_DEFS[move.status];
+        if (def && applyStatus(move.status)) {
+          log(`${def.name}に侵された！（${def.desc}・${def.turns}ターン）`);
+          showToast(`${def.icon} ${def.name}: ${def.desc}`, 'info');
+        }
+      }
       state.combo = 0;
       sfx.dodgeFail();
       if (playerModel) flashHit(playerModel);
@@ -544,7 +561,7 @@ export function playerAction(type) {
     state.focused = false;
     log('集中が乗った一撃！');
   }
-  const comboMult = (1 + Math.min(state.combo, 8) * 0.08) * levelStatsFor(state.level).dmgMult * desperation * focusMult;
+  const comboMult = (1 + Math.min(state.combo, 8) * 0.08) * levelStatsFor(state.level).dmgMult * desperation * focusMult * statusAtkMult();
   const b = getBoss();
 
   if (type === 'attack') {
@@ -681,6 +698,10 @@ export function playerAction(type) {
     state.playerHP = Math.min(state.playerMaxHP, state.playerHP + heal);
     state.combo = 0;
     updateBars();
+    if (state.statuses.poison) {
+      delete state.statuses.poison;
+      log('回復の光が毒を洗い流した。');
+    }
     log(`回復！ HPが ${heal} 回復した。`);
     showCenterMsg('HEAL', '#5fd35f', 500);
     sfx.heal();
@@ -715,6 +736,7 @@ export function setupChapterBattle(chapterIndex) {
     combo: 0, maxCombo: 0, phase2: false, turns: 0, damageTaken: 0, skillCooldown: 0,
     usedRevive: false,
     focused: false,
+    statuses: {},
     bossLowHpWarned: false,
     guardUsedThisBattle: false,
     skillUsedThisBattle: false,
