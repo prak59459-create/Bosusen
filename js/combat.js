@@ -8,7 +8,7 @@ import { rand } from './utils.js';
 import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake, triggerCritFlash, spawnShockwave, rumble } from './effects.js';
 import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
 import { CHAPTERS, levelStatsFor, BOSS_TAUNTS, VICTORY_LINES, DEFEAT_LINES } from './data.js';
-import { state, computeStats, addShards, difficultyMult, checkAchievements } from './state.js';
+import { state, computeStats, addShards, difficultyMult, checkAchievements, saveGame } from './state.js';
 
 let dodgeActive = false;
 let dodgeAnimHandle = null;
@@ -153,6 +153,12 @@ function renderEndingChoices(chapter) {
         els.endTitle.textContent = `🎉 ${ending.title} 🎉`;
         els.endTitle.style.color = '#5fd35f';
         els.endStory.textContent = ending.text;
+        if (!state.seenEndings) state.seenEndings = [];
+        if (!state.seenEndings.includes(ending.id)) {
+          state.seenEndings.push(ending.id);
+          showToast(`結末を記録した（${state.seenEndings.length} / ${chapter.endings.length}）`, 'quest');
+        }
+        saveGame();
         els.endChoices.innerHTML = '';
         els.retryBtn.style.display = 'inline-block';
         els.ngPlusBtn.style.display = 'inline-block';

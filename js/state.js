@@ -68,6 +68,7 @@ export const state = {
   bestTurnsPerChapter: {},
   biomeDiscoveredAt: {},
   achievementUnlockedAt: {},
+  seenEndings: [],
   butterfliesCaught: 0,
   achievements: [], // array of unlocked achievement ids
   questProgress: {}, // { chapterKey: { questId: true } }
@@ -405,6 +406,7 @@ export function saveGame() {
       bestTurnsPerChapter: state.bestTurnsPerChapter,
       biomeDiscoveredAt: state.biomeDiscoveredAt,
       achievementUnlockedAt: state.achievementUnlockedAt,
+      seenEndings: state.seenEndings,
       totalParries: state.totalParries,
       totalDodges: state.totalDodges,
       butterfliesCaught: state.butterfliesCaught,
@@ -516,6 +518,7 @@ export function loadGame() {
       bestTurnsPerChapter: snap.bestTurnsPerChapter || {},
       biomeDiscoveredAt: snap.biomeDiscoveredAt || {},
       achievementUnlockedAt: snap.achievementUnlockedAt || {},
+      seenEndings: snap.seenEndings || [],
       totalParries: snap.totalParries || 0,
       totalDodges: snap.totalDodges || 0,
       butterfliesCaught: snap.butterfliesCaught || 0,

@@ -822,6 +822,7 @@ export function renderItemsTab() {
 
 let compendiumUndiscoveredOnly = false;
 const storyArchiveOpen = new Set();
+const endingArchiveOpen = new Set();
 export function renderCompendiumTab() {
   const listEl = document.getElementById('biome-compendium-list');
   const progressEl = document.getElementById('compendium-progress');
@@ -953,6 +954,42 @@ export function renderCompendiumTab() {
           renderCompendiumTab();
         });
         storyList.appendChild(row);
+      });
+    }
+  }
+  const endingList = document.getElementById('ending-archive-list');
+  const endingProgress = document.getElementById('ending-archive-progress');
+  if (endingList) {
+    endingList.innerHTML = '';
+    const finalChapter = CHAPTERS.find(c => c.endings);
+    const endings = (finalChapter && finalChapter.endings) || [];
+    const seen = state.seenEndings || [];
+    if (endingProgress) endingProgress.textContent = `${seen.length} / ${endings.length}`;
+    if (endings.length === 0) {
+      endingList.innerHTML = '<div class="empty-hint">結末の情報がありません。</div>';
+    } else {
+      endings.forEach(e => {
+        const found = seen.includes(e.id);
+        const expanded = found && endingArchiveOpen.has(e.id);
+        const row = document.createElement('div');
+        row.className = 'item-row' + (found ? ' equipped' : '');
+        if (!found) row.style.opacity = '0.45';
+        row.innerHTML = `
+          <div class="item-row-main">
+            <div class="item-row-name">${found ? `🌟 ${e.title}` : '🔒 ？？？'}</div>
+            <div class="item-row-desc">${found ? (expanded ? 'クリックで閉じる' : 'クリックで本文を読む') : 'この結末はまだ迎えていません'}</div>
+            ${expanded ? `<div class="item-row-desc" style="white-space:pre-wrap; margin-top:6px;">${e.text}</div>` : ''}
+          </div>
+        `;
+        if (found) {
+          row.style.cursor = 'pointer';
+          row.addEventListener('click', () => {
+            if (expanded) endingArchiveOpen.delete(e.id); else endingArchiveOpen.add(e.id);
+            sfx.uiClick();
+            renderCompendiumTab();
+          });
+        }
+        endingList.appendChild(row);
       });
     }
   }
