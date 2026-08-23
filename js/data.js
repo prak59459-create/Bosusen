@@ -361,4 +361,5 @@ export const EMOTES = [
   { label: '👋 やあ！', colors: [0x66eaff, 0x9fe0ff] },
   { label: '✨ すごい！', colors: [0xffd700, 0xfff2a8] },
   { label: '💪 頑張るぞ！', colors: [0xff5a5a, 0xffcc44] },
+  { label: '🤔 考え中…', colors: [0x9fa8da, 0xc5cae9] },
 ];

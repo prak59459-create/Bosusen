@@ -357,7 +357,8 @@ window.addEventListener('keydown', (e) => {
     playEmote(emoteIdx % EMOTES.length);
     emoteIdx++;
   }
-  if (['Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(e.code) && !e.repeat) {
+  // 数字キーは EMOTES の数に追従させる（種類を増やしても割り当てが漏れない）
+  if (/^Digit[1-9]$/.test(e.code) && !e.repeat && parseInt(e.code.slice(-1), 10) <= EMOTES.length) {
     playEmote(parseInt(e.code.slice(-1), 10) - 1);
   }
   if (e.code === 'KeyO' && !e.repeat) togglePhotoGrid();
