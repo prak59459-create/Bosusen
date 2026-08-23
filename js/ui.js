@@ -1186,6 +1186,8 @@ export function syncSettingsUI() {
         .map((name, i) => `<option value="${i}">${name}</option>`).join('');
     }
     photoFilterSelect.value = String(state.photoFilterMode || 0);
+    // 値を合わせるだけでなく実際の描画にも反映する（設定リセット時に必要）
+    setPhotoFilter(state.photoFilterMode || 0);
   }
   const difficultySelect = document.getElementById('opt-difficulty');
   if (difficultySelect) difficultySelect.value = state.difficulty || 'normal';
@@ -1619,7 +1621,7 @@ export function initMenu(onSave, onTitle) {
   });
   document.getElementById('reset-settings-btn').addEventListener('click', () => {
     Object.assign(state, {
-      masterVolume: 0.7, ambientVolume: 1, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1, invertCameraY: false, cameraSensitivity: 1, highContrast: false, reduceNpcChatter: false, proximitySounds: true, screenshotWatermark: true, cinematicAutoHide: false, footstepSounds: true, rumbleStrength: 1, autoQualityAdjust: true, radarZoomIdx: 1, showDamageNumbers: true, guardWindowAssist: false,
+      masterVolume: 0.7, ambientVolume: 1, quality: 'high', screenShake: true, difficulty: 'normal', showObjectiveHint: true, showBossTaunts: true, showGuideBeams: true, gamepadRumble: true, lowHpHeartbeat: true, reduceFlashing: false, uiTextScale: 1, invertCameraY: false, cameraSensitivity: 1, highContrast: false, reduceNpcChatter: false, proximitySounds: true, screenshotWatermark: true, cinematicAutoHide: false, footstepSounds: true, rumbleStrength: 1, autoQualityAdjust: true, radarZoomIdx: 1, showDamageNumbers: true, guardWindowAssist: false, photoFilterMode: 0,
     });
     setMasterVolume(state.masterVolume);
     setQualityPreset(state.quality);
