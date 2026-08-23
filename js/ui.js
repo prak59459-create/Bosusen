@@ -160,7 +160,12 @@ export function updateBars() {
     rankEl.style.color = { S: '#ffd75e', A: '#8fd35f', B: '#9fe0ff', C: '#c0b3d6' }[r] || '';
   }
   const phaseMarkerEl = document.getElementById('boss-phase-marker');
-  if (phaseMarkerEl) phaseMarkerEl.classList.toggle('hide', !!state.phase2);
+  if (phaseMarkerEl) {
+    // 覚醒を持つ章でのみ、覚醒ライン（HP50%）を示す。
+    // 覚醒しないボスに閾値の線が出ていると誤解を招く。
+    const chapterHasPhases = !!(CHAPTERS[state.chapterIndex] || {}).hasPhases;
+    phaseMarkerEl.classList.toggle('hide', !chapterHasPhases || !!state.phase2);
+  }
   els.healCount.textContent = state.healUses;
   els.skillSub.textContent = state.skillCooldown > 0 ? `クールダウン ${state.skillCooldown}` : 'エーテル25';
   els.playerLv.textContent = `Lv.${state.level}`;
