@@ -250,6 +250,7 @@ export const ITEMS = {
   accessory_charm:     { id:'accessory_charm', slot:'accessory', name:'小さな護符', hp:12, mp:8, desc:'旅の安全を願って作られた素朴な護符。じんわりと力が湧く。' },
   sword_primecore:     { id:'sword_primecore', slot:'weapon', name:'プライムコアの聖剣', atk:22, crit:6, desc:'プライム・コアの結晶を鍛え上げた、最果ての剣。持つ者を選ぶ。' },
   armor_eternal:       { id:'armor_eternal', slot:'armor', name:'永劫の鎧', def:22, hp:35, desc:'幾多の結晶病を退けてきたという伝説の鎧。時を超えて輝く。' },
+  accessory_hunter:    { id:'accessory_hunter', slot:'accessory', name:'野伏の首飾り', atk:5, crit:5, desc:'幾度も結晶獣を狩った者だけが手にする首飾り。獣の気配を鋭く捉える。' },
   accessory_starlight: { id:'accessory_starlight', slot:'accessory', name:'星霜の結晶', mp:25, crit:8, hp:15, desc:'星々の記憶を宿すという、最も澄んだ結晶。' },
   accessory_legend:    { id:'accessory_legend', slot:'accessory', name:'伝説の証', atk:8, def:8, crit:10, hp:20, mp:15, desc:'エーテリアの伝説を成し遂げた者だけが持つことを許される、至高の証。' },
 };

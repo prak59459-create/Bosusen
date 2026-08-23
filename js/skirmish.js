@@ -1,4 +1,8 @@
-import { state, computeStats, markFieldTargetDefeated, saveGame, checkAchievements, difficultyMult, addShards, ngPlusShardMult } from './state.js';
+import { state, computeStats, markFieldTargetDefeated, saveGame, checkAchievements, difficultyMult, addShards, ngPlusShardMult, addItem, ownsItem } from './state.js';
+
+// 再討伐限定のドロップ（一度入手したら以降は出ない）
+const HUNTER_DROP_ID = 'accessory_hunter';
+const HUNTER_DROP_RATE = 0.18;
 import { updateBars, showToast, showCenterMsg } from './ui.js';
 import { sfx, setHeartbeatActive } from './audio.js';
 import { spawnParticles, spawnShockwave, rumble, triggerCritFlash, triggerShake } from './effects.js';
@@ -134,6 +138,13 @@ function finishSkirmish(won) {
       const bounty = Math.round(12 * ngPlusShardMult());
       addShards(bounty);
       showToast(`結晶獣を討伐した！ 結晶の欠片 +${bounty}`, 'quest');
+      // 再討伐を続ける目標として、未入手なら稀に専用の装飾品を落とす
+      if (!ownsItem(HUNTER_DROP_ID) && Math.random() < HUNTER_DROP_RATE) {
+        addItem(HUNTER_DROP_ID);
+        sfx.achievement();
+        showCenterMsg('野伏の首飾りを手に入れた！', '#ffd75e', 1800);
+        showToast('野伏の首飾りを手に入れた！（装備タブで装備できます）', 'quest');
+      }
     } else {
       showToast('結晶獣を討伐した！依頼人の元へ戻ろう', 'quest');
     }
