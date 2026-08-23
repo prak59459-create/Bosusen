@@ -1,7 +1,7 @@
 import { state, computeStats, markFieldTargetDefeated, saveGame } from './state.js';
 import { updateBars, showToast } from './ui.js';
 import { sfx } from './audio.js';
-import { spawnParticles, spawnShockwave, rumble } from './effects.js';
+import { spawnParticles, spawnShockwave, rumble, triggerCritFlash } from './effects.js';
 
 /* ============================================================
    フィールド討伐目標との小規模スキルミッシュ(即死ではなく実際に
@@ -58,9 +58,13 @@ function attack() {
   const stats = computeStats();
   const crit = Math.random() * 100 < stats.crit;
   let dmg = Math.round(stats.atk * (0.8 + Math.random() * 0.5));
-  if (crit) dmg = Math.round(dmg * 1.5);
+  if (crit) {
+    dmg = Math.round(dmg * 1.5);
+    state.totalCrits = (state.totalCrits || 0) + 1;
+    triggerCritFlash();
+  }
   enemyHP -= dmg;
-  crit ? sfx.heavyHit() : sfx.hit();
+  crit ? sfx.critHit() : sfx.hit();
   if (currentTarget && currentTarget.mesh) spawnParticles(currentTarget.mesh.getWorldPosition(currentTarget.mesh.position.clone()), crit ? 0xffe066 : 0xff6644, crit ? 16 : 10);
   updateEnemyBar();
 
