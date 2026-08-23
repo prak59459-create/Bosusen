@@ -817,6 +817,7 @@ export function renderItemsTab() {
 }
 
 let compendiumUndiscoveredOnly = false;
+const storyArchiveOpen = new Set();
 export function renderCompendiumTab() {
   const listEl = document.getElementById('biome-compendium-list');
   const progressEl = document.getElementById('compendium-progress');
@@ -909,6 +910,45 @@ export function renderCompendiumTab() {
           </div>
         `;
         loreList.appendChild(row);
+      });
+    }
+  }
+  const storyList = document.getElementById('story-archive-list');
+  const storyProgress = document.getElementById('story-archive-progress');
+  if (storyList) {
+    storyList.innerHTML = '';
+    const clearCounts = state.chapterClearCounts || {};
+    const reached = CHAPTERS.filter((c, i) => i <= state.chapterIndex || (clearCounts[c.key] || 0) > 0);
+    if (storyProgress) storyProgress.textContent = `${reached.length} / ${CHAPTERS.length}`;
+    if (reached.length === 0) {
+      storyList.innerHTML = '<div class="empty-hint">まだ物語が始まっていません。</div>';
+    } else {
+      CHAPTERS.forEach((c, i) => {
+        const unlocked = i <= state.chapterIndex || (clearCounts[c.key] || 0) > 0;
+        const cleared = (clearCounts[c.key] || 0) > 0;
+        const row = document.createElement('div');
+        row.className = 'item-row' + (unlocked ? ' equipped' : '');
+        if (!unlocked) {
+          row.style.opacity = '0.45';
+          row.innerHTML = `<div class="item-row-main"><div class="item-row-name">🔒 ？？？</div></div>`;
+          storyList.appendChild(row);
+          return;
+        }
+        const expanded = storyArchiveOpen.has(c.key);
+        row.innerHTML = `
+          <div class="item-row-main">
+            <div class="item-row-name">📖 ${c.sanctuaryLabel}　${c.title}</div>
+            <div class="item-row-desc">${expanded ? 'クリックで閉じる' : 'クリックで本文を読む'}</div>
+            ${expanded ? `<div class="item-row-desc" style="white-space:pre-wrap; margin-top:6px;">${c.storyBefore}${cleared ? `\n\n―――\n\n${c.storyAfter}` : ''}</div>` : ''}
+          </div>
+        `;
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', () => {
+          if (expanded) storyArchiveOpen.delete(c.key); else storyArchiveOpen.add(c.key);
+          sfx.uiClick();
+          renderCompendiumTab();
+        });
+        storyList.appendChild(row);
       });
     }
   }
