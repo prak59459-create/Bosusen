@@ -85,6 +85,20 @@ if (!shopMatch) {
   }
 }
 
+// --- コード内から直接参照しているアイテムID ---
+// addItem('...') のようにデータ経由でなく文字列で指定している箇所は、
+// アイテム名を変えたときに黙って壊れるため実在を確認する。
+for (const file of ['skirmish.js', 'explore.js', 'main.js', 'ui.js', 'combat.js']) {
+  const src = readFileSync(join(root, 'js', file), 'utf8');
+  for (const m of src.matchAll(/(?:addItem|ownsItem)\('([a-z_]+)'\)/g)) {
+    if (!itemIds.has(m[1])) problems.push(`${file}: "${m[1]}" を参照していますが ITEMS にありません`);
+  }
+  // 定数経由の指定（const XXX_ID = 'item_id'）も拾う
+  for (const m of src.matchAll(/const \w*(?:ITEM|DROP)\w*_ID = '([a-z_]+)'/g)) {
+    if (!itemIds.has(m[1])) problems.push(`${file}: 定数で指定された "${m[1]}" が ITEMS にありません`);
+  }
+}
+
 // --- スキル・実績・エモート ---
 const skillIds = new Set();
 for (const s of SKILLS) {
