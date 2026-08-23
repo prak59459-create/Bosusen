@@ -1106,6 +1106,36 @@ export function initMenu(onSave, onTitle) {
     });
   }
 
+  const settingsSearchEl = document.getElementById('settings-search');
+  if (settingsSearchEl) {
+    const page = document.getElementById('page-system');
+    settingsSearchEl.addEventListener('input', () => {
+      const q = settingsSearchEl.value.trim().toLowerCase();
+      // セクション見出しごとにまとめ、見出し or 中身が一致したものだけ残す
+      const groups = [];
+      [...page.children].forEach(el => {
+        if (el === settingsSearchEl || el.id === 'settings-no-match') return;
+        if (el.classList.contains('settings-section-title')) groups.push({ title: el, items: [] });
+        else if (groups.length) groups[groups.length - 1].items.push(el);
+      });
+      let shown = 0;
+      groups.forEach(({ title, items }) => {
+        const titleHit = !q || title.textContent.toLowerCase().includes(q);
+        let anyItem = false;
+        items.forEach(el => {
+          const hit = titleHit || el.textContent.toLowerCase().includes(q);
+          el.classList.toggle('settings-filtered-out', !hit);
+          if (hit) anyItem = true;
+        });
+        const showTitle = titleHit || anyItem;
+        title.classList.toggle('settings-filtered-out', !showTitle);
+        if (showTitle) shown++;
+      });
+      const noMatchEl = document.getElementById('settings-no-match');
+      if (noMatchEl) noMatchEl.style.display = shown === 0 ? 'block' : 'none';
+    });
+  }
+
   const toastHistoryToggleBtn = document.getElementById('toast-history-toggle-btn');
   const toastHistoryList = document.getElementById('toast-history-list');
   if (toastHistoryToggleBtn && toastHistoryList) {
@@ -1473,6 +1503,11 @@ export function openMenu() {
 }
 export function closeMenu() {
   els.menuOverlay.classList.remove('open');
+  const settingsSearchEl = document.getElementById('settings-search');
+  if (settingsSearchEl && settingsSearchEl.value) {
+    settingsSearchEl.value = '';
+    settingsSearchEl.dispatchEvent(new Event('input'));
+  }
   updateBars();
   sfx.menuClose();
   state.playing = menuPausedPlaying;

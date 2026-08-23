@@ -107,3 +107,6 @@
   background:rgba(120,80,200,0.1); border:1px solid rgba(120,80,200,0.3); color:#2a1f3d;
   padding:6px 10px; border-radius:6px; font-size:13px;
 }
+
+/* 設定検索で絞り込まれた項目（各要素が持つ display 指定を壊さないようクラスで制御する） */
+.settings-filtered-out { display: none !important; }
