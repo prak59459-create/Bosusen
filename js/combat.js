@@ -8,7 +8,7 @@ import { rand } from './utils.js';
 import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake, triggerCritFlash, spawnShockwave, rumble } from './effects.js';
 import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
 import { CHAPTERS, levelStatsFor, BOSS_TAUNTS, VICTORY_LINES, DEFEAT_LINES } from './data.js';
-import { state, computeStats, addShards, difficultyMult, checkAchievements, saveGame } from './state.js';
+import { state, computeStats, addShards, difficultyMult, checkAchievements, saveGame, refreshMaxStats } from './state.js';
 
 let dodgeActive = false;
 let dodgeAnimHandle = null;
@@ -613,6 +613,7 @@ export function setupChapterBattle(chapterIndex) {
   const level = chapterIndex + 1;
   state.chapterIndex = chapterIndex;
   state.level = level;
+  refreshMaxStats();
   const stats = computeStats();
   const dMult = difficultyMult();
   const ngPlusMult = 1 + (state.newGamePlus || 0) * 0.25;

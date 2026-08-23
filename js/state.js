@@ -1,6 +1,7 @@
 import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, levelStatsFor } from './data.js';
 
 const SAVE_KEY = 'aetheria_save_v1';
+export const EXPLORE_STAMINA_BASE = 100;
 
 export const state = {
   chapterIndex: 0,
@@ -86,6 +87,8 @@ export const state = {
   uiTextScale: 1,
   photoFilterMode: 0,
   radarZoomIdx: 1,
+  // 装備・スキルから導出する派生値のため保存しない
+  exploreStaminaMax: 100,
   // セッション内の経過時間から算出する Day 数に対応するため、保存せずセッション単位で扱う
   lastBlessingDay: 0,
   seenExploreTutorial: false,
@@ -179,6 +182,7 @@ export function computeStats() {
     guardReflectPct,
     mpRegenBonus,
     reviveHpPct,
+    staminaMaxBonus,
     heavyAccuracyPct,
     parryMpRestore,
     hasRevive: state.unlockedSkills.includes('revive'),
@@ -192,6 +196,8 @@ export function refreshMaxStats() {
   state.playerMaxHP = stats.maxHP;
   state.playerMaxMP = stats.maxMP;
   state.playerMaxStam = stats.maxStam;
+  // 探索スタミナは戦闘とは別系統だが、スキルの加算分は同じように反映する
+  state.exploreStaminaMax = EXPLORE_STAMINA_BASE + (stats.staminaMaxBonus || 0);
   state.playerHP = Math.min(state.playerHP, state.playerMaxHP);
   state.playerMP = Math.min(state.playerMP, state.playerMaxMP);
   state.playerStam = Math.min(state.playerStam, state.playerMaxStam);

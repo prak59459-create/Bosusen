@@ -175,7 +175,7 @@ const GRAVITY = 32;
 const JUMP_SPEED = 11;
 let currentBiomeName = '';
 let exploreStamina = 100;
-const STAMINA_MAX = 100;
+const exploreStaminaMax = () => state.exploreStaminaMax || 100;
 const STAMINA_DRAIN = 22;
 const STAMINA_REGEN = 14;
 
@@ -557,7 +557,7 @@ export function enterExploreMode(spawnLocal) {
   jumpsUsed = 0;
   dashCooldown = 0;
   dashTimer = 0;
-  exploreStamina = STAMINA_MAX;
+  exploreStamina = exploreStaminaMax();
   player.position.set(HUB_OFFSET.x + localPos.x, 0, HUB_OFFSET.z + localPos.z);
   player.rotation.y = facing + Math.PI;
   crossfadeTo('Idle', 0.2);
@@ -836,11 +836,11 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
   if (sprinting) {
     exploreStamina = Math.max(0, exploreStamina - STAMINA_DRAIN * dt);
   } else {
-    exploreStamina = Math.min(STAMINA_MAX, exploreStamina + STAMINA_REGEN * dt);
+    exploreStamina = Math.min(exploreStaminaMax(), exploreStamina + STAMINA_REGEN * dt);
   }
   const staminaEl = document.getElementById('explore-stamina-fill');
   if (staminaEl) {
-    const pct = (exploreStamina / STAMINA_MAX) * 100;
+    const pct = (exploreStamina / exploreStaminaMax()) * 100;
     staminaEl.style.width = pct + '%';
     staminaEl.classList.toggle('low', pct < 30);
   }

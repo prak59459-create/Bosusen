@@ -6,7 +6,7 @@ import { spawnEnemy } from './enemy.js';
 import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles, rumble, triggerCritFlash } from './effects.js';
 import { resumeAudio, sfx, setMasterVolume, setRainIntensity, setBiomeDrone } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
-import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, removeItem, spendShards, addShards, computeStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, totalQuestsDone, totalQuestsAll, peekSaveSummary } from './state.js';
+import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, removeItem, spendShards, addShards, computeStats, refreshMaxStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, totalQuestsDone, totalQuestsAll, peekSaveSummary } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, showCenterMsg, syncSettingsUI, openMenu, closeMenu, BIOME_CATEGORY_ICON, SLOT_ICON, itemScore, itemStatParts, itemCompareTag } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
@@ -701,10 +701,10 @@ els.continueBtn.addEventListener('click', () => {
   setMasterVolume(state.masterVolume);
   setQualityPreset(state.quality);
   syncSettingsUI();
-  const stats = computeStats();
-  state.playerMaxHP = stats.maxHP; state.playerHP = stats.maxHP;
-  state.playerMaxMP = stats.maxMP; state.playerMP = stats.maxMP;
-  state.playerMaxStam = stats.maxStam; state.playerStam = stats.maxStam;
+  refreshMaxStats();
+  state.playerHP = state.playerMaxHP;
+  state.playerMP = state.playerMaxMP;
+  state.playerStam = state.playerMaxStam;
   goExplore(state.chapterIndex);
   renderQuestTracker();
   updateBars();
