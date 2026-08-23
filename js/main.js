@@ -821,6 +821,14 @@ initMenu(
 /* ============================================================
    モデル読み込み ＆ タイトル初期化
    ============================================================ */
+// 初回起動時のみ、OS の「視差効果を減らす」設定を初期値に反映する。
+// 既存セーブがある場合はプレイヤーが選んだ設定を尊重して触れない。
+if (!hasSaveGame() && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  state.reduceFlashing = true;
+  state.screenShake = false;
+  syncSettingsUI();
+}
+
 spawnEnemy(CHAPTERS[0].enemyDef);
 state.bossHP = CHAPTERS[0].hp;
 state.bossMaxHP = CHAPTERS[0].hp;
