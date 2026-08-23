@@ -168,6 +168,25 @@ export async function copyImageToClipboard(dataUrl) {
     showToast('コピーに対応していない環境です', 'info');
   }
 }
+
+export async function shareImage(dataUrl) {
+  if (!navigator.share) {
+    showToast('この環境では共有機能に対応していません', 'info');
+    return;
+  }
+  try {
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    const file = new File([blob], `bosusen-screenshot-${Date.now()}.png`, { type: blob.type });
+    if (navigator.canShare && !navigator.canShare({ files: [file] })) {
+      showToast('この環境では画像の共有に対応していません', 'info');
+      return;
+    }
+    await navigator.share({ files: [file], title: 'Bosusen: Echoes of the Void', text: '崩壊の古城での一枚' });
+  } catch (err) {
+    if (err && err.name !== 'AbortError') showToast('共有に失敗しました', 'info');
+  }
+}
 const screenshotGallery = [];
 export function addScreenshotToGallery(dataUrl) {
   screenshotGallery.unshift(dataUrl);
@@ -191,6 +210,11 @@ function renderScreenshotGallery() {
       e.preventDefault();
       copyImageToClipboard(url);
     });
+    if (navigator.share) {
+      img.addEventListener('auxclick', (e) => {
+        if (e.button === 1) { e.preventDefault(); shareImage(url); }
+      });
+    }
     img.addEventListener('dblclick', () => {
       const link = document.createElement('a');
       link.href = url;
@@ -200,7 +224,7 @@ function renderScreenshotGallery() {
       document.body.removeChild(link);
       sfx.uiClick();
     });
-    img.title = 'クリックで別タブ表示、右クリックでコピー、ダブルクリックでダウンロード';
+    img.title = 'クリックで別タブ表示、右クリックでコピー、ダブルクリックでダウンロード' + (navigator.share ? '、中クリックで共有' : '');
     el.appendChild(img);
   });
 }
