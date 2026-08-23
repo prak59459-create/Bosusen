@@ -1,5 +1,5 @@
 import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES } from './data.js';
-import { state, computeStats, calcRank, isQuestDone, ownsItem,
+import { state, computeStats, calcRank, isQuestDone, chapterQuestsDone, ownsItem,
   equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData } from './state.js';
 import { sfx, setMasterVolume, setAmbientVolume, setHeartbeatActive } from './audio.js';
 import { setQualityPreset, setPhotoFilter, PHOTO_FILTERS } from './scene.js';
@@ -463,6 +463,20 @@ export function renderStatusTab() {
     document.getElementById('st-best-turns-total').textContent = allCleared ? `${total}ターン` : '-';
   }
   document.getElementById('st-quests').textContent = `${totalQuestsDone()} / ${totalQuestsAll()}`;
+  {
+    // 全体の達成数だけでは、どの聖域に未達成が残っているか分からないため章別も出す
+    const byChapterEl = document.getElementById('st-quests-by-chapter');
+    if (byChapterEl) {
+      byChapterEl.innerHTML = CHAPTERS.map(c => {
+        const done = chapterQuestsDone(c.key);
+        const total = c.quests.length;
+        const reached = CHAPTERS.indexOf(c) <= state.chapterIndex || (state.chapterClearCounts || {})[c.key] > 0;
+        if (!reached) return `<div class="status-row" style="opacity:0.45;"><span>　${c.sanctuaryLabel}</span><b>？？？</b></div>`;
+        const mark = done >= total ? ' ✓' : '';
+        return `<div class="status-row"${done >= total ? '' : ' style="opacity:0.8;"'}><span>　${c.sanctuaryLabel} ${c.title}</span><b>${done} / ${total}${mark}</b></div>`;
+      }).join('');
+    }
+  }
   document.getElementById('st-biomes').textContent = `${(state.discoveredBiomes || []).length} / ${BIOME_NAMES.length}`;
   {
     const completionEl = document.getElementById('st-completion');
