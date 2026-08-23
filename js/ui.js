@@ -1154,6 +1154,10 @@ export function initMenu(onSave, onTitle) {
   document.getElementById('import-save-input').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    if (!window.confirm('現在の進行状況はこのファイルの内容で上書きされます。よろしいですか？')) {
+      e.target.value = '';
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => {
       if (importSaveData(reader.result)) {
