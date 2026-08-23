@@ -8,7 +8,7 @@ import { rand } from './utils.js';
 import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake, triggerCritFlash, spawnShockwave, rumble } from './effects.js';
 import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
 import { CHAPTERS, levelStatsFor, BOSS_TAUNTS, VICTORY_LINES, DEFEAT_LINES } from './data.js';
-import { state, computeStats, addShards, difficultyMult, checkAchievements, saveGame, refreshMaxStats, calcRank, battleDifficultyMult, isLowHp } from './state.js';
+import { state, computeStats, addShards, difficultyMult, checkAchievements, saveGame, refreshMaxStats, calcRank, battleDifficultyMult, isLowHp, recordMoveOutcome, isMoveMastered } from './state.js';
 
 let dodgeActive = false;
 let dodgeAnimHandle = null;
@@ -352,7 +352,9 @@ export function bossTurn() {
   const move = pickWeightedMove(pool, state.phase2 ? PHASE2_WEIGHTS : PHASE1_WEIGHTS);
 
   els.telegraphName.textContent = `⚠ ${move.name} ⚠`;
-  els.telegraphSub.textContent = move.sub;
+  // 何度も凌いだ技は「見切り済み」として提示する（観察が積み上がる手応え）
+  const mastered = isMoveMastered(chapter.key, move.name);
+  els.telegraphSub.textContent = mastered ? `${move.sub}　👁 見切り済み` : move.sub;
   els.telegraph.style.display = 'block';
   sfx.roar();
 
@@ -417,6 +419,7 @@ function resolveDodge(clicked, move, isParry) {
       const counterDmg = Math.round(rand(14, 22) * comboMult * (1 + stats.parryBonusPct) + stats.atk * 0.6);
       state.bossHP -= counterDmg;
       state.totalParries = (state.totalParries || 0) + 1;
+      recordMoveOutcome(move.name, true);
       sfx.parry();
       log(`${move.name}をジャストガード！ 鮮やかな反撃で ${counterDmg} ダメージ！`);
       showCenterMsg('PERFECT PARRY!', '#ffd75e', 900);
@@ -433,6 +436,7 @@ function resolveDodge(clicked, move, isParry) {
       checkPhaseTransition();
     } else if (clicked) {
       state.totalDodges = (state.totalDodges || 0) + 1;
+      recordMoveOutcome(move.name, true);
       sfx.dodgeSuccess();
       log(`${move.name}を華麗に回避した！`);
       showCenterMsg('DODGE!', '#5eb6ff', 700);
@@ -441,6 +445,7 @@ function resolveDodge(clicked, move, isParry) {
       crossfadeTo('Walk', 0.1);
       setTimeout(() => crossfadeTo('Idle', 0.25), 260);
     } else {
+      recordMoveOutcome(move.name, false);
       let dmg = Math.round(rand(move.min, move.max) * battleDifficultyMult().dmg);
       if (state.guarding) { dmg = Math.round(dmg / 2); }
       const stats = computeStats();

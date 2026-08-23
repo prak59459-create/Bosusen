@@ -81,6 +81,8 @@ export const state = {
   collectCombo: 0,
   collectComboAt: 0,
   bestCollectCombo: 0,
+  // ボスの技ごとの遭遇記録 { 'chapterKey|技名': { seen, avoided } }
+  moveStats: {},
   achievements: [], // array of unlocked achievement ids
   questProgress: {}, // { chapterKey: { questId: true } }
   fieldQuests: {}, // { questId: 'accepted' | 'ready_turnin' }
@@ -300,6 +302,29 @@ export function collectComboMult() {
   return Math.min(3, 1 + Math.floor((state.collectCombo || 0) / 5) * 0.5);
 }
 
+/** 見切り済みとみなす回避回数（回避・パリィの合計） */
+export const MOVE_MASTERED_AT = 3;
+
+/** ボスの技を受けた／凌いだ結果を記録する */
+export function recordMoveOutcome(moveName, avoided) {
+  const chapter = CHAPTERS[state.chapterIndex];
+  if (!chapter) return;
+  const key = `${chapter.key}|${moveName}`;
+  const e = state.moveStats[key] || (state.moveStats[key] = { seen: 0, avoided: 0 });
+  e.seen++;
+  if (avoided) e.avoided++;
+}
+
+/** 技の記録を取り出す（未遭遇なら 0 の組を返す） */
+export function moveStat(chapterKey, moveName) {
+  return state.moveStats[`${chapterKey}|${moveName}`] || { seen: 0, avoided: 0 };
+}
+
+/** その技を見切ったか（回避を規定回数積んだか） */
+export function isMoveMastered(chapterKey, moveName) {
+  return moveStat(chapterKey, moveName).avoided >= MOVE_MASTERED_AT;
+}
+
 export function addShards(n) {
   state.shards += n;
   state.totalShardsEarned += n;
@@ -378,6 +403,14 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if (state.butterfliesCaught >= 50) tryUnlock('butterfly_catcher');
   if ((state.spiritsCaught || 0) >= 30) tryUnlock('spirit_collector');
   if ((state.bestCollectCombo || 0) >= 15) tryUnlock('collect_combo');
+  {
+    // 1つの章の全ての技（覚醒後を含む）を見切ると解除
+    const readAll = CHAPTERS.some(c => {
+      const moves = [...(c.movesPhase1 || []), ...(c.movesPhase2 || [])];
+      return moves.length > 0 && moves.every(m => isMoveMastered(c.key, m.name));
+    });
+    if (readAll) tryUnlock('move_reader');
+  }
   if (CHAPTERS.every(c => (state.chapterClearCounts[c.key] || 0) > 0)) tryUnlock('bestiary_complete');
   if ((state.starWishesMade || 0) >= 20) tryUnlock('star_wisher');
   if ((state.starWishesMade || 0) >= 50) tryUnlock('star_wisher_master');
@@ -532,6 +565,7 @@ export function saveGame() {
       butterfliesCaught: state.butterfliesCaught,
       spiritsCaught: state.spiritsCaught,
       bestCollectCombo: state.bestCollectCombo,
+      moveStats: state.moveStats,
       achievements: state.achievements,
       questProgress: state.questProgress,
       fieldQuests: state.fieldQuests,
@@ -663,6 +697,7 @@ export function loadGame() {
       butterfliesCaught: snap.butterfliesCaught || 0,
       spiritsCaught: asNumber(snap.spiritsCaught, 0),
       bestCollectCombo: asNumber(snap.bestCollectCombo, 0),
+      moveStats: asObject(snap.moveStats, {}),
       achievements: asArray(snap.achievements),
       questProgress: asObject(snap.questProgress),
       fieldQuests: asObject(snap.fieldQuests),

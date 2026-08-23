@@ -1,6 +1,6 @@
 import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES } from './data.js';
 import { state, computeStats, calcRank, isLowHp, isQuestDone, chapterQuestsDone, ownsItem,
-  equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData } from './state.js';
+  equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData, moveStat, isMoveMastered } from './state.js';
 import { sfx, setMasterVolume, setAmbientVolume, setHeartbeatActive } from './audio.js';
 import { setQualityPreset, setPhotoFilter, PHOTO_FILTERS } from './scene.js';
 import { setMapOpen, setActiveLoadoutKey, pingQuestObjective } from './explore.js';
@@ -579,6 +579,17 @@ export function renderStatusTab() {
       butterfly_master: [state.butterfliesCaught || 0, 200],
       spirit_collector: [state.spiritsCaught || 0, 30],
       collect_combo: [state.bestCollectCombo || 0, 15],
+      move_reader: (() => {
+        // 最も見切りが進んでいる章の達成度を表示する
+        let best = [0, 1];
+        CHAPTERS.forEach(c => {
+          const moves = [...(c.movesPhase1 || []), ...(c.movesPhase2 || [])];
+          if (!moves.length) return;
+          const done = moves.filter(m => isMoveMastered(c.key, m.name)).length;
+          if (done / moves.length > best[0] / best[1]) best = [done, moves.length];
+        });
+        return best;
+      })(),
       crit_master: [state.totalCrits || 0, 100],
       parry_master: [state.totalParries || 0, 30],
       dodge_master: [state.totalDodges || 0, 50],
@@ -968,7 +979,10 @@ function bestiaryMoveList(chapter) {
   const rows = [];
   const add = (moves, label) => {
     (moves || []).forEach(m => {
-      rows.push(`<div class="item-row-desc">・${m.name}${label}（威力 ${m.min}〜${m.max}／受付 ${m.dodgeWindow}ms）</div>`);
+      const st = moveStat(chapter.key, m.name);
+      const seen = st.seen > 0 ? `／遭遇 ${st.seen}回・凌いだ ${st.avoided}回` : '';
+      const mark = isMoveMastered(chapter.key, m.name) ? ' 👁' : '';
+      rows.push(`<div class="item-row-desc">・${m.name}${label}${mark}（威力 ${m.min}〜${m.max}／受付 ${m.dodgeWindow}ms${seen}）</div>`);
     });
   };
   add(chapter.movesPhase1, '');
