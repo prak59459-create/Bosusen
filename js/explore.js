@@ -6,7 +6,7 @@ import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTar
   explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions, collectNearbyFireflies, collectNearbyButterflies, collectNearbySpirits, BIOME_NAMES, undiscoveredBiomeSpots } from './world.js';
 import { CHAPTERS, EMOTES } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
-  fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot, ngPlusShardMult, isFieldTargetHuntable } from './state.js';
+  fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot, ngPlusShardMult, isFieldTargetHuntable, registerCollect } from './state.js';
 import { showToast, renderQuestTracker, showCenterMsg, addScreenshotToGallery, copyImageToClipboard } from './ui.js';
 import { sfx, startAmbientWind, stopAmbientWind } from './audio.js';
 import { startSkirmish, isSkirmishActive, scheduleHuntRespawn } from './skirmish.js';
@@ -110,6 +110,26 @@ let gpLoadoutHeld = false;
 let gpMuteHeld = false;
 let gpPhotoGridHeld = false;
 let fireflyCheckTimer = 0;
+
+/**
+ * 蛍・蝶・精霊球の採取処理。3種で欠片量・音・色以外は同じ扱いなので一本化する。
+ * 連続して採取するとコンボが伸び、獲得欠片に倍率がかかる。
+ * @param {number} count 捕まえた数（0 なら何もしない）
+ * @param {{label:string, per:number, counter:string, color:number, height:number, particles:number, sound:function}} opt
+ */
+function harvest(count, opt) {
+  if (count <= 0) return;
+  const { combo, mult } = registerCollect(count);
+  const gain = Math.max(1, Math.round(count * opt.per * mult));
+  addShards(gain);
+  state[opt.counter] = (state[opt.counter] || 0) + count;
+  opt.sound();
+  spawnParticles(player.position.clone().add(new THREE.Vector3(0, opt.height, 0)), opt.color, opt.particles * count);
+  const comboTag = mult > 1 ? `（コンボ${combo} ×${mult.toFixed(1)}）` : '';
+  showToast(`${opt.label}！ 結晶の欠片 +${gain}${comboTag}`, 'quest');
+  checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
+  saveGame();
+}
 let chatterTimer = 0;
 let periodicAchCheckTimer = 30;
 const AMBIENT_LINES = [
@@ -1046,37 +1066,18 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
   fireflyCheckTimer -= dt;
   if (fireflyCheckTimer <= 0) {
     fireflyCheckTimer = 0.3;
-    const caught = collectNearbyFireflies(localPos.x, localPos.z, 2.5);
-    if (caught > 0) {
-      addShards(caught * 2);
-      state.firefliesCaught = (state.firefliesCaught || 0) + caught;
-      sfx.shardGet();
-      spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.2, 0)), 0xbdffa0, 6 * caught);
-      showToast(`蛍を捕まえた！ 結晶の欠片 +${caught * 2}`, 'quest');
-      checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
-      saveGame();
-    }
-    const caughtS = collectNearbySpirits(localPos.x, localPos.z, 2.8);
-    if (caughtS > 0) {
-      const gain = Math.round(caughtS * 5 * ngPlusShardMult());
-      addShards(gain);
-      state.spiritsCaught = (state.spiritsCaught || 0) + caughtS;
-      sfx.spiritChime();
-      spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.4, 0)), 0xd0a0ff, 8 * caughtS);
-      showToast(`精霊球を集めた！ 結晶の欠片 +${gain}`, 'quest');
-      checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
-      saveGame();
-    }
-    const caughtB = collectNearbyButterflies(localPos.x, localPos.z, 2.2);
-    if (caughtB > 0) {
-      addShards(caughtB);
-      state.butterfliesCaught = (state.butterfliesCaught || 0) + caughtB;
-      sfx.shardGet();
-      spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.2, 0)), 0xff9fd0, 5 * caughtB);
-      showToast(`蝶を捕まえた！ 結晶の欠片 +${caughtB}`, 'quest');
-      checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
-      saveGame();
-    }
+    harvest(collectNearbyFireflies(localPos.x, localPos.z, 2.5), {
+      label: '蛍を捕まえた', per: 2, counter: 'firefliesCaught',
+      color: 0xbdffa0, height: 1.2, particles: 6, sound: () => sfx.shardGet(),
+    });
+    harvest(collectNearbySpirits(localPos.x, localPos.z, 2.8), {
+      label: '精霊球を集めた', per: 5 * ngPlusShardMult(), counter: 'spiritsCaught',
+      color: 0xd0a0ff, height: 1.4, particles: 8, sound: () => sfx.spiritChime(),
+    });
+    harvest(collectNearbyButterflies(localPos.x, localPos.z, 2.2), {
+      label: '蝶を捕まえた', per: 1, counter: 'butterfliesCaught',
+      color: 0xff9fd0, height: 1.2, particles: 5, sound: () => sfx.shardGet(),
+    });
   }
 
   if (moving) {

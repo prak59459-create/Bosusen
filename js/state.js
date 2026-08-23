@@ -77,6 +77,10 @@ export const state = {
   seenEndings: [],
   butterfliesCaught: 0,
   spiritsCaught: 0,
+  // 採取コンボ（連続して捕まえると欠片が増える）。進行中の値はセッション限り
+  collectCombo: 0,
+  collectComboAt: 0,
+  bestCollectCombo: 0,
   achievements: [], // array of unlocked achievement ids
   questProgress: {}, // { chapterKey: { questId: true } }
   fieldQuests: {}, // { questId: 'accepted' | 'ready_turnin' }
@@ -274,6 +278,28 @@ export function ngPlusShardMult() {
   return 1 + (state.newGamePlus || 0) * 0.2;
 }
 
+/** 採取コンボが途切れるまでの猶予（ミリ秒） */
+export const COLLECT_COMBO_WINDOW_MS = 6000;
+
+/**
+ * 蛍・蝶・精霊球を捕まえたときに呼ぶ。猶予内に続けて捕まえるとコンボが伸び、
+ * 5 匹ごとに欠片の取得量が 0.5 倍ずつ増える（上限 3 倍）。
+ * @returns {{ combo: number, mult: number }} 更新後のコンボ数と欠片倍率
+ */
+export function registerCollect(count) {
+  const now = Date.now();
+  if (now - (state.collectComboAt || 0) > COLLECT_COMBO_WINDOW_MS) state.collectCombo = 0;
+  state.collectComboAt = now;
+  state.collectCombo = (state.collectCombo || 0) + count;
+  if (state.collectCombo > (state.bestCollectCombo || 0)) state.bestCollectCombo = state.collectCombo;
+  return { combo: state.collectCombo, mult: collectComboMult() };
+}
+
+/** 現在の採取コンボによる欠片倍率 */
+export function collectComboMult() {
+  return Math.min(3, 1 + Math.floor((state.collectCombo || 0) / 5) * 0.5);
+}
+
 export function addShards(n) {
   state.shards += n;
   state.totalShardsEarned += n;
@@ -351,6 +377,7 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
   if ((state.totalPlaytimeSec || 0) >= 36000) tryUnlock('veteran_resident');
   if (state.butterfliesCaught >= 50) tryUnlock('butterfly_catcher');
   if ((state.spiritsCaught || 0) >= 30) tryUnlock('spirit_collector');
+  if ((state.bestCollectCombo || 0) >= 15) tryUnlock('collect_combo');
   if (CHAPTERS.every(c => (state.chapterClearCounts[c.key] || 0) > 0)) tryUnlock('bestiary_complete');
   if ((state.starWishesMade || 0) >= 20) tryUnlock('star_wisher');
   if ((state.starWishesMade || 0) >= 50) tryUnlock('star_wisher_master');
@@ -504,6 +531,7 @@ export function saveGame() {
       totalDodges: state.totalDodges,
       butterfliesCaught: state.butterfliesCaught,
       spiritsCaught: state.spiritsCaught,
+      bestCollectCombo: state.bestCollectCombo,
       achievements: state.achievements,
       questProgress: state.questProgress,
       fieldQuests: state.fieldQuests,
@@ -634,6 +662,7 @@ export function loadGame() {
       totalDodges: snap.totalDodges || 0,
       butterfliesCaught: snap.butterfliesCaught || 0,
       spiritsCaught: asNumber(snap.spiritsCaught, 0),
+      bestCollectCombo: asNumber(snap.bestCollectCombo, 0),
       achievements: asArray(snap.achievements),
       questProgress: asObject(snap.questProgress),
       fieldQuests: asObject(snap.fieldQuests),

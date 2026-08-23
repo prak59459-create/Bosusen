@@ -512,6 +512,8 @@ export function renderStatusTab() {
   document.getElementById('st-butterflies').textContent = state.butterfliesCaught || 0;
   const spiritsEl = document.getElementById('st-spirits');
   if (spiritsEl) spiritsEl.textContent = state.spiritsCaught || 0;
+  const comboCollectEl = document.getElementById('st-combo-collect');
+  if (comboCollectEl) comboCollectEl.textContent = state.bestCollectCombo || 0;
   document.getElementById('st-crits').textContent = state.totalCrits || 0;
   document.getElementById('st-parries').textContent = state.totalParries || 0;
   document.getElementById('st-dodges').textContent = state.totalDodges || 0;
@@ -576,6 +578,7 @@ export function renderStatusTab() {
       firefly_master: [state.firefliesCaught || 0, 200],
       butterfly_master: [state.butterfliesCaught || 0, 200],
       spirit_collector: [state.spiritsCaught || 0, 30],
+      collect_combo: [state.bestCollectCombo || 0, 15],
       crit_master: [state.totalCrits || 0, 100],
       parry_master: [state.totalParries || 0, 30],
       dodge_master: [state.totalDodges || 0, 50],

@@ -33,6 +33,8 @@ const TRANSIENT = new Set([
   'exploreStaminaMax',
   // セッション内の経過時間を基準にするため保存しない
   'lastBlessingDay',
+  // 進行中の採取コンボ。最高記録 bestCollectCombo だけを保存する
+  'collectCombo', 'collectComboAt',
 ]);
 
 /** state ではなくスナップショットにのみ書き出すメタ情報 */
