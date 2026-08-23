@@ -710,6 +710,18 @@ els.qbFightBtn.addEventListener('click', () => {
 });
 
 let sessionStartShards = 0, sessionStartBosses = 0;
+// セーブがいつのものか分かるよう、経過時間に応じて表記を変える
+function formatSavedAt(ts) {
+  const diffMin = Math.floor((Date.now() - ts) / 60000);
+  if (diffMin < 1) return 'たった今';
+  if (diffMin < 60) return `${diffMin}分前`;
+  const diffHour = Math.floor(diffMin / 60);
+  if (diffHour < 24) return `${diffHour}時間前`;
+  const diffDay = Math.floor(diffHour / 24);
+  if (diffDay < 7) return `${diffDay}日前`;
+  return new Date(ts).toLocaleDateString('ja-JP');
+}
+
 els.startBtn.addEventListener('click', () => {
   if (!playerReady) return;
   if (hasSaveGame() && !window.confirm('既存のセーブデータを上書きして新しく始めます。よろしいですか？（この操作は取り消せません）')) return;
@@ -907,7 +919,10 @@ loadPlayerModel((frac) => {
     const summaryEl = document.getElementById('continue-summary');
     if (summary && summaryEl) {
       const chapter = CHAPTERS[summary.chapterIndex];
-      summaryEl.textContent = `Lv.${summary.level}｜${chapter ? chapter.title : '?'}${summary.newGamePlus > 0 ? `｜周回+${summary.newGamePlus}` : ''}`;
+      const parts = [`Lv.${summary.level}`, chapter ? chapter.title : '?'];
+      if (summary.newGamePlus > 0) parts.push(`周回+${summary.newGamePlus}`);
+      if (summary.savedAt) parts.push(`最終セーブ ${formatSavedAt(summary.savedAt)}`);
+      summaryEl.textContent = parts.join('｜');
       summaryEl.style.display = 'block';
     }
   } else {

@@ -535,6 +535,7 @@ export function peekSaveSummary() {
       chapterIndex: asChapterIndex(snap.chapterIndex),
       level: asNumber(snap.level, 1),
       newGamePlus: asNumber(snap.newGamePlus, 0),
+      savedAt: asNumber(snap.savedAt, 0),
     };
   } catch (e) {
     return null;
