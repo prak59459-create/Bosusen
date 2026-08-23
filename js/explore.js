@@ -224,7 +224,10 @@ function toggleSprintLock() {
   const ind = document.getElementById('sprint-lock-indicator');
   if (ind) ind.style.display = sprintLock ? 'block' : 'none';
   const btn = document.getElementById('sprint-lock-btn');
-  if (btn) btn.classList.toggle('active', sprintLock);
+  if (btn) {
+    btn.classList.toggle('active', sprintLock);
+    btn.setAttribute('aria-pressed', String(sprintLock));
+  }
 }
 
 function doDash() {
@@ -373,6 +376,8 @@ function togglePhotoGrid() {
   if (!gridEl) return;
   const showing = gridEl.style.display === 'block';
   gridEl.style.display = showing ? 'none' : 'block';
+  const gridBtn = document.getElementById('photo-grid-btn');
+  if (gridBtn) gridBtn.setAttribute('aria-pressed', String(!showing));
   showToast(showing ? '構図グリッドを非表示' : '構図グリッドを表示（三分割法）', 'info');
 }
 
@@ -625,7 +630,10 @@ export function exitExploreMode() {
   const ind = document.getElementById('sprint-lock-indicator');
   if (ind) ind.style.display = 'none';
   const btn = document.getElementById('sprint-lock-btn');
-  if (btn) btn.classList.remove('active');
+  if (btn) {
+    btn.classList.remove('active');
+    btn.setAttribute('aria-pressed', 'false');
+  }
   const objEl = document.getElementById('nearest-objective');
   if (objEl) objEl.style.display = 'none';
   joyVec = { x: 0, y: 0 };
