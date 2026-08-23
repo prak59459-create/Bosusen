@@ -400,7 +400,7 @@ export function renderStatusTab() {
     document.getElementById('st-best-turns-total').textContent = allCleared ? `${total}ターン` : '-';
   }
   document.getElementById('st-quests').textContent = `${totalQuestsDone()} / ${totalQuestsAll()}`;
-  document.getElementById('st-biomes').textContent = `${(state.discoveredBiomes || []).length} / 35`;
+  document.getElementById('st-biomes').textContent = `${(state.discoveredBiomes || []).length} / ${BIOME_NAMES.length}`;
   {
     const completionEl = document.getElementById('st-completion');
     if (completionEl) {

@@ -3,7 +3,7 @@ import { camera, scene, setCameraMode, renderer, setPhotoFilter, setFovKick, isN
 import { player, crossfadeTo } from './player.js';
 import { spawnParticles } from './effects.js';
 import { HUB_OFFSET, WORLD_RADIUS, HUB_SPAWN, zoneMarkers, questGivers, fieldTargets,
-  explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions, collectNearbyFireflies, collectNearbyButterflies } from './world.js';
+  explorePickups, loreMarkers, hiddenTreasures, shopLocalPos, refreshZoneVisuals, biomeNameAt, biomeCategoryAt, puddlePositions, collectNearbyFireflies, collectNearbyButterflies, BIOME_NAMES } from './world.js';
 import { CHAPTERS } from './data.js';
 import { state, isQuestDone, completeQuest, addShards, addItem,
   fieldQuestState, acceptFieldQuest, saveGame, checkAchievements, equipItem, unequipSlot } from './state.js';
@@ -1007,7 +1007,7 @@ export function updateExplore(dt, absTime = 0, isRaining = false) {
         [0xffd700, 0x9fe0ff, 0xff9fd0, 0x9fff7a].forEach((c, i) => {
           spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.4 + i * 0.15, 0)), c, 8);
         });
-        showToast(`新しいバイオーム発見: ${name}（${state.discoveredBiomes.length}/35） 結晶の欠片+5`, 'quest');
+        showToast(`新しいバイオーム発見: ${name}（${state.discoveredBiomes.length}/${BIOME_NAMES.length}） 結晶の欠片+5`, 'quest');
         checkAchievements(hiddenTreasures.length).forEach((a, i) => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); setTimeout(() => showCenterMsg(`実績解除: ${a.name}`, '#ffd75e', 1600), i * 300); });
         saveGame();
       } else {

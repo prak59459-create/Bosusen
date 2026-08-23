@@ -10,7 +10,7 @@ import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, ad
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, showCenterMsg, syncSettingsUI, openMenu, closeMenu, BIOME_CATEGORY_ICON, SLOT_ICON, itemScore } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
-import { HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt, biomeNameAt, triggerLightning, updateLightning, updateButterflies, updateScorpions, updateFoxes, updateFrogs, updateCrows, updateSalamanders, updateDrones, updateSpirits, triggerRainbow, updateRainbow, updateHubSparks, updateGuideBeams } from './world.js';
+import { BIOME_NAMES, HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt, biomeNameAt, triggerLightning, updateLightning, updateButterflies, updateScorpions, updateFoxes, updateFrogs, updateCrows, updateSalamanders, updateDrones, updateSpirits, triggerRainbow, updateRainbow, updateHubSparks, updateGuideBeams } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone,
   setOnOpenShop, setOnToggleMap, setOnToggleMute, getPlayerLocalPos, exploreActive, setMapOpen, setExploreLocalPos, getPlayerFacing, setActiveLoadoutKey } from './explore.js';
 import { initSkirmishUI, resetSkirmish } from './skirmish.js';
@@ -519,7 +519,7 @@ function openMap() {
   const summaryEl = document.getElementById('map-summary');
   if (summaryEl) {
     const clearedZones = zoneMarkers.filter(z => z.chapterIndex < state.chapterIndex).length;
-    summaryEl.textContent = `聖域制覇: ${clearedZones}/${zoneMarkers.length}｜クエスト: ${totalQuestsDone()}/${totalQuestsAll()}｜秘宝: ${state.foundTreasures.length}/${hiddenTreasures.length}｜バイオーム: ${(state.discoveredBiomes || []).length}/35`;
+    summaryEl.textContent = `聖域制覇: ${clearedZones}/${zoneMarkers.length}｜クエスト: ${totalQuestsDone()}/${totalQuestsAll()}｜秘宝: ${state.foundTreasures.length}/${hiddenTreasures.length}｜バイオーム: ${(state.discoveredBiomes || []).length}/${BIOME_NAMES.length}`;
   }
   mapScreen.style.display = 'flex';
   setMapOpen(true);
