@@ -384,6 +384,40 @@ export function renderQuestBoard(chapterIndex, onResolve) {
 /* ============================================================
    メニュー：ステータスタブ
    ============================================================ */
+// スキルで得た補正は戦闘計算に効くだけで表示先が無く、
+// 何がどれだけ強化されたのか確認できなかったため一覧にする。
+const SKILL_EFFECT_LABELS = [
+  ['critDmgPct',      'クリティカル威力', 'pct'],
+  ['shardPct',        '獲得シャード',     'pct'],
+  ['dodgeWindowPct',  'ガード受付時間',   'pct'],
+  ['parryBonusPct',   'パリィ反撃威力',   'pct'],
+  ['healBonusPct',    '回復量',           'pct'],
+  ['staminaCostPct',  'スタミナ消費',     'pct'],
+  ['guardReflectPct', 'ガード時の反射',   'pct'],
+  ['heavyAccuracyPct','強攻撃の命中',     'pct'],
+  ['reviveHpPct',     '蘇生時のHP',       'pct'],
+  ['healUsesBonus',   '回復回数',         'plus'],
+  ['mpRegenBonus',    'エーテル自然回復', 'plus'],
+  ['parryMpRestore',  'パリィ時エーテル', 'plus'],
+];
+function renderSkillEffectSummary(stats) {
+  const el = document.getElementById('st-skill-effects');
+  const labelEl = document.getElementById('st-skill-effects-label');
+  if (!el) return;
+  const rows = [];
+  for (const [key, label, kind] of SKILL_EFFECT_LABELS) {
+    const v = stats[key];
+    if (!v) continue;
+    const text = kind === 'pct'
+      ? `${v > 0 ? '+' : ''}${Math.round(v * 100)}%`
+      : `${v > 0 ? '+' : ''}${v}`;
+    rows.push(`<div class="status-row"><span>${label}</span><b>${text}</b></div>`);
+  }
+  if (stats.hasRevive) rows.push('<div class="status-row"><span>蘇生の残光</span><b>有効</b></div>');
+  el.innerHTML = rows.join('');
+  if (labelEl) labelEl.style.display = rows.length ? 'block' : 'none';
+}
+
 export function renderStatusTab() {
   const s = computeStats();
   const title = playerTitle();
@@ -395,6 +429,9 @@ export function renderStatusTab() {
   document.getElementById('st-crit').textContent = `${s.crit}%`;
   document.getElementById('st-hp').textContent = s.maxHP;
   document.getElementById('st-mp').textContent = s.maxMP;
+  const stamEl = document.getElementById('st-stam');
+  if (stamEl) stamEl.textContent = s.maxStam;
+  renderSkillEffectSummary(s);
   document.getElementById('st-shards').textContent = state.shards;
   document.getElementById('st-shards-lifetime').textContent = state.totalShardsEarned || 0;
   document.getElementById('st-bosses').textContent = state.bossesDefeated || 0;
