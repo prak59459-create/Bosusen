@@ -125,6 +125,19 @@ function check(label, cond) {
   check('天候が全種類出てこない', weathers.size === WEATHERS.length);
 }
 
+// --- 日替わりの目玉商品 ---
+{
+  const d1 = S.dailyDealFor(3, 10), d2 = S.dailyDealFor(3, 10);
+  check('同じ日の目玉商品が一致しない', d1.index === d2.index);
+  check('目玉商品の位置が範囲外', d1.index >= 0 && d1.index < 10);
+  check('商品が無いときに割引が返る', S.dailyDealFor(3, 0) === null);
+  const seen = new Set();
+  for (let d = 0; d < 40; d++) seen.add(S.dailyDealFor(d, 10).index);
+  check('目玉商品が日ごとに変わらない', seen.size >= 5);
+  check('割引価格が計算できていない', S.discountedCost(100, 0.25) === 75);
+  check('割引価格が0以下になる', S.discountedCost(1, 0.99) >= 1);
+}
+
 // --- 採取依頼の進行 ---
 {
   state.gatherDay = -1;

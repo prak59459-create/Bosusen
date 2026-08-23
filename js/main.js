@@ -6,7 +6,7 @@ import { spawnEnemy } from './enemy.js';
 import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles, rumble, triggerCritFlash } from './effects.js';
 import { resumeAudio, sfx, setMasterVolume, setRainIntensity, setBiomeDrone, setCampfireIntensity } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
-import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, removeItem, spendShards, addShards, computeStats, refreshMaxStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, isFieldTargetHuntable, totalQuestsDone, totalQuestsAll, peekSaveSummary, effectiveItem, dailyTrial, trialAppliesTo, trialClaimedToday, weatherForDay, currentWeather, markWeatherSeen, currentGatherRequest } from './state.js';
+import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, removeItem, spendShards, addShards, computeStats, refreshMaxStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, isFieldTargetHuntable, totalQuestsDone, totalQuestsAll, peekSaveSummary, effectiveItem, dailyTrial, trialAppliesTo, trialClaimedToday, weatherForDay, currentWeather, markWeatherSeen, currentGatherRequest, dailyDealFor, discountedCost } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, showCenterMsg, syncSettingsUI, openMenu, closeMenu, BIOME_CATEGORY_ICON, SLOT_ICON, itemScore, itemStatParts, itemCompareTag } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
@@ -219,6 +219,10 @@ const shopShardsEl = document.getElementById('shop-shards');
 
 function renderShop() {
   shopItemList.innerHTML = '';
+  // その日の目玉商品（1点だけ割引）。Day は state.gatherDay と同じものを使う
+  const deal = dailyDealFor(state.gatherDay >= 0 ? state.gatherDay : 0, SHOP_ITEMS.length);
+  const dealItemId = deal ? SHOP_ITEMS[deal.index].itemId : null;
+  const costOf = entry => (entry.itemId === dealItemId ? discountedCost(entry.cost, deal.rate) : entry.cost);
   const ownedCount = SHOP_ITEMS.filter(e => ownsItem(e.itemId)).length;
   const shopProgressFill = document.getElementById('shop-progress-fill');
   if (shopProgressFill) shopProgressFill.style.width = `${Math.round((ownedCount / SHOP_ITEMS.length) * 100)}%`;
@@ -227,7 +231,7 @@ function renderShop() {
     // ロック中の商品は購入不可なので残額の集計から除く
     const remaining = SHOP_ITEMS.filter(e => !ownsItem(e.itemId)
       && !(e.requiresAchievement && !state.achievements.includes(e.requiresAchievement)));
-    const remainingCost = remaining.reduce((sum, e) => sum + e.cost, 0);
+    const remainingCost = remaining.reduce((sum, e) => sum + costOf(e), 0);
     shopProgressText.textContent = remainingCost > 0
       ? `購入済み ${ownedCount} / ${SHOP_ITEMS.length}（残り全購入に必要な欠片: ${remainingCost}）`
       : `購入済み ${ownedCount} / ${SHOP_ITEMS.length}`;
@@ -251,7 +255,9 @@ function renderShop() {
     const item = ITEMS[entry.itemId];
     const owned = ownsItem(entry.itemId);
     const locked = entry.requiresAchievement && !state.achievements.includes(entry.requiresAchievement);
-    const canBuy = !owned && !locked && state.shards >= entry.cost;
+    const cost = costOf(entry);
+    const isDeal = entry.itemId === dealItemId && !owned && !locked;
+    const canBuy = !owned && !locked && state.shards >= cost;
     const isEquipped = Object.values(state.equipment).includes(entry.itemId);
     const sellPrice = Math.floor(entry.cost * 0.5);
     if (affordableOnly && !canBuy) return;
@@ -261,10 +267,10 @@ function renderShop() {
     card.className = 'shop-item-card';
     card.innerHTML = `
       <div>
-        <div class="shop-item-name">${locked ? '🔒 ' : (SLOT_ICON[item.slot] || '') + ' '}${item.name}${upgradeTag}<span class="item-slot-tag">${statParts.join(' / ')}</span></div>
+        <div class="shop-item-name">${isDeal ? '🏷 ' : ''}${locked ? '🔒 ' : (SLOT_ICON[item.slot] || '') + ' '}${item.name}${upgradeTag}<span class="item-slot-tag">${statParts.join(' / ')}</span></div>
         <div class="shop-item-desc">${locked ? '実績「エーテリアの伝説」の解除が必要' : item.desc}</div>
       </div>
-      <button class="shop-buy-btn" ${owned || !canBuy ? 'disabled' : ''}>${owned ? '所持済み' : (locked ? 'ロック中' : `${entry.cost} 欠片`)}</button>
+      <button class="shop-buy-btn" ${owned || !canBuy ? 'disabled' : ''}>${owned ? '所持済み' : (locked ? 'ロック中' : (isDeal ? `${cost} 欠片（本日${Math.round(deal.rate * 100)}%引）` : `${cost} 欠片`))}</button>
       ${owned && !isEquipped ? `<button class="shop-buy-btn shop-sell-btn">売却 +${sellPrice}</button>` : ''}
     `;
     const sellBtn = card.querySelector('.shop-sell-btn');
@@ -281,11 +287,11 @@ function renderShop() {
     }
     const btn = card.querySelector('.shop-buy-btn');
     btn.addEventListener('click', () => {
-      if (owned || locked || state.shards < entry.cost) return;
-      if (!spendShards(entry.cost)) return;
+      if (owned || locked || state.shards < cost) return;
+      if (!spendShards(cost)) return;
       addItem(entry.itemId);
       sfx.shardGet();
-      showToast(`${item.name} を購入した`, 'quest');
+      showToast(`${item.name} を購入した${isDeal ? `（本日の目玉商品 -${entry.cost - cost} 欠片）` : ''}`, 'quest');
       checkAchievements(undefined, undefined, SHOP_ITEMS.filter(e => !e.requiresAchievement).map(e => e.itemId)).forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); });
       saveGame();
       renderShop();

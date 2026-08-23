@@ -287,6 +287,24 @@ export function currentWeather() {
   return weatherCache;
 }
 
+/* ---------- 日替わりの目玉商品 ---------- */
+/**
+ * その日の割引対象（商品の並び位置と割引率）。Day 番号だけで決まる。
+ * 商品の一覧は world.js 側にあり state からは参照できないため、
+ * 「何番目の商品か」と割引率だけを返し、対応付けは呼び出し側で行う。
+ */
+export function dailyDealFor(day, shopCount) {
+  if (!shopCount) return null;
+  let h = Math.imul(day + 11, 2654435761) >>> 0;
+  h = (h ^ (h >>> 13)) >>> 0;
+  return { index: h % shopCount, rate: 0.25 };
+}
+
+/** 割引後の価格 */
+export function discountedCost(cost, rate) {
+  return Math.max(1, Math.round(cost * (1 - rate)));
+}
+
 /* ---------- 日替わりの採取依頼 ---------- */
 /** その日の採取依頼（Day 番号から決まる） */
 export function gatherRequestFor(day) {
