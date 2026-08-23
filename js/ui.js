@@ -761,6 +761,7 @@ export function renderItemsTab() {
   });
 }
 
+let compendiumUndiscoveredOnly = false;
 export function renderCompendiumTab() {
   const listEl = document.getElementById('biome-compendium-list');
   const progressEl = document.getElementById('compendium-progress');
@@ -777,6 +778,7 @@ export function renderCompendiumTab() {
   Object.keys(byCategory).forEach(cat => {
     const entries = byCategory[cat];
     const foundCount = entries.filter(e => discovered.includes(e.name)).length;
+    if (compendiumUndiscoveredOnly && foundCount === entries.length) return;
     const header = document.createElement('div');
     header.className = 'empty-hint';
     header.style.padding = '10px 4px 4px';
@@ -784,6 +786,7 @@ export function renderCompendiumTab() {
     listEl.appendChild(header);
     entries.forEach(({ name, category }) => {
       const found = discovered.includes(name);
+      if (compendiumUndiscoveredOnly && found) return;
       const icon = BIOME_CATEGORY_ICON[category] || '❓';
       const row = document.createElement('div');
       row.className = 'item-row' + (found ? ' equipped' : '');
@@ -798,6 +801,13 @@ export function renderCompendiumTab() {
       listEl.appendChild(row);
     });
   });
+  if (compendiumUndiscoveredOnly && listEl.children.length === 0) {
+    const doneHint = document.createElement('div');
+    doneHint.className = 'empty-hint';
+    doneHint.style.padding = '10px 4px';
+    doneHint.textContent = 'すべてのバイオームを発見済みです';
+    listEl.appendChild(doneHint);
+  }
   const bestiaryList = document.getElementById('bestiary-list');
   const bestiaryProgress = document.getElementById('bestiary-progress');
   if (bestiaryList) {
@@ -987,6 +997,16 @@ export function initMenu(onSave, onTitle) {
       achUnlockedOnlyBtn.textContent = achUnlockedOnly ? 'すべて表示' : '達成済みのみ表示';
       sfx.uiClick();
       renderStatusTab();
+    });
+  }
+
+  const compendiumUndiscoveredBtn = document.getElementById('compendium-undiscovered-btn');
+  if (compendiumUndiscoveredBtn) {
+    compendiumUndiscoveredBtn.addEventListener('click', () => {
+      compendiumUndiscoveredOnly = !compendiumUndiscoveredOnly;
+      compendiumUndiscoveredBtn.textContent = compendiumUndiscoveredOnly ? 'すべて表示' : '未発見のみ表示';
+      sfx.uiClick();
+      renderCompendiumTab();
     });
   }
 
