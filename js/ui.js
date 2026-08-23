@@ -3,7 +3,7 @@ import { state, computeStats, isQuestDone, ownsItem,
   equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData } from './state.js';
 import { sfx, setMasterVolume, setHeartbeatActive } from './audio.js';
 import { setQualityPreset } from './scene.js';
-import { setMapOpen } from './explore.js';
+import { setMapOpen, setActiveLoadoutKey } from './explore.js';
 import { BIOME_NAMES, BIOME_ENTRIES } from './world.js';
 import { rumble } from './effects.js';
 
@@ -566,6 +566,7 @@ export function renderEquipmentTab() {
           if (id && state.inventory.includes(id)) equipItem(id);
           else if (!id) unequipSlot(slot);
         });
+        setActiveLoadoutKey(key);
         sfx.uiClick();
         showToast(`セット${key.toUpperCase()}を呼び出しました`, 'info');
         renderEquipmentTab();

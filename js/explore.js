@@ -255,6 +255,9 @@ function returnToHub() {
 }
 
 let activeLoadoutKey = 'a';
+export function setActiveLoadoutKey(key) {
+  if (key === 'a' || key === 'b') activeLoadoutKey = key;
+}
 function quickSwapLoadout() {
   const nextKey = activeLoadoutKey === 'a' ? 'b' : 'a';
   const loadout = state.savedLoadouts && state.savedLoadouts[nextKey];
