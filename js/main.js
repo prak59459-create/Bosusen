@@ -369,7 +369,9 @@ function drawRadar() {
   const facing = getPlayerFacing();
   radarCtx.save();
   radarCtx.translate(cx, cy);
-  radarCtx.rotate(facing);
+  // facing は atan2(mx, mz) すなわち 0 が +z（レーダー上は下＝南）。
+  // 三角形は上向きに描いているため、PI - facing で進行方向に合わせる。
+  radarCtx.rotate(Math.PI - facing);
   radarCtx.beginPath();
   radarCtx.moveTo(0, -6);
   radarCtx.lineTo(-5, 5);
@@ -418,7 +420,8 @@ function drawMap() {
     const pFacing = getPlayerFacing();
     mapCtx.save();
     mapCtx.translate(px, py);
-    mapCtx.rotate(pFacing);
+    // レーダーと同じ理由で PI - facing（0 が +z＝地図上の下＝南のため）
+    mapCtx.rotate(Math.PI - pFacing);
     mapCtx.beginPath();
     mapCtx.moveTo(0, -9);
     mapCtx.lineTo(-7, 8);
