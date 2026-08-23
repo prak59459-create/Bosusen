@@ -12,6 +12,7 @@ function worldToScreen(vec3) {
 }
 
 export function spawnDamageNumber(worldPos, text, color, big = false) {
+  if (state.showDamageNumbers === false) return;
   const p = worldToScreen(worldPos);
   const el = document.createElement('div');
   el.className = 'dmg-float';
