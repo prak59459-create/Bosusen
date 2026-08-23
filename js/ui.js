@@ -124,7 +124,7 @@ export function updateBars() {
   wasHpCritical = isCritical;
   const vignetteEl = document.getElementById('low-hp-vignette');
   if (vignetteEl) vignetteEl.classList.toggle('active', isCritical);
-  setHeartbeatActive(isCritical && state.playing && state.lowHpHeartbeat !== false);
+  setHeartbeatActive(isCritical && (state.playing || state.inSkirmish) && state.lowHpHeartbeat !== false);
   els.playerHPText.textContent = `${Math.max(0, Math.round(state.playerHP))}/${state.playerMaxHP}`;
   els.playerMPFill.style.width = Math.max(0, state.playerMP / state.playerMaxMP * 100) + '%';
   els.playerMPText.textContent = `${Math.max(0, Math.round(state.playerMP))}/${state.playerMaxMP}`;

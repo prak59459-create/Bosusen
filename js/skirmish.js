@@ -1,6 +1,6 @@
 import { state, computeStats, markFieldTargetDefeated, saveGame, checkAchievements } from './state.js';
 import { updateBars, showToast, showCenterMsg } from './ui.js';
-import { sfx } from './audio.js';
+import { sfx, setHeartbeatActive } from './audio.js';
 import { spawnParticles, spawnShockwave, rumble, triggerCritFlash } from './effects.js';
 
 /* ============================================================
@@ -37,6 +37,7 @@ export function initSkirmishUI() {
 export function startSkirmish(target) {
   if (active) return;
   active = true;
+  state.inSkirmish = true;
   currentTarget = target;
   enemyMaxHP = target.hp || 30;
   enemyHP = enemyMaxHP;
@@ -87,6 +88,8 @@ function attack() {
 
 function finishSkirmish(won) {
   active = false;
+  state.inSkirmish = false;
+  setHeartbeatActive(false);
   els.panel.style.display = 'none';
   if (currentTarget && currentTarget.mesh) currentTarget.mesh.scale.setScalar(1);
   if (won && currentTarget) {

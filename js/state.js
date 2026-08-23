@@ -22,6 +22,7 @@ export const state = {
   healUses: 3,
   guarding: false,
   playing: false,
+  inSkirmish: false,
   turnBusy: false,
   combo: 0,
   maxCombo: 0,
