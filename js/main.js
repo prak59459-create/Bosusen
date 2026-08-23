@@ -6,7 +6,7 @@ import { spawnEnemy } from './enemy.js';
 import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles, rumble, triggerCritFlash } from './effects.js';
 import { resumeAudio, sfx, setMasterVolume, setRainIntensity, setBiomeDrone } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
-import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, removeItem, spendShards, addShards, computeStats, refreshMaxStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, isFieldTargetHuntable, totalQuestsDone, totalQuestsAll, peekSaveSummary, effectiveItem } from './state.js';
+import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, removeItem, spendShards, addShards, computeStats, refreshMaxStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, isFieldTargetHuntable, totalQuestsDone, totalQuestsAll, peekSaveSummary, effectiveItem, dailyTrial, trialAppliesTo, trialClaimedToday } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
   renderQuestTracker, initMenu, refreshAllMenuTabs, showToast, showCenterMsg, syncSettingsUI, openMenu, closeMenu, BIOME_CATEGORY_ICON, SLOT_ICON, itemScore, itemStatParts, itemCompareTag } from './ui.js';
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
@@ -106,8 +106,11 @@ function showStory(chapterIndex, prependText) {
   els.storyText.textContent = prependText ? (prependText + '\n\n―――\n\n' + chapter.storyBefore) : chapter.storyBefore;
   const doneCount = chapterQuestsDone(chapter.key);
   const clearCount = state.chapterClearCounts[chapter.key] || 0;
-  const bossHpPreview = Math.round(chapter.hp * difficultyMult().hp * (1 + (state.newGamePlus || 0) * 0.25));
-  els.questPreview.textContent = `この聖域のクエスト: ${doneCount}/${chapter.quests.length} 達成済み${clearCount > 0 ? `｜結晶獣 撃破回数: ${clearCount}` : ''}｜${chapter.enemyName}（HP ${bossHpPreview}）`;
+  // 今日の試練が適用される聖域では、条件込みのボスHPを見せる
+  const trial = trialAppliesTo(chapterIndex) ? dailyTrial().mod : null;
+  const bossHpPreview = Math.round(chapter.hp * difficultyMult().hp * (1 + (state.newGamePlus || 0) * 0.25) * (trial ? trial.hp : 1));
+  const trialNote = trial ? `｜🔥今日の試練「${trial.name}」: ${trial.desc}` : '';
+  els.questPreview.textContent = `この聖域のクエスト: ${doneCount}/${chapter.quests.length} 達成済み${clearCount > 0 ? `｜結晶獣 撃破回数: ${clearCount}` : ''}｜${chapter.enemyName}（HP ${bossHpPreview}）${trialNote}`;
   setupChapterBattle(chapterIndex);
   document.getElementById('start-screen').style.display = 'none';
   document.getElementById('quest-board-screen').style.display = 'none';
@@ -141,7 +144,9 @@ setOnReplayZone((chapterIndex, zoneName) => {
   const ch = CHAPTERS[chapterIndex];
   const best = (state.bestRankPerChapter || {})[ch.key];
   const bestNote = best ? `（自己ベスト評価: ${best}）` : '';
-  if (!window.confirm(`${zoneName}：${ch.enemyName}に再挑戦しますか？${bestNote}\nレベルはこの聖域に挑んだ当時（Lv.${chapterIndex + 1}）に戻ります。進行状況は変わりません。`)) return;
+  const replayTrial = trialAppliesTo(chapterIndex) ? dailyTrial().mod : null;
+  const replayTrialNote = replayTrial ? `\n🔥今日の試練「${replayTrial.name}」: ${replayTrial.desc}（達成で欠片ボーナス）` : '';
+  if (!window.confirm(`${zoneName}：${ch.enemyName}に再挑戦しますか？${bestNote}${replayTrialNote}\nレベルはこの聖域に挑んだ当時（Lv.${chapterIndex + 1}）に戻ります。進行状況は変わりません。`)) return;
   state.replayReturnChapter = state.chapterIndex;
   showStory(chapterIndex, null);
 });
@@ -565,7 +570,11 @@ function openMap() {
   const summaryEl = document.getElementById('map-summary');
   if (summaryEl) {
     const clearedZones = zoneMarkers.filter(z => z.chapterIndex < state.chapterIndex).length;
-    summaryEl.textContent = `聖域制覇: ${clearedZones}/${zoneMarkers.length}｜クエスト: ${totalQuestsDone()}/${totalQuestsAll()}｜秘宝: ${state.foundTreasures.length}/${hiddenTreasures.length}｜バイオーム: ${(state.discoveredBiomes || []).length}/${BIOME_NAMES.length}`;
+    const mapTrial = dailyTrial();
+    const mapTrialNote = trialClaimedToday()
+      ? '｜🔥今日の試練: 達成済み'
+      : `｜🔥今日の試練: ${CHAPTERS[mapTrial.chapterIndex].title}（${mapTrial.mod.name}）`;
+    summaryEl.textContent = `聖域制覇: ${clearedZones}/${zoneMarkers.length}｜クエスト: ${totalQuestsDone()}/${totalQuestsAll()}｜秘宝: ${state.foundTreasures.length}/${hiddenTreasures.length}｜バイオーム: ${(state.discoveredBiomes || []).length}/${BIOME_NAMES.length}${mapTrialNote}`;
   }
   mapScreen.style.display = 'flex';
   setMapOpen(true);
