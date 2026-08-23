@@ -68,9 +68,35 @@ js/
   combat.js         戦闘ロジック（攻撃・パリィ・フェーズ・勝敗判定）
   ui.js             HUD・メニュー・クエストボードのDOM描画
   main.js           全体の初期化・画面遷移・レンダリングループ
+tools/              開発時の静的検査スクリプト（実行時には読み込まれない）
 vendor/             Three.js本体とGLTFLoader、ポストプロセッシング等（実ファイル、CDN非依存）
 assets/models/      プレイヤーモデル（glTFバイナリ）
 ```
+
+## 開発時の検査
+
+バンドラもテストランナーも使わず、ブラウザが直接 ES モジュールを読む構成のため、
+壊れ方の多くは「実行して該当画面に到達するまで気づけない」種類になる。
+変更後は以下を通すことで早期に検出できる。
+
+```
+node tools/check-all.mjs
+```
+
+内訳（個別にも実行できる）:
+
+| ツール | 検査内容 |
+| --- | --- |
+| （check-all に内蔵） | `js/` 全ファイルの構文チェック |
+| `tools/check-imports.mjs` | 相対 import が実在する export を指しているか |
+| `tools/check-save-fields.mjs` | state の既定値・保存・復元の対応漏れ |
+
+`state` に項目を追加するときは **既定値・`saveGame`・`loadGame` の3箇所**すべてに
+書く必要がある。`check-save-fields.mjs` はこの書き漏らしを検出する。
+意図的に保存しない項目は同スクリプトの `TRANSIENT` に理由付きで列挙する。
+
+> 補足: `node --check foo.js` は、対象が ESM の `import` を含むと構文エラーがあっても
+> 終了コード 0 を返す。そのため検査は `--input-type=module` を用いている。
 
 ## 技術構成
 
