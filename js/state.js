@@ -278,9 +278,11 @@ export function checkDailyLogin() {
   const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
   state.loginStreak = (state.lastLoginDate === yesterday) ? state.loginStreak + 1 : 1;
   state.lastLoginDate = today;
-  const reward = 10 + Math.min(state.loginStreak, 7) * 5;
+  let reward = 10 + Math.min(state.loginStreak, 7) * 5;
+  const milestone = state.loginStreak > 0 && state.loginStreak % 7 === 0;
+  if (milestone) reward += 30;
   addShards(reward);
-  return { streak: state.loginStreak, reward };
+  return { streak: state.loginStreak, reward, milestone };
 }
 
 export function resetSkills() {

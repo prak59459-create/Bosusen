@@ -638,6 +638,7 @@ els.startBtn.addEventListener('click', () => {
   if (login) {
     showToast(`ログインボーナス（${login.streak}日連続） 結晶の欠片 +${login.reward}`, 'quest');
     sfx.shardGet();
+    if (login.milestone) { sfx.achievement(); showCenterMsg(`${login.streak}日連続ログイン達成！`, '#ffd75e', 1800); }
     saveGame();
   }
 });
@@ -660,6 +661,7 @@ els.continueBtn.addEventListener('click', () => {
   if (login) {
     showToast(`ログインボーナス（${login.streak}日連続） 結晶の欠片 +${login.reward}`, 'quest');
     sfx.shardGet();
+    if (login.milestone) { sfx.achievement(); showCenterMsg(`${login.streak}日連続ログイン達成！`, '#ffd75e', 1800); }
     checkAchievements().forEach(a => { sfx.achievement(); showToast(`実績解除: ${a.name}（欠片+${a.reward || 0}）`, 'quest'); spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1.6, 0)), 0xffd700, 18); });
     saveGame();
   }
