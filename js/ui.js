@@ -314,7 +314,9 @@ export function setButtonsEnabled(enabled) {
 export function renderQuestTracker() {
   const chapter = CHAPTERS[state.chapterIndex];
   const remaining = chapter.quests.filter(q => !isQuestDone(chapter.key, q.id));
-  if (remaining.length === 0) {
+  // 日替わりの依頼・試練は章の目標が全て終わっていても表示する
+  const dailies = dailyTrackerRows();
+  if (remaining.length === 0 && dailies.length === 0) {
     els.questTracker.style.display = 'none';
     return;
   }
@@ -345,6 +347,27 @@ export function renderQuestTracker() {
     row.addEventListener('click', () => pingQuestObjective(q.id, q.type));
     els.questTrackerList.appendChild(row);
   });
+  dailies.forEach(text => {
+    const row = document.createElement('div');
+    row.className = 'quest-tracker-row';
+    row.style.opacity = '0.9';
+    row.textContent = text;
+    els.questTrackerList.appendChild(row);
+  });
+}
+
+/** 追跡表示に出す日替わり要素（採取依頼・試練）。無ければ空配列 */
+function dailyTrackerRows() {
+  const rows = [];
+  if (state.gatherDay >= 0 && !state.gatherClaimed) {
+    const req = gatherRequestFor(state.gatherDay);
+    rows.push(`🧺 採取依頼 ${req.name} ${Math.min(state.gatherProgress || 0, req.need)}/${req.need}${req.unit}`);
+  }
+  if (!trialClaimedToday()) {
+    const t = dailyTrial();
+    rows.push(`🔥 試練 ${CHAPTERS[t.chapterIndex].title}（${t.mod.name}）`);
+  }
+  return rows;
 }
 
 /* ============================================================

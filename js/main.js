@@ -1098,6 +1098,7 @@ function animate() {
     if (state.gatherDay !== curDay) {
       const req = currentGatherRequest(curDay);
       showToast(`今日の採取依頼: ${req.name}を${req.need}${req.unit}（報酬 結晶の欠片 ${req.reward}）`, 'quest');
+      renderQuestTracker();
       saveGame();
     }
     if (markWeatherSeen(weather.id)) {

@@ -164,6 +164,7 @@ function harvest(count, opt) {
   const weatherTag = weather.shardMult > 1 ? `［${weather.icon}${weather.name}の恵み］` : '';
   showToast(`${opt.label}！ 結晶の欠片 +${gain}${comboTag}${weatherTag}`, 'quest');
   const gatherReward = advanceGather(opt.counter, count);
+  renderQuestTracker();
   if (gatherReward > 0) {
     sfx.achievement();
     showToast(`採取依頼を達成！ 結晶の欠片 +${gatherReward}`, 'quest');
