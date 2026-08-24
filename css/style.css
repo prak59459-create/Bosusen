@@ -107,7 +107,9 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 #dodge-btn {
   margin-top:14px; padding:clamp(14px,3.6vw,16px) clamp(30px,8vw,40px); font-size:clamp(18px,5vw,22px); font-weight:bold; color:#111;
   background:#ffd75e; border:none; border-radius:8px; cursor:pointer; min-height:52px;
+  transition: filter 0.1s;
 }
+#dodge-btn:hover { filter:brightness(1.1); }
 #dodge-label { font-size:clamp(13px,3.6vw,15px); color:#2a1f3d; margin-top:6px; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
 
 .dmg-float {
@@ -184,7 +186,9 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 .shop-buy-btn {
   background:linear-gradient(135deg,#d4a84a,#f0c060); color:#211505; border:none; border-radius:8px;
   padding:8px 16px; font-weight:bold; cursor:pointer; white-space:nowrap;
+  transition: filter 0.1s;
 }
+.shop-buy-btn:not(:disabled):hover { filter:brightness(1.1); }
 .shop-buy-btn:disabled { opacity:0.4; cursor:default; }
 .shop-sell-btn {
   background:linear-gradient(135deg,#8c7bb0,#a99ac9); color:#1b1430;

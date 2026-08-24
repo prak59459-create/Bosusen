@@ -59,7 +59,9 @@
 .equip-unequip-btn {
   background:rgba(120,80,200,0.1); border:1px solid rgba(120,80,200,0.3); color:#2a1f3d;
   padding:5px 14px; border-radius:6px; font-size:11px; cursor:pointer;
+  transition: background 0.1s;
 }
+.equip-unequip-btn:hover { background:rgba(120,80,200,0.2); }
 
 .item-list, .equip-list { display:flex; flex-direction:column; gap:10px; }
 .item-row {
