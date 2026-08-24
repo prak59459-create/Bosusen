@@ -1892,6 +1892,12 @@ export function openMenu() {
   menuPausedPlaying = state.playing;
   state.playing = false;
   setMapOpen(true);
+  // HP危険域でメニューを開くと、赤いビネットの無限点滅(CSS animation)とハートビート音が
+  // ポーズ中も止まらずメニューの上に残り続けていたため、開く時点で明示的に止める
+  // （closeMenu側はupdateBars()で実際のHPに応じて適切に再判定される）
+  const vignetteEl = document.getElementById('low-hp-vignette');
+  if (vignetteEl) vignetteEl.classList.remove('active');
+  setHeartbeatActive(false);
 }
 export function closeMenu() {
   els.menuOverlay.classList.remove('open');
