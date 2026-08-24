@@ -4,7 +4,7 @@ import { player, loadPlayerModel, playerMixer, playerReady, setCompanionVisible,
 import * as EnemyModule from './enemy.js';
 import { spawnEnemy } from './enemy.js';
 import { updateParticles, updateShakeAndApplyCamera, triggerShake, spawnParticles, rumble, triggerCritFlash } from './effects.js';
-import { resumeAudio, sfx, setMasterVolume, setRainIntensity, setBiomeDrone, setCampfireIntensity } from './audio.js';
+import { resumeAudio, sfx, setMasterVolume, setRainIntensity, setBiomeDrone, setCampfireIntensity, setHeartbeatActive } from './audio.js';
 import { CHAPTERS, ITEMS } from './data.js';
 import { state, saveGame, loadGame, hasSaveGame, chapterQuestsDone, ownsItem, addItem, removeItem, spendShards, addShards, computeStats, refreshMaxStats, isQuestDone, fieldQuestState, checkAchievements, checkDailyLogin, difficultyMult, isFieldTargetHuntable, totalQuestsDone, totalQuestsAll, peekSaveSummary, effectiveItem, dailyTrial, trialAppliesTo, trialClaimedToday, weatherForDay, currentWeather, markWeatherSeen, currentGatherRequest, dailyDealFor, discountedCost } from './state.js';
 import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQuestBoard,
@@ -999,6 +999,9 @@ initMenu(
     }
     resetSkirmish();
     cancelDodgeQTE();
+    // HP危険域の心拍音はループ再生のため、明示的に止めないと
+    // 戦闘離脱後もタイトル画面へ鳴り続けてしまう
+    setHeartbeatActive(false);
     exitExploreMode();
     document.getElementById('start-screen').style.display = 'flex';
     state.playing = false;
