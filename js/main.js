@@ -76,6 +76,13 @@ window.addEventListener('keydown', (e) => {
 let debugOverlayVisible = false;
 const shardHudEl = document.getElementById('explore-shards');
 let shardHudShown = null;
+// animate() の毎フレーム参照する DOM 要素はここでキャッシュしておく
+// （document.getElementById を60fpsで毎回呼ぶのは無駄なコスト）
+const gauntletHudEl = document.getElementById('gauntlet-hud');
+const debugOverlayEl = document.getElementById('debug-overlay');
+const dayCounterEl = document.getElementById('day-counter');
+const lightningFlashEl = document.getElementById('lightning-flash');
+const qualitySelectEl = document.getElementById('opt-quality');
 
 let saveIndicatorTimer = null;
 window.addEventListener('bosusen-saved', () => {
@@ -1085,17 +1092,13 @@ function animate() {
   t += dt;
   state.totalPlaytimeSec = (state.totalPlaytimeSec || 0) + dt;
 
-  {
-    // 連戦モードの進行と経過時間（戦闘中は常に見えるようにする）
-    const gEl = document.getElementById('gauntlet-hud');
-    if (gEl) {
-      if (state.gauntlet) {
-        const sec = (Date.now() - state.gauntlet.startedAt) / 1000;
-        gEl.textContent = `⚔ 連戦 ${state.gauntlet.index + 1}/${CHAPTERS.length} ・ ${sec.toFixed(1)}秒`;
-        gEl.style.display = '';
-      } else if (gEl.style.display !== 'none') {
-        gEl.style.display = 'none';
-      }
+  if (gauntletHudEl) {
+    if (state.gauntlet) {
+      const sec = (Date.now() - state.gauntlet.startedAt) / 1000;
+      gauntletHudEl.textContent = `⚔ 連戦 ${state.gauntlet.index + 1}/${CHAPTERS.length} ・ ${sec.toFixed(1)}秒`;
+      gauntletHudEl.style.display = '';
+    } else if (gauntletHudEl.style.display !== 'none') {
+      gauntletHudEl.style.display = 'none';
     }
   }
 
@@ -1105,11 +1108,10 @@ function animate() {
       fpsLastUpdate = now;
       const fps = Math.round(fpsFrames / fpsAccum);
       fpsAccum = 0; fpsFrames = 0;
-      const debugEl = document.getElementById('debug-overlay');
-      if (debugEl) {
+      if (debugOverlayEl) {
         const p = exploreActive ? getPlayerLocalPos() : { x: 0, z: 0 };
         const bName = exploreActive ? (biomeNameAt(p.x, p.z) || '-') : '-';
-        debugEl.textContent = `FPS: ${fps}\n位置: x=${p.x.toFixed(1)} z=${p.z.toFixed(1)}\nバイオーム: ${bName}\n章: ${state.chapterIndex + 1}｜NG+${state.newGamePlus || 0}\n画質: ${(state.quality || 'high').toUpperCase()}\n経過時間: ${Math.round(t)}s`;
+        debugOverlayEl.textContent = `FPS: ${fps}\n位置: x=${p.x.toFixed(1)} z=${p.z.toFixed(1)}\nバイオーム: ${bName}\n章: ${state.chapterIndex + 1}｜NG+${state.newGamePlus || 0}\n画質: ${(state.quality || 'high').toUpperCase()}\n経過時間: ${Math.round(t)}s`;
       }
     }
   }
@@ -1126,8 +1128,7 @@ function animate() {
         const idx = order.indexOf(state.quality || 'high');
         state.quality = order[Math.min(order.length - 1, idx + 1)];
         setQualityPreset(state.quality);
-        const qSelect = document.getElementById('opt-quality');
-        if (qSelect) qSelect.value = state.quality;
+        if (qualitySelectEl) qualitySelectEl.value = state.quality;
         showToast(`動作が重いためグラフィック品質を${state.quality.toUpperCase()}に自動調整しました`, 'info');
         saveGame();
       }
@@ -1185,7 +1186,6 @@ function animate() {
       shardHudShown = state.shards;
       shardHudEl.textContent = `💎 ${state.shards}`;
     }
-    const dayCounterEl = document.getElementById('day-counter');
     const curDay = getDayCount(t);
     state.currentDay = curDay;
     const weather = weatherForDay(curDay);
@@ -1271,10 +1271,9 @@ function animate() {
       if (thunderTimer <= 0) {
         thunderTimer = 8 + Math.random() * 14;
         if (!state.reduceFlashing) {
-          const flashEl = document.getElementById('lightning-flash');
-          if (flashEl) {
-            flashEl.classList.add('flash');
-            setTimeout(() => flashEl.classList.remove('flash'), 90);
+          if (lightningFlashEl) {
+            lightningFlashEl.classList.add('flash');
+            setTimeout(() => lightningFlashEl.classList.remove('flash'), 90);
           }
         }
         sfx.thunder();
