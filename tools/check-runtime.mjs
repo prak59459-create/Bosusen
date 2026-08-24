@@ -172,6 +172,34 @@ function check(label, cond) {
   check('別の章の同名技と記録が混ざってしまう', S.isMoveMastered('forest', '錆びた斬撃') === false);
 }
 
+// --- フィールド討伐目標の受注〜討伐可否判定 ---
+{
+  state.fieldQuests = {};
+  state.questProgress = {};
+  const target = { chapterIndex: 0, questId: '__test_field_quest__', huntReadyAt: 0 };
+  check('未受注の依頼がnull以外を返す', S.fieldQuestState(target.questId) === null);
+  check('未受注なのに討伐可能になっている', S.isFieldTargetHuntable(target) === false);
+  S.acceptFieldQuest(target.questId);
+  check('受注してもacceptedにならない', S.fieldQuestState(target.questId) === 'accepted');
+  check('受注しただけで討伐可能にならない', S.isFieldTargetHuntable(target) === true);
+  // 既にaccepted状態のときに再度受注しても状態が壊れないこと
+  S.acceptFieldQuest(target.questId);
+  check('二重受注でacceptedが失われる', S.fieldQuestState(target.questId) === 'accepted');
+  // まだacceptedでないもの（クエスト未受注扱い）を討伐済みにしようとしても変化しない
+  S.markFieldTargetDefeated('__not_accepted__');
+  check('未受注の依頼が討伐済み扱いになってしまう', S.fieldQuestState('__not_accepted__') === null);
+  S.markFieldTargetDefeated(target.questId);
+  check('討伐してもready_turninにならない', S.fieldQuestState(target.questId) === 'ready_turnin');
+  check('討伐済みなのに再討伐可能(受注中)扱いのまま', S.isFieldTargetHuntable(target) === false);
+
+  // クエスト自体を報告済みにすると、再討伐はクールダウン(huntReadyAt)基準に切り替わる
+  S.completeQuest(CHAPTERS[0].key, target.questId);
+  target.huntReadyAt = Date.now() + 60000;
+  check('クールダウン中なのに再討伐可能になっている', S.isFieldTargetHuntable(target) === false);
+  target.huntReadyAt = Date.now() - 1;
+  check('クールダウンが明けても再討伐可能にならない', S.isFieldTargetHuntable(target) === true);
+}
+
 // --- 実績の直接解除(unlockAchievement) ---
 {
   state.achievements = [];
