@@ -129,6 +129,37 @@ for (const a of ACHIEVEMENTS) {
 }
 if (!EMOTES.length) problems.push('EMOTES が空です');
 
+// --- スキルのeffectキーがcomputeStats()側で実際に集計されているか ---
+// computeStats()はSKILLS全件を汎用ループで回すのではなく、キーごとに
+// if (e.xxx) ... という手書きの分岐で加算している。新しいスキルの
+// effectキーを追加してもこの分岐に足し忘れると、購入できて実績も付くのに
+// 効果だけ何も起きない「死んだスキル」になり、実際に使うまで気づけない
+// （3DのMeshBasicMaterialにemissiveIntensityを設定しても無視されるのと
+// 同種の「定義したのに読まれないプロパティ」バグ）。
+{
+  const stateSrc = readFileSync(join(root, 'js', 'state.js'), 'utf8');
+  const csMatch = stateSrc.match(/export function computeStats\(\)[\s\S]*?\n\}\n/);
+  if (!csMatch) {
+    problems.push('state.js から computeStats() を抽出できませんでした（検査の更新が必要です）');
+  } else {
+    const body = csMatch[0];
+    // revive は数値集計ではなく unlockedSkills.includes('revive') で個別判定しているため対象外
+    const HANDLED_ELSEWHERE = new Set(['revive']);
+    const effectKeys = new Set();
+    for (const s of SKILLS) {
+      for (const k of Object.keys(s.effect || {})) effectKeys.add(k);
+    }
+    for (const key of effectKeys) {
+      if (HANDLED_ELSEWHERE.has(key)) continue;
+      // 変数名としての再利用（宣言・returnでの露出）はあり得るが、実際に
+      // skill.effect オブジェクト(e)から読み出している箇所が無ければ意味がない
+      if (!new RegExp(`\\be\\.${key}\\b`).test(body)) {
+        problems.push(`スキルのeffectキー "${key}" が computeStats() で e.${key} として読まれていません（効果のないスキルになっています）`);
+      }
+    }
+  }
+}
+
 console.log(`章 ${CHAPTERS.length} / 装備 ${itemIds.size} / スキル ${SKILLS.length} / 実績 ${ACHIEVEMENTS.length} / エモート ${EMOTES.length}${SHOP_ITEMS ? ` / 商品 ${SHOP_ITEMS.length}` : ''} を検査しました`);
 if (problems.length > 0) {
   console.error(`\n${problems.length} 件の問題:`);
