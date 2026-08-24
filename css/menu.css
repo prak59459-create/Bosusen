@@ -31,11 +31,13 @@
 }
 .menu-tab.active { color:#2a1f3d; background:rgba(140,90,255,0.22); }
 .menu-tab:not(.active):hover { color:#2a1f3d; background:rgba(140,90,255,0.1); }
+.menu-tab:not(.active):active { color:#2a1f3d; background:rgba(140,90,255,0.18); }
 #menu-close-btn {
   margin-left:auto; background:transparent; border:none; color:rgba(60,40,90,0.7);
   font-size:16px; cursor:pointer; padding:8px 12px;
 }
 #menu-close-btn:hover { color:#2a1f3d; }
+#menu-close-btn:active { color:#2a1f3d; opacity:0.7; }
 
 .menu-body { flex:1; overflow-y:auto; padding:20px; }
 .menu-page { display:none; }
@@ -62,6 +64,7 @@
   transition: background 0.1s;
 }
 .equip-unequip-btn:hover { background:rgba(120,80,200,0.2); }
+.equip-unequip-btn:active { background:rgba(120,80,200,0.3); }
 
 .item-list, .equip-list { display:flex; flex-direction:column; gap:10px; }
 .item-row {
@@ -80,6 +83,7 @@
   transition: filter 0.1s;
 }
 .item-row-btn:not(:disabled):hover { filter:brightness(1.12); }
+.item-row-btn:not(:disabled):active { filter:brightness(0.92); }
 .item-row-btn:disabled { background:rgba(120,80,200,0.15); color:#2a1f3d; cursor:default; opacity:0.6; }
 .empty-hint { opacity:0.5; font-size:13px; padding:20px; text-align:center; }
 
@@ -100,6 +104,7 @@
   transition: filter 0.1s;
 }
 .skill-node-btn:not(:disabled):hover { filter:brightness(1.12); }
+.skill-node-btn:not(:disabled):active { filter:brightness(0.92); }
 .skill-node-btn:disabled { background:rgba(120,80,200,0.15); color:#2a1f3d; cursor:default; opacity:0.6; }
 .skill-reset-row { margin-top:8px; text-align:center; }
 .skill-reset-btn {
@@ -108,6 +113,7 @@
   transition: background 0.1s;
 }
 .skill-reset-btn:hover { background:rgba(192,57,43,0.1); }
+.skill-reset-btn:active { background:rgba(192,57,43,0.18); }
 
 .system-row { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:16px; }
 .system-row label { font-size:13px; opacity:0.8; }

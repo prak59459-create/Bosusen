@@ -193,6 +193,7 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   transition: filter 0.1s;
 }
 .shop-buy-btn:not(:disabled):hover { filter:brightness(1.1); }
+.shop-buy-btn:not(:disabled):active { filter:brightness(0.9); }
 .shop-buy-btn:disabled { opacity:0.4; cursor:default; }
 .shop-sell-btn {
   background:linear-gradient(135deg,#8c7bb0,#a99ac9); color:#1b1430;
@@ -218,6 +219,7 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   transition: filter 0.1s;
 }
 #skirmish-actions button:hover { filter:brightness(1.1); }
+#skirmish-actions button:active { filter:brightness(0.9); }
 #skirmish-attack-btn { background:linear-gradient(135deg,#e04a4a,#ff7a7a); color:#2a1f3d; }
 #skirmish-flee-btn { background:rgba(120,80,200,0.1); color:#2a1f3d; border:1px solid rgba(120,80,200,0.35) !important; }
 #start-screen h1, #story-screen h1 { font-size:clamp(28px,7.5vw,44px); margin-bottom:10px; color:#7a3fc4; text-shadow:0 0 20px rgba(160,100,255,0.5); letter-spacing:0.08em; }
@@ -226,8 +228,10 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 .big-btn {
   margin-top:18px; padding:clamp(16px,4vw,18px) clamp(36px,10vw,48px); font-size:clamp(19px,5vw,23px); font-weight:bold;
   background: linear-gradient(135deg,#7744dd,#a855f7); color:#fff; border:none; border-radius:10px; cursor:pointer; min-height:56px;
+  transition: filter 0.1s;
 }
 .big-btn:hover { filter:brightness(1.15); }
+.big-btn:active { filter:brightness(0.9); }
 .big-btn.ghost { background:transparent; border:1px solid rgba(120,80,200,0.5); color:#5a3f8c; }
 .big-btn.small-btn { font-size:15px; padding:12px 28px; min-height:44px; margin-top:12px; width:100%; max-width:280px; }
 #delete-save-btn { border-color:rgba(192,57,43,0.4); color:#c0392b; }
