@@ -149,6 +149,43 @@ function check(label, cond) {
   check('習得済みが無い状態でのリセットが0を返さない', S.resetSkills() === 0);
 }
 
+// --- 技の見切り（ガード受付が延びる仕組み） ---
+{
+  state.chapterIndex = 0; // 'castle'
+  state.moveStats = {};
+  check('未遭遇の技がseen/avoided以外を返す', (() => {
+    const m = S.moveStat('castle', '錆びた斬撃');
+    return m.seen === 0 && m.avoided === 0;
+  })());
+  S.recordMoveOutcome('錆びた斬撃', false);
+  S.recordMoveOutcome('錆びた斬撃', false);
+  check('回避せずに凌いでもseenが増えない', S.moveStat('castle', '錆びた斬撃').seen === 2);
+  check('回避していないのにavoidedが増える', S.moveStat('castle', '錆びた斬撃').avoided === 0);
+  check('規定回数未満なのに見切り済みになる', S.isMoveMastered('castle', '錆びた斬撃') === false);
+  // seen（総遭遇数）だけがMOVE_MASTERED_ATを超えてもavoidedが0なら見切り済みにしてはいけない
+  // （見切りはavoided基準であるべきで、seen基準の実装に取り違えていないかを区別する）
+  for (let i = 0; i < S.MOVE_MASTERED_AT + 2; i++) S.recordMoveOutcome('錆びた斬撃', false);
+  check('avoidedを積んでいないのにseenの数だけで見切り済みになる', S.isMoveMastered('castle', '錆びた斬撃') === false);
+  for (let i = 0; i < S.MOVE_MASTERED_AT; i++) S.recordMoveOutcome('錆びた斬撃', true);
+  check('規定回数avoidedを積んでも見切り済みにならない', S.isMoveMastered('castle', '錆びた斬撃') === true);
+  check('別の技の記録に巻き込まれてしまう', S.isMoveMastered('castle', '別の技') === false);
+  check('別の章の同名技と記録が混ざってしまう', S.isMoveMastered('forest', '錆びた斬撃') === false);
+}
+
+// --- 実績の直接解除(unlockAchievement) ---
+{
+  state.achievements = [];
+  state.achievementUnlockedAt = {};
+  const before = state.shards;
+  check('存在しない実績を解除できてしまう', S.unlockAchievement('__nonexistent__') === null);
+  const first = S.unlockAchievement('first_boss');
+  check('実績を解除しても戻り値が実績データでない', !!first && first.id === 'first_boss');
+  check('解除してもachievementsに反映されない', state.achievements.includes('first_boss'));
+  check('解除時刻が記録されない', typeof state.achievementUnlockedAt.first_boss === 'number');
+  if (first.reward) check('報酬の欠片が加算されない', state.shards === before + first.reward);
+  check('同じ実績を二重に解除できてしまう', S.unlockAchievement('first_boss') === null);
+}
+
 // --- 採取コンボ ---
 {
   state.collectCombo = 0;
