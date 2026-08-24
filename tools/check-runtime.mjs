@@ -345,6 +345,9 @@ function check(label, cond) {
   const first = S.checkAchievements();
   const second = S.checkAchievements();
   check('実績が1件も解除されない', first.length > 0);
+  // bossesDefeated=99なら閾値4/10のboss_master・boss_slayerは確実に解除されるはず
+  check('boss_master(4体撃破)が解除されない', first.some(a => a.id === 'boss_master'));
+  check('boss_slayer(10体撃破)が解除されない', first.some(a => a.id === 'boss_slayer'));
   check('同じ実績が二重に解除される', second.every(a => !first.some(f => f.id === a.id)));
 }
 
