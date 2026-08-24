@@ -355,6 +355,9 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 #mute-btn.muted {
   background:rgba(200,200,200,0.8); border-color:rgba(140,140,140,0.5);
 }
+#map-btn:hover, #sprint-lock-btn:hover, #mute-btn:hover {
+  background:rgba(210,195,245,0.9);
+}
 #map-btn:active, #sprint-lock-btn:active, #mute-btn:active {
   transform:scale(0.92);
 }
@@ -363,6 +366,9 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   width:52px; height:52px; border-radius:50%; font-size:22px;
   background:rgba(230,220,250,0.8); border:2px solid rgba(180,140,255,0.4); color:#2a1f3d;
   pointer-events:auto; cursor:pointer; display:none;
+}
+#jump-btn:hover, #dash-btn:hover, #emote-btn:hover, #screenshot-btn:hover, #hub-return-btn:hover, #loadout-swap-btn:hover, #photo-grid-btn:hover {
+  background:rgba(210,195,245,0.9);
 }
 #jump-btn:active, #dash-btn:active, #emote-btn:active, #screenshot-btn:active, #hub-return-btn:active, #loadout-swap-btn:active, #photo-grid-btn:active {
   background:rgba(180,140,255,0.9); transform:scale(0.92);
