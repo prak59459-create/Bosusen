@@ -1883,6 +1883,15 @@ export function initMenu(onSave, onTitle) {
   });
 }
 
+// #low-hp-vignetteはz-index:440で全画面固定・無限ループのCSSアニメーションのため、
+// .activeのまま残るとメニュー/ショップ/マップ画面(いずれもより低いz-index)の上に
+// 赤い明滅が居座り続けてしまう。各画面を開く時点で明示的に消す
+// （閉じる側は必要に応じてupdateBars()が実際のHPに基づいて再判定する）
+export function suppressLowHpVignette() {
+  const vignetteEl = document.getElementById('low-hp-vignette');
+  if (vignetteEl) vignetteEl.classList.remove('active');
+}
+
 export function openMenu() {
   const hudEl = document.getElementById('explore-hud');
   if (hudEl) hudEl.classList.remove('cinematic-fade');
@@ -1892,11 +1901,7 @@ export function openMenu() {
   menuPausedPlaying = state.playing;
   state.playing = false;
   setMapOpen(true);
-  // HP危険域でメニューを開くと、赤いビネットの無限点滅(CSS animation)とハートビート音が
-  // ポーズ中も止まらずメニューの上に残り続けていたため、開く時点で明示的に止める
-  // （closeMenu側はupdateBars()で実際のHPに応じて適切に再判定される）
-  const vignetteEl = document.getElementById('low-hp-vignette');
-  if (vignetteEl) vignetteEl.classList.remove('active');
+  suppressLowHpVignette();
   setHeartbeatActive(false);
 }
 export function closeMenu() {
