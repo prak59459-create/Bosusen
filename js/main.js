@@ -12,7 +12,7 @@ import { els, updateBars, log, setLoadingProgress, hideLoadingScreen, renderQues
 import { setupChapterBattle, startBattlePhase, playerAction, setCombatCallbacks, cancelDodgeQTE } from './combat.js';
 import { BIOME_NAMES, undiscoveredBiomeSpots, HUB_SPAWN, zoneLocalPos, zoneMarkers, questGivers, fieldTargets, shopLocalPos, SHOP_ITEMS, explorePickups, loreMarkers, updateFireflies, hiddenTreasures, updateBirds, updateLeaves, updateCritters, updateShootingStars, updateGrassWind, updateRain, updateSnow, updateEmbers, updateSandstorm, updateCyberMotes, updateCrystalSparkles, updateAsh, biomeCategoryAt, biomeNameAt, triggerLightning, updateLightning, updateButterflies, updateScorpions, updateFoxes, updateFrogs, updateCrows, updateSalamanders, updateDrones, updateSpirits, triggerRainbow, updateRainbow, updateHubSparks, updateGuideBeams, campfires, updateAurora } from './world.js';
 import { enterExploreMode, exitExploreMode, updateExplore, initJoystick, setOnEnterZone, setOnReplayZone,
-  setOnOpenShop, setOnToggleMap, setOnToggleMute, setOnSkipTime, getPlayerLocalPos, exploreActive, setMapOpen, setExploreLocalPos, getPlayerFacing, setActiveLoadoutKey } from './explore.js';
+  setOnOpenShop, setOnToggleMap, setOnToggleMute, setOnSkipTime, getPlayerLocalPos, exploreActive, setMapOpen, setExploreLocalPos, getPlayerFacing, setActiveLoadoutKey, returnToHub } from './explore.js';
 import { initSkirmishUI, resetSkirmish } from './skirmish.js';
 
 mountRenderer();
@@ -710,10 +710,10 @@ mapCanvas.addEventListener('click', (e) => {
   const py = (e.clientY - rect.top) * (mapCanvas.height / rect.height);
   const { scale, cx, cy } = mapScaleInfo;
   if (Math.hypot(px - cx, py - cy) < 12) {
-    setExploreLocalPos(new THREE.Vector3(0, 0, 0));
-    sfx.uiClick();
-    showToast('拠点へファストトラベルした', 'quest');
-    closeMap();
+    // returnToHub()は仮想スティック/ゲームパッド/Nキーの拠点帰還と同じ関数で、
+    // 連打防止のクールダウンを共有する（以前はマップ画面だけ独自にテレポートしており
+    // クールダウンを素通りできてしまっていた）
+    if (returnToHub()) closeMap();
     return;
   }
   let nearest = null, nearestDist = Infinity;

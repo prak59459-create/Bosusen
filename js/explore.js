@@ -326,9 +326,9 @@ function doDash() {
   spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1, 0)), 0x9fe0ff, 12);
 }
 
-function returnToHub() {
+export function returnToHub() {
   const now = performance.now();
-  if (now - lastHubReturnAt < 5000) { showToast('拠点帰還はクールダウン中', 'info'); return; }
+  if (now - lastHubReturnAt < 5000) { showToast('拠点帰還はクールダウン中', 'info'); return false; }
   lastHubReturnAt = now;
   localPos.set(HUB_SPAWN.x, 0, HUB_SPAWN.z);
   spawnParticles(player.position.clone().add(new THREE.Vector3(0, 1, 0)), 0x9fe0ff, 16);
@@ -343,6 +343,7 @@ function returnToHub() {
       teleportFlash.style.background = '';
     }, 200);
   }
+  return true;
 }
 
 let activeLoadoutKey = 'a';
