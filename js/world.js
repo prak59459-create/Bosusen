@@ -105,13 +105,19 @@ export function undiscoveredBiomeSpots(discoveredNames) {
   return spots;
 }
 
+// 天候・環境音・レーダー表示など、同じフレーム内で同じ座標に対して
+// 何度も呼ばれるため、直前と同じ座標なら再計算せず結果を使い回す。
+// プレイヤーが動かない限りフレームをまたいでもキャッシュが効く。
+let _nearestBiomeCacheX = null, _nearestBiomeCacheZ = null, _nearestBiomeCacheResult = -1;
 export function nearestBiome(x, z) {
+  if (x === _nearestBiomeCacheX && z === _nearestBiomeCacheZ) return _nearestBiomeCacheResult;
   let best = -1, bestD = Infinity;
   for (let i = 0; i < BIOME_SEEDS.length; i++) {
     const s = BIOME_SEEDS[i];
     const d = (x - s.x) * (x - s.x) + (z - s.z) * (z - s.z);
     if (d < bestD) { bestD = d; best = i; }
   }
+  _nearestBiomeCacheX = x; _nearestBiomeCacheZ = z; _nearestBiomeCacheResult = best;
   return best;
 }
 export function biomeNameAt(x, z) {
