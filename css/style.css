@@ -78,7 +78,11 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   padding:8px 12px; max-width:min(240px,60vw); backdrop-filter: blur(6px);
 }
 .quest-tracker-title { font-size:11px; color:#7a3fc4; margin-bottom:4px; letter-spacing:0.1em; pointer-events:auto; }
-.quest-tracker-row { font-size:11px; opacity:0.85; line-height:1.5; }
+.quest-tracker-row { font-size:11px; opacity:0.85; line-height:1.5; border-radius:4px; }
+/* クリック可能な行（目的地ピング）だけをホバー対象にする。
+   日替わり要素の表示専用行は role=button を持たないため対象外 */
+.quest-tracker-row[role="button"] { transition: background 0.1s; }
+.quest-tracker-row[role="button"]:hover { background:rgba(120,80,200,0.12); }
 
 #telegraph {
   position:absolute; top:20%; left:50%; transform:translate(-50%,-50%);
@@ -655,7 +659,8 @@ body.high-contrast .quest-tracker, body.high-contrast #biome-label {
 #screenshot-preview.show { opacity: 1; transform: scale(1) translateY(0); }
 
 #screenshot-gallery { display:flex; gap:6px; flex-wrap:wrap; margin:8px 0 4px; }
-#screenshot-gallery img { width:64px; height:36px; object-fit:cover; border-radius:4px; border:1px solid rgba(150,100,220,0.3); cursor:pointer; }
+#screenshot-gallery img { width:64px; height:36px; object-fit:cover; border-radius:4px; border:1px solid rgba(150,100,220,0.3); cursor:pointer; transition: border-color 0.1s, transform 0.1s; }
+#screenshot-gallery img:hover { border-color:rgba(150,100,220,0.7); transform:scale(1.05); }
 
 #explore-hud.cinematic-fade { opacity: 0.15; transition: opacity 1.5s ease; }
 #explore-hud { transition: opacity 0.4s ease; }
