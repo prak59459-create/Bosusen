@@ -248,9 +248,17 @@ function renderScreenshotGallery() {
     const img = document.createElement('img');
     img.src = url;
     img.alt = `探索中に撮影した写真 ${i + 1}枚目`;
-    img.addEventListener('click', () => {
+    // 主要な操作（別タブ表示）だけはキーボードでも行えるようにする。
+    // 右クリック/ダブルクリック/中クリックはマウス固有の補助操作のため対象外。
+    img.setAttribute('role', 'button');
+    img.tabIndex = 0;
+    const openInTab = () => {
       const w = window.open();
       if (w) w.document.write(`<img src="${url}" style="max-width:100%;">`);
+    };
+    img.addEventListener('click', openInTab);
+    img.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openInTab(); }
     });
     img.addEventListener('contextmenu', (e) => {
       e.preventDefault();
