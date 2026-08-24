@@ -104,6 +104,7 @@ node tools/check-all.mjs
 | `tools/check-runtime.mjs` | セーブ往復・装備強化・採取コンボ・日替わり要素・状態異常などを実際に動かして検査 |
 | `tools/check-settings-reset.mjs` | 設定項目が「設定を初期値に戻す」の対象に入っているか |
 | `tools/check-css.mjs` | `css/*.css` の括弧・コメントの対応（閉じ忘れはエラーにならず黙って壊れるため） |
+| `tools/check-html.mjs` | `index.html` の id 重複・`label[for]` の対応 |
 
 `state` に項目を追加するときは **既定値・`saveGame`・`loadGame` の3箇所**すべてに
 書く必要がある。`check-save-fields.mjs` はこの書き漏らしを検出する。

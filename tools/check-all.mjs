@@ -12,6 +12,7 @@
  * 6. 設定項目が「設定を初期値に戻す」の対象に入っているか
  * 7. state の主要ロジックを実際に動かしての振る舞い検査
  * 8. css/*.css の括弧・コメントの対応
+ * 9. index.html の id 重複・label[for] の対応
  *
  * バンドラもテストランナーも使わない構成なので、変更後にこれを通すことで
  * 「実行して該当画面に行くまで気づけない」種類の壊れ方を早期に検出する。
@@ -76,6 +77,9 @@ run('state の振る舞い', process.execPath, ['tools/check-runtime.mjs']);
 
 // 8. CSSの構文
 run('CSSの構文', process.execPath, ['tools/check-css.mjs']);
+
+// 9. HTMLの静的な整合性
+run('HTMLの静的な整合性', process.execPath, ['tools/check-html.mjs']);
 
 console.log('');
 if (failures.length > 0) {
