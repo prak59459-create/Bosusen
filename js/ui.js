@@ -356,7 +356,15 @@ export function renderQuestTracker() {
     row.textContent = `${typeIcon} ${q.title}`;
     row.style.cursor = 'pointer';
     row.title = 'クリックで目的地の方角を表示';
-    row.addEventListener('click', () => pingQuestObjective(q.id, q.type));
+    // クリックのみの<div>だとキーボード/スクリーンリーダーで操作できないため、
+    // ボタンとしての意味づけとキー操作を追加する
+    row.setAttribute('role', 'button');
+    row.tabIndex = 0;
+    const ping = () => pingQuestObjective(q.id, q.type);
+    row.addEventListener('click', ping);
+    row.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ping(); }
+    });
     els.questTrackerList.appendChild(row);
   });
   dailies.forEach(text => {
