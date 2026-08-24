@@ -99,6 +99,32 @@ function check(label, cond) {
   check('買い直した装備が強化済みのまま復元されてしまう', S.itemLevel('sword_rusty') === 0);
 }
 
+// --- 装備の着脱 ---
+{
+  state.shards = 0;
+  state.inventory = ['sword_rusty', 'armor_bark'];
+  state.itemLevels = {};
+  state.equipment = { weapon: null, armor: null, accessory: null };
+  check('未所持の装備を着けられてしまう', S.equipItem('sword_thornblade') === false);
+  check('存在しない装備IDを着けられてしまう', S.equipItem('__nonexistent__') === false);
+  check('所持している装備を着けられない', S.equipItem('sword_rusty') === true);
+  check('装備してもequipmentに反映されない', state.equipment.weapon === 'sword_rusty');
+  check('装備してもステータスに反映されない', S.computeStats().atk > 10);
+
+  // 装備中の防具スロットは別なので、武器の着脱に影響しないはず
+  check('別スロットの装備が着けられない', S.equipItem('armor_bark') === true);
+  check('武器スロットが防具で上書きされてしまう', state.equipment.weapon === 'sword_rusty');
+  check('防具スロットに反映されない', state.equipment.armor === 'armor_bark');
+
+  // 装備中のアイテムは売却できない仕様（外さないと手放せない）
+  check('装備中の武器を売却できてしまう', S.removeItem('sword_rusty') === false);
+  check('売却に失敗しても在庫から消えてしまう', state.inventory.includes('sword_rusty'));
+  S.unequipSlot('weapon');
+  check('外してもequipmentから消えない', state.equipment.weapon === null);
+  check('外した後も売却できない', S.removeItem('sword_rusty') === true);
+  check('売却した装備が在庫に残ってしまう', !state.inventory.includes('sword_rusty'));
+}
+
 // --- 採取コンボ ---
 {
   state.collectCombo = 0;
