@@ -258,7 +258,7 @@ export function statusAtkMult() {
   return mult;
 }
 
-/** 状態異常をすべて解除する */
+/** 状態異常をすべて解除する（tools/check-runtime.mjs の検証で使用） */
 export function clearStatuses() {
   state.statuses = {};
 }
@@ -491,16 +491,6 @@ export function calcRank() {
   if (state.damageTaken <= 50 && state.turns <= 16) return 'A';
   if (state.damageTaken <= 90) return 'B';
   return 'C';
-}
-
-export function applyDefense(rawDmg) {
-  const stats = computeStats();
-  const reduced = rawDmg * (100 / (100 + stats.def));
-  return Math.max(1, Math.round(reduced));
-}
-
-export function hasUnlockedSkill(id) {
-  return state.unlockedSkills.includes(id);
 }
 
 export function unlockSkill(id) {

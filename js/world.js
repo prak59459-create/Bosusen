@@ -1108,13 +1108,6 @@ export function refreshZoneVisuals(currentChapterIndex) {
   });
 }
 
-export function worldToLocal(pos) {
-  return pos.clone().sub(HUB_OFFSET);
-}
-export function localToWorld(pos) {
-  return pos.clone().add(HUB_OFFSET);
-}
-
 /* ---------- 蛍・妖精火：探索エリアを漂う環境パーティクル ---------- */
 const FIREFLY_COUNT = 220;
 const fireflyGeo = new THREE.SphereGeometry(0.12, 6, 6);

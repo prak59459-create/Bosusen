@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { scene } from './scene.js';
 import { spawnEnemy } from './enemy.js';
 import { player, crossfadeTo, playerMotionBeat, playerModel } from './player.js';
-import { bossGlow, torchFires } from './scene.js';
+import { bossGlow } from './scene.js';
 import { sfx, setHeartbeatActive } from './audio.js';
 import { rand } from './utils.js';
 import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake, triggerCritFlash, spawnShockwave, rumble } from './effects.js';
@@ -811,5 +811,3 @@ export function startBattlePhase() {
     setTimeout(() => showToast(`💡 ${chapter.battleTip}`, 'info'), 1800);
   }
 }
-
-export function getTorchFires() { return torchFires; }
