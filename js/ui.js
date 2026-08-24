@@ -244,9 +244,10 @@ function renderScreenshotGallery() {
   const labelEl = document.getElementById('screenshot-gallery-label');
   if (labelEl) labelEl.style.display = screenshotGallery.length > 0 ? 'block' : 'none';
   el.innerHTML = '';
-  screenshotGallery.forEach(url => {
+  screenshotGallery.forEach((url, i) => {
     const img = document.createElement('img');
     img.src = url;
+    img.alt = `探索中に撮影した写真 ${i + 1}枚目`;
     img.addEventListener('click', () => {
       const w = window.open();
       if (w) w.document.write(`<img src="${url}" style="max-width:100%;">`);
