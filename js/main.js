@@ -987,6 +987,11 @@ initMenu(
   () => {
     els.menuOverlay.classList.remove('open');
     saveGame();
+    // 連戦モード・再挑戦は進行度をセッション限りの一時状態で管理しているため、
+    // ここで消しておかないと「つづきから」再開時に古い状態が残り、
+    // 通常の章クリアが連戦/再挑戦の結果画面として誤処理されてしまう
+    state.gauntlet = null;
+    state.replayReturnChapter = null;
     const shardsEarned = (state.totalShardsEarned || 0) - sessionStartShards;
     const bossesEarned = (state.bossesDefeated || 0) - sessionStartBosses;
     if (shardsEarned > 0 || bossesEarned > 0) {
