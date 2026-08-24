@@ -125,6 +125,30 @@ function check(label, cond) {
   check('売却した装備が在庫に残ってしまう', !state.inventory.includes('sword_rusty'));
 }
 
+// --- スキルの習得・リセット ---
+{
+  state.unlockedSkills = [];
+  state.shards = 0;
+  check('存在しないスキルを習得できてしまう', S.unlockSkill('__nonexistent__') === false);
+  check('欠片が足りなくても習得できてしまう', S.unlockSkill('atk_up') === false);
+  const before = S.computeStats().atk;
+  state.shards = 30; // atk_up のコスト
+  check('欠片が足りているのに習得できない', S.unlockSkill('atk_up') === true);
+  check('習得後も欠片が減らない', state.shards === 0);
+  check('習得してもunlockedSkillsに反映されない', state.unlockedSkills.includes('atk_up'));
+  check('習得してもステータスに反映されない', S.computeStats().atk > before);
+  state.shards = 999;
+  check('同じスキルを二重に習得できてしまう', S.unlockSkill('atk_up') === false);
+  check('二重習得の失敗で欠片が減ってしまう', state.shards === 999);
+
+  const refund = S.resetSkills();
+  check('リセットの返還額が習得コストと一致しない', refund === 30);
+  check('リセット後もunlockedSkillsが残る', state.unlockedSkills.length === 0);
+  check('リセットしても欠片が返還されない', state.shards === 999 + 30);
+  check('リセット後もステータス効果が残る', S.computeStats().atk === before);
+  check('習得済みが無い状態でのリセットが0を返さない', S.resetSkills() === 0);
+}
+
 // --- 採取コンボ ---
 {
   state.collectCombo = 0;
