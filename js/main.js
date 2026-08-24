@@ -1045,6 +1045,9 @@ spawnEnemy(CHAPTERS[0].enemyDef);
 state.bossHP = CHAPTERS[0].hp;
 state.bossMaxHP = CHAPTERS[0].hp;
 updateBars();
+// #uiはdisplay:noneではなく#start-screen(z-index:10)の裏に隠れているだけなので、
+// 起動直後もTabキーで#dodge-btn/#menu-btnへフォーカスが抜けてしまっていた
+setBackgroundInert(true);
 
 els.startBtn.textContent = '読み込み中...';
 els.startBtn.style.opacity = '0.5';
