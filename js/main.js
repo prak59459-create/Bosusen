@@ -823,6 +823,9 @@ els.qbFightBtn.addEventListener('click', () => {
   }
   warnedIncompleteQuests = false;
   document.getElementById('quest-board-screen').style.display = 'none';
+  // setupChapterBattle()はこの画面に来る前(showStory)で既に呼ばれているため
+  // ここでは呼ばれず、#uiがinertのまま戦闘に入って操作不能になっていた
+  setBackgroundInert(false);
   startBattlePhase();
 });
 
@@ -1027,6 +1030,9 @@ initMenu(
     document.getElementById('shop-screen').style.display = 'none';
     document.getElementById('map-screen').style.display = 'none';
     els.endScreen.style.display = 'none';
+    // ここはcloseMenu()を経由せずメニューを閉じているため、タイトル画面
+    // (#start-screen)へ戻ったことを明示的にinert=trueで反映しておく
+    setBackgroundInert(true);
   }
 );
 
