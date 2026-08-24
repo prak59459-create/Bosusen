@@ -1317,6 +1317,9 @@ function animate() {
   } else {
     setRainIntensity(0);
     setCampfireIntensity(0);
+    // バイオームの環境ドローン音は探索中しか止める場所がなく、探索を抜けても
+    // 鳴り続けたまま戦闘に入ってしまっていた
+    setBiomeDrone(null);
   }
   if (exploreActive) {
     updateExplore(dt, t, currentIsRaining);
