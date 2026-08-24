@@ -537,8 +537,9 @@ export function playerAction(type) {
   if (!state.playing || state.turnBusy) return;
 
   if (type === 'attack' && state.playerStam < 10) { log('スタミナが足りない！'); return; }
-  const stats0 = computeStats();
-  const stamMult = Math.max(0.4, 1 + (stats0.staminaCostPct || 0));
+  // 装備・スキル構成は以降の早期returnの間には変わらないため、この1回だけ計算して使い回す
+  const stats = computeStats();
+  const stamMult = Math.max(0.4, 1 + (stats.staminaCostPct || 0));
   const attackStamCost = Math.round(10 * stamMult);
   const heavyStamCost = Math.round(30 * stamMult);
   if (type === 'heavy' && state.playerStam < heavyStamCost) {
@@ -575,9 +576,8 @@ export function playerAction(type) {
   state.turns++;
   if (state.turns === 20) showToast('長期戦になっている……集中力を切らさずに攻め続けよう', 'info');
 
-  const stats = computeStats();
   // 「背水の残光」: 低HP時の与ダメージ上昇
-  const desperation = isLowHp() ? (1 + (computeStats().lowHpAtkPct || 0)) : 1;
+  const desperation = isLowHp() ? (1 + (stats.lowHpAtkPct || 0)) : 1;
   // 「集中」直後の攻撃は威力が上がる。攻撃系の行動を取った時点で解除する
   const focusMult = state.focused && (type === 'attack' || type === 'heavy' || type === 'skill') ? 1.4 : 1;
   if (focusMult > 1) {
