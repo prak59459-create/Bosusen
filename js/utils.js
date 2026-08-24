@@ -2,10 +2,6 @@ export function rand(min, max) {
   return Math.random() * (max - min) + min;
 }
 
-export function clamp(v, min, max) {
-  return Math.min(max, Math.max(min, v));
-}
-
 export function makeCanvas(size) {
   const c = document.createElement('canvas');
   c.width = c.height = size;
