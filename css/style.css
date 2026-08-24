@@ -76,6 +76,7 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   position:absolute; top:clamp(150px,30vw,168px); left: max(10px, env(safe-area-inset-left));
   background:rgba(255,255,255,0.75); border:1px solid rgba(150,100,220,0.3); border-radius:8px;
   padding:8px 12px; max-width:min(240px,60vw); backdrop-filter: blur(6px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
 }
 .quest-tracker-title { font-size:11px; color:#7a3fc4; margin-bottom:4px; letter-spacing:0.1em; pointer-events:auto; }
 .quest-tracker-row { font-size:11px; opacity:0.85; line-height:1.5; border-radius:4px; }
@@ -451,6 +452,7 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   background:rgba(60,45,90,0.85); color:#fff; border-radius:14px;
   padding:6px 16px; font-size:12px; opacity:0; pointer-events:none;
   transition:opacity 0.3s ease, transform 0.3s ease; z-index:400;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
 }
 #save-indicator.show { opacity:1; transform:translateX(-50%) translateY(0); }
 #help-btn {
