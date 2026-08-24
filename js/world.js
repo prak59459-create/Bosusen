@@ -1563,7 +1563,9 @@ export function updateSalamanders(t) {
 const cyberSeeds = BIOME_SEEDS.filter((_, i) => BIOME_DEFS[i].category === 'cyber');
 const DRONE_COUNT = Math.min(50, cyberSeeds.length * 6);
 const droneGeo = new THREE.OctahedronGeometry(0.35, 0);
-const droneMat = new THREE.MeshBasicMaterial({ color: 0x1a2a3a, emissive: 0x44ddff, emissiveIntensity: 1 });
+// MeshBasicMaterialは非lit（emissive/emissiveIntensityは存在せず無視されコンソール警告になる）ため、
+// 蛍・精霊球など他の発光生物と同じくcolorそのものを発光色にする
+const droneMat = new THREE.MeshBasicMaterial({ color: 0x44ddff });
 const droneMesh = new THREE.InstancedMesh(droneGeo, droneMat, DRONE_COUNT);
 const droneData = [];
 for (let i = 0; i < DRONE_COUNT; i++) {
