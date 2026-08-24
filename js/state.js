@@ -346,16 +346,18 @@ export function advanceGather(kindCounter, count) {
   return req.reward;
 }
 
-/* ---------- 日替わりの試練 ---------- */
-/** その日の日付キー（ローカル時間） */
-function todayKey() {
-  const d = new Date();
+/**
+ * 指定した日時のローカル日付キー（省略時は現在時刻）。
+ * 日替わり要素（試練・ログインボーナス）の「日」の境界に共通して使う。
+ * toISOString ベースだとUTCの日付になり、日本時間の感覚とずれるため使わない。
+ */
+function localDateKey(d = new Date()) {
   return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 }
 
 /** 日付から決まる今日の試練（章と条件）。同じ日なら誰が呼んでも同じ結果になる */
 export function dailyTrial() {
-  const key = todayKey();
+  const key = localDateKey();
   let h = 0;
   for (const ch of key) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
   // 単純な右シフトだと日ごとに条件がほとんど変わらないため、
@@ -370,7 +372,7 @@ export function dailyTrial() {
 
 /** 今日の試練をすでに達成済みか */
 export function trialClaimedToday() {
-  return state.trialClaimedDate === todayKey();
+  return state.trialClaimedDate === localDateKey();
 }
 
 /** その章に挑むとき、今日の試練が適用されるか */
@@ -381,7 +383,7 @@ export function trialAppliesTo(chapterIndex) {
 /** 試練の達成を記録する（同じ日に二重取得しない） */
 export function claimTrial() {
   if (trialClaimedToday()) return false;
-  state.trialClaimedDate = todayKey();
+  state.trialClaimedDate = localDateKey();
   state.trialsCleared = (state.trialsCleared || 0) + 1;
   return true;
 }
@@ -665,9 +667,11 @@ export function checkAchievements(hiddenTreasureTotal, lastRank, shopItemIds) {
 }
 
 export function checkDailyLogin() {
-  const today = new Date().toISOString().slice(0, 10);
+  // toISOString はUTC基準の日付になり、日本時間の「今日」とずれるため
+  // 試練システムと同じローカル日付基準の localDateKey で揃える
+  const today = localDateKey();
   if (state.lastLoginDate === today) return null;
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const yesterday = localDateKey(new Date(Date.now() - 86400000));
   const streakBroken = state.lastLoginDate && state.lastLoginDate !== yesterday && state.loginStreak >= 3;
   const daysSince = state.lastLoginDate ? Math.round((Date.now() - new Date(state.lastLoginDate).getTime()) / 86400000) : 0;
   state.loginStreak = (state.lastLoginDate === yesterday) ? state.loginStreak + 1 : 1;

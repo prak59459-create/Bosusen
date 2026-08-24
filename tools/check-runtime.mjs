@@ -133,6 +133,21 @@ function check(label, cond) {
   check('天候が全種類出てこない', weathers.size === WEATHERS.length);
 }
 
+// --- ログインボーナス ---
+// toISOString ベースの旧実装はUTC基準になり日本時間の「今日」とずれていたため、
+// ローカル日付基準に統一した（試練システムと同じ localDateKey）。
+{
+  state.lastLoginDate = null;
+  state.loginStreak = 0;
+  const first = S.checkDailyLogin();
+  check('初回ログインでボーナスが出ない', !!first && first.streak === 1);
+  check('同じ日に二重取得できてしまう', S.checkDailyLogin() === null);
+  const y = new Date(Date.now() - 86400000);
+  state.lastLoginDate = `${y.getFullYear()}-${y.getMonth() + 1}-${y.getDate()}`;
+  const second = S.checkDailyLogin();
+  check('連日ログインでstreakが継続しない', !!second && second.streak === 2);
+}
+
 // --- 日替わりの目玉商品 ---
 {
   const d1 = S.dailyDealFor(3, 10), d2 = S.dailyDealFor(3, 10);
