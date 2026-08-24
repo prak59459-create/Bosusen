@@ -6,7 +6,7 @@ import { bossGlow } from './scene.js';
 import { sfx, setHeartbeatActive } from './audio.js';
 import { rand } from './utils.js';
 import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake, triggerCritFlash, spawnShockwave, rumble } from './effects.js';
-import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker, suppressLowHpVignette } from './ui.js';
+import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker, suppressLowHpVignette, setBackgroundInert } from './ui.js';
 import { CHAPTERS, levelStatsFor, BOSS_TAUNTS, VICTORY_LINES, DEFEAT_LINES, STATUS_DEFS } from './data.js';
 import { state, computeStats, addShards, difficultyMult, checkAchievements, saveGame, refreshMaxStats, calcRank, battleDifficultyMult, isLowHp, recordMoveOutcome, isMoveMastered, dailyTrial, trialAppliesTo, claimTrial, applyStatus, tickStatuses, statusAtkMult } from './state.js';
 
@@ -350,6 +350,7 @@ function finishGame(won) {
   const bestNote = bestParts.length ? ` ｜ 自己ベスト: ${bestParts.join(' / ')}` : '';
   els.endStats.textContent = `経過ターン数: ${state.turns} / 被ダメージ合計: ${Math.round(state.damageTaken)} / 最大コンボ: ${state.maxCombo || 0} / 習得スキル: ${state.unlockedSkills.length}${bonusTags.length ? ' ｜ ' + bonusTags.join(' ') : ''}${bestNote}`;
   els.endScreen.style.display = 'flex';
+  setBackgroundInert(true);
 }
 
 /* ============================================================
@@ -741,6 +742,9 @@ export function playerAction(type) {
    章の初期化
    ============================================================ */
 export function setupChapterBattle(chapterIndex) {
+  // 戦闘開始時は#uiが操作対象になるため、直前の画面(ストーリー/クエストボード/
+  // 終了画面など)でinert化されたままだと戦闘中も操作不能になってしまう
+  setBackgroundInert(false);
   const chapter = CHAPTERS[chapterIndex];
   const level = chapterIndex + 1;
   state.chapterIndex = chapterIndex;

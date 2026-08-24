@@ -125,6 +125,7 @@ function showStory(chapterIndex, prependText) {
   document.getElementById('map-screen').style.display = 'none';
   els.endScreen.style.display = 'none';
   els.storyScreen.style.display = 'flex';
+  setBackgroundInert(true);
   saveGame();
 }
 
@@ -133,6 +134,7 @@ function goExplore(spawnChapterIndex) {
   document.getElementById('story-screen').style.display = 'none';
   document.getElementById('quest-board-screen').style.display = 'none';
   els.endScreen.style.display = 'none';
+  setBackgroundInert(false);
   if (spawnChapterIndex != null) {
     const zonePos = zoneLocalPos(spawnChapterIndex);
     enterExploreMode({ x: zonePos.x * 0.7, y: 0, z: zonePos.z * 0.7 });
@@ -802,6 +804,7 @@ function showQuestBoard(chapterIndex) {
   // 直前の戦闘で危険域のHPのまま次の聖域に到達した場合、他の画面と同じく
   // #low-hp-vignetteがクエストボードの上に残らないようにする
   suppressLowHpVignette();
+  setBackgroundInert(true);
 }
 
 els.storyBtn.addEventListener('click', () => {
