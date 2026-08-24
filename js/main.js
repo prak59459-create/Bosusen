@@ -795,6 +795,9 @@ function showQuestBoard(chapterIndex) {
     saveGame();
   });
   document.getElementById('quest-board-screen').style.display = 'flex';
+  // 直前の戦闘で危険域のHPのまま次の聖域に到達した場合、他の画面と同じく
+  // #low-hp-vignetteがクエストボードの上に残らないようにする
+  suppressLowHpVignette();
 }
 
 els.storyBtn.addEventListener('click', () => {
