@@ -677,3 +677,15 @@ canvas:focus-visible,
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/* OSの「視差効果を減らす」設定を尊重する。JS側は初回起動時の設定初期値にしか
+   反映されない（既存セーブでは触らない）ため、HP危険時の点滅などCSS側の
+   無限ループアニメーションはここで一律に静止させる。 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
