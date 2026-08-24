@@ -289,6 +289,40 @@ function check(label, cond) {
   state.lastLoginDate = `${y.getFullYear()}-${y.getMonth() + 1}-${y.getDate()}`;
   const second = S.checkDailyLogin();
   check('連日ログインでstreakが継続しない', !!second && second.streak === 2);
+  check('連日ログインの報酬額が想定と異なる', second.reward === 10 + 2 * 5);
+
+  // 7日目のマイルストーン報酬（+30）
+  state.loginStreak = 6;
+  const y2 = new Date(Date.now() - 86400000);
+  state.lastLoginDate = `${y2.getFullYear()}-${y2.getMonth() + 1}-${y2.getDate()}`;
+  const seventh = S.checkDailyLogin();
+  check('7日目なのにマイルストーンにならない', !!seventh && seventh.milestone === true);
+  check('マイルストーン報酬が加算されない', seventh.reward === 10 + 7 * 5 + 30);
+  check('7日目でstreakが7にならない', state.loginStreak === 7);
+
+  // 8日目はマイルストーンでもキャップ後の報酬でもない通常継続
+  const y3 = new Date(Date.now() - 86400000);
+  state.lastLoginDate = `${y3.getFullYear()}-${y3.getMonth() + 1}-${y3.getDate()}`;
+  const eighth = S.checkDailyLogin();
+  check('報酬倍率の上限(7日分)を超えて増え続けてしまう', eighth.reward === 10 + 7 * 5);
+  check('8日目なのにマイルストーン扱いになる', eighth.milestone === false);
+
+  // ブランクが開いた場合はstreakが1に戻り、3日以上のブランクならwelcomeBackが出る
+  // （daysSinceは日付文字列の往復変換に依存し日境界付近でずれ得るため、
+  //   ちょうど5ではなく閾値(3以上)であることだけを検証する）
+  state.loginStreak = 5;
+  const gapDate = new Date(Date.now() - 5 * 86400000);
+  state.lastLoginDate = `${gapDate.getFullYear()}-${gapDate.getMonth() + 1}-${gapDate.getDate()}`;
+  const afterGap = S.checkDailyLogin();
+  check('5日ブランク後もstreakが継続してしまう', afterGap.streak === 1);
+  check('5日ブランク後にwelcomeBackが出ない', afterGap.welcomeBack >= 3);
+
+  // ブランクがあってもstreakが3未満だったならwelcomeBackは出さない
+  state.loginStreak = 2;
+  const gapDate2 = new Date(Date.now() - 4 * 86400000);
+  state.lastLoginDate = `${gapDate2.getFullYear()}-${gapDate2.getMonth() + 1}-${gapDate2.getDate()}`;
+  const afterShortStreak = S.checkDailyLogin();
+  check('直前のstreakが3未満なのにwelcomeBackが出る', afterShortStreak.welcomeBack === 0);
 }
 
 // --- 日替わりの目玉商品 ---
