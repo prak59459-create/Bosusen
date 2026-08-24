@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { scene, makeToonMaterial, addOutline, renderer } from './scene.js';
+import { scene, makeToonMaterial, addOutline, renderer, isLowQuality } from './scene.js';
 import { CHAPTERS } from './data.js';
 import { makeCanvas } from './utils.js';
 import { mergeGeometries } from 'buffergeometryutils';
@@ -1833,7 +1833,8 @@ export function updateSnow(t, dt, centerX, centerZ) {
   const cat = BIOME_DEFS[biomeIdx] ? BIOME_DEFS[biomeIdx].category : null;
   const isSnowing = cat === 'snow';
   snowMesh.visible = isSnowing;
-  if (!isSnowing) return;
+  // 視認判定は毎フレーム行うが、320個ぶんの行列更新は LOW 画質では省略する
+  if (!isSnowing || isLowQuality()) return;
   for (let i = 0; i < SNOW_COUNT; i++) {
     const d = snowData[i];
     d.y -= d.speed * dt;
@@ -1869,7 +1870,7 @@ export function updateEmbers(t, dt, centerX, centerZ) {
   const cat = BIOME_DEFS[biomeIdx] ? BIOME_DEFS[biomeIdx].category : null;
   const isVolcanic = cat === 'volcanic';
   emberMesh.visible = isVolcanic;
-  if (!isVolcanic) return;
+  if (!isVolcanic || isLowQuality()) return;
   for (let i = 0; i < EMBER_COUNT; i++) {
     const d = emberData[i];
     d.y += d.speed * dt;
@@ -1907,7 +1908,7 @@ export function updateSandstorm(t, dt, centerX, centerZ) {
   const cat = BIOME_DEFS[biomeIdx] ? BIOME_DEFS[biomeIdx].category : null;
   const isDesert = cat === 'desert';
   sandMesh.visible = isDesert;
-  if (!isDesert) return;
+  if (!isDesert || isLowQuality()) return;
   for (let i = 0; i < SAND_COUNT; i++) {
     const d = sandData[i];
     const dx = (t * d.driftSpeed + d.phase * 8) % 60 - 30;
@@ -1942,7 +1943,7 @@ export function updateCyberMotes(t, dt, centerX, centerZ) {
   const cat = BIOME_DEFS[biomeIdx] ? BIOME_DEFS[biomeIdx].category : null;
   const isCyber = cat === 'cyber';
   cyberMesh.visible = isCyber;
-  if (!isCyber) return;
+  if (!isCyber || isLowQuality()) return;
   for (let i = 0; i < CYBER_COUNT; i++) {
     const d = cyberData[i];
     d.y += d.speed * dt;
@@ -1979,7 +1980,7 @@ export function updateCrystalSparkles(t, dt, centerX, centerZ) {
   const cat = BIOME_DEFS[biomeIdx] ? BIOME_DEFS[biomeIdx].category : null;
   const isCrystal = cat === 'crystal';
   sparkleMesh.visible = isCrystal;
-  if (!isCrystal) return;
+  if (!isCrystal || isLowQuality()) return;
   for (let i = 0; i < SPARKLE_COUNT; i++) {
     const d = sparkleData[i];
     const y = d.baseY + Math.sin(t * d.bobSpeed + d.phase) * 0.8;
@@ -2017,7 +2018,7 @@ export function updateAsh(t, dt, centerX, centerZ) {
   const cat = BIOME_DEFS[biomeIdx] ? BIOME_DEFS[biomeIdx].category : null;
   const isWasteland = cat === 'wasteland';
   ashMesh.visible = isWasteland;
-  if (!isWasteland) return;
+  if (!isWasteland || isLowQuality()) return;
   for (let i = 0; i < ASH_COUNT; i++) {
     const d = ashData[i];
     d.y -= d.fallSpeed * dt;
