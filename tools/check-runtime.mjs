@@ -230,6 +230,34 @@ function check(label, cond) {
   check('猶予を過ぎてもコンボが途切れない', after.combo === 1);
   check('途切れた後も倍率が残っている', after.mult === 1);
   check('最高コンボが下がってしまう', state.bestCollectCombo === 5);
+
+  // 倍率の上限（3倍）を超えて際限なく上がってしまわないか
+  state.collectCombo = 0;
+  state.collectComboAt = 0;
+  const capped = S.registerCollect(30);
+  check('高コンボで倍率が3倍を超えてしまう', capped.mult === 3);
+}
+
+// --- 戦闘ランク判定(calcRank) ---
+{
+  state.damageTaken = 0; state.turns = 1;
+  check('無傷・最速なのにSランクにならない', S.calcRank() === 'S');
+  state.damageTaken = 20; state.turns = 10;
+  check('Sランクの境界値がSと判定されない', S.calcRank() === 'S');
+  state.damageTaken = 21; state.turns = 10;
+  check('S条件(被ダメ)を1でも外れたのにSランクのまま', S.calcRank() === 'A');
+  state.damageTaken = 0; state.turns = 11;
+  check('S条件(ターン数)を1でも外れたのにSランクのまま', S.calcRank() === 'A');
+  state.damageTaken = 50; state.turns = 16;
+  check('Aランクの境界値がAと判定されない', S.calcRank() === 'A');
+  state.damageTaken = 51; state.turns = 16;
+  check('A条件(被ダメ)を外れたのにAランクのまま', S.calcRank() === 'B');
+  state.damageTaken = 50; state.turns = 17;
+  check('A条件(ターン数)を外れたのにAランクのまま', S.calcRank() === 'B');
+  state.damageTaken = 90; state.turns = 999;
+  check('Bランクの境界値がBと判定されない（ターン数は無関係のはず）', S.calcRank() === 'B');
+  state.damageTaken = 91; state.turns = 1;
+  check('被ダメが90を超えてもCランクにならない', S.calcRank() === 'C');
 }
 
 // --- 日替わり要素は同じ日なら常に同じ結果 ---
