@@ -589,7 +589,8 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 
 .photo-capture-hide { visibility: hidden !important; }
 
-.mini-btn { margin-left:auto; padding:3px 10px; font-size:11px; border-radius:6px; border:1px solid rgba(255,255,255,0.3); background:rgba(255,255,255,0.08); color:inherit; cursor:pointer; }
+.mini-btn { margin-left:auto; padding:3px 10px; font-size:11px; border-radius:6px; border:1px solid rgba(255,255,255,0.3); background:rgba(255,255,255,0.08); color:inherit; cursor:pointer; transition: background 0.1s; }
+.mini-btn:hover { background:rgba(255,255,255,0.16); }
 .mini-btn:active { background:rgba(255,255,255,0.2); }
 
 #app-credits { margin-top:16px; text-align:center; font-size:11px; opacity:0.5; }
