@@ -321,14 +321,20 @@ function check(label, cond) {
 // --- 状態異常 ---
 {
   S.clearStatuses();
-  S.applyStatus('poison');
-  S.applyStatus('curse');
-  check('呪縛で与ダメージが下がらない', S.statusAtkMult() < 1);
-  const dmg = S.tickStatuses();
-  check('毒の継続ダメージが出ない', dmg > 0);
-  let guard = 0;
-  while (Object.keys(state.statuses).length > 0 && guard++ < 20) S.tickStatuses();
-  check('状態異常がいつまでも切れない', Object.keys(state.statuses).length === 0);
+  check('存在しない状態異常を付与できてしまう', S.applyStatus('__nonexistent__') === false);
+  check('存在する状態異常の付与に失敗する', S.applyStatus('poison') === true);
+  check('存在する状態異常の付与に失敗する(curse)', S.applyStatus('curse') === true);
+  // poison(turns:3, dmgPerTurn:6) / curse(turns:2, atkMult:0.8) の想定値と正確に一致するか
+  check('呪縛の与ダメージ倍率が想定値と異なる', S.statusAtkMult() === 0.8);
+  check('毒の継続ダメージが想定値と異なる', S.tickStatuses() === 6);
+  check('1ターン目でcurseが早く消えてしまう', S.statusAtkMult() === 0.8);
+  check('毒の継続ダメージが2ターン目に変わってしまう', S.tickStatuses() === 6);
+  // curse は turns:2 なので、ここで切れてatkMultが1に戻るはず（poisonはturns:3でまだ残る）
+  check('curseの効果ターンが尽きても倍率が戻らない', S.statusAtkMult() === 1);
+  check('poisonが早く消えてダメージが出ない', S.tickStatuses() === 6);
+  // poison も turns:3 なので3ターン目でここまでに切れているはず
+  check('3ターン経過後も状態異常が残ってしまう', Object.keys(state.statuses).length === 0);
+  check('状態異常が切れた後もダメージが出てしまう', S.tickStatuses() === 0);
   check('解除後も与ダメージが下がったまま', S.statusAtkMult() === 1);
 }
 
