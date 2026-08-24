@@ -342,6 +342,24 @@ function check(label, cond) {
   check('同じ実績が二重に解除される', second.every(a => !first.some(f => f.id === a.id)));
 }
 
+// --- クエスト達成の記録 ---
+{
+  state.questProgress = {};
+  const chapter = CHAPTERS[0];
+  const q0 = chapter.quests[0].id;
+  check('未達成のクエストが達成扱いになっている', S.isQuestDone(chapter.key, q0) === false);
+  check('達成前なのにchapterQuestsDoneが0でない', S.chapterQuestsDone(chapter.key) === 0);
+  S.completeQuest(chapter.key, q0);
+  check('達成してもisQuestDoneに反映されない', S.isQuestDone(chapter.key, q0) === true);
+  check('達成してもchapterQuestsDoneに反映されない', S.chapterQuestsDone(chapter.key) === 1);
+  if (chapter.quests.length > 1) {
+    check('別のクエストまで達成扱いになってしまう', S.isQuestDone(chapter.key, chapter.quests[1].id) === false);
+  }
+  check('totalQuestsAllが全章の合計と一致しない', S.totalQuestsAll() === CHAPTERS.reduce((sum, c) => sum + c.quests.length, 0));
+  check('達成後もtotalQuestsDoneに反映されない', S.totalQuestsDone() === 1);
+  check('存在しない章のchapterQuestsDoneが0を返さない', S.chapterQuestsDone('__nonexistent__') === 0);
+}
+
 console.log(`${checks} 件の振る舞いを検査しました`);
 if (problems.length > 0) {
   console.error(`\n${problems.length} 件の問題:`);
