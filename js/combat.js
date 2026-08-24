@@ -6,7 +6,7 @@ import { bossGlow } from './scene.js';
 import { sfx, setHeartbeatActive } from './audio.js';
 import { rand } from './utils.js';
 import { spawnDamageNumber, spawnParticles, flashHit, animateSwing, animateLunge, triggerShake, triggerCritFlash, spawnShockwave, rumble } from './effects.js';
-import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker } from './ui.js';
+import { els, updateBars, log, showCenterMsg, showToast, setButtonsEnabled, renderQuestTracker, suppressLowHpVignette } from './ui.js';
 import { CHAPTERS, levelStatsFor, BOSS_TAUNTS, VICTORY_LINES, DEFEAT_LINES, STATUS_DEFS } from './data.js';
 import { state, computeStats, addShards, difficultyMult, checkAchievements, saveGame, refreshMaxStats, calcRank, battleDifficultyMult, isLowHp, recordMoveOutcome, isMoveMastered, dailyTrial, trialAppliesTo, claimTrial, applyStatus, tickStatuses, statusAtkMult } from './state.js';
 
@@ -196,6 +196,9 @@ function renderEndingChoices(chapter) {
 function finishGame(won) {
   state.playing = false;
   setHeartbeatActive(false);
+  // 危険域のHPで勝敗が決まると、#low-hp-vignette(z-index:440)が終了画面(z-index:10)の
+  // 上に赤く居座り続けてしまうため、メニュー/ショップ/マップと同様にここでも消す
+  suppressLowHpVignette();
   const chapter = CHAPTERS[state.chapterIndex];
   const isFinal = state.chapterIndex === CHAPTERS.length - 1 && !state.gauntlet;
   els.nextBtn.style.display = 'none';
