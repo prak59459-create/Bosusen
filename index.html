@@ -198,7 +198,7 @@
         </div>
         <div class="skill-reset-row" style="margin-top:16px;">
           <button class="skill-node-btn" id="ach-sort-btn">未達成を進捗順で表示</button>
-          <button class="skill-node-btn" id="ach-unlocked-only-btn">達成済みのみ表示</button>
+          <button class="skill-node-btn" id="ach-unlocked-only-btn" aria-pressed="false">達成済みのみ表示</button>
         </div>
         <input type="search" id="ach-search" aria-label="実績を検索" placeholder="実績名や説明で絞り込む（例: 蛍、連戦）" style="width:100%; box-sizing:border-box; margin:8px 0; padding:6px 8px; font:inherit; font-size:12px;">
         <div id="achievement-list" class="item-list"></div>
@@ -216,7 +216,7 @@
       </div>
       <div class="menu-page" id="page-skills" role="tabpanel">
         <div class="skill-reset-row">
-          <button class="skill-node-btn" id="skill-unlearned-only-btn">未習得のみ表示</button>
+          <button class="skill-node-btn" id="skill-unlearned-only-btn" aria-pressed="false">未習得のみ表示</button>
         </div>
         <div class="skill-tree" id="skill-tree"></div>
       </div>
@@ -226,7 +226,7 @@
       <div class="menu-page" id="page-compendium" role="tabpanel">
         <div class="status-row"><span>発見バイオーム</span><b id="compendium-progress">0 / 35</b></div>
         <div class="skill-reset-row" style="margin-top:6px;">
-          <button class="skill-node-btn" id="compendium-undiscovered-btn">未発見のみ表示</button>
+          <button class="skill-node-btn" id="compendium-undiscovered-btn" aria-pressed="false">未発見のみ表示</button>
         </div>
         <div class="item-list" id="biome-compendium-list"></div>
         <div class="status-row" style="margin-top:10px;"><span>撃破ボス図鑑</span><b id="bestiary-progress">0 / 0</b></div>

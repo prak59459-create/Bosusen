@@ -1512,6 +1512,7 @@ export function initMenu(onSave, onTitle) {
     achUnlockedOnlyBtn.addEventListener('click', () => {
       achUnlockedOnly = !achUnlockedOnly;
       achUnlockedOnlyBtn.textContent = achUnlockedOnly ? 'すべて表示' : '達成済みのみ表示';
+      achUnlockedOnlyBtn.setAttribute('aria-pressed', String(achUnlockedOnly));
       sfx.uiClick();
       renderStatusTab();
     });
@@ -1522,6 +1523,7 @@ export function initMenu(onSave, onTitle) {
     skillUnlearnedBtn.addEventListener('click', () => {
       skillUnlearnedOnly = !skillUnlearnedOnly;
       skillUnlearnedBtn.textContent = skillUnlearnedOnly ? 'すべて表示' : '未習得のみ表示';
+      skillUnlearnedBtn.setAttribute('aria-pressed', String(skillUnlearnedOnly));
       sfx.uiClick();
       renderSkillsTab();
     });
@@ -1532,6 +1534,7 @@ export function initMenu(onSave, onTitle) {
     compendiumUndiscoveredBtn.addEventListener('click', () => {
       compendiumUndiscoveredOnly = !compendiumUndiscoveredOnly;
       compendiumUndiscoveredBtn.textContent = compendiumUndiscoveredOnly ? 'すべて表示' : '未発見のみ表示';
+      compendiumUndiscoveredBtn.setAttribute('aria-pressed', String(compendiumUndiscoveredOnly));
       sfx.uiClick();
       renderCompendiumTab();
     });
