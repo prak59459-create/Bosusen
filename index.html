@@ -419,7 +419,7 @@
 
 <div id="help-overlay">
   <div class="help-panel">
-    <div class="help-title">操作方法<button id="help-close-btn">✕</button></div>
+    <div class="help-title">操作方法<button id="help-close-btn" title="閉じる" aria-label="閉じる">✕</button></div>
     <input type="search" id="help-search" placeholder="キーや操作名で絞り込む（例: カメラ、F5）" style="width:100%; box-sizing:border-box; margin:0 0 8px; padding:6px 8px; font:inherit; font-size:12px;">
     <div class="empty-hint" id="help-no-match" style="display:none; padding:8px 4px;">該当する操作が見つかりません</div>
     <div class="help-row"><span>W A S D / 矢印キー</span><span>移動</span></div>
@@ -492,8 +492,8 @@
   <canvas id="map-canvas" width="600" height="600"></canvas>
   <p class="qb-hint" style="text-align:center;">
     ドラッグで移動、マウスホイールで拡大縮小、ダブルクリックでリセット（<span id="map-zoom-label">100%</span>）
-    <button class="mini-btn" id="map-zoom-out-btn" style="margin-left:8px;">－</button>
-    <button class="mini-btn" id="map-zoom-in-btn">＋</button>
+    <button class="mini-btn" id="map-zoom-out-btn" style="margin-left:8px;" title="縮小" aria-label="縮小">－</button>
+    <button class="mini-btn" id="map-zoom-in-btn" title="拡大" aria-label="拡大">＋</button>
     <button class="mini-btn" id="map-recenter-btn">自分の位置へ</button>
   </p>
   <div id="map-legend">
