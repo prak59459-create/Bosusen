@@ -106,9 +106,8 @@ export function checkPhaseTransition() {
     sfx.roar();
     b.userData.body.emissiveIntensity = 1.1;
     b.userData.body.emissive.setHex(0x660000);
-    // 目はMeshBasicMaterial（非lit）でemissiveIntensityが存在せず無視されていたため、
-    // colorそのものを底上げしてブルームで光らせる（他の発光オブジェクトと同じ手法）
-    b.userData.eyes.forEach(e => { e.material.color.multiplyScalar(2.5); });
+    // 目の発光強化はmain.jsの毎フレーム処理がstate.phase2を見て次フレームから
+    // 自動的に反映するため、ここでは何もしなくてよい
     bossGlow.intensity = 5.5;
     bossGlow.color.setHex(0xff0000);
     triggerShake(0.3, 0.6);

@@ -1157,7 +1157,11 @@ function animate() {
     const bossHpRatio = state.bossMaxHP > 0 ? state.bossHP / state.bossMaxHP : 1;
     const lowHpBoost = state.playing ? (1 - bossHpRatio) * 2.5 : 0;
     bossGlow.intensity = (state.phase2 ? 5.0 : 3.2) + lowHpBoost + Math.sin(t * (2 + lowHpBoost)) * 0.6;
-    boss.userData.eyes.forEach(e => e.material.emissiveIntensity = (state.phase2 ? 5 : 3) + lowHpBoost + Math.sin(t * 3) * 0.8);
+    const eyeIntensity = (state.phase2 ? 5 : 3) + lowHpBoost + Math.sin(t * 3) * 0.8;
+    boss.userData.eyes.forEach(e => {
+      const base = e.material.userData.baseColor;
+      if (base) e.material.color.copy(base).multiplyScalar(eyeIntensity);
+    });
   }
 
   torchFires.forEach((f, i) => {

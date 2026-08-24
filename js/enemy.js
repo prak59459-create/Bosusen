@@ -48,6 +48,9 @@ function makeBoss(def) {
   });
   const hornMat = makeToonMaterial({ color: def.hornColor });
   const eyeMat = new THREE.MeshBasicMaterial({ color: def.eyeColor });
+  // MeshBasicMaterial（非lit）はemissiveIntensityを持たないため、毎フレームの発光強弱は
+  // 素のcolorを基準色から底上げして表現する（main.jsのアニメーションループ側で使用）
+  eyeMat.userData.baseColor = eyeMat.color.clone();
   const legMat = makeToonMaterial({ color: def.legColor });
 
   const torso = new THREE.Mesh(new THREE.CapsuleGeometry(1.05, 1.7, 12, 28), bodyMat);
