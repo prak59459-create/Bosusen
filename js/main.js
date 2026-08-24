@@ -698,6 +698,9 @@ mapCanvas.addEventListener('pointermove', (e) => {
   }
 });
 mapCanvas.addEventListener('pointerup', () => { mapDragging = false; });
+// OSジェスチャーの割り込みなどでpointerupが来ずpointercancelだけ発生することがあり、
+// それを拾わないとmapDraggingがtrueのまま残って次のホバーでマップが不意にジャンプする
+mapCanvas.addEventListener('pointercancel', () => { mapDragging = false; });
 window.addEventListener('blur', () => { mapDragging = false; });
 mapCanvas.addEventListener('click', (e) => {
   if (!exploreActive) return;
