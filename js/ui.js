@@ -1903,6 +1903,11 @@ export function openMenu() {
   setMapOpen(true);
   suppressLowHpVignette();
   setHeartbeatActive(false);
+  // メニューの裏に隠れているHUDのボタンへTabキーで移動できてしまっていたため、
+  // 開いている間は背後を操作・フォーカス対象から外す
+  const uiEl = document.getElementById('ui');
+  if (uiEl) uiEl.inert = true;
+  if (hudEl) hudEl.inert = true;
 }
 export function closeMenu() {
   els.menuOverlay.classList.remove('open');
@@ -1915,6 +1920,10 @@ export function closeMenu() {
   sfx.menuClose();
   state.playing = menuPausedPlaying;
   setMapOpen(false);
+  const uiEl = document.getElementById('ui');
+  if (uiEl) uiEl.inert = false;
+  const hudEl = document.getElementById('explore-hud');
+  if (hudEl) hudEl.inert = false;
 }
 
 /* ============================================================

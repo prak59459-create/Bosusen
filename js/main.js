@@ -1376,10 +1376,15 @@ window.addEventListener('keydown', (e) => {
 
 window.addEventListener('keydown', (e) => {
   if (e.repeat || !exploreActive || e.key !== 'Tab') return;
+  // メニューが開いている間はTabを素通りさせ、ブラウザ標準のフォーカス移動で
+  // メニュー内のボタン/タブを辿れるようにする（以前はTabを押すたびに
+  // メニューが閉じてしまい、キーボードだけでメニュー内を操作できなかった）。
+  // 閉じるのはEscキーか閉じるボタンの役目。
+  if (els.menuOverlay.classList.contains('open')) return;
   const tag = (e.target && e.target.tagName) || '';
   if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
   e.preventDefault();
-  if (els.menuOverlay.classList.contains('open')) closeMenu(); else openMenu();
+  openMenu();
 });
 
 window.addEventListener('keydown', (e) => {
