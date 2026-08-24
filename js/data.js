@@ -29,7 +29,7 @@ export const CHAPTERS = [
     hasPhases: false,
     xp: 60,
     shardsBase: 30,
-    enemyDef: { skinColor:0x2d5a3d, sheenColor:0x1a3322, emissive:0x0a1f0f, hornColor:0x1a2a1a, eyeColor:0x66ff88, legColor:0x162616, scale:0.85 },
+    enemyDef: { skinColor:0x2d5a3d, emissive:0x0a1f0f, hornColor:0x1a2a1a, eyeColor:0x66ff88, legColor:0x162616, scale:0.85 },
     movesPhase1: [
       { name:'錆びた斬撃', sub:'鈍く重い一撃', min:4, max:8, dodgeWindow:950 },
       { name:'瓦礫の投擲', sub:'崩れた石の礫', min:7, max:13, dodgeWindow:1000 },
@@ -76,7 +76,7 @@ export const CHAPTERS = [
     hasPhases: false,
     xp: 90,
     shardsBase: 40,
-    enemyDef: { skinColor:0x1f6b3a, sheenColor:0x123322, emissive:0x0a2a12, hornColor:0x0c1f10, eyeColor:0xaaff33, legColor:0x143018, metalness:0.15, roughness:0.5, clearcoat:0.4, scale:1.05 },
+    enemyDef: { skinColor:0x1f6b3a, emissive:0x0a2a12, hornColor:0x0c1f10, eyeColor:0xaaff33, legColor:0x143018, scale:1.05 },
     movesPhase1: [
       { name:'棘蔦の鞭', sub:'絡みつく一撃', min:8, max:14, dodgeWindow:900 },
       { name:'毒胞子の爆散', sub:'広範囲の毒撃', min:13, max:20, dodgeWindow:850, status:'poison', statusChance:0.5 },
@@ -123,7 +123,7 @@ export const CHAPTERS = [
     hasPhases: false,
     xp: 130,
     shardsBase: 55,
-    enemyDef: { skinColor:0x4a1f7a, sheenColor:0x2a0f4a, emissive:0x1a0530, hornColor:0x120620, eyeColor:0x9955ff, legColor:0x22103a, scale:0.95 },
+    enemyDef: { skinColor:0x4a1f7a, emissive:0x1a0530, hornColor:0x120620, eyeColor:0x9955ff, legColor:0x22103a, scale:0.95 },
     movesPhase1: [
       { name:'呪縛の光弾', sub:'魔力の弾丸', min:9, max:15, dodgeWindow:850 },
       { name:'反響する詠唱', sub:'広範囲の呪詛', min:15, max:22, dodgeWindow:800, status:'curse', statusChance:0.45 },
@@ -169,7 +169,7 @@ export const CHAPTERS = [
     hasPhases: false,
     xp: 160,
     shardsBase: 65,
-    enemyDef: { skinColor:0x8fb8d8, sheenColor:0xd8ecff, emissive:0x2a4a6a, hornColor:0xcfe8ff, eyeColor:0xaee4ff, legColor:0x4a6a8a, scale:1.0 },
+    enemyDef: { skinColor:0x8fb8d8, emissive:0x2a4a6a, hornColor:0xcfe8ff, eyeColor:0xaee4ff, legColor:0x4a6a8a, scale:1.0 },
     movesPhase1: [
       { name:'氷柱の落下', sub:'頭上から降る氷', min:6, max:10, dodgeWindow:820, hits:2 },
       { name:'凍てつく霧', sub:'視界を奪う冷気', min:16, max:24, dodgeWindow:700, status:'curse', statusChance:0.4 },
@@ -211,7 +211,7 @@ export const CHAPTERS = [
     hasPhases: true,
     xp: 220,
     shardsBase: 90,
-    enemyDef: { skinColor:0x5c2436, sheenColor:0x552211, emissive:0x220000, hornColor:0x141414, eyeColor:0xff0000, legColor:0x220d13, scale:1.0 },
+    enemyDef: { skinColor:0x5c2436, emissive:0x220000, hornColor:0x141414, eyeColor:0xff0000, legColor:0x220d13, scale:1.0 },
     movesPhase1: [
       { name:'虚無の爪', sub:'素早い一撃', min:6, max:11, dodgeWindow:900 },
       { name:'崩落の一撃', sub:'大振りな一撃', min:11, max:19, dodgeWindow:1100 },

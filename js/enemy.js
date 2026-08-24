@@ -36,9 +36,9 @@ function makeSkinTextures(baseHex) {
 
 function makeBoss(def) {
   def = Object.assign({
-    skinColor: 0x5c2436, sheenColor: 0x552211, emissive: 0x220000,
+    skinColor: 0x5c2436, emissive: 0x220000,
     hornColor: 0x141414, eyeColor: 0xff0000, legColor: 0x220d13,
-    metalness: 0.05, roughness: 0.55, clearcoat: 0.35, scale: 1.0,
+    scale: 1.0,
   }, def || {});
   const group = new THREE.Group();
   const skin = makeSkinTextures(def.skinColor);
