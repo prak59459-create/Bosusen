@@ -704,6 +704,9 @@ export function removeItem(id) {
   if (idx < 0) return false;
   if (Object.values(state.equipment).includes(id)) return false;
   state.inventory.splice(idx, 1);
+  // 強化段階はそのアイテムの所持に紐づく。手放したのに残ると、
+  // 売却して買い直すだけで強化を無料で復元できてしまう
+  if (state.itemLevels && state.itemLevels[id]) delete state.itemLevels[id];
   return true;
 }
 

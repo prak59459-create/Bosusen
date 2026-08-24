@@ -89,6 +89,14 @@ function check(label, cond) {
   check('強化の合計費用が想定と異なる', spent === 900);
   check('強化しても性能が上がっていない', S.effectiveItem('sword_rusty').atk > base);
   check('未所持の装備を強化できてしまう', S.upgradeItem('sword_thornblade') === false);
+
+  // 売却して買い直すだけで強化段階が無料で復元される抜け道が無いか
+  check('強化した装備を売却してもitemLevelsが残る', (() => {
+    S.removeItem('sword_rusty');
+    return state.itemLevels.sword_rusty === undefined;
+  })());
+  S.addItem('sword_rusty');
+  check('買い直した装備が強化済みのまま復元されてしまう', S.itemLevel('sword_rusty') === 0);
 }
 
 // --- 採取コンボ ---
