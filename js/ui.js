@@ -1,5 +1,5 @@
 import { CHAPTERS, ITEMS, SKILLS, ACHIEVEMENTS, EMOTES, WEATHERS, STATUS_DEFS } from './data.js';
-import { state, computeStats, calcRank, isLowHp, isQuestDone, chapterQuestsDone, ownsItem,
+import { state, computeStats, calcRank, isLowHp, isQuestDone, chapterQuestsDone,
   equipItem, unequipSlot, unlockSkill, resetSkills, saveGame, clearSave, hasSaveGame, checkAchievements, totalQuestsDone, totalQuestsAll, exportSaveData, importSaveData, moveStat, isMoveMastered, effectiveItem, itemLevel, itemUpgradeCost, upgradeItem, MAX_ITEM_LEVEL, dailyTrial, trialClaimedToday, gatherRequestFor, weatherForDay, dailyDealFor, discountedCost } from './state.js';
 import { sfx, setMasterVolume, setAmbientVolume, setHeartbeatActive } from './audio.js';
 import { setQualityPreset, setPhotoFilter, PHOTO_FILTERS } from './scene.js';
