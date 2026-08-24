@@ -229,8 +229,17 @@ export function fitCameraToViewport() {
   smaaPass.setSize(w * pr, h * pr);
 }
 fitCameraToViewport();
-window.addEventListener('resize', fitCameraToViewport);
-window.visualViewport && window.visualViewport.addEventListener('resize', fitCameraToViewport);
+// resize イベントはウィンドウ端をドラッグ中に連続発火するが、fitCameraToViewport は
+// レンダーターゲットの再確保を伴う重い処理（renderer/composer/各ポストFXパスの
+// setSize）のため、そのたびに呼ぶとドラッグ中にカクつく。1フレームに1回へ間引く。
+let resizeScheduled = false;
+function scheduleFitCameraToViewport() {
+  if (resizeScheduled) return;
+  resizeScheduled = true;
+  requestAnimationFrame(() => { resizeScheduled = false; fitCameraToViewport(); });
+}
+window.addEventListener('resize', scheduleFitCameraToViewport);
+window.visualViewport && window.visualViewport.addEventListener('resize', scheduleFitCameraToViewport);
 screen.orientation && screen.orientation.addEventListener('change', () => setTimeout(fitCameraToViewport, 200));
 
 export function mountRenderer() {
