@@ -148,6 +148,10 @@ export function makeToonMaterial(opts = {}) {
     map: opts.map || null,
     emissive: opts.emissive !== undefined ? opts.emissive : 0x000000,
     emissiveIntensity: opts.emissiveIntensity !== undefined ? opts.emissiveIntensity : 1,
+    // transparent/opacityは以前ここに無く、呼び出し側が指定しても黙って無視され
+    // 常に不透明で描画されていた（結晶バイオームの半透明装飾が該当）
+    transparent: opts.transparent || false,
+    opacity: opts.opacity !== undefined ? opts.opacity : 1,
   });
 }
 
@@ -158,6 +162,8 @@ export function toonifyMaterial(mat) {
     map: mat.map || null,
     emissive: mat.emissive ? mat.emissive.getHex() : 0x000000,
     emissiveIntensity: mat.emissiveIntensity !== undefined ? mat.emissiveIntensity : 1,
+    transparent: mat.transparent || false,
+    opacity: mat.opacity !== undefined ? mat.opacity : 1,
   });
   return t;
 }
