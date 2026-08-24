@@ -303,6 +303,7 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
   background:rgba(255,255,255,0.9); border:1px solid rgba(180,140,255,0.4);
   opacity:0; transform:translateY(-10px); transition: opacity 0.3s, transform 0.3s;
   backdrop-filter: blur(8px); white-space:nowrap;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
 }
 .toast.show { opacity:1; transform:translateY(0); }
 .toast-quest { border-color:#a3790a; }
