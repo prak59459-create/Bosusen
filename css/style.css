@@ -463,7 +463,9 @@ button, .action-btn, #dodge-btn, .big-btn { touch-action:manipulation; }
 }
 .help-title button {
   background:none; border:none; font-size:16px; cursor:pointer; color:#3d2f5c;
+  transition: color 0.1s;
 }
+.help-title button:hover { color:#2a1f3d; }
 .help-row {
   display:flex; justify-content:space-between; gap:12px; padding:6px 0;
   border-bottom:1px solid rgba(150,100,220,0.15); font-size:13px; color:#3d2f5c;
